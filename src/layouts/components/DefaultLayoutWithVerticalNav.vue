@@ -68,7 +68,7 @@ const vuetifyTheme = useTheme();
           to: '/quan-tri-he-thong',
         }"
       />
-      <VerticalNavLink
+      <!-- <VerticalNavLink
         :item="{
           title: 'Thông tin nhân sự',
           icon: 'mdi-account-group',
@@ -88,18 +88,18 @@ const vuetifyTheme = useTheme();
           icon: 'mdi-lan',
           to: '/khu-vuc',
         }"
-      />
+      /> -->
       <VerticalNavLink
         :item="{
-          title: 'Dữ liệu vào / ra',
+          title: 'Checkin',
           icon: 'mdi-face-recognition',
-          to: '/du-lieu-vao-ra',
+          to: '/checkin',
         }"
       />
       <VerticalNavLink
         :item="{
-          title: 'Thông điệp',
-          icon: 'mdi-square-rounded-badge',
+          title: 'Xếp lịch',
+          icon: 'mdi-calendar-month',
           to: '/thong-diep',
         }"
       />

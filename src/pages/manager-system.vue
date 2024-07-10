@@ -3,7 +3,9 @@ import { useRoute } from "vue-router";
 import AccountSettingsAccount from "@/views/pages/account-settings/AccountSettingsAccount.vue";
 import AccountSettingsNotification from "@/views/pages/account-settings/AccountSettingsNotification.vue";
 import AccountSettingsSecurity from "@/views/pages/account-settings/AccountSettingsSecurity.vue";
-
+import ManagerSystem from "@/views/pages/manager-system/branch.vue";
+import Employee from "@/views/pages/manager-system/employee.vue";
+import Device from "@/views/pages/manager-system/device.vue";
 const route = useRoute();
 const activeTab = ref(route.params.tab);
 
@@ -11,19 +13,19 @@ const activeTab = ref(route.params.tab);
 const tabs = [
   {
     title: "Tổ chức",
-    icon: "bx-user",
+    icon: "mdi-lan",
     tab: "to-chuc",
   },
-  //   {
-  //     title: "Phân quyền",
-  //     icon: "mdi-account-credit-card",
-  //     tab: "security",
-  //   },
-  //   {
-  //     title: "Tài khoản",
-  //     icon: "",
-  //     tab: "notification",
-  //   },
+  {
+    title: "Nhân viên",
+    icon: "mdi-account-group",
+    tab: "nhan-vien",
+  },
+  {
+    title: "Thiết bị",
+    icon: "mdi-deskphone",
+    tab: "thiet-bi",
+  },
 ];
 </script>
 
@@ -40,7 +42,13 @@ const tabs = [
     <VWindow v-model="activeTab" class="mt-5 disable-tab-transition">
       <!-- Tổ chức -->
       <VWindowItem value="to-chuc">
-        <AccountSettingsAccount />
+        <ManagerSystem />
+      </VWindowItem>
+      <VWindowItem value="nhan-vien">
+        <Employee />
+      </VWindowItem>
+      <VWindowItem value="thiet-bi">
+        <Device />
       </VWindowItem>
     </VWindow>
   </div>

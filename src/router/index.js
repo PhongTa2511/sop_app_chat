@@ -16,14 +16,14 @@ const router = createRouter({
           path: "tai-khoan",
           component: () => import("../pages/account-settings.vue"),
         },
-        {
-          path: "khu-vuc",
-          component: () => import("../pages/typography.vue"),
-        },
-        {
-          path: "thiet-bi",
-          component: () => import("../pages/icons.vue"),
-        },
+        // {
+        //   path: "khu-vuc",
+        //   component: () => import("../pages/typography.vue"),
+        // },
+        // {
+        //   path: "thiet-bi",
+        //   component: () => import("../pages/icons.vue"),
+        // },
         {
           path: "cai-dat",
           component: () => import("../pages/cards.vue"),
@@ -33,8 +33,8 @@ const router = createRouter({
           component: () => import("../pages/manager-system.vue"),
         },
         {
-          path: "thong-tin-nhan-su",
-          component: () => import("../pages/form-layouts.vue"),
+          path: "checkin",
+          component: () => import("@/views/pages/checkin/index.vue"),
         },
       ],
     },

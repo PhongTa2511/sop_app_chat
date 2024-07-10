@@ -34,6 +34,16 @@ const solidCardData = [
     likes: "1.2k",
     share: "80",
   },
+  {
+    cardBg: "#007BB6",
+    title: "Linkedin Card",
+    icon: "bxl-linkedin",
+    text: "With the Internet spreading like wildfire and reaching every part of our daily life, more and more traffic is directed.",
+    avatarImg: avatar8,
+    avatarName: "Anne Burke1",
+    likes: "1.2k",
+    share: "80",
+  },
 ];
 </script>
 
@@ -44,7 +54,7 @@ const solidCardData = [
       :key="data.icon"
       cols="12"
       md="6"
-      lg="4"
+      lg="6"
     >
       <VCard :color="data.cardBg">
         <VCardItem>

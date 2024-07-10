@@ -1,7 +1,7 @@
 <script setup>
 import avatar1 from "@images/avatars/avatar-1.png";
 
-import eCommerce2 from "@images/eCommerce/2.png";
+import eCommerce2 from "@images/eCommerce/device1.png";
 import pages1 from "@images/pages/1.png";
 import pages2 from "@images/pages/2.png";
 import pages3 from "@images/pages/3.png";
