@@ -10,7 +10,7 @@ const solidCardData = [
     icon: "bxl-twitter",
     text: '"Turns out semicolon-less style is easier and safer in TS because most gotcha edge cases are type invalid as well."',
     avatarImg: avatar4,
-    avatarName: "Mary Vaughn",
+    avatarName: "Bùi Văn Thành",
     likes: "1.2k",
     share: "80",
   },
@@ -56,38 +56,31 @@ const solidCardData = [
       md="6"
       lg="6"
     >
-      <VCard :color="data.cardBg">
-        <VCardItem>
-          <template #prepend>
-            <VIcon size="1.9rem" color="white" :icon="data.icon" />
-          </template>
-          <VCardTitle class="text-white">
-            {{ data.title }}
-          </VCardTitle>
-        </VCardItem>
-
-        <VCardText>
-          <p class="clamp-text text-white mb-0">
-            {{ data.text }}
-          </p>
-        </VCardText>
-
-        <VCardText class="d-flex justify-space-between align-center flex-wrap">
-          <div class="text-no-wrap">
-            <VAvatar size="34" :image="data.avatarImg" />
-            <span class="text-white ms-2">{{ data.avatarName }}</span>
-          </div>
-
-          <div class="d-flex align-center">
-            <IconBtn icon="bx-heart" color="white" class="me-1" />
-            <span class="text-subtitle-2 text-white me-4">{{
-              data.likes
-            }}</span>
-
-            <IconBtn icon="bx-share-alt" color="white" class="me-1" />
-            <span class="text-subtitle-2 text-white">{{ data.share }}</span>
-          </div>
-        </VCardText>
+      <VCard :color="data.cardBg" class="pa-5">
+        <v-row>
+          <v-col :cols="4">
+            <VImg
+              :width="116"
+              height="100%"
+              :src="data.avatarImg"
+              class="rounded"
+            />
+          </v-col>
+          <v-col :cols="8">
+            <div class="text-white">{{ data.avatarName }}</div>
+            <div class="text-white">Phòng IT</div>
+            <div class="text-white">{{ data.avatarName }}</div>
+            <div
+              class="d-flex align-center"
+              style="margin-left: -10px; height: 24px"
+            >
+              <IconBtn icon="bx-time" color="white" />
+              <span class="text-subtitle-2 text-white me-4"
+                >08:00 01-01-2024</span
+              >
+            </div>
+          </v-col>
+        </v-row>
       </VCard>
     </VCol>
   </VRow>

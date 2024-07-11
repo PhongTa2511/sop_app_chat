@@ -1,14 +1,31 @@
-<script setup>
+<script>
 import AuthProvider from "@/views/pages/authentication/AuthProvider.vue";
 import logo from "@images/logo-box.png";
-
-const form = ref({
-  email: "",
-  password: "",
-  remember: false,
-});
-
-const isPasswordVisible = ref(false);
+import { UserLogin } from "@/api/user.js";
+export default {
+  data() {
+    return {
+      form: {
+        phone: "",
+        password: "",
+        remember: false,
+      },
+      logo: logo,
+      isPasswordVisible: false,
+    };
+  },
+  components: {
+    AuthProvider,
+  },
+  methods: {
+    btLogin() {
+      UserLogin({
+        UserName: this.form.phone,
+        Password: this.form.password,
+      }).then((res) => {});
+    },
+  },
+};
 </script>
 
 <template>
@@ -32,16 +49,16 @@ const isPasswordVisible = ref(false);
       </VCardText>
 
       <VCardText>
-        <VForm @submit.prevent="$router.push('/')">
+        <VForm @submit.prevent="btLogin">
           <VRow>
             <!-- email -->
             <VCol cols="12">
               <VTextField
-                v-model="form.email"
+                v-model="form.phone"
                 autofocus
-                placeholder="johndoe@email.com"
-                label="Email"
-                type="email"
+                placeholder="Nhập số điện thoại"
+                label="Số điện thoại"
+                type="phone"
               />
             </VCol>
 

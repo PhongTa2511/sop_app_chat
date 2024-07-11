@@ -26,7 +26,7 @@ const router = createRouter({
         // },
         {
           path: "cai-dat",
-          component: () => import("../pages/cards.vue"),
+          component: () => import("../pages/setting.vue"),
         },
         {
           path: "quan-tri-he-thong",
@@ -35,6 +35,10 @@ const router = createRouter({
         {
           path: "checkin",
           component: () => import("@/views/pages/checkin/index.vue"),
+        },
+        {
+          path: "lich-lam-viec",
+          component: () => import("../pages/calendar.vue"),
         },
       ],
     },

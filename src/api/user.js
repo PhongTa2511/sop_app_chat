@@ -1,16 +1,8 @@
-import request from "@/utils/request-cpc1hn";
+import request from "./request.js";
 
-
-export function Login(data) {
+export function UserLogin(data) {
   return request({
-    url: "User/Login",
-    method: "post",
-    data: data,
-  });
-}
-export function GetEmployLst(data) {
-  return request({
-    url: "User/GetEmployLst",
+    url: "User/UserLogin",
     method: "post",
     data: data,
   });

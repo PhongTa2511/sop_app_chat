@@ -1,41 +1,58 @@
 <template>
   <v-row>
     <v-col :lg="8" :cols="12">
-      <v-select placeholder="Chọn máy chấm công" class="mb-3"></v-select>
+      <v-select placeholder="Chọn máy chấm công"></v-select>
+      <div style="line-height: 48px">Checkin gần nhất</div>
       <CardSolid />
 
       <VCard class="mt-6">
-        <div class="d-flex flex-column-reverse flex-md-row">
-          <div>
-            <VCardItem>
-              <VCardTitle>Stumptown Roasters</VCardTitle>
-            </VCardItem>
+        <VCardItem>
+          <VCardTitle class="mb-4">Thống kê trong ngày</VCardTitle>
+          <v-row>
+            <v-col :cols="4">
+              <v-card color="primary" class="py-4">
+                <div class="d-flex flex-column align-center justify-center">
+                  <p>
+                    <span class="text-h2 font-weight-medium">189</span>
+                  </p>
 
-            <VCardText class="d-flex align-center flex-wrap text-body-1">
-              <VRating
-                :model-value="5"
-                readonly
-                class="me-3"
-                density="compact"
-              />
-              <span>5 Star | 98 reviews</span>
-            </VCardText>
+                  <p class="text-sm">
+                    Checkin <br />
+                    Đúng giờ
+                  </p>
+                </div>
+              </v-card>
+            </v-col>
+            <v-col :cols="4">
+              <v-card color="error" class="py-4">
+                <div class="d-flex flex-column align-center justify-center">
+                  <p>
+                    <span class="text-h2 font-weight-medium">11</span>
+                  </p>
 
-            <VCardText>
-              Before there was a United States of America, there were coffee
-              houses, because how are you supposed to build.
-            </VCardText>
+                  <p class="text-sm">
+                    Checkin <br />
+                    Quá giờ
+                  </p>
+                </div>
+              </v-card>
+            </v-col>
+            <v-col :cols="4">
+              <v-card color="secondary" class="py-4">
+                <div class="d-flex flex-column align-center justify-center">
+                  <p>
+                    <span class="text-h2 font-weight-medium">9</span>
+                  </p>
 
-            <VCardActions>
-              <VBtn>Location</VBtn>
-              <VBtn>Reviews</VBtn>
-            </VCardActions>
-          </div>
-
-          <div class="ma-auto pa-5">
-            <VImg :width="176" :src="pages5" class="rounded" />
-          </div>
-        </div>
+                  <p class="text-sm">
+                    Checkin <br />
+                    Chưa đến
+                  </p>
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </VCardItem>
       </VCard>
     </v-col>
     <v-col :lg="4" :cols="12">
@@ -175,4 +192,8 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+.custom {
+  color: #71dd374d;
+}
+</style>

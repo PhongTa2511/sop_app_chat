@@ -13,7 +13,7 @@
     "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
   },
   "[scss]": {
-    "editor.defaultFormatter": "stylelint.vscode-stylelint"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[json]": {
     "editor.defaultFormatter": "vscode.json-language-features"

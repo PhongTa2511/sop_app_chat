@@ -98,9 +98,9 @@ const vuetifyTheme = useTheme();
       />
       <VerticalNavLink
         :item="{
-          title: 'Xếp lịch',
+          title: 'Lịch làm việc',
           icon: 'mdi-calendar-month',
-          to: '/thong-diep',
+          to: '/lich-lam-viec',
         }"
       />
 

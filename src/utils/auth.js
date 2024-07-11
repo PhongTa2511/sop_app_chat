@@ -1,62 +1,61 @@
 import Cookies from "js-cookie";
 
-const TokenKey = "TokenCRM";
-const UserName = "UserNameCRM";
-const FullName = "FullNameCRM";
-const PhoneNumber = "PhoneNumberCRM";
+const TokenKey = "TokenILAB";
+const UserName = "UserNameILAB";
+const FullName = "FullNameILAB";
+const PhoneNumber = "PhoneNumberILAB";
 
-const TypeCare = "TypeCareCRM";
-const EmployCode = "CommuneCRM";
-const PlaceName = "PlaceNameCRM";
-const TypePlace = "TypePlaceCRM";
-const PageNumber = "PageNumberCRM";
-const RowspPage = "RowspPageCRM";
-const StatusCustomer = "StatusCustomerCRM";
-const RankCustomer = "RankCustomerCRM";
-const AccessTokenCRM = "AccessTokenCRM";
-const SipUserCRM = 'SipUserCRM'
-const PassOMICRM = 'PassOMICRM'
-const DomainOmiCRM = 'DomainOmiCRM'
-
+const TypeCare = "TypeCareILAB";
+const EmployCode = "CommuneILAB";
+const PlaceName = "PlaceNameILAB";
+const TypePlace = "TypePlaceILAB";
+const PageNumber = "PageNumberILAB";
+const RowspPage = "RowspPageILAB";
+const StatusCustomer = "StatusCustomerILAB";
+const RankCustomer = "RankCustomerILAB";
+const AccessTokenILAB = "AccessTokenILAB";
+const SipUserILAB = "SipUserILAB";
+const PassOMIILAB = "PassOMIILAB";
+const DomainOmiILAB = "DomainOmiILAB";
 
 export function setSipUser(token) {
-  return Cookies.set(SipUserCRM, token, { expires: 356 });
+  return Cookies.set(SipUserILAB, token, { expires: 356 });
 }
 export function getSipUser() {
-  return Cookies.get(SipUserCRM);
+  return Cookies.get(SipUserILAB);
 }
 export function removeSipUser() {
-  return Cookies.remove(SipUserCRM);
+  return Cookies.remove(SipUserILAB);
 }
 
 export function setPassOMI(token) {
-  return Cookies.set(PassOMICRM, token, { expires: 356 });
+  return Cookies.set(PassOMIILAB, token, { expires: 356 });
 }
 export function getPassOMI() {
-  return Cookies.get(PassOMICRM);
+  return Cookies.get(PassOMIILAB);
 }
 export function removePassOMI() {
-  return Cookies.remove(PassOMICRM);
+  return Cookies.remove(PassOMIILAB);
 }
 
 export function setDomain(token) {
-  return Cookies.set(DomainOmiCRM, token, { expires: 356 });
+  return Cookies.set(DomainOmiILAB, token, { expires: 356 });
 }
 export function getDomain() {
-  return Cookies.get(DomainOmiCRM);
+  return Cookies.get(DomainOmiILAB);
 }
 export function removeDomain() {
-  return Cookies.remove(DomainOmiCRM);
+  return Cookies.remove(DomainOmiILAB);
 }
 
 export function setAccessToken(token) {
-  return Cookies.set(AccessTokenCRM, token, { expires: 356 });
+  return Cookies.set(AccessTokenILAB, token, { expires: 356 });
 }
 export function getAccessToken() {
-  return Cookies.get(AccessTokenCRM);
+  return Cookies.get(AccessTokenILAB);
 }
 export function removeAccessToken() {
-  return Cookies.remove(AccessTokenCRM);
+  return Cookies.remove(AccessTokenILAB);
 }
 
 export function setToken(token) {
@@ -178,4 +177,3 @@ export function getTypeCare() {
 export function removeTypeCare() {
   return Cookies.remove(TypeCare);
 }
-

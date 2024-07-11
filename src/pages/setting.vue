@@ -1,28 +1,28 @@
 <script setup>
 import { useRoute } from "vue-router";
-import ManagerSystem from "@/views/pages/manager-system/branch.vue";
-import Employee from "@/views/pages/manager-system/employee.vue";
-import Device from "@/views/pages/manager-system/device.vue";
+import Shift from "@/views/pages/setting/shift.vue";
+import Variable from "@/views/pages/setting/variable.vue";
+
 const route = useRoute();
 const activeTab = ref(route.params.tab);
 
 // tabs
 const tabs = [
   {
-    title: "Tổ chức",
-    icon: "mdi-lan",
-    tab: "to-chuc",
+    title: "Ca làm việc",
+    icon: "mdi-briefcase",
+    tab: "ca-lam-viec",
   },
   {
-    title: "Nhân viên",
-    icon: "mdi-account-group",
-    tab: "nhan-vien",
+    title: "Biến số",
+    icon: "mdi-variable-box",
+    tab: "bien-so",
   },
-  {
-    title: "Thiết bị",
-    icon: "mdi-deskphone",
-    tab: "thiet-bi",
-  },
+  //   {
+  //     title: "Thiết bị",
+  //     icon: "mdi-deskphone",
+  //     tab: "thiet-bi",
+  //   },
 ];
 </script>
 
@@ -38,15 +38,15 @@ const tabs = [
 
     <VWindow v-model="activeTab" class="mt-5 disable-tab-transition">
       <!-- Tổ chức -->
-      <VWindowItem value="to-chuc">
-        <ManagerSystem />
+      <VWindowItem value="ca-lam-viec">
+        <Shift />
       </VWindowItem>
-      <VWindowItem value="nhan-vien">
-        <Employee />
+      <VWindowItem value="bien-so">
+        <Variable />
       </VWindowItem>
-      <VWindowItem value="thiet-bi">
+      <!-- <VWindowItem value="thiet-bi">
         <Device />
-      </VWindowItem>
+      </VWindowItem> -->
     </VWindow>
   </div>
 </template>
