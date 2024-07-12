@@ -3,7 +3,7 @@ import axios from "axios";
 // import { useGlobalStore } from '@/stores/global-store'
 import {
   getToken,
-  getUserName,
+  getUserID,
   removeEmployCode,
   removeFullName,
   removePhoneNumber,
@@ -32,7 +32,7 @@ service.interceptors.request.use(
 
     if (token != "" && token) {
       config.data.Token = getToken();
-      config.data.UserName = getUserName();
+      config.data.UserID = getUserID();
     }
 
     return config;

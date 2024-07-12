@@ -1,5 +1,32 @@
-<script setup>
+<script>
 import avatar1 from "@images/avatars/avatar-1.png";
+import {
+  removeToken,
+  removeFullName,
+  removePhoneNumber,
+  removeUserID,
+  removeEmail,
+  getFullName,
+} from "@/utils/auth";
+export default {
+  data() {
+    return {
+      avatar1: avatar1,
+      fullName: getFullName(),
+    };
+  },
+  methods: {
+    btLogout() {
+      console.log("chạy vào đây");
+      removeToken();
+      removeFullName();
+      removePhoneNumber();
+      removeUserID();
+      removeEmail();
+      location.reload();
+    },
+  },
+};
 </script>
 
 <template>
@@ -36,7 +63,7 @@ import avatar1 from "@images/avatars/avatar-1.png";
             </template>
 
             <VListItemTitle class="font-weight-semibold">
-              Anh Thành
+              {{ fullName }}
             </VListItemTitle>
             <VListItemSubtitle>Admin</VListItemSubtitle>
           </VListItem>
@@ -73,7 +100,7 @@ import avatar1 from "@images/avatars/avatar-1.png";
           <VDivider class="my-2" />
 
           <!-- 👉 Logout -->
-          <VListItem to="/dang-nhap">
+          <VListItem @click="btLogout">
             <template #prepend>
               <VIcon class="me-2" icon="bx-log-out" size="22" />
             </template>

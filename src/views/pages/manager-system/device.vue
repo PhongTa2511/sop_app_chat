@@ -21,15 +21,12 @@
     </v-btn>
   </div>
   <VRow>
-    <VCol cols="4" v-for="item in 10" :key="item">
+    <VCol lg="4" md="6" cols="12" v-for="item in 10" :key="item">
       <VCard>
-        <div class="d-flex flex-wrap flex-md-nowrap flex-column flex-md-row">
+        <div class="d-flex">
           <div class="pa-2">
             <VImg width="80" height="126" :src="eCommerce2" />
           </div>
-
-          <!-- <VDivider :vertical="$vuetify.display.mdAndUp" /> -->
-
           <div>
             <VCardActions
               class="justify-space-between"

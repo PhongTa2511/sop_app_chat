@@ -9,17 +9,17 @@ const activeTab = ref(route.params.tab);
 // tabs
 const tabs = [
   {
-    title: "Xếp lịch",
+    title: "Tổng quan",
     icon: "mdi-calendar-month",
     tab: "xep-lich",
   },
   {
-    title: "Chi tiết",
+    title: "Thống kê",
     icon: "mdi-card-account-details",
     tab: "chi-tiet",
   },
   {
-    title: "Đăng ký lịch",
+    title: "Phân công",
     icon: "mdi-calendar-plus",
     tab: "dang-ky-lich",
   },

@@ -38,7 +38,7 @@ export default {
       "orange",
       "grey darken-1",
     ],
-    titles: ["Ca sáng", "Ca chiều", "Ca hành chính", "Ca bổ sung"],
+    titles: ["Ca 1", "Ca 2", "Ca HC", "Ca bổ sung"],
   }),
   mounted() {
     const adapter = useDate();

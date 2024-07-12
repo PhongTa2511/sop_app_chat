@@ -7,56 +7,12 @@ const PhoneNumber = "PhoneNumberILAB";
 
 const TypeCare = "TypeCareILAB";
 const EmployCode = "CommuneILAB";
-const PlaceName = "PlaceNameILAB";
-const TypePlace = "TypePlaceILAB";
+const UserID = "UserIDILAB";
+const Email = "EmailILAB";
 const PageNumber = "PageNumberILAB";
 const RowspPage = "RowspPageILAB";
 const StatusCustomer = "StatusCustomerILAB";
 const RankCustomer = "RankCustomerILAB";
-const AccessTokenILAB = "AccessTokenILAB";
-const SipUserILAB = "SipUserILAB";
-const PassOMIILAB = "PassOMIILAB";
-const DomainOmiILAB = "DomainOmiILAB";
-
-export function setSipUser(token) {
-  return Cookies.set(SipUserILAB, token, { expires: 356 });
-}
-export function getSipUser() {
-  return Cookies.get(SipUserILAB);
-}
-export function removeSipUser() {
-  return Cookies.remove(SipUserILAB);
-}
-
-export function setPassOMI(token) {
-  return Cookies.set(PassOMIILAB, token, { expires: 356 });
-}
-export function getPassOMI() {
-  return Cookies.get(PassOMIILAB);
-}
-export function removePassOMI() {
-  return Cookies.remove(PassOMIILAB);
-}
-
-export function setDomain(token) {
-  return Cookies.set(DomainOmiILAB, token, { expires: 356 });
-}
-export function getDomain() {
-  return Cookies.get(DomainOmiILAB);
-}
-export function removeDomain() {
-  return Cookies.remove(DomainOmiILAB);
-}
-
-export function setAccessToken(token) {
-  return Cookies.set(AccessTokenILAB, token, { expires: 356 });
-}
-export function getAccessToken() {
-  return Cookies.get(AccessTokenILAB);
-}
-export function removeAccessToken() {
-  return Cookies.remove(AccessTokenILAB);
-}
 
 export function setToken(token) {
   return Cookies.set(TokenKey, token, { expires: 1 });
@@ -108,24 +64,24 @@ export function removeEmployCode() {
   return Cookies.remove(EmployCode);
 }
 
-export function setPlaceName(name) {
-  return Cookies.set(PlaceName, name);
+export function setUserID(name) {
+  return Cookies.set(UserID, name);
 }
-export function getPlaceName() {
-  return Cookies.get(PlaceName);
+export function getUserID() {
+  return Cookies.get(UserID);
 }
-export function removePlaceName() {
-  return Cookies.remove(PlaceName);
+export function removeUserID() {
+  return Cookies.remove(UserID);
 }
 
-export function setTypePlace(name) {
-  return Cookies.set(TypePlace, name);
+export function setEmail(name) {
+  return Cookies.set(Email, name);
 }
-export function getTypePlace() {
-  return Cookies.get(TypePlace);
+export function getEmail() {
+  return Cookies.get(Email);
 }
-export function removeTypePlace() {
-  return Cookies.remove(TypePlace);
+export function removeEmail() {
+  return Cookies.remove(Email);
 }
 
 export function setPageNumber(name) {

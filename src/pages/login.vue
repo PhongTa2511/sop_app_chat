@@ -2,6 +2,13 @@
 import AuthProvider from "@/views/pages/authentication/AuthProvider.vue";
 import logo from "@images/logo-box.png";
 import { UserLogin } from "@/api/user.js";
+import {
+  setToken,
+  setFullName,
+  setPhoneNumber,
+  setUserID,
+  setEmail,
+} from "@/utils/auth";
 export default {
   data() {
     return {
@@ -22,7 +29,19 @@ export default {
       UserLogin({
         UserName: this.form.phone,
         Password: this.form.password,
-      }).then((res) => {});
+      }).then((res) => {
+        setToken(res.Token);
+        setFullName(res.Data.FullName);
+        setPhoneNumber(res.Data.Phone);
+        setUserID(res.Data.UserID);
+        setEmail(res.Data.Email);
+        this.$router.push("/");
+        notify({
+          type: "success",
+          title: "Thành công",
+          text: "Đăng ký tài khoản thành công",
+        });
+      });
     },
   },
 };
@@ -38,7 +57,7 @@ export default {
           </div>
         </template>
 
-        <VCardTitle class="text-h3 font-weight-bold"> iLab </VCardTitle>
+        <VCardTitle class="text-h3 font-weight-bold"> iKSVR </VCardTitle>
       </VCardItem>
 
       <VCardText class="pt-2">
@@ -79,12 +98,12 @@ export default {
               >
                 <!-- <VCheckbox v-model="form.remember" label="Remember me" /> -->
 
-                <RouterLink
+                <!-- <RouterLink
                   class="text-primary ms-2 mb-1"
                   to="javascript:void(0)"
                 >
                   Quên mật khẩu?
-                </RouterLink>
+                </RouterLink> -->
               </div>
 
               <!-- login button -->

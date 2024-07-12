@@ -2,6 +2,7 @@
   <div class="layout-wrapper layout-blank">
     <RouterView />
   </div>
+  <notifications />
 </template>
 
 <style>

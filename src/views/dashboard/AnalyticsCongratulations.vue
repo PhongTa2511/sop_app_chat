@@ -2,7 +2,7 @@
 import { useTheme } from "vuetify";
 import illustrationJohnDark from "@images/cards/illustration-john-dark.png";
 import illustrationJohnLight from "@images/cards/illustration-john-light.png";
-
+import { getFullName } from "@/utils/auth";
 const { global } = useTheme();
 const illustrationJohn = computed(() =>
   global.name.value === "dark" ? illustrationJohnDark : illustrationJohnLight
@@ -15,14 +15,14 @@ const illustrationJohn = computed(() =>
       <VCol cols="12" sm="8" order="2" order-sm="1">
         <VCardItem>
           <VCardTitle class="text-md-h5 text-primary">
-            Xin chào Thành 🎉
+            Xin chào {{ getFullName() }} 🎉
           </VCardTitle>
         </VCardItem>
 
         <VCardText>
           <span>
             Chào mừng bạn đã đến với<br />
-            Hệ thống checkin iLab 🤩
+            Hệ thống checkin iKSVR 🤩
 
             <!-- Check your new raising badge in your profile. -->
           </span>

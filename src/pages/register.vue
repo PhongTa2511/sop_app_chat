@@ -1,15 +1,81 @@
-<script setup>
+<script>
 import AuthProvider from "@/views/pages/authentication/AuthProvider.vue";
 import logo from "@images/logo-box.png";
-
-const form = ref({
-  username: "",
-  email: "",
-  password: "",
-  privacyPolicies: false,
-});
-
-const isPasswordVisible = ref(false);
+import { GetOTPCheck, UserRegister } from "@/api/user";
+export default {
+  data() {
+    return {
+      form: {
+        PrivacyPolicies: false,
+      },
+      logo: logo,
+      loadingOTP: false,
+      isPasswordVisible: false,
+    };
+  },
+  components: {
+    AuthProvider,
+  },
+  methods: {
+    btRegister() {
+      if (
+        this.form.OTP &&
+        this.form.Email &&
+        this.form.FullName &&
+        this.form.Phone &&
+        this.form.Password
+      ) {
+        UserRegister({
+          OTP: this.form.OTP,
+          Email: this.form.Email,
+          FullName: this.form.FullName,
+          Phone: this.form.Phone,
+          Password: this.form.Password,
+        }).then((res) => {
+          if (res.RespCode == 0) {
+            this.$router.push("/");
+            notify({
+              type: "success",
+              title: "Thành công",
+              text: "Đăng ký tài khoản thành công",
+            });
+          }
+        });
+      } else {
+        notify({
+          type: "error",
+          title: "Lỗi",
+          text: "Vui lòng điền đầy đủ thông tin",
+        });
+      }
+    },
+    btGetOTP() {
+      this.loadingOTP = true;
+      if (this.form.Email && this.form.Phone) {
+        GetOTPCheck({
+          Email: this.form.Email,
+          Phone: this.form.Phone,
+        }).then((res) => {
+          if (res.RespCode == 0) {
+            notify({
+              type: "success",
+              title: "Thành công",
+              text: "Vui lòng kiểm tra email để lấy OTP",
+            });
+          }
+          this.loadingOTP = false;
+        });
+      } else {
+        notify({
+          type: "error",
+          title: "Lỗi",
+          text: "Vui lòng điền đầy đủ thông tin",
+        });
+        this.loadingOTP = false;
+      }
+    },
+  },
+};
 </script>
 
 <template>
@@ -26,7 +92,7 @@ const isPasswordVisible = ref(false);
           </div>
         </template>
 
-        <VCardTitle class="text-h3 font-weight-bold"> iLab </VCardTitle>
+        <VCardTitle class="text-h3 font-weight-bold"> iKSVR </VCardTitle>
       </VCardItem>
 
       <VCardText class="pt-2">
@@ -37,41 +103,68 @@ const isPasswordVisible = ref(false);
       </VCardText>
 
       <VCardText>
-        <VForm @submit.prevent="$router.push('/')">
+        <VForm @submit.prevent="btRegister">
           <VRow>
+            <VCol cols="12">
+              <VTextField
+                v-model="form.FullName"
+                autofocus
+                label="Họ và tên"
+                placeholder="Nhập họ và tên"
+                clearable
+              />
+            </VCol>
             <!-- Username -->
             <VCol cols="12">
               <VTextField
-                v-model="form.username"
-                autofocus
+                v-model="form.Phone"
                 label="Số điện thoại"
-                placeholder="0397613784"
+                placeholder="Nhập số điện thoại"
+                clearable
               />
             </VCol>
             <!-- email -->
             <VCol cols="12">
               <VTextField
-                v-model="form.email"
+                v-model="form.Email"
                 label="Email"
                 placeholder="ilab@email.com"
                 type="email"
+                clearable
               />
             </VCol>
 
             <!-- password -->
             <VCol cols="12">
               <VTextField
-                v-model="form.password"
+                v-model="form.Password"
                 label="Mật khẩu"
                 placeholder="············"
+                clearable
                 :type="isPasswordVisible ? 'text' : 'password'"
                 :append-inner-icon="isPasswordVisible ? 'bx-hide' : 'bx-show'"
                 @click:append-inner="isPasswordVisible = !isPasswordVisible"
               />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="form.OTP"
+                autofocus
+                label="OTP"
+                clearable
+                placeholder="Nhập OTP"
+              >
+                <template v-slot:append>
+                  <v-btn class="mt-n2" :loading="loadingOTP" @click="btGetOTP">
+                    Lấy OTP
+                  </v-btn>
+                </template>
+              </VTextField>
+
               <div class="d-flex align-center mt-1 mb-4">
                 <VCheckbox
                   id="privacy-policy"
-                  v-model="form.privacyPolicies"
+                  v-model="form.PrivacyPolicies"
                   inline
                 />
                 <VLabel for="privacy-policy" style="opacity: 1">

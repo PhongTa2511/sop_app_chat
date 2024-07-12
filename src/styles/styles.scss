@@ -1,1 +1,28 @@
 // Write your overrides
+.vue-notification {
+  // styling
+  margin: 5px !important;
+  padding: 10px;
+  font-size: 15px !important;
+  color: #ffffff;
+  border-radius: 6px;
+  // default (blue)
+  background: #44a4fc;
+  border-left: 5px solid #187fe7;
+
+  // types (green, amber, red)
+  &.success {
+    background: rgb(var(--v-theme-success));
+    border-left-color: rgb(var(--v-theme-success));
+  }
+
+  &.warn {
+    background: rgb(var(--v-theme-warning));
+    border-left-color: rgb(var(--v-theme-warning));
+  }
+
+  &.error {
+    background: rgb(var(--v-theme-error));
+    border-left-color: rgb(var(--v-theme-error));
+  }
+}
