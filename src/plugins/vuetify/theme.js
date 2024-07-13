@@ -6,7 +6,7 @@ const theme = {
     light: {
       dark: false,
       colors: {
-        primary: "#696CFF",
+        primary: "#0091FF",
         "on-primary": "#fff",
         secondary: "#8592A3",
         "on-secondary": "#fff",
@@ -19,8 +19,8 @@ const theme = {
         "on-warning": "#fff",
         error: "#FF3E1D",
         background: "#F5F5F9",
-        "on-background": "#32475C",
-        "on-surface": "#32475C",
+        "on-background": "#000000",
+        "on-surface": "#000000",
         "grey-50": "#FAFAFA",
         "grey-100": "#EBEEF0",
         "grey-200": "#EEEEEE",
@@ -55,7 +55,7 @@ const theme = {
     dark: {
       dark: true,
       colors: {
-        primary: "#696CFF",
+        primary: "#0091FF",
         "on-primary": "#fff",
         secondary: "#8592A3",
         "on-secondary": "#fff",

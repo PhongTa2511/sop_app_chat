@@ -35,3 +35,11 @@ export function ChangePassword(data) {
     data: data,
   });
 }
+
+export function GetEmployeeLst(data) {
+  return request({
+    url: "User/GetEmployeeLst",
+    method: "post",
+    data: data,
+  });
+}

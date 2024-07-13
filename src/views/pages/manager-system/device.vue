@@ -55,12 +55,25 @@
 
 <script>
 import eCommerce2 from "@images/eCommerce/device1.png";
-
+import {
+  CreateDevice,
+  UpdateDevice,
+  DelDevice,
+  GetDeviceLstByLabID,
+} from "@/api/device";
 export default {
   data() {
     return {
       eCommerce2: eCommerce2,
+      deviceInfo: {},
     };
+  },
+  methods: {
+    createDevice() {
+      CreateDevice({
+        Data: this.deviceInfo,
+      }).then((res) => {});
+    },
   },
 };
 </script>

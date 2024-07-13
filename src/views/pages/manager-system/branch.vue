@@ -42,30 +42,39 @@
     <VCol lg="6" cols="12">
       <!-- 👉 Deactivate Account -->
       <div class="d-flex justify-space-between mb-3">
-        <div style="line-height: 38px">PHÒNG BAN TRONG CHI NHÁNH</div>
+        <div style="line-height: 38px">
+          PHÒNG BAN - {{ branchSelect.BranchName }}
+        </div>
         <v-btn variant="tonal" @click="btShowUpdateBranchLab">
           <v-icon> mdi-plus-box-multiple </v-icon>
         </v-btn>
       </div>
       <VCard>
         <v-data-table
-          :items-length="desserts.length"
+          :items-length="branchLabLst.length"
           no-data-text="Không có dữ liệu"
-          :headers="headers"
+          :headers="branchLabHeaders"
           :items="branchLabLst"
           items-per-page-text="Số dòng 1 trang"
           sort-asc-icon="mdi-menu-up"
           sort-desc-icon="mdi-menu-down"
           height="250px"
         >
-          <template v-slot:item.UnitPrice="{ item }">
-            {{ new Intl.NumberFormat().format(item.raw.UnitPrice) }}
-          </template>
-          <template v-slot:item.Amount="{ item }">
-            {{ new Intl.NumberFormat().format(item.raw.Amount) }}
-          </template>
-          <template v-slot:item.AmountVAT="{ item }">
-            {{ new Intl.NumberFormat().format(item.raw.AmountVAT) }}
+          <template v-slot:item.Actions="{ item }">
+            <div class="d-flex">
+              <v-btn
+                size="x-small"
+                icon="mdi-pencil"
+                variant="tonal"
+                @click="btShowUpdateBranchLab(item)"
+              ></v-btn>
+              <v-btn
+                size="x-small"
+                icon="mdi-user-group"
+                variant="tonal"
+                @click="btSelectLab(item)"
+              ></v-btn>
+            </div>
           </template>
         </v-data-table>
       </VCard>
@@ -73,17 +82,17 @@
     <VCol cols="12">
       <!-- 👉 Deactivate Account -->
       <div class="d-flex justify-space-between mb-3">
-        <div style="line-height: 38px">NHÂN VIÊN TRONG PHÒNG BAN</div>
-        <v-btn variant="tonal">
+        <div style="line-height: 38px">NHÂN VIÊN - {{}}</div>
+        <!-- <v-btn variant="tonal" @click="btShowUpdateUser">
           <v-icon> mdi-plus-box-multiple </v-icon>
-        </v-btn>
+        </v-btn> -->
       </div>
       <VCard>
         <v-data-table
-          :items-length="desserts.length"
+          :items-length="userLst.length"
           no-data-text="Không có dữ liệu"
-          :headers="headers"
-          :items="branchLabLst"
+          :headers="labHeaders"
+          :items="userLst"
           items-per-page-text="Số dòng 1 trang"
           sort-asc-icon="mdi-menu-up"
           sort-desc-icon="mdi-menu-down"
@@ -212,25 +221,10 @@ import {
   UpdateBranchLab,
   GetLabLstByBranch,
 } from "@/api/branch";
+import { AddUserLab, GetUserLabLst } from "@/api/lab";
 export default {
   data() {
     return {
-      desserts: [
-        {
-          name: "African Elephant",
-          species: "Loxodonta africana",
-          diet: "Herbivore",
-          habitat: "Savanna, Forests",
-        },
-        // ... more items
-      ],
-      headers: [
-        { title: "STT", sortable: false, key: "Key", align: "center" },
-        { title: "Mã sp", key: "name", sortable: false, align: "center" },
-        { title: "Sản phẩm", key: "species", sortable: false },
-        { title: "SL", key: "diet", sortable: false, align: "center" },
-        { title: "Giá", key: "habitat", sortable: false, align: "center" },
-      ],
       branchHeaders: [
         { title: "STT", sortable: false, key: "Key", align: "center" },
         {
@@ -242,6 +236,29 @@ export default {
         { title: "Địa chỉ", key: "BranchLocation", sortable: false },
         { title: "", key: "Actions", sortable: false },
       ],
+      branchLabHeaders: [
+        { title: "STT", sortable: false, key: "Key", align: "center" },
+        {
+          title: "Phòng ban",
+          key: "LabName",
+          sortable: false,
+          align: "center",
+        },
+        { title: "Vị trí", key: "Position", sortable: false },
+        { title: "", key: "Actions", sortable: false, width: 100 },
+      ],
+      labHeaders: [
+        { title: "STT", sortable: false, key: "Key", align: "center" },
+        {
+          title: "Tên nhân viên",
+          key: "name",
+          sortable: false,
+          align: "center",
+        },
+        { title: "Mã nhân viên", key: "species", sortable: false },
+        { title: "Phòng ban", key: "diet", sortable: false, align: "center" },
+        { title: "Giá", key: "habitat", sortable: false, align: "center" },
+      ],
       isShowUpdateBranch: false,
       branchInfo: {},
       branchLst: [],
@@ -249,18 +266,60 @@ export default {
       branchSelect: {},
       branchLabLst: [],
       isShowUpdateBranchLab: false,
+      labInfo: {},
+      labSelect: {},
+      userLst: [],
+      isShowUpdateUserLab: false,
+      userInfo: {},
     };
   },
+  watch: {
+    "branchSelect.BranchID"(data) {
+      this.getLabLstByBranch(data);
+    },
+    "labSelect.LabID"(data) {
+      this.getUserLabLst(data);
+    },
+  },
   methods: {
-    btShowUpdateBranchLab() {
+    btShowUpdateUser() {
+      this.isShowUpdateUserLab = true;
+    },
+    btSelectLab(item) {
+      this.labSelect = item;
+    },
+    getUserLabLst(data) {
+      GetUserLabLst({
+        LabID: data,
+        Search: "",
+        PageNumber: 1,
+        RowspPage: 10000,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.userLst = res.Data;
+        }
+      });
+    },
+    AddUserLab() {
+      AddUserLab({
+        Data: this.labInfo,
+      }).then((res) => {});
+    },
+    btShowUpdateBranchLab(data) {
       this.isShowUpdateBranchLab = true;
-      this.branchLabInfo = {
-        BranchID: this.branchSelect.BranchID,
-      };
+      if (data) {
+        this.branchLabInfo = {
+          ...data,
+          BranchID: this.branchSelect.BranchID,
+        };
+      } else {
+        this.branchLabInfo = {
+          BranchID: this.branchSelect.BranchID,
+        };
+      }
     },
     btSelectBranchLab(item) {
-      this.branchIDSelect = item.BranchID;
-      this.GetLabLstByBranch();
+      this.branchSelect = item;
     },
     handleClick(item) {
       console.log("item", item);
@@ -283,18 +342,26 @@ export default {
             title: "Thành công",
             text: "Đăng ký chi nhánh thành công",
           });
-          this.getBranchLst();
-          this.branchInfo = {};
-          this.isShowUpdateBranch = false;
+          this.GetLabLstByBranch();
+          this.branchLabInfo = {};
+          this.isShowUpdateBranchLab = false;
         }
       });
     },
-    GetLabLstByBranch() {
+    getLabLstByBranch(data) {
       GetLabLstByBranch({
-        BranchID: this.branchSelect.BranchID,
+        BranchID: data,
       }).then((res) => {
         if (res.RespCode == 0) {
-          this.branchLabLst = res.Data;
+          this.branchLabLst = res.Data.map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+            };
+          });
+          if (this.branchLabLst.length > 0) {
+            this.labSelect = this.branchLabLst[0];
+          }
         }
       });
     },
@@ -322,6 +389,9 @@ export default {
             Key: index + 1,
           };
         });
+        if (this.branchLst.length > 0) {
+          this.branchSelect = this.branchLst[0];
+        }
       });
     },
   },
