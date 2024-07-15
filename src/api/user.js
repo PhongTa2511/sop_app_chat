@@ -43,3 +43,11 @@ export function GetEmployeeLst(data) {
     data: data,
   });
 }
+
+export function AddEmployeeLst(data) {
+  return request({
+    url: "User/AddEmployeeLst",
+    method: "post",
+    data: data,
+  });
+}

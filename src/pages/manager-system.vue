@@ -19,7 +19,7 @@ const tabs = [
     tab: "nhan-vien",
   },
   {
-    title: "Thiết bị",
+    title: "Máy chấm công",
     icon: "mdi-deskphone",
     tab: "thiet-bi",
   },

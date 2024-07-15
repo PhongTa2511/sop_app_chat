@@ -14,6 +14,7 @@
             item-title="BranchName"
             chips
             style="width: 300px"
+            class="mr-2"
           ></v-select>
 
           <span>
@@ -50,8 +51,7 @@
                     variant="tonal"
                     color="primary"
                     block
-                    :loading="loadding"
-                    @click="searchHistoryUser"
+                    @click="btShowUpdateUser"
                   >
                     Thêm nhân viên</v-btn
                   >
@@ -78,7 +78,7 @@
                 size="x-small"
                 icon="mdi-pencil"
                 variant="tonal"
-                @click="btShowUpdateBranch(item)"
+                @click="btShowUpdateUser(item)"
               ></v-btn>
               <v-btn
                 size="x-small"
@@ -137,6 +137,35 @@
                 placeholder="Nhập số điện thoại"
               />
             </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="userInfo.Email"
+                label="Email"
+                placeholder="Nhập Email"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="userInfo.GroupName"
+                label="Nhóm"
+                placeholder="Nhập tên nhóm"
+              />
+            </VCol>
+            <v-col cols="12" v-if="userInfo.Status">
+              <v-chip-group
+                v-model="userInfo.Status"
+                selected-class="text-primary"
+                column
+              >
+                <v-chip
+                  v-for="(item, index) in tags"
+                  :key="index"
+                  :text="item.text"
+                  :value="item.value"
+                >
+                </v-chip>
+              </v-chip-group>
+            </v-col>
           </VRow>
         </VForm>
       </v-card-text>
@@ -153,7 +182,7 @@
           color="primary"
           text="Xác nhận"
           variant="tonal"
-          @click="updateBranchLab"
+          @click="addEmployeeLst"
         ></v-btn>
       </v-card-actions>
     </v-card>
@@ -161,21 +190,13 @@
 </template>
 
 <script>
-import { GetEmployeeLst } from "@/api/user";
-import { GetBranchLst } from "@/api/branch";
+import { GetEmployeeLst, AddEmployeeLst } from "@/api/user";
+import { GetBranchLst, GetLabLstByBranch } from "@/api/branch";
 export default {
   data() {
     return {
       isMenuSearch: false,
-      desserts: [
-        {
-          name: "African Elephant",
-          species: "Loxodonta africana",
-          diet: "Herbivore",
-          habitat: "Savanna, Forests",
-        },
-        // ... more items
-      ],
+      desserts: [],
       headers: [
         { title: "STT", sortable: false, key: "Key", align: "center" },
         { title: "Mã NV", key: "UserID", sortable: false, align: "center" },
@@ -199,14 +220,49 @@ export default {
       ],
       branchLst: [],
       branchID: null,
+      isShowUpdateUserLab: false,
+      userInfo: {},
+      tags: [
+        { text: "Đang làm", value: 1 },
+        { text: "Nghỉ TS", value: -1 },
+        { text: "Nghỉ việc", value: 0 },
+      ],
     };
   },
   watch: {
-    branchID() {
+    branchID(data) {
       this.getEmployeeLst();
+      this.getLabLstByBranch(data);
+    },
+    "userInfo.BranchID"(data) {
+      this.getLabLstByBranch(data);
     },
   },
   methods: {
+    addEmployeeLst() {
+      AddEmployeeLst({
+        BranchID: this.branchID,
+        Data: [{ ...this.userInfo }],
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            type: "success",
+            title: "Thành công",
+            text: "Cập nhật thông tin thành công",
+          });
+          this.isShowUpdateUserLab = false;
+          this.getEmployeeLst();
+        }
+      });
+    },
+    btShowUpdateUser(data) {
+      this.isShowUpdateUserLab = true;
+      if (data) {
+        this.userInfo = data;
+      } else {
+        this.userInfo = {};
+      }
+    },
     getEmployeeLst() {
       GetEmployeeLst({
         BranchID: this.branchID,
@@ -234,6 +290,20 @@ export default {
         });
         if (this.branchLst.length > 0) {
           this.branchID = this.branchLst[0].BranchID;
+        }
+      });
+    },
+    getLabLstByBranch(data) {
+      GetLabLstByBranch({
+        BranchID: data,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.branchLabLst = res.Data.map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+            };
+          });
         }
       });
     },

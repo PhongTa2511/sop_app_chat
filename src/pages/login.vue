@@ -39,7 +39,7 @@ export default {
         notify({
           type: "success",
           title: "Thành công",
-          text: "Đăng ký tài khoản thành công",
+          text: "Đăng nhập thành công",
         });
       });
     },
