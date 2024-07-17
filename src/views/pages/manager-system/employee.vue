@@ -36,7 +36,7 @@
               </template>
               <v-card width="300">
                 <v-card-text>
-                  <v-btn
+                  <!-- <v-btn
                     class="mt-2"
                     variant="tonal"
                     color="primary"
@@ -45,7 +45,23 @@
                     @click="searchHistoryUser"
                   >
                     Thêm file excel</v-btn
+                  > -->
+                  <v-btn
+                    color="primary"
+                    variant="tonal"
+                    block
+                    :loading="isSelecting"
+                    @click="onButtonClick"
                   >
+                    Thêm file excel
+                  </v-btn>
+                  <input
+                    ref="uploader"
+                    class="d-none"
+                    type="file"
+                    accept=".xls, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                    @change="onFileChanged"
+                  />
                   <v-btn
                     class="mt-2"
                     variant="tonal"
@@ -192,6 +208,8 @@
 <script>
 import { GetEmployeeLst, AddEmployeeLst } from "@/api/user";
 import { GetBranchLst, GetLabLstByBranch } from "@/api/branch";
+import XLSX from "xlsx";
+
 export default {
   data() {
     return {
@@ -227,6 +245,9 @@ export default {
         { text: "Nghỉ TS", value: -1 },
         { text: "Nghỉ việc", value: 0 },
       ],
+      isSelecting: false,
+      selectedFile: null,
+      addUserLst: [],
     };
   },
   watch: {
@@ -239,6 +260,61 @@ export default {
     },
   },
   methods: {
+    onButtonClick() {
+      this.isSelecting = true;
+      window.addEventListener(
+        "focus",
+        () => {
+          this.isSelecting = false;
+        },
+        { once: true }
+      );
+
+      this.$refs.uploader.click();
+    },
+    onFileChanged(e) {
+      this.selectedFile = e.target.files[0];
+      console.log(this.selectedFile);
+      // do something
+      if (this.selectedFile) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const bstr = e.target.result;
+          const wb = XLSX.read(bstr, { type: "binary" });
+          const wsname = wb.SheetNames[0];
+          const ws = wb.Sheets[wsname];
+          const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+          console.table(data);
+          this.addUserLst = this.convertToReq(data).map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+            };
+          });
+        };
+        reader.readAsBinaryString(this.selectedFile);
+      }
+    },
+    convertToReq(data) {
+      var lstReq = [];
+      for (var i = 3; i < data.length; i++) {
+        if (data[i][1] && data[i][2] && data[i][4]) {
+          var req = {
+            CodeID: data[i][1],
+            FullName: data[i][2],
+            GroupName: data[i][4],
+            Amount: parseInt(data[i][4]),
+            AmountShow: new Intl.NumberFormat().format(data[i][4]),
+            TimeApply:
+              formatDateUpload(excelDateToJSDate(data[i][5])) + " 00:00:00",
+            TimeApplyShow: formatDateUpload(excelDateToJSDate(data[i][5])),
+            Note: data[i][6],
+          };
+          lstReq.push(req);
+        }
+      }
+      return lstReq;
+    },
     addEmployeeLst() {
       AddEmployeeLst({
         BranchID: this.branchID,
