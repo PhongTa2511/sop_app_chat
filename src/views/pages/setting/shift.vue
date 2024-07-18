@@ -33,7 +33,11 @@
               style="position: absolute; right: 0"
             >
               <div></div>
-              <VBtn icon="bx-trash" color="error" />
+              <VBtn
+                icon="bx-trash"
+                color="error"
+                @click="updateShiftLst(item, 0)"
+              />
             </VCardActions>
             <VCardTitle>{{ item.ShiftName }}</VCardTitle>
 
@@ -149,7 +153,7 @@
           color="primary"
           text="Xác nhận"
           variant="tonal"
-          @click="updateShiftLst"
+          @click="updateShiftLst(null, null)"
         ></v-btn>
       </v-card-actions>
     </v-card>
@@ -182,10 +186,13 @@ export default {
       this.isShowUpdateShift = true;
       this.shiftInfo = {};
     },
-    updateShiftLst() {
+    updateShiftLst(item, status) {
+      if (item != null && status != null) {
+        this.shiftInfo = item;
+      }
       UpdateShiftLst({
         BranchID: this.branchSelect,
-        Data: [{ ...this.shiftInfo }],
+        Data: [{ ...this.shiftInfo, Status: status }],
       }).then((res) => {
         if (res.RespCode == 0) {
           this.isShowUpdateShift = false;

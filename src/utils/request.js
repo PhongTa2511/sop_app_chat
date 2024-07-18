@@ -4,11 +4,11 @@ import axios from "axios";
 import {
   getToken,
   getUserName,
-  removeToken,
-  removeUserName,
+  removeEmployCode,
   removeFullName,
   removePhoneNumber,
-  removeEmployCode,
+  removeToken,
+  removeUserName,
 } from "@/utils/auth";
 // create an axios instance
 import { useNotification } from "@kyvg/vue3-notification";
@@ -18,7 +18,7 @@ const service = axios.create({
   baseURL: "https://crm.icpc1hn.work/CRMAPI/",
   // baseURL: "http://localhost:44375/",
   withCredentials: true, // send cookies when cross-domain requests
-  timeout: 20000, // request timeout
+  timeout: 50000, // request timeout
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",

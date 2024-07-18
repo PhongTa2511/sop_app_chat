@@ -1,28 +1,53 @@
 <template>
   <div class="home-container">
-    <div class="d-flex">
-      <span>
-        <v-select
-          placeholder="Chọn chi nhánh"
-          density="compact"
-          style="width: 300px"
-          class="mb-4 mr-2"
-        ></v-select>
-      </span>
-      <span>
+    <div class="d-flex mb-4">
+      <v-select
+        placeholder="Chọn chi nhánh"
+        density="compact"
+        v-model="branchSelect"
+        :items="branchLst"
+        item-value="BranchID"
+        item-title="BranchName"
+        chips
+        style="width: 280px"
+        class="mr-2"
+      ></v-select>
+      <v-select
+        placeholder="Chọn năm"
+        density="compact"
+        v-model="yearSelect"
+        :items="yearLst"
+        item-value="value"
+        item-title="value"
+        chips
+        style="width: 120px"
+        class="mr-2"
+      ></v-select>
+      <v-select
+        placeholder="Chọn tháng"
+        density="compact"
+        v-model="monthSelect"
+        :items="monthLst"
+        item-value="value"
+        item-title="label"
+        chips
+        style="width: 150px"
+        class="mr-2"
+      ></v-select>
+      <!-- <span>
         <v-select
           placeholder="Chọn phòng ban"
           density="compact"
           style="width: 300px"
           class="mb-4 mr-2"
         ></v-select>
-      </span>
-      <v-btn variant="tonal" style="height: 40px">
+      </span> -->
+      <!-- <v-btn variant="tonal" style="height: 40px">
         <v-icon> mdi-plus-thick </v-icon>
-      </v-btn>
+      </v-btn> -->
     </div>
     <div>
-      <v-card>
+      <!-- <v-card>
         <div class="calender-all">
           <div class="calendar">
             <div>
@@ -106,7 +131,7 @@
             </div>
           </div>
         </div>
-      </v-card>
+      </v-card> -->
       <v-card class="mt-4">
         <div class="calender-all" :key="updateName">
           <div class="calendar">
@@ -241,7 +266,7 @@
                 </div>
               </div>
             </div>
-            <div>
+            <!-- <div>
               <div
                 class="content"
                 v-for="(item, index) in listUserWork"
@@ -303,7 +328,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </v-card>
@@ -321,6 +346,9 @@ import {
   getWeekdays,
   checkContinualXDay,
 } from "./components/default";
+import { GetScheduleLst } from "@/api/schedule";
+import { GetBranchLst } from "@/api/branch";
+import { GetShiftLst } from "@/api/shift";
 export default {
   data() {
     return {
@@ -328,15 +356,78 @@ export default {
       listUserWork: [],
       footerData: [],
       dayInMonth: 0,
-      year: 0,
-      month: 0,
+
       updateName: 0,
       headerCalender: headerCalender,
       listT7CN: [],
       quotaCheckLst: [],
+      monthSelect: "",
+      yearSelect: "2024",
+      branchSelect: "",
+      monthLst: monthLst,
+      yearLst: yearLst,
+      shiftLst: [],
+      branchLst: [],
     };
   },
+  watch: {
+    branchSelect() {
+      this.getScheduleLst();
+    },
+    yearSelect() {
+      this.getScheduleLst();
+    },
+    monthSelect() {
+      this.getScheduleLst();
+    },
+  },
   methods: {
+    getBranchLst() {
+      GetBranchLst({}).then((res) => {
+        if (res.RespCode == 0) {
+          this.branchLst = res.Data;
+          if (this.branchLst.length > 0) {
+            this.branchSelect = this.branchLst[0].BranchID;
+          }
+        }
+      });
+    },
+    getScheduleLst() {
+      GetScheduleLst({
+        BranchID: this.branchSelect,
+        Month: parseInt(this.monthSelect),
+        Year: parseInt(this.yearSelect),
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.scheduleLst = res.Data.map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+            };
+          });
+          this.formatData(this.scheduleLst);
+        }
+      });
+    },
+    formatData(data) {
+      var scheduleFormat = [];
+      scheduleFormat = data.filter(
+        (value, index, self) =>
+          index === self.findIndex((t) => t.UserID === value.UserID)
+      );
+      scheduleFormat.forEach((item, index) => {
+        var lstDay = data.filter((p) => p.UserID == item.UserID);
+        for (var i = 1; i <= this.dayInMonth; i++) {
+          var day = lstDay.find((p) => new Date(p.Date).getDate() == i);
+          if (day) {
+            item["Day" + `0${i}`.slice(-2)] = day.ShiftName;
+          }
+        }
+      });
+      this.listUserWork = [...this.headerCalender].concat(scheduleFormat);
+
+      console.log(scheduleFormat);
+    },
     daysInMonth(month, year) {
       return new Date(year, month, 0).getDate();
     },
@@ -361,32 +452,36 @@ export default {
     handleScrollBack(event) {
       this.$refs.scrollable1.scrollTop = event.target.scrollTop;
     },
-    handleScroll2(event) {
-      this.$refs.scrollable3.scrollLeft = event.target.scrollLeft;
-      this.$refs.scrollable4.scrollLeft = event.target.scrollLeft;
-    },
-    handleScroll2Back(event) {
-      this.$refs.scrollable3.scrollLeft = event.target.scrollLeft;
-      this.$refs.scrollable1.scrollLeft = event.target.scrollLeft;
-    },
+    // handleScroll2(event) {
+    //   this.$refs.scrollable3.scrollLeft = event.target.scrollLeft;
+    //   this.$refs.scrollable4.scrollLeft = event.target.scrollLeft;
+    // },
+    // handleScroll2Back(event) {
+    //   this.$refs.scrollable3.scrollLeft = event.target.scrollLeft;
+    //   this.$refs.scrollable1.scrollLeft = event.target.scrollLeft;
+    // },
   },
   mounted() {
     this.$refs.scrollable1.addEventListener("scroll", this.handleScroll);
     this.$refs.scrollable1.addEventListener("scroll", this.handleScroll2);
-    this.$refs.scrollable2.addEventListener("scroll", this.handleScrollBack);
-    this.$refs.scrollable5.addEventListener("scroll", this.handleScrollBack);
-    this.$refs.scrollable4.addEventListener("scroll", this.handleScroll2Back);
+    // this.$refs.scrollable2.addEventListener("scroll", this.handleScrollBack);
+    // this.$refs.scrollable5.addEventListener("scroll", this.handleScrollBack);
+    // this.$refs.scrollable4.addEventListener("scroll", this.handleScroll2Back);
   },
   created() {
-    this.year = new Date().getFullYear();
-    this.month = new Date().getMonth() + 1;
+    var now = new Date().getMonth() + 1;
+    this.monthSelect = `0${now}`.slice(-2);
+    this.yearSelect = `${new Date().getFullYear()}`;
     this.dayInMonth = this.daysInMonth(
-      parseInt(this.month),
-      parseInt(this.year)
+      parseInt(this.monthSelect),
+      parseInt(this.yearSelect)
     );
+    this.getBranchLst();
     for (let i = 0; i < this.dayInMonth; i++) {
       const day = i + 1 < 10 ? `0${i + 1}` : i + 1;
-      const date = new Date(`${this.year}-${this.month}-${day}`).getDay();
+      const date = new Date(
+        `${this.yearSelect}-${this.monthSelect}-${day}`
+      ).getDay();
       const dayOfWeek = getWeekdays(date);
       this.headerCalender[1]["Day" + `0${i + 1}`.slice(-2)] = dayOfWeek;
 

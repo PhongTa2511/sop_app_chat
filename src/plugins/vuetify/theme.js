@@ -38,14 +38,15 @@ const theme = {
       variables: {
         "code-color": "#d400ff",
         "overlay-scrim-background": "#32475C",
-        "overlay-scrim-opacity": 0.5,
+        "overlay-scrim-opacity": 0.9,
         "border-color": "#32475C",
         "snackbar-background": "#32475C",
         "snackbar-color": "#ffffff",
         "tooltip-background": "#262732",
         "tooltip-opacity": 0.9,
         "table-header-background": "#F5F5F7",
-
+        "high-emphasis-opacity": 0.9,
+        "medium-emphasis-opacity": 0.9,
         // Shadows
         "shadow-key-umbra-opacity": "rgba(var(--v-theme-on-surface), 0.06)",
         "shadow-key-penumbra-opacity": "rgba(var(--v-theme-on-surface), 0.04)",
@@ -88,7 +89,7 @@ const theme = {
       variables: {
         "code-color": "#d400ff",
         "overlay-scrim-background": "#0D0E24",
-        "overlay-scrim-opacity": 0.6,
+        "overlay-scrim-opacity": 0.9,
         "border-color": "#DBDBEB",
         "snackbar-background": "#DBDBEB",
         "snackbar-color": "#2B2C40",

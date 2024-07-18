@@ -91,10 +91,10 @@
       </div>
       <VCard>
         <v-data-table
-          :items-length="desserts.length"
+          :items-length="scheduleLst.length"
           no-data-text="Không có dữ liệu"
           :headers="headers"
-          :items="desserts"
+          :items="scheduleLst"
           items-per-page-text="Số dòng 1 trang"
           sort-asc-icon="mdi-menu-up"
           sort-desc-icon="mdi-menu-down"
@@ -113,6 +113,29 @@
       </VCard>
     </VCol>
   </VRow>
+  <v-dialog v-model="isLoading" max-width="320" persistent>
+    <v-list class="py-2" color="primary" elevation="12" rounded="lg">
+      <v-list-item prepend-icon="$vuetify-outline" title="Đang tải dữ liệu...">
+        <template v-slot:prepend>
+          <div class="pe-4">
+            <!-- <v-icon color="primary" size="x-large">
+
+            </v-icon> -->
+            <img src="@/assets/images/logo-box.png" alt="" height="36" />
+          </div>
+        </template>
+
+        <template v-slot:append>
+          <v-progress-circular
+            color="primary"
+            indeterminate="disable-shrink"
+            size="16"
+            width="2"
+          ></v-progress-circular>
+        </template>
+      </v-list-item>
+    </v-list>
+  </v-dialog>
 </template>
 
 <script>
@@ -121,26 +144,23 @@ import { GetBranchLst } from "@/api/branch";
 import { monthLst, yearLst } from "./components/default";
 import { UpdateScheduleLst, GetScheduleLst } from "@/api/schedule";
 import { GetShiftLst } from "@/api/shift";
+import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 
 export default {
   data() {
     return {
       isMenuSearch: false,
-      desserts: [
-        {
-          name: "African Elephant",
-          species: "Loxodonta africana",
-          diet: "Herbivore",
-          habitat: "Savanna, Forests",
-        },
-        // ... more items
-      ],
+
       headers: [
         { title: "STT", sortable: false, key: "Key", align: "center" },
-        { title: "Mã sp", key: "name", sortable: false, align: "center" },
-        { title: "Sản phẩm", key: "species", sortable: false },
-        { title: "SL", key: "diet", sortable: false, align: "center" },
-        { title: "Giá", key: "habitat", sortable: false, align: "center" },
+        { title: "Mã NV", key: "CodeID", sortable: false, align: "center" },
+        { title: "Họ tên", key: "FullName", sortable: false },
+        { title: "Line", key: "Line", sortable: false, align: "center" },
+        { title: "Giai đoạn", key: "Pha", sortable: false, align: "center" },
+        { title: "Nhiệm vụ", key: "Job", sortable: false, align: "center" },
+        { title: "Phòng ban", key: "Area", sortable: false, align: "center" },
+        { title: "Ngày", key: "DateShow", sortable: false, align: "center" },
+        { title: "Ca", key: "ShiftName", sortable: false, align: "center" },
       ],
       isSelecting: false,
       branchLst: [],
@@ -154,6 +174,7 @@ export default {
       isShowUpdateSchedule: false,
       scheduleInfo: {},
       shiftLst: [],
+      isLoading: false,
     };
   },
   watch: {
@@ -175,6 +196,7 @@ export default {
       this.scheduleInfo = {};
     },
     updateScheduleLst(data) {
+      this.isLoading = true;
       UpdateScheduleLst({
         BranchID: this.branchSelect,
         Data: data,
@@ -186,6 +208,7 @@ export default {
             text: "Cập nhật thông tin thành công",
           });
           this.isShowUpdateSchedule = false;
+          this.isLoading = false;
           this.getScheduleLst();
         }
       });
@@ -215,14 +238,16 @@ export default {
           const wsname = wb.SheetNames[0];
           const ws = wb.Sheets[wsname];
           const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-          console.table(data);
+          // console.table(data);
           this.dataUploadLst = this.convertToReq(data).map((item, index) => {
             return {
               ...item,
               Key: index + 1,
             };
           });
-          // this.updateScheduleLst(this.dataUploadLst);
+          // console.table(this.dataUploadLst);
+
+          this.updateScheduleLst(this.dataUploadLst);
         };
         reader.readAsBinaryString(this.selectedFile);
       }
@@ -232,23 +257,27 @@ export default {
       for (var i = 3; i < data.length; i++) {
         if (data[i][1] && data[i][2] && data[i][4]) {
           for (var y = 16; y < 47; y++) {
-            // var checkShift =
-            var day = `0${y - 15}`.splice(-2);
-            var req = {
-              CodeID: data[i][1],
-              FullName: data[i][2],
-              Line: data[i][5],
-              Pha: data[i][6],
-              Job: data[i][7],
-              Area: data[i][8],
-              Date: `${this.yearSelect}-${this.yearSelect}-${day} 00:00:00`,
-              AmountShow: new Intl.NumberFormat().format(data[i][4]),
-              TimeApply:
-                formatDateUpload(excelDateToJSDate(data[i][5])) + " 00:00:00",
-              TimeApplyShow: formatDateUpload(excelDateToJSDate(data[i][5])),
-              Note: data[i][6],
-            };
-            lstReq.push(req);
+            var checkShift = this.shiftLst.find(
+              (p) => p.ShiftName == data[i][y]
+            );
+            if (checkShift) {
+              var day = `0${y - 15}`.slice(-2);
+              var req = {
+                CodeID: data[i][1],
+                FullName: data[i][2],
+                Line: data[i][5],
+                Pha: data[i][6],
+                Job: data[i][7],
+                Area: data[i][8],
+                Date: `${this.yearSelect}-${this.monthSelect}-${day} 00:00:00`,
+                ShiftID: checkShift.ShiftID,
+                TimeStart: checkShift.TimeStart,
+                TimeEnd: checkShift.TimeEnd,
+                BranchID: this.branchSelect,
+                Note: data[i][13],
+              };
+              lstReq.push(req);
+            }
           }
         }
       }
@@ -271,7 +300,13 @@ export default {
         Year: parseInt(this.yearSelect),
       }).then((res) => {
         if (res.RespCode == 0) {
-          this.scheduleLst = res.Data;
+          this.scheduleLst = res.Data.map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+              DateShow: formatDateDisplayDDMMYY(item.Date),
+            };
+          });
         }
       });
     },
