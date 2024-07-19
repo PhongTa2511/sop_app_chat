@@ -3,8 +3,7 @@
     <VCol cols="12">
       <!-- 👉 Deactivate Account -->
       <div class="d-flex justify-space-between mb-3">
-        <div style="line-height: 30px">TẤT CẢ NHÂN VIÊN</div>
-        <div class="d-flex">
+        <div style="line-height: 30px">
           <v-select
             placeholder="Chọn chi nhánh"
             density="compact"
@@ -13,9 +12,11 @@
             item-value="BranchID"
             item-title="BranchName"
             chips
-            style="width: 280px"
+            style="width: 250px"
             class="mr-2"
           ></v-select>
+        </div>
+        <div class="d-flex">
           <v-select
             placeholder="Chọn năm"
             density="compact"
@@ -38,6 +39,25 @@
             style="width: 150px"
             class="mr-2"
           ></v-select>
+          <v-select
+            placeholder="Chọn ngày"
+            density="compact"
+            v-model="daySelect"
+            :items="dayLst"
+            item-value="value"
+            item-title="title"
+            chips
+            style="width: 150px"
+            class="mr-2"
+          ></v-select>
+          <v-text-field
+            density="compact"
+            label="Tìm kiếm"
+            single-line
+            style="width: 180px"
+            class="mr-2"
+          ></v-text-field>
+
           <span>
             <v-menu
               v-model="isMenuSearch"
@@ -77,9 +97,9 @@
                   <v-btn
                     class="mt-2"
                     variant="tonal"
-                    color="warning"
+                    color="primary"
                     block
-                    @click="btShowRegister"
+                    @click="btShowUpdateSchedule"
                   >
                     Đăng ký lịch</v-btn
                   >
@@ -113,14 +133,128 @@
       </VCard>
     </VCol>
   </VRow>
+  <v-dialog v-model="isShowUpdateSchedule" width="500">
+    <v-card>
+      <v-card-text>
+        <v-icon> mdi-briefcase </v-icon>Thông tin ca làm việc
+      </v-card-text>
+      <v-card-text>
+        <VForm>
+          <VRow>
+            <VCol cols="12">
+              <v-select
+                placeholder="Chọn nhân viên"
+                density="compact"
+                v-model="scheduleInfo.CodeID"
+                :items="employeeLst"
+                item-value="CodeID"
+                item-title="FullName"
+                chips
+                class="mr-2"
+              ></v-select>
+            </VCol>
+            <VCol cols="6">
+              <v-date-input
+                v-model="scheduleInfo.Date"
+                label="Chọn ngày làm việc"
+                density="compact"
+                prepend-icon=""
+                variant="outlined"
+                persistent-placeholder
+                hide-details
+                :border="true"
+                :center-affix="true"
+                :hide-actions="true"
+                lang="vi"
+              ></v-date-input>
+            </VCol>
+            <VCol cols="6">
+              <v-select
+                placeholder="Chọn ca làm việc"
+                density="compact"
+                v-model="scheduleInfo.ShiftID"
+                :items="shiftLst"
+                item-value="ShiftID"
+                item-title="ShiftName"
+                class="mr-2"
+              ></v-select>
+              <!-- <VTextField
+                v-model="scheduleInfo.ShiftName"
+                label="Tên ca làm việc"
+                placeholder="Nhập tên ca làm việc"
+              /> -->
+            </VCol>
+
+            <VCol cols="6">
+              <v-text-field
+                v-model="scheduleInfo.TimeStart"
+                label="Bắt đầu"
+                readonly
+              >
+              </v-text-field>
+            </VCol>
+            <VCol cols="6">
+              <v-text-field
+                v-model="scheduleInfo.TimeEnd"
+                label="Kết thúc"
+                readonly
+              >
+              </v-text-field>
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.ShiftName"
+                label="Line"
+                placeholder="Nhập Line"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.ShiftName"
+                label="Giai đoạn"
+                placeholder="Nhập giai đoạn"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.ShiftName"
+                label="Nhiệm vụ"
+                placeholder="Nhập nhiệm vụ"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.ShiftName"
+                label="Khu vực"
+                placeholder="Nhập khu vực"
+              />
+            </VCol>
+          </VRow>
+        </VForm>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+
+        <v-btn
+          text="Đóng"
+          variant="plain"
+          @click="isShowUpdateSchedule = false"
+        ></v-btn>
+
+        <v-btn
+          color="primary"
+          text="Xác nhận"
+          variant="tonal"
+          @click="updateShiftLst(null, null)"
+        ></v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
   <v-dialog v-model="isLoading" max-width="320" persistent>
     <v-list class="py-2" color="primary" elevation="12" rounded="lg">
       <v-list-item prepend-icon="$vuetify-outline" title="Đang tải dữ liệu...">
         <template v-slot:prepend>
           <div class="pe-4">
-            <!-- <v-icon color="primary" size="x-large">
-
-            </v-icon> -->
             <img src="@/assets/images/logo-box.png" alt="" height="36" />
           </div>
         </template>
@@ -145,7 +279,7 @@ import { monthLst, yearLst } from "./components/default";
 import { UpdateScheduleLst, GetScheduleLst } from "@/api/schedule";
 import { GetShiftLst } from "@/api/shift";
 import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
-
+import { GetEmployeeLst } from "@/api/user";
 export default {
   data() {
     return {
@@ -175,15 +309,49 @@ export default {
       scheduleInfo: {},
       shiftLst: [],
       isLoading: false,
+      dayLst: [],
+      daySelect: null,
+      searchSchedule: "",
+      isShowUpdateSchedule: false,
+      scheduleInfo: {},
+      employeeLst: [],
     };
   },
   watch: {
     branchSelect() {
       this.getScheduleLst();
       this.getShiftLst();
+      this.getEmployeeLst();
+    },
+    yearSelect() {
+      this.getScheduleLst();
+      this.updateDayLst();
+    },
+    monthSelect() {
+      this.getScheduleLst();
+      this.updateDayLst();
+    },
+    daySelect() {
+      this.getScheduleLst();
     },
   },
   methods: {
+    getEmployeeLst() {
+      GetEmployeeLst({
+        BranchID: this.branchSelect,
+        Search: this.searchSchedule,
+        PageNumber: 1,
+        RowspPage: 10000,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.employeeLst = res.Data;
+        }
+      });
+    },
+    btShowUpdateSchedule() {
+      this.isShowUpdateSchedule = true;
+      this.scheduleInfo = {};
+    },
     getShiftLst() {
       GetShiftLst({ BranchID: this.branchSelect }).then((res) => {
         if (res.RespCode == 0) {
@@ -298,6 +466,8 @@ export default {
         BranchID: this.branchSelect,
         Month: parseInt(this.monthSelect),
         Year: parseInt(this.yearSelect),
+        Day: this.daySelect,
+        Search: this.searchSchedule,
       }).then((res) => {
         if (res.RespCode == 0) {
           this.scheduleLst = res.Data.map((item, index) => {
@@ -310,6 +480,16 @@ export default {
         }
       });
     },
+    daysInMonth(month, year) {
+      return new Date(year, month, 0).getDate();
+    },
+    updateDayLst() {
+      var dayInMonth = this.daysInMonth(this.monthSelect, this.yearSelect);
+      this.dayLst = Array.from({ length: dayInMonth }, (v, k) => ({
+        value: k + 1,
+        title: "Ngày " + (k + 1),
+      }));
+    },
   },
   created() {
     var now = new Date().getMonth() + 1;
@@ -320,4 +500,10 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+@media screen and (max-width: 678px) {
+  .d-flex {
+    display: block !important;
+  }
+}
+</style>

@@ -425,8 +425,6 @@ export default {
         }
       });
       this.listUserWork = [...this.headerCalender].concat(scheduleFormat);
-
-      console.log(scheduleFormat);
     },
     daysInMonth(month, year) {
       return new Date(year, month, 0).getDate();
