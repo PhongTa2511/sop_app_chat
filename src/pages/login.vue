@@ -61,7 +61,7 @@ export default {
       </VCardItem>
 
       <VCardText class="pt-2">
-        <h5 class="text-h5 mb-1">Welcome to ilab! 👋🏻</h5>
+        <h5 class="text-h5 mb-1">Welcome to iKSVR! 👋🏻</h5>
         <p class="mb-0">
           Vui lòng đăng nhập vào tài khoản của bạn và bắt đầu trải nghiệm
         </p>

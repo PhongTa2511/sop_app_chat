@@ -56,6 +56,7 @@
             single-line
             style="width: 180px"
             class="mr-2"
+            v-model="searchSchedule"
           ></v-text-field>
 
           <span>
@@ -120,14 +121,15 @@
           sort-desc-icon="mdi-menu-down"
           height="calc(100vh - 210px)"
         >
-          <template v-slot:item.UnitPrice="{ item }">
-            {{ new Intl.NumberFormat().format(item.raw.UnitPrice) }}
-          </template>
-          <template v-slot:item.Amount="{ item }">
-            {{ new Intl.NumberFormat().format(item.raw.Amount) }}
-          </template>
-          <template v-slot:item.AmountVAT="{ item }">
-            {{ new Intl.NumberFormat().format(item.raw.AmountVAT) }}
+          <template v-slot:item.Actions="{ item }">
+            <v-icon
+              color="error"
+              class="me-2"
+              size="small"
+              style="cursor: pointer"
+              @click="deleteSchedule(item)"
+              >mdi-delete</v-icon
+            >
           </template>
         </v-data-table>
       </VCard>
@@ -142,7 +144,7 @@
         <VForm>
           <VRow>
             <VCol cols="12">
-              <v-select
+              <v-combobox
                 placeholder="Chọn nhân viên"
                 density="compact"
                 v-model="scheduleInfo.CodeID"
@@ -151,7 +153,9 @@
                 item-title="FullName"
                 chips
                 class="mr-2"
-              ></v-select>
+                clearable
+                :item-children="true"
+              ></v-combobox>
             </VCol>
             <VCol cols="6">
               <v-date-input
@@ -189,7 +193,7 @@
               <v-text-field
                 v-model="scheduleInfo.TimeStart"
                 label="Bắt đầu"
-                readonly
+                disabled
               >
               </v-text-field>
             </VCol>
@@ -197,34 +201,34 @@
               <v-text-field
                 v-model="scheduleInfo.TimeEnd"
                 label="Kết thúc"
-                readonly
+                disabled
               >
               </v-text-field>
             </VCol>
             <VCol cols="12">
               <VTextField
-                v-model="scheduleInfo.ShiftName"
+                v-model="scheduleInfo.Line"
                 label="Line"
                 placeholder="Nhập Line"
               />
             </VCol>
             <VCol cols="12">
               <VTextField
-                v-model="scheduleInfo.ShiftName"
+                v-model="scheduleInfo.Pha"
                 label="Giai đoạn"
                 placeholder="Nhập giai đoạn"
               />
             </VCol>
             <VCol cols="12">
               <VTextField
-                v-model="scheduleInfo.ShiftName"
+                v-model="scheduleInfo.Job"
                 label="Nhiệm vụ"
                 placeholder="Nhập nhiệm vụ"
               />
             </VCol>
             <VCol cols="12">
               <VTextField
-                v-model="scheduleInfo.ShiftName"
+                v-model="scheduleInfo.Area"
                 label="Khu vực"
                 placeholder="Nhập khu vực"
               />
@@ -245,7 +249,14 @@
           color="primary"
           text="Xác nhận"
           variant="tonal"
-          @click="updateShiftLst(null, null)"
+          @click="
+            updateScheduleLst([
+              {
+                ...this.scheduleInfo,
+                ...this.scheduleInfo.CodeID,
+              },
+            ])
+          "
         ></v-btn>
       </v-card-actions>
     </v-card>
@@ -278,8 +289,10 @@ import { GetBranchLst } from "@/api/branch";
 import { monthLst, yearLst } from "./components/default";
 import { UpdateScheduleLst, GetScheduleLst } from "@/api/schedule";
 import { GetShiftLst } from "@/api/shift";
-import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
+import { formatDateDisplayDDMMYY, formatDateUpload } from "@/helpers/getTime";
 import { GetEmployeeLst } from "@/api/user";
+import { debounce } from "lodash";
+
 export default {
   data() {
     return {
@@ -295,6 +308,7 @@ export default {
         { title: "Phòng ban", key: "Area", sortable: false, align: "center" },
         { title: "Ngày", key: "DateShow", sortable: false, align: "center" },
         { title: "Ca", key: "ShiftName", sortable: false, align: "center" },
+        { title: "Ac", key: "Actions", sortable: false, align: "center" },
       ],
       isSelecting: false,
       branchLst: [],
@@ -334,6 +348,18 @@ export default {
     daySelect() {
       this.getScheduleLst();
     },
+    searchSchedule() {
+      console.log("chạy vào đây");
+      this.debounceSchedule();
+    },
+    "scheduleInfo.ShiftID"(value) {
+      this.scheduleInfo.TimeStart = this.shiftLst.find(
+        (p) => p.ShiftID == value
+      ).TimeStart;
+      this.scheduleInfo.TimeEnd = this.shiftLst.find(
+        (p) => p.ShiftID == value
+      ).TimeEnd;
+    },
   },
   methods: {
     getEmployeeLst() {
@@ -363,11 +389,16 @@ export default {
       this.isShowUpdateSchedule = true;
       this.scheduleInfo = {};
     },
+    deleteSchedule(data) {
+      this.updateScheduleLst([{ ...data, Status: 0 }]);
+    },
     updateScheduleLst(data) {
       this.isLoading = true;
       UpdateScheduleLst({
         BranchID: this.branchSelect,
-        Data: data,
+        Data: data.map((item) => {
+          return { ...item, Date: formatDateUpload(item.Date) + " 00:00:00" };
+        }),
       }).then((res) => {
         if (res.RespCode == 0) {
           notify({
@@ -375,10 +406,10 @@ export default {
             title: "Thành công",
             text: "Cập nhật thông tin thành công",
           });
-          this.isShowUpdateSchedule = false;
-          this.isLoading = false;
           this.getScheduleLst();
         }
+        this.isLoading = false;
+        this.isShowUpdateSchedule = false;
       });
     },
     onButtonClick() {
@@ -496,6 +527,7 @@ export default {
     this.monthSelect = `0${now}`.slice(-2);
     this.yearSelect = `${new Date().getFullYear()}`;
     this.getBranchLst();
+    this.debounceSchedule = debounce(this.getScheduleLst, 700);
   },
 };
 </script>
