@@ -59,7 +59,7 @@ export function formatDateDisplayDDMMYY(date) {
 
 export function formatDate2(date) {
   if (date) {
-    return moment(date).format("HH:mm:ss  DD-MM-YYYY");
+    return moment(date).format("HH:mm:ss DD-MM-YYYY");
   } else {
     return date;
   }

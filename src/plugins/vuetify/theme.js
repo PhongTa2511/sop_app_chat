@@ -1,7 +1,7 @@
 export const staticPrimaryColor = "#696CFF";
 
 const theme = {
-  defaultTheme: "dark",
+  defaultTheme: "light",
   themes: {
     light: {
       dark: false,

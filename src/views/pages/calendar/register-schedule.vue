@@ -349,7 +349,6 @@ export default {
       this.getScheduleLst();
     },
     searchSchedule() {
-      console.log("chạy vào đây");
       this.debounceSchedule();
     },
     "scheduleInfo.ShiftID"(value) {

@@ -36,6 +36,22 @@ export function ChangePassword(data) {
   });
 }
 
+export function GetUserInfo(data) {
+  return request({
+    url: "User/GetUserInfo",
+    method: "post",
+    data: data,
+  });
+}
+
+export function UpdateUserInfo(data) {
+  return request({
+    url: "User/UpdateUserInfo",
+    method: "post",
+    data: data,
+  });
+}
+
 export function GetEmployeeLst(data) {
   return request({
     url: "User/GetEmployeeLst",

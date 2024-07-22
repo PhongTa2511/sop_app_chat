@@ -7,12 +7,14 @@ import {
   removeUserID,
   removeEmail,
   getFullName,
+  getAvatar,
 } from "@/utils/auth";
 export default {
   data() {
     return {
       avatar1: avatar1,
       fullName: getFullName(),
+      avatar: getAvatar(),
     };
   },
   methods: {
@@ -39,8 +41,10 @@ export default {
     bordered
   >
     <VAvatar class="cursor-pointer" color="primary" variant="tonal">
-      <VImg :src="avatar1" />
-
+      <VImg :src="avatar1" v-if="avatar" />
+      <div v-else>
+        <div>{{ fullName[0] }}</div>
+      </div>
       <!-- SECTION Menu -->
       <VMenu activator="parent" width="230" location="bottom end" offset="14px">
         <VList>
@@ -113,3 +117,5 @@ export default {
     </VAvatar>
   </VBadge>
 </template>
+
+<style lang="scss" scoped></style>

@@ -11,7 +11,7 @@ const UserID = "UserIDILAB";
 const Email = "EmailILAB";
 const PageNumber = "PageNumberILAB";
 const RowspPage = "RowspPageILAB";
-const StatusCustomer = "StatusCustomerILAB";
+const Avatar = "AvatarILAB";
 const RankCustomer = "RankCustomerILAB";
 
 export function setToken(token) {
@@ -104,14 +104,14 @@ export function removeRowspPage() {
   return Cookies.remove(RowspPage);
 }
 
-export function setStatusCustomer(name) {
-  return Cookies.set(StatusCustomer, name);
+export function setAvatar(name) {
+  return Cookies.set(Avatar, name);
 }
-export function getStatusCustomer() {
-  return Cookies.get(StatusCustomer);
+export function getAvatar() {
+  return Cookies.get(Avatar);
 }
-export function removeStatusCustomer() {
-  return Cookies.remove(StatusCustomer);
+export function removeAvatar() {
+  return Cookies.remove(Avatar);
 }
 
 export function setRankCustomer(name) {
