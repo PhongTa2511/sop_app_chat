@@ -43,7 +43,8 @@ export default {
     <VAvatar class="cursor-pointer" color="primary" variant="tonal">
       <VImg :src="avatar1" v-if="avatar" />
       <div v-else>
-        <div>{{ fullName[0] }}</div>
+        <div v-if="fullName">{{ fullName[0] }}</div>
+        <div v-else>R</div>
       </div>
       <!-- SECTION Menu -->
       <VMenu activator="parent" width="230" location="bottom end" offset="14px">

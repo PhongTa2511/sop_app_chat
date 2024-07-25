@@ -19,11 +19,11 @@ const tabs = [
     icon: "bx-lock-open",
     tab: "security",
   },
-  {
-    title: "Thông báo",
-    icon: "bx-bell",
-    tab: "notification",
-  },
+  // {
+  //   title: "Thông báo",
+  //   icon: "bx-bell",
+  //   tab: "notification",
+  // },
 ];
 </script>
 

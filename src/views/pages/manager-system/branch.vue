@@ -79,13 +79,9 @@
         </v-data-table>
       </VCard>
     </VCol>
-    <VCol cols="12">
-      <!-- 👉 Deactivate Account -->
+    <!-- <VCol cols="12">
       <div class="d-flex justify-space-between mb-3">
         <div style="line-height: 38px">NHÂN VIÊN - {{}}</div>
-        <!-- <v-btn variant="tonal" @click="btShowUpdateUser">
-          <v-icon> mdi-plus-box-multiple </v-icon>
-        </v-btn> -->
       </div>
       <VCard>
         <v-data-table
@@ -109,7 +105,7 @@
           </template>
         </v-data-table>
       </VCard>
-    </VCol>
+    </VCol> -->
   </VRow>
   <v-dialog v-model="isShowUpdateBranch" width="500">
     <v-card>

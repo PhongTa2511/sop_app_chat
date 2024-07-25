@@ -2,44 +2,48 @@
   <v-row>
     <v-col :lg="8" :cols="12">
       <!-- <v-select placeholder="Chọn máy chấm công"></v-select> -->
-      <v-row>
-        <v-col :lg="4" :cols="12">
-          <v-select
-            placeholder="Chọn chi nhánh"
-            density="compact"
-            v-model="branchSelect"
-            :items="branchLst"
-            item-value="BranchID"
-            item-title="BranchName"
-            chips
-          ></v-select
-        ></v-col>
-        <v-col :lg="4" :cols="12">
-          <v-select
-            placeholder="Chọn phòng ban"
-            density="compact"
-            v-model="labSelect"
-            :items="branchLabLst"
-            item-value="LabID"
-            item-title="LabName"
-            chips
-          ></v-select
-        ></v-col>
-        <v-col :lg="4" :cols="12">
-          <v-select
-            placeholder="Chọn máy chấm công"
-            density="compact"
-            v-model="seri"
-            :items="deviceLst"
-            item-value="Seri"
-            item-title="Note"
-            chips
-          ></v-select
-        ></v-col>
-      </v-row>
+      <v-card>
+        <VCardItem>
+          <v-row>
+            <v-col :lg="4" :cols="12">
+              <v-select
+                placeholder="Chọn chi nhánh"
+                density="compact"
+                v-model="branchSelect"
+                :items="branchLst"
+                item-value="BranchID"
+                item-title="BranchName"
+                chips
+              ></v-select
+            ></v-col>
+            <v-col :lg="4" :cols="12">
+              <v-select
+                placeholder="Chọn phòng ban"
+                density="compact"
+                v-model="labSelect"
+                :items="branchLabLst"
+                item-value="LabID"
+                item-title="LabName"
+                chips
+              ></v-select
+            ></v-col>
+            <v-col :lg="4" :cols="12">
+              <v-select
+                placeholder="Chọn máy chấm công"
+                density="compact"
+                v-model="seri"
+                :items="deviceLst"
+                item-value="Seri"
+                item-title="Note"
+                chips
+              ></v-select
+            ></v-col>
+          </v-row>
 
-      <div style="line-height: 48px">Checkin gần nhất</div>
-      <CardSolid :dataLst="dataLst" />
+          <div style="line-height: 48px">Checkin gần nhất</div>
+          <CardSolid :dataLst="dataLst" />
+        </VCardItem>
+      </v-card>
 
       <VCard class="mt-6">
         <VCardItem>
@@ -151,84 +155,7 @@ export default {
   },
   data() {
     return {
-      items: [
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Bùi Văn Thành",
-          subtitle: "08:00 01-09-2014",
-          status: 1,
-        },
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Recipes",
-          subtitle: "08:00 01-09-2014",
-        },
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Work",
-          subtitle: "08:00 01-09-2014",
-          status: 1,
-        },
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Bùi Văn Thành",
-          subtitle: "08:00 01-09-2014",
-          status: 1,
-        },
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Recipes",
-          subtitle: "08:00 01-09-2014",
-        },
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Work",
-          subtitle: "08:00 01-09-2014",
-          status: 1,
-        },
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Bùi Văn Thành",
-          subtitle: "08:00 01-09-2014",
-        },
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Recipes",
-          subtitle: "08:00 01-09-2014",
-        },
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Work",
-          subtitle: "08:00 01-09-2014",
-        },
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Bùi Văn Thành",
-          subtitle: "08:00 01-09-2014",
-        },
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Recipes",
-          subtitle: "08:00 01-09-2014",
-        },
-        {
-          icon: "mdi-folder",
-          iconClass: "bg-grey-lighten-1 text-white",
-          title: "Work",
-          subtitle: "08:00 01-09-2014",
-        },
-      ],
+      items: [],
       branchLst: [],
       branchSelect: "",
       labSelect: "",

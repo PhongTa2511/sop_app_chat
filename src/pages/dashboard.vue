@@ -89,18 +89,18 @@ import wallet from "@images/cards/wallet-info.png";
     </VCol>
 
     <!-- 👉 Order Statistics -->
-    <VCol cols="12" md="4" sm="6" order="3">
+    <!-- <VCol cols="12" md="4" sm="6" order="3">
       <AnalyticsOrderStatistics />
-    </VCol>
+    </VCol> -->
 
     <!-- 👉 Tabs chart -->
-    <VCol cols="12" md="4" sm="6" order="3">
+    <!-- <VCol cols="12" md="4" sm="6" order="3">
       <AnalyticsFinanceTabs />
-    </VCol>
+    </VCol> -->
 
     <!-- 👉 Transactions -->
-    <VCol cols="12" md="4" sm="6" order="3">
+    <!-- <VCol cols="12" md="4" sm="6" order="3">
       <AnalyticsTransactions />
-    </VCol>
+    </VCol> -->
   </VRow>
 </template>
