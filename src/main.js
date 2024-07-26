@@ -12,11 +12,9 @@ import "@styles/styles.scss";
 import { createPinia } from "pinia";
 import { createApp } from "vue";
 
-import signalRService from "./signalr";
 loadFonts();
 // Create vue app
 const app = createApp(App);
-app.config.globalProperties.$signalR = signalRService;
 
 // Use plugins
 app.use(vuetify);
@@ -26,4 +24,3 @@ app.use(Notifications);
 window.notify = notify;
 // Mount vue app
 app.mount("#app");
-signalRService.start();

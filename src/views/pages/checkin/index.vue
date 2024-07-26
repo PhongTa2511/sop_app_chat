@@ -111,8 +111,15 @@
               <v-avatar>
                 <v-img
                   alt="John"
-                  src="https://cdn.vuetifyjs.com/images/john.jpg"
+                  :src="item.ImageAvatar"
+                  v-if="item.ImageAvatar"
                 ></v-img>
+                <div v-else class="default-avatar">
+                  <div v-if="item.FullName">
+                    {{ item.FullName[0].toUpperCase() }}
+                  </div>
+                  <div v-else>R</div>
+                </div>
               </v-avatar>
             </template>
 
@@ -239,6 +246,12 @@ export default {
             return {
               ...item,
               TimeShow: formatDate2(item.AttTime),
+              ImageAvatar: item.Avatar
+                ? "http://202.191.56.172/LabManagerAPI/File/GetImageAvatar?UserID=" +
+                  item.UserID +
+                  "&FileName=" +
+                  item.Avatar
+                : null,
             };
           });
         }
@@ -255,5 +268,12 @@ export default {
 <style>
 .custom {
   color: #71dd374d;
+}
+.default-avatar {
+  background: rgba(var(--v-theme-primary), 0.2);
+  width: 100%;
+  height: 40px;
+  line-height: 40px;
+  color: rgba(var(--v-theme-primary));
 }
 </style>

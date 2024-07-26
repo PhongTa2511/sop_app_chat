@@ -48,9 +48,10 @@ const theme = {
         "high-emphasis-opacity": 0.9,
         "medium-emphasis-opacity": 0.9,
         // Shadows
-        "shadow-key-umbra-opacity": "rgba(var(--v-theme-on-surface), 0.06)",
+        "shadow-key-umbra-opacity": "rgba(#fff, 0.06)",
         "shadow-key-penumbra-opacity": "rgba(var(--v-theme-on-surface), 0.04)",
         "shadow-key-ambient-opacity": "rgba(var(--v-theme-on-surface), 0.02)",
+        "disabled-opacity": 0.78,
       },
     },
     dark: {
@@ -101,6 +102,8 @@ const theme = {
         "shadow-key-umbra-opacity": "rgba(20, 21, 33, 0.06)",
         "shadow-key-penumbra-opacity": "rgba(20, 21, 33, 0.04)",
         "shadow-key-ambient-opacity": "rgba(20, 21, 33, 0.02)",
+
+        "disabled-opacity": 0.78,
       },
     },
   },

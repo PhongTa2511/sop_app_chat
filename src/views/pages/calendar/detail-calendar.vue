@@ -334,6 +334,148 @@
       </v-card>
     </div>
   </div>
+  <v-dialog v-model="isShowUpdateSchedule" width="500">
+    <v-card>
+      <v-card-text>
+        <v-icon> mdi-briefcase </v-icon>Thông tin ca làm việc
+      </v-card-text>
+      <v-card-text>
+        <VForm>
+          <VRow>
+            <VCol cols="12">
+              <v-text-field
+                v-model="scheduleInfo.FullName"
+                label="Bắt đầu"
+                disabled
+              >
+              </v-text-field>
+            </VCol>
+            <VCol cols="6">
+              <v-date-input
+                v-model="scheduleInfo.Date"
+                label="Chọn ngày làm việc"
+                density="compact"
+                prepend-icon=""
+                variant="outlined"
+                persistent-placeholder
+                hide-details
+                :border="true"
+                :center-affix="true"
+                :hide-actions="true"
+                lang="vi"
+                disabled
+              ></v-date-input>
+            </VCol>
+            <VCol cols="6">
+              <v-select
+                placeholder="Chọn ca làm việc"
+                density="compact"
+                v-model="scheduleInfo.ShiftID"
+                :items="shiftLst"
+                item-value="ShiftID"
+                item-title="ShiftName"
+                class="mr-2"
+                clearable
+              ></v-select>
+              <!-- <VTextField
+                v-model="scheduleInfo.ShiftName"
+                label="Tên ca làm việc"
+                placeholder="Nhập tên ca làm việc"
+              /> -->
+            </VCol>
+
+            <VCol cols="6">
+              <v-text-field
+                v-model="scheduleInfo.TimeStart"
+                label="Bắt đầu"
+                disabled
+              >
+              </v-text-field>
+            </VCol>
+            <VCol cols="6">
+              <v-text-field
+                v-model="scheduleInfo.TimeEnd"
+                label="Kết thúc"
+                disabled
+              >
+              </v-text-field>
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.Line"
+                label="Line"
+                placeholder="Nhập Line"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.Pha"
+                label="Giai đoạn"
+                placeholder="Nhập giai đoạn"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.Job"
+                label="Nhiệm vụ"
+                placeholder="Nhập nhiệm vụ"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.Area"
+                label="Khu vực"
+                placeholder="Nhập khu vực"
+              />
+            </VCol>
+          </VRow>
+        </VForm>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+
+        <v-btn
+          text="Đóng"
+          variant="plain"
+          @click="isShowUpdateSchedule = false"
+        ></v-btn>
+
+        <v-btn
+          color="primary"
+          text="Xác nhận"
+          variant="tonal"
+          @click="
+            updateScheduleLst([
+              {
+                ...this.scheduleInfo,
+                ...this.scheduleInfo.CodeID,
+              },
+            ])
+          "
+        ></v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog v-model="isLoading" max-width="320" persistent>
+    <v-list class="py-2" color="primary" elevation="12" rounded="lg">
+      <v-list-item prepend-icon="$vuetify-outline" title="Đang tải dữ liệu...">
+        <template v-slot:prepend>
+          <div class="pe-4">
+            <img src="@/assets/images/logo-box.png" alt="" height="36" />
+          </div>
+        </template>
+
+        <template v-slot:append>
+          <v-progress-circular
+            color="primary"
+            indeterminate="disable-shrink"
+            size="16"
+            width="2"
+          ></v-progress-circular>
+        </template>
+      </v-list-item>
+    </v-list>
+  </v-dialog>
 </template>
 
 <script>
@@ -346,9 +488,11 @@ import {
   getWeekdays,
   checkContinualXDay,
 } from "./components/default";
-import { GetScheduleLst } from "@/api/schedule";
+import { UpdateScheduleLst, GetScheduleLst } from "@/api/schedule";
 import { GetBranchLst } from "@/api/branch";
 import { GetShiftLst } from "@/api/shift";
+import { formatDateUpload } from "@/helpers/getTime";
+
 export default {
   data() {
     return {
@@ -368,11 +512,16 @@ export default {
       yearLst: yearLst,
       shiftLst: [],
       branchLst: [],
+      scheduleInfo: {},
+      isShowUpdateSchedule: false,
+      shiftLst: [],
+      isLoading: false,
     };
   },
   watch: {
     branchSelect() {
       this.getScheduleLst();
+      this.getShiftLst();
     },
     yearSelect() {
       this.getScheduleLst();
@@ -380,8 +529,87 @@ export default {
     monthSelect() {
       this.getScheduleLst();
     },
+    "scheduleInfo.ShiftName"(value) {
+      if (value) {
+        this.scheduleInfo.ShiftID = this.shiftLst.find(
+          (p) => p.ShiftName == value
+        ).ShiftID;
+      } else {
+        this.scheduleInfo.ShiftID = "";
+      }
+    },
+    "scheduleInfo.ShiftID"(value) {
+      if (value) {
+        this.scheduleInfo.TimeStart = this.shiftLst.find(
+          (p) => p.ShiftID == value
+        ).TimeStart;
+        this.scheduleInfo.TimeEnd = this.shiftLst.find(
+          (p) => p.ShiftID == value
+        ).TimeEnd;
+      } else {
+        this.scheduleInfo.TimeStart = "";
+        this.scheduleInfo.TimeEnd = "";
+      }
+    },
   },
   methods: {
+    btShowUpdateDay(item, day) {
+      this.isShowUpdateSchedule = true;
+      var shift = item[`Day` + `0${day}`.slice(-2)];
+      if (shift) {
+        this.scheduleInfo = {
+          ...item,
+          ShiftName: shift,
+          Date:
+            this.yearSelect +
+            "-" +
+            this.monthSelect +
+            "-" +
+            `0${day}`.slice(-2),
+        };
+      } else {
+        this.scheduleInfo = {
+          ...item,
+          ShiftID: "",
+          ShiftName: "",
+          Date:
+            this.yearSelect +
+            "-" +
+            this.monthSelect +
+            "-" +
+            `0${day}`.slice(-2),
+          TimeStart: "",
+          TimeEnd: "",
+        };
+      }
+    },
+    getShiftLst() {
+      GetShiftLst({ BranchID: this.branchSelect }).then((res) => {
+        if (res.RespCode == 0) {
+          this.shiftLst = res.Data;
+        }
+      });
+    },
+    updateScheduleLst(data) {
+      this.isLoading = true;
+      UpdateScheduleLst({
+        BranchID: this.branchSelect,
+        Data: data.map((item) => {
+          return { ...item, Date: formatDateUpload(item.Date) + " 00:00:00" };
+        }),
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            type: "success",
+            title: "Thành công",
+            text: "Cập nhật thông tin thành công",
+          });
+          this.getScheduleLst();
+        }
+        this.isLoading = false;
+        this.isShowUpdateSchedule = false;
+      });
+    },
     getBranchLst() {
       GetBranchLst({}).then((res) => {
         if (res.RespCode == 0) {

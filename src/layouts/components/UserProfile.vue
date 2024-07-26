@@ -41,7 +41,7 @@ export default {
     bordered
   >
     <VAvatar class="cursor-pointer" color="primary" variant="tonal">
-      <VImg :src="avatar1" v-if="avatar" />
+      <VImg :src="avatar" v-if="avatar" />
       <div v-else>
         <div v-if="fullName">{{ fullName[0] }}</div>
         <div v-else>R</div>
@@ -61,7 +61,11 @@ export default {
                   color="success"
                 >
                   <VAvatar color="primary" variant="tonal">
-                    <VImg :src="avatar1" />
+                    <VImg :src="avatar" v-if="avatar" />
+                    <div v-else>
+                      <div v-if="fullName">{{ fullName[0] }}</div>
+                      <div v-else>R</div>
+                    </div>
                   </VAvatar>
                 </VBadge>
               </VListItemAction>

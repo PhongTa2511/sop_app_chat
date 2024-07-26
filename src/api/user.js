@@ -1,5 +1,5 @@
+import { getToken } from "@/utils/auth.js";
 import request from "./request.js";
-
 export function UserLogin(data) {
   return request({
     url: "User/UserLogin",
@@ -66,4 +66,8 @@ export function AddEmployeeLst(data) {
     method: "post",
     data: data,
   });
+}
+
+export function urlUploadImageAvatar(ID) {
+  return `http://202.191.56.172/LabManagerAPI/File/UploadImageAvatar?UserID=${ID}&Token=${getToken()}`;
 }
