@@ -512,7 +512,7 @@ export default {
             };
           });
           // console.table(this.dataUploadLst);
-          return;
+          // return;
           this.updateScheduleLst(this.dataUploadLst);
         };
         reader.readAsBinaryString(this.selectedFile);
