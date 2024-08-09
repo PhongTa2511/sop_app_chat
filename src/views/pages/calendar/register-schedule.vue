@@ -192,17 +192,51 @@
             <VCol cols="6">
               <v-text-field
                 v-model="scheduleInfo.TimeStart"
+                :active="menuTimeStart"
+                :focus="menuTimeStart"
                 label="Bắt đầu"
-                disabled
+                prepend-inner-icon="mdi-clock-time-four-outline"
+                readonly
+                clearable
               >
+                <v-menu
+                  v-model="menuTimeStart"
+                  :close-on-content-click="false"
+                  activator="parent"
+                  transition="scale-transition"
+                >
+                  <v-time-picker
+                    format="24hr"
+                    v-if="menuTimeStart"
+                    v-model="scheduleInfo.TimeStart"
+                    full-width
+                  ></v-time-picker>
+                </v-menu>
               </v-text-field>
             </VCol>
             <VCol cols="6">
               <v-text-field
                 v-model="scheduleInfo.TimeEnd"
+                :active="menuTimeEnd"
+                :focus="menuTimeEnd"
                 label="Kết thúc"
-                disabled
+                prepend-inner-icon="mdi-clock-time-four-outline"
+                readonly
+                clearable
               >
+                <v-menu
+                  v-model="menuTimeEnd"
+                  :close-on-content-click="false"
+                  activator="parent"
+                  transition="scale-transition"
+                >
+                  <v-time-picker
+                    format="24hr"
+                    v-if="menuTimeEnd"
+                    v-model="scheduleInfo.TimeEnd"
+                    full-width
+                  ></v-time-picker>
+                </v-menu>
               </v-text-field>
             </VCol>
             <VCol cols="12">
@@ -289,15 +323,21 @@ import { GetBranchLst } from "@/api/branch";
 import { monthLst, yearLst } from "./components/default";
 import { UpdateScheduleLst, GetScheduleLst } from "@/api/schedule";
 import { GetShiftLst } from "@/api/shift";
-import { formatDateDisplayDDMMYY, formatDateUpload } from "@/helpers/getTime";
+import {
+  formatDateDisplayDDMMYY,
+  formatDateUpload,
+  formatDateHHMM,
+} from "@/helpers/getTime";
 import { GetEmployeeLst } from "@/api/user";
 import { debounce } from "lodash";
+import { excelDateToJSDate } from "./components/default";
 
 export default {
   data() {
     return {
       isMenuSearch: false,
-
+      menuTimeStart: false,
+      menuTimeEnd: false,
       headers: [
         { title: "STT", sortable: false, key: "Key", align: "center" },
         { title: "Mã NV", key: "CodeID", sortable: false, align: "center" },
@@ -436,7 +476,7 @@ export default {
           const wsname = wb.SheetNames[0];
           const ws = wb.Sheets[wsname];
           const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-          // console.table(data);
+          console.table(data);
           this.dataUploadLst = this.convertToReq(data).map((item, index) => {
             return {
               ...item,
@@ -444,7 +484,7 @@ export default {
             };
           });
           // console.table(this.dataUploadLst);
-
+          return;
           this.updateScheduleLst(this.dataUploadLst);
         };
         reader.readAsBinaryString(this.selectedFile);
@@ -454,28 +494,30 @@ export default {
       var lstReq = [];
       for (var i = 3; i < data.length; i++) {
         if (data[i][1] && data[i][2] && data[i][4]) {
-          for (var y = 16; y < 47; y++) {
-            var checkShift = this.shiftLst.find(
-              (p) => p.ShiftName == data[i][y]
-            );
-            if (checkShift) {
-              var day = `0${y - 15}`.slice(-2);
-              var req = {
-                CodeID: data[i][1],
-                FullName: data[i][2],
-                Line: data[i][5],
-                Pha: data[i][6],
-                Job: data[i][7],
-                Area: data[i][8],
-                Date: `${this.yearSelect}-${this.monthSelect}-${day} 00:00:00`,
-                ShiftID: checkShift.ShiftID,
-                TimeStart: checkShift.TimeStart,
-                TimeEnd: checkShift.TimeEnd,
-                BranchID: this.branchSelect,
-                Note: data[i][13],
-              };
-              lstReq.push(req);
-            }
+          var checkShift = this.shiftLst.find(
+            (p) => p.ShiftName == data[i][16]
+          );
+          var timeStart = formatDateHHMM(excelDateToJSDate(data[i][11]));
+          var timeEnd = formatDateHHMM(excelDateToJSDate(data[i][12]));
+          if (checkShift) {
+            var req = {
+              CodeID: data[i][1],
+              FullName: data[i][2],
+              Line: data[i][5],
+              Pha: data[i][6],
+              Job: data[i][7],
+              Area: data[i][8],
+              Date:
+                `${this.yearSelect}-${this.monthSelect}-` +
+                `0${this.daySelect}`.slice(-2) +
+                ` 00:00:00`,
+              ShiftID: checkShift.ShiftID,
+              TimeStart: timeStart,
+              TimeEnd: timeEnd,
+              BranchID: this.branchSelect,
+              Note: data[i][13],
+            };
+            lstReq.push(req);
           }
         }
       }

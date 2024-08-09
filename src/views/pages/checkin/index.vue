@@ -40,7 +40,9 @@
             ></v-col>
           </v-row>
 
-          <div style="line-height: 48px">Checkin gần nhất</div>
+          <div style="line-height: 48px; margin-bottom: 8px">
+            Checkin gần nhất
+          </div>
           <CardSolid :dataLst="dataLst" />
         </VCardItem>
       </v-card>
@@ -50,7 +52,7 @@
           <VCardTitle class="mb-4">Thống kê trong ngày</VCardTitle>
           <v-row>
             <v-col :cols="4">
-              <v-card color="primary" class="py-4">
+              <v-card color="rgba(var(--v-theme-green-bg),.4)" class="py-4">
                 <div class="d-flex flex-column align-center justify-center">
                   <p>
                     <span class="text-h2 font-weight-medium">{{
@@ -58,38 +60,29 @@
                     }}</span>
                   </p>
 
-                  <p class="text-sm">
-                    Checkin <br />
-                    Đúng giờ
-                  </p>
+                  <p class="text-h5">Đúng Giờ</p>
                 </div>
               </v-card>
             </v-col>
             <v-col :cols="4">
-              <v-card color="error" class="py-4">
+              <v-card color="rgba(var(--v-theme-red-bg),.4)" class="py-4">
                 <div class="d-flex flex-column align-center justify-center">
                   <p>
                     <span class="text-h2 font-weight-medium">0</span>
                   </p>
 
-                  <p class="text-sm">
-                    Checkin <br />
-                    Quá giờ
-                  </p>
+                  <p class="text-h5">Quá Giờ</p>
                 </div>
               </v-card>
             </v-col>
             <v-col :cols="4">
-              <v-card color="secondary" class="py-4">
+              <v-card color="rgba(var(--v-theme-blue-bg),.4)" class="py-4">
                 <div class="d-flex flex-column align-center justify-center">
                   <p>
                     <span class="text-h2 font-weight-medium">0</span>
                   </p>
 
-                  <p class="text-sm">
-                    Checkin <br />
-                    Chưa đến
-                  </p>
+                  <p class="text-h5">Chưa Đến</p>
                 </div>
               </v-card>
             </v-col>
@@ -234,8 +227,8 @@ export default {
     getAttendanceLstByTime() {
       GetAttendanceLstByTime({
         DeviceID: this.seri,
-        // Time: formatDateUpload(new Date()) + " 00:00:00",
-        Time: "2024-07-11 00:00:00",
+        Time: formatDateUpload(new Date()) + " 00:00:00",
+        // Time: "2024-07-11 00:00:00",
       }).then((res) => {
         if (res.RespCode == 0) {
           this.dataLst = [];

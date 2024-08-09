@@ -34,6 +34,9 @@ const theme = {
         "perfect-scrollbar-thumb": "#DBDADE",
         "skin-bordered-background": "#fff",
         "skin-bordered-surface": "#fff",
+        "green-bg": "#71dd37",
+        "blue-bg": "#04c3ec",
+        "red-bg": "#ff3e1d",
       },
       variables: {
         "code-color": "#d400ff",
@@ -86,6 +89,9 @@ const theme = {
         "perfect-scrollbar-thumb": "#4A5072",
         "skin-bordered-background": "#2b2c40",
         "skin-bordered-surface": "#2b2c40",
+        "green-bg": "#71dd37",
+        "blue-bg": "#04c3ec",
+        "red-bg": "#ff3e1d",
       },
       variables: {
         "code-color": "#d400ff",

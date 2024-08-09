@@ -52,8 +52,8 @@
             <VCardTitle>Máy chấm công</VCardTitle>
 
             <VCardText>
-              <div>Chi nhánh hà nội</div>
-              <div>Cổng chính</div>
+              <div>Vị trí</div>
+              <div>{{ item.Note }}</div>
             </VCardText>
 
             <VCardText class="text-subtitle-1">

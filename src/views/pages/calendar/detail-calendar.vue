@@ -345,7 +345,7 @@
             <VCol cols="12">
               <v-text-field
                 v-model="scheduleInfo.FullName"
-                label="Bắt đầu"
+                label="Họ tên"
                 disabled
               >
               </v-text-field>
@@ -387,17 +387,51 @@
             <VCol cols="6">
               <v-text-field
                 v-model="scheduleInfo.TimeStart"
+                :active="menuTimeStart"
+                :focus="menuTimeStart"
                 label="Bắt đầu"
-                disabled
+                prepend-inner-icon="mdi-clock-time-four-outline"
+                readonly
+                clearable
               >
+                <v-menu
+                  v-model="menuTimeStart"
+                  :close-on-content-click="false"
+                  activator="parent"
+                  transition="scale-transition"
+                >
+                  <v-time-picker
+                    format="24hr"
+                    v-if="menuTimeStart"
+                    v-model="scheduleInfo.TimeStart"
+                    full-width
+                  ></v-time-picker>
+                </v-menu>
               </v-text-field>
             </VCol>
             <VCol cols="6">
               <v-text-field
                 v-model="scheduleInfo.TimeEnd"
+                :active="menuTimeEnd"
+                :focus="menuTimeEnd"
                 label="Kết thúc"
-                disabled
+                prepend-inner-icon="mdi-clock-time-four-outline"
+                readonly
+                clearable
               >
+                <v-menu
+                  v-model="menuTimeEnd"
+                  :close-on-content-click="false"
+                  activator="parent"
+                  transition="scale-transition"
+                >
+                  <v-time-picker
+                    format="24hr"
+                    v-if="menuTimeEnd"
+                    v-model="scheduleInfo.TimeEnd"
+                    full-width
+                  ></v-time-picker>
+                </v-menu>
               </v-text-field>
             </VCol>
             <VCol cols="12">
@@ -497,6 +531,8 @@ export default {
   data() {
     return {
       eCommerce2: eCommerce2,
+      menuTimeStart: false,
+      menuTimeEnd: false,
       listUserWork: [],
       footerData: [],
       dayInMonth: 0,

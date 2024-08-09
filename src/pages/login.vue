@@ -8,6 +8,7 @@ import {
   setPhoneNumber,
   setUserID,
   setEmail,
+  setAvatar,
 } from "@/utils/auth";
 export default {
   data() {
@@ -35,6 +36,14 @@ export default {
         setPhoneNumber(res.Data.Phone);
         setUserID(res.Data.UserID);
         setEmail(res.Data.Email);
+        if (res.Data.Avatar) {
+          var imageAvatar =
+            "http://202.191.56.172/LabManagerAPI/File/GetImageAvatar?UserID=" +
+            res.Data.UserID +
+            "&FileName=" +
+            res.Data.Avatar;
+          setAvatar(imageAvatar);
+        }
         this.$router.push("/");
         notify({
           type: "success",
