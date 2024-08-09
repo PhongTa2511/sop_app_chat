@@ -437,29 +437,43 @@
             <VCol cols="12">
               <VTextField
                 v-model="scheduleInfo.Line"
-                label="Line"
-                placeholder="Nhập Line"
+                label="BD"
+                placeholder="Nhập BD"
               />
             </VCol>
             <VCol cols="12">
               <VTextField
                 v-model="scheduleInfo.Pha"
-                label="Giai đoạn"
-                placeholder="Nhập giai đoạn"
+                label="Phòng"
+                placeholder="Nhập phòng"
               />
             </VCol>
             <VCol cols="12">
               <VTextField
                 v-model="scheduleInfo.Job"
-                label="Nhiệm vụ"
-                placeholder="Nhập nhiệm vụ"
+                label="CV chính"
+                placeholder="Nhập cv chính"
               />
             </VCol>
             <VCol cols="12">
               <VTextField
                 v-model="scheduleInfo.Area"
-                label="Khu vực"
-                placeholder="Nhập khu vực"
+                label="Nhóm"
+                placeholder="Nhập nhóm"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.WorkMore"
+                label="Làm thêm"
+                placeholder="Nhập thông tin"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.Note"
+                label="Ghi chú"
+                placeholder="Nhập ghi chú"
               />
             </VCol>
           </VRow>

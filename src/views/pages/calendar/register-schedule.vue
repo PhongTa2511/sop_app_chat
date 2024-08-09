@@ -242,29 +242,43 @@
             <VCol cols="12">
               <VTextField
                 v-model="scheduleInfo.Line"
-                label="Line"
-                placeholder="Nhập Line"
+                label="BD"
+                placeholder="Nhập BD"
               />
             </VCol>
             <VCol cols="12">
               <VTextField
                 v-model="scheduleInfo.Pha"
-                label="Giai đoạn"
-                placeholder="Nhập giai đoạn"
+                label="Phòng"
+                placeholder="Nhập phòng"
               />
             </VCol>
             <VCol cols="12">
               <VTextField
                 v-model="scheduleInfo.Job"
-                label="Nhiệm vụ"
-                placeholder="Nhập nhiệm vụ"
+                label="CV chính"
+                placeholder="Nhập cv chính"
               />
             </VCol>
             <VCol cols="12">
               <VTextField
                 v-model="scheduleInfo.Area"
-                label="Khu vực"
-                placeholder="Nhập khu vực"
+                label="Nhóm"
+                placeholder="Nhập nhóm"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.WorkMore"
+                label="Làm thêm"
+                placeholder="Nhập thông tin"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="scheduleInfo.Note"
+                label="Ghi chú"
+                placeholder="Nhập ghi chú"
               />
             </VCol>
           </VRow>
@@ -342,12 +356,26 @@ export default {
         { title: "STT", sortable: false, key: "Key", align: "center" },
         { title: "Mã NV", key: "CodeID", sortable: false, align: "center" },
         { title: "Họ tên", key: "FullName", sortable: false },
-        { title: "Line", key: "Line", sortable: false, align: "center" },
-        { title: "Giai đoạn", key: "Pha", sortable: false, align: "center" },
-        { title: "Nhiệm vụ", key: "Job", sortable: false, align: "center" },
-        { title: "Phòng ban", key: "Area", sortable: false, align: "center" },
+        { title: "BD", key: "Line", sortable: false, align: "center" },
+        { title: "Phòng", key: "Pha", sortable: false, align: "center" },
+        { title: "CV chính", key: "Job", sortable: false, align: "center" },
+        { title: "Phòng", key: "Area", sortable: false, align: "center" },
+        {
+          title: "Làm thêm",
+          key: "WorkMore",
+          sortable: false,
+          align: "center",
+        },
         { title: "Ngày", key: "DateShow", sortable: false, align: "center" },
         { title: "Ca", key: "ShiftName", sortable: false, align: "center" },
+        {
+          title: "Bắt đầu",
+          key: "TimeStart",
+          sortable: false,
+          align: "center",
+        },
+        { title: "Kết thúc", key: "TimeEnd", sortable: false, align: "center" },
+        { title: "Ghi chú", key: "Note", sortable: false, align: "center" },
         { title: "Ac", key: "Actions", sortable: false, align: "center" },
       ],
       isSelecting: false,
@@ -492,21 +520,21 @@ export default {
     },
     convertToReq(data) {
       var lstReq = [];
-      for (var i = 3; i < data.length; i++) {
+      for (var i = 2; i < data.length; i++) {
         if (data[i][1] && data[i][2] && data[i][4]) {
-          var checkShift = this.shiftLst.find(
-            (p) => p.ShiftName == data[i][16]
-          );
-          var timeStart = formatDateHHMM(excelDateToJSDate(data[i][11]));
-          var timeEnd = formatDateHHMM(excelDateToJSDate(data[i][12]));
+          var checkShift = this.shiftLst.find((p) => p.ShiftName == data[i][8]);
+
           if (checkShift) {
+            var timeStart = formatDateHHMM(excelDateToJSDate(data[i][9]));
+            var timeEnd = formatDateHHMM(excelDateToJSDate(data[i][10]));
             var req = {
               CodeID: data[i][1],
               FullName: data[i][2],
-              Line: data[i][5],
+              Line: data[i][3],
+              Area: data[i][4],
+              Job: data[i][5],
               Pha: data[i][6],
-              Job: data[i][7],
-              Area: data[i][8],
+              WorkMore: data[i][7],
               Date:
                 `${this.yearSelect}-${this.monthSelect}-` +
                 `0${this.daySelect}`.slice(-2) +
@@ -515,7 +543,7 @@ export default {
               TimeStart: timeStart,
               TimeEnd: timeEnd,
               BranchID: this.branchSelect,
-              Note: data[i][13],
+              Note: data[i][11],
             };
             lstReq.push(req);
           }
