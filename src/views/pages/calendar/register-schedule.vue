@@ -359,7 +359,7 @@ export default {
         { title: "BD", key: "Line", sortable: false, align: "center" },
         { title: "Phòng", key: "Pha", sortable: false, align: "center" },
         { title: "CV chính", key: "Job", sortable: false, align: "center" },
-        { title: "Phòng", key: "Area", sortable: false, align: "center" },
+        { title: "Nhóm", key: "Area", sortable: false, align: "center" },
         {
           title: "Làm thêm",
           key: "WorkMore",
@@ -480,16 +480,24 @@ export default {
       });
     },
     onButtonClick() {
-      this.isSelecting = true;
-      window.addEventListener(
-        "focus",
-        () => {
-          this.isSelecting = false;
-        },
-        { once: true }
-      );
+      if (this.daySelect) {
+        this.isSelecting = true;
+        window.addEventListener(
+          "focus",
+          () => {
+            this.isSelecting = false;
+          },
+          { once: true }
+        );
 
-      this.$refs.uploader.click();
+        this.$refs.uploader.click();
+      } else {
+        notify({
+          type: "warn",
+          title: "Cảnh báo",
+          text: "Vui lòng chọn ngày cập nhật",
+        });
+      }
     },
     onFileChanged(e) {
       this.selectedFile = e.target.files[0];
@@ -509,6 +517,7 @@ export default {
             return {
               ...item,
               Key: index + 1,
+              Status: 2,
             };
           });
           // console.table(this.dataUploadLst);
