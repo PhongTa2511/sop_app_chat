@@ -394,7 +394,6 @@ export default {
       dayLst: [],
       daySelect: null,
       searchSchedule: "",
-      isShowUpdateSchedule: false,
       scheduleInfo: {},
       employeeLst: [],
     };
