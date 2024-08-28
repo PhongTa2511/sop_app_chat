@@ -88,6 +88,12 @@
           sort-desc-icon="mdi-menu-down"
           height="calc(100vh - 210px)"
         >
+          <template v-slot:item.FullName="{ item }">
+            {{ item.FullName }}
+            <v-chip variant="text" color="success" v-if="item.VIP == 1"
+              >VIP</v-chip
+            >
+          </template>
           <template v-slot:item.Actions="{ item }">
             <div class="d-flex">
               <v-btn
@@ -110,8 +116,9 @@
   </VRow>
   <v-dialog v-model="isShowUpdateUserLab" width="500">
     <v-card>
-      <v-card-text>
-        <v-icon> mdi-user-group </v-icon>Thêm nhân viên
+      <v-card-text class="d-flex">
+        <v-icon class="mr-2"> mdi-user-group </v-icon>
+        <h2 class="text-h6 mb-2">Thêm nhân viên</h2>
       </v-card-text>
       <v-card-text>
         <VForm @submit.prevent="() => {}">
@@ -168,6 +175,7 @@
               />
             </VCol>
             <v-col cols="12" v-if="userInfo.Status">
+              <h2 class="text-h6 mb-2">Trạng thái làm việc</h2>
               <v-chip-group
                 v-model="userInfo.Status"
                 selected-class="text-primary"
@@ -175,6 +183,22 @@
               >
                 <v-chip
                   v-for="(item, index) in tags"
+                  :key="index"
+                  :text="item.text"
+                  :value="item.value"
+                >
+                </v-chip>
+              </v-chip-group>
+            </v-col>
+            <v-col cols="12" v-if="userInfo.Status">
+              <h2 class="text-h6 mb-2">Loại người dùng</h2>
+              <v-chip-group
+                v-model="userInfo.VIP"
+                selected-class="text-primary"
+                column
+              >
+                <v-chip
+                  v-for="(item, index) in typeUsers"
                   :key="index"
                   :text="item.text"
                   :value="item.value"
@@ -217,7 +241,7 @@ export default {
       desserts: [],
       headers: [
         { title: "STT", sortable: false, key: "Key", align: "center" },
-        { title: "Mã NV", key: "UserID", sortable: false, align: "center" },
+        { title: "Mã NV", key: "CodeID", sortable: false, align: "center" },
         { title: "Họ & tên", key: "FullName", sortable: false },
         { title: "Điện thoại", key: "Phone", sortable: false, align: "center" },
         { title: "Email", key: "Email", sortable: false, align: "center" },
@@ -244,6 +268,10 @@ export default {
         { text: "Đang làm", value: 1 },
         { text: "Nghỉ TS", value: -1 },
         { text: "Nghỉ việc", value: 0 },
+      ],
+      typeUsers: [
+        { text: "VIP", value: 1 },
+        { text: "Thường", value: 0 },
       ],
       isSelecting: false,
       selectedFile: null,
