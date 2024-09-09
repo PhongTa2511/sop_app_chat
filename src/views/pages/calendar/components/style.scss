@@ -4,6 +4,7 @@
   // height: calc(100vh - 54px);
   padding: 8px;
   // overflow-y: scroll;
+  margin-bottom: -24px;
   h3 {
     color: #211d4f;
     margin: 0;
@@ -196,7 +197,7 @@
         overflow-y: auto;
         overflow-x: auto;
         width: calc(100% + 6px);
-        height: calc(100vh - 280px) !important;
+        height: calc(100vh - 260px) !important;
         &::-webkit-scrollbar-track-piece {
           background: #dfdfdf00;
         }
@@ -217,7 +218,7 @@
         overflow-y: auto;
         overflow-x: hidden;
         width: 100%;
-        height: calc(100vh - 280px) !important;
+        height: calc(100vh - 260px) !important;
         &::-webkit-scrollbar-track-piece {
           background: #ffffff00;
         }

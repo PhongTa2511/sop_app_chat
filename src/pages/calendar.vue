@@ -9,6 +9,11 @@ const activeTab = ref(route.params.tab);
 // tabs
 const tabs = [
   {
+    title: "Phân công",
+    icon: "mdi-calendar-plus",
+    tab: "dang-ky-lich",
+  },
+  {
     title: "Tổng quan",
     icon: "mdi-calendar-month",
     tab: "xep-lich",
@@ -17,11 +22,6 @@ const tabs = [
     title: "Thống kê",
     icon: "mdi-card-account-details",
     tab: "chi-tiet",
-  },
-  {
-    title: "Phân công",
-    icon: "mdi-calendar-plus",
-    tab: "dang-ky-lich",
   },
 ];
 </script>
@@ -38,14 +38,14 @@ const tabs = [
 
     <VWindow v-model="activeTab" class="mt-5 disable-tab-transition">
       <!-- Tổ chức -->
+      <VWindowItem value="dang-ky-lich">
+        <RegisterSchedule />
+      </VWindowItem>
       <VWindowItem value="xep-lich">
         <Schedule />
       </VWindowItem>
       <VWindowItem value="chi-tiet">
         <DetailCalendar />
-      </VWindowItem>
-      <VWindowItem value="dang-ky-lich">
-        <RegisterSchedule />
       </VWindowItem>
     </VWindow>
   </div>

@@ -123,6 +123,14 @@
         >
           <template v-slot:item.Actions="{ item }">
             <v-icon
+              color="primary"
+              class="me-2"
+              size="small"
+              style="cursor: pointer"
+              @click="editSchedule(item)"
+              >mdi-pencil</v-icon
+            >
+            <v-icon
               color="error"
               class="me-2"
               size="small"
@@ -309,6 +317,173 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <v-dialog v-model="isShowEditSchedule" width="500">
+    <v-card>
+      <v-card-text>
+        <v-icon> mdi-briefcase </v-icon>Thông tin ca làm việc
+      </v-card-text>
+      <v-card-text>
+        <VForm>
+          <VRow>
+            <VCol cols="12">
+              <v-combobox
+                placeholder="Chọn nhân viên"
+                density="compact"
+                v-model="editingSchedule.CodeID"
+                :items="employeeLst"
+                item-value="CodeID"
+                item-title="FullName"
+                chips
+                class="mr-2"
+                clearable
+                :item-children="false"
+              ></v-combobox>
+            </VCol>
+            <VCol cols="6">
+              <v-date-input
+                v-model="editingSchedule.Date"
+                label="Chọn ngày làm việc"
+                density="compact"
+                prepend-icon=""
+                variant="outlined"
+                persistent-placeholder
+                hide-details
+                :border="true"
+                :center-affix="true"
+                :hide-actions="true"
+                lang="vi"
+              ></v-date-input>
+            </VCol>
+            <VCol cols="6">
+              <v-select
+                placeholder="Chọn ca làm việc"
+                density="compact"
+                v-model="editingSchedule.ShiftID"
+                :items="shiftLst"
+                item-value="ShiftID"
+                item-title="ShiftName"
+                class="mr-2"
+              ></v-select>
+              <!-- <VTextField
+                v-model="scheduleInfo.ShiftName"
+                label="Tên ca làm việc"
+                placeholder="Nhập tên ca làm việc"
+              /> -->
+            </VCol>
+
+            <VCol cols="6">
+              <v-text-field
+                v-model="editingSchedule.TimeStart"
+                :active="menuTimeStart"
+                :focus="menuTimeStart"
+                label="Bắt đầu"
+                prepend-inner-icon="mdi-clock-time-four-outline"
+                readonly
+                clearable
+              >
+                <v-menu
+                  v-model="menuTimeStart"
+                  :close-on-content-click="false"
+                  activator="parent"
+                  transition="scale-transition"
+                >
+                  <v-time-picker
+                    format="24hr"
+                    v-if="menuTimeStart"
+                    v-model="editingSchedule.TimeStart"
+                    full-width
+                  ></v-time-picker>
+                </v-menu>
+              </v-text-field>
+            </VCol>
+            <VCol cols="6">
+              <v-text-field
+                v-model="editingSchedule.TimeEnd"
+                :active="menuTimeEnd"
+                :focus="menuTimeEnd"
+                label="Kết thúc"
+                prepend-inner-icon="mdi-clock-time-four-outline"
+                readonly
+                clearable
+              >
+                <v-menu
+                  v-model="menuTimeEnd"
+                  :close-on-content-click="false"
+                  activator="parent"
+                  transition="scale-transition"
+                >
+                  <v-time-picker
+                    format="24hr"
+                    v-if="menuTimeEnd"
+                    v-model="editingSchedule.TimeEnd"
+                    full-width
+                  ></v-time-picker>
+                </v-menu>
+              </v-text-field>
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="editingSchedule.Line"
+                label="BD"
+                placeholder="Nhập BD"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="editingSchedule.Pha"
+                label="Phòng"
+                placeholder="Nhập phòng"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="editingSchedule.Job"
+                label="CV chính"
+                placeholder="Nhập cv chính"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="editingSchedule.Area"
+                label="Nhóm"
+                placeholder="Nhập nhóm"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="editingSchedule.WorkMore"
+                label="Làm thêm"
+                placeholder="Nhập thông tin"
+              />
+            </VCol>
+            <VCol cols="12">
+              <VTextField
+                v-model="editingSchedule.Note"
+                label="Ghi chú"
+                placeholder="Nhập ghi chú"
+              />
+            </VCol>
+          </VRow>
+        </VForm>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+
+        <v-btn
+          text="Đóng"
+          variant="plain"
+          @click="isShowEditSchedule = false"
+        ></v-btn>
+
+        <v-btn
+          color="primary"
+          text="Xác nhận"
+          variant="tonal"
+          @click="confirmEditSchedule"
+        ></v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
   <v-dialog v-model="isLoading" max-width="320" persistent>
     <v-list class="py-2" color="primary" elevation="12" rounded="lg">
       <v-list-item prepend-icon="$vuetify-outline" title="Đang tải dữ liệu...">
@@ -355,9 +530,14 @@ export default {
       headers: [
         { title: "STT", sortable: false, key: "Key", align: "center" },
         { title: "Mã NV", key: "CodeID", sortable: false, align: "center" },
-        { title: "Họ tên", key: "FullName", sortable: false },
+        {
+          title: "Họ tên",
+          key: "FullName",
+          sortable: true,
+          align: "left",
+        },
         { title: "BD", key: "Line", sortable: false, align: "center" },
-        { title: "Phòng", key: "Pha", sortable: false, align: "center" },
+        { title: "Phòng", key: "Pha", sortable: false, align: "left" },
         { title: "CV chính", key: "Job", sortable: false, align: "center" },
         { title: "Nhóm", key: "Area", sortable: false, align: "center" },
         {
@@ -392,10 +572,13 @@ export default {
       shiftLst: [],
       isLoading: false,
       dayLst: [],
-      daySelect: null,
+      daySelect: new Date().getDate(),
       searchSchedule: "",
       scheduleInfo: {},
       employeeLst: [],
+      isShowEditSchedule: false,
+      editingSchedule: {},
+      search: "",
     };
   },
   watch: {
@@ -436,7 +619,15 @@ export default {
         RowspPage: 10000,
       }).then((res) => {
         if (res.RespCode == 0) {
-          this.employeeLst = res.Data;
+          this.employeeLst = res.Data.map((item) => {
+            var codeID = item.CodeID;
+
+            return {
+              ...item,
+              CodeID: item.CodeID,
+              FullName: `${item.FullName} - ${item.CodeID}`,
+            };
+          });
         }
       });
     },
@@ -597,6 +788,15 @@ export default {
         value: k + 1,
         title: "Ngày " + (k + 1),
       }));
+    },
+    editSchedule(item) {
+      this.isShowEditSchedule = true;
+      this.editingSchedule = { ...item };
+    },
+    confirmEditSchedule() {
+      console.log("anhthanhf", this.editingSchedule);
+      this.updateScheduleLst([{ ...this.editingSchedule }]);
+      this.isShowEditSchedule = false;
     },
   },
   created() {

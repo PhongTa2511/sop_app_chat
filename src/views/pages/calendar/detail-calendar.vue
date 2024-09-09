@@ -47,91 +47,6 @@
       </v-btn> -->
     </div>
     <div>
-      <!-- <v-card>
-        <div class="calender-all">
-          <div class="calendar">
-            <div>
-              <div
-                class="content"
-                v-for="(item, index) in footerData"
-                :key="index"
-              >
-                <div
-                  class="line-header"
-                  :class="index == 1 ? 'headerHighlight' : ''"
-                >
-                  {{ item.FullName }}
-                </div>
-              </div>
-            </div>
-            <div class="shift" ref="scrollable4">
-              <div
-                class="content"
-                v-for="(item, index) in footerData"
-                :key="index"
-              >
-                <div
-                  style="display: flex"
-                  :class="index == 1 ? 'headerHighlight' : ''"
-                >
-                  <div v-for="(num, inde) in 31" :key="num">
-                    <div
-                      class="line"
-                      v-if="dayInMonth >= num"
-                      :class="listT7CN.includes(num) ? 'highlight' : ''"
-                      @click="btShowUserWork(num, index)"
-                    >
-                      <div
-                        :class="
-                          isWaning(
-                            index,
-                            inde,
-                            item[`Day` + `0${num}`.slice(-2)]
-                          )
-                            ? 'warning'
-                            : ''
-                        "
-                      >
-                        {{ item[`Day` + `0${num}`.slice(-2)] }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div
-                class="content"
-                v-for="(item, index) in footerData"
-                :key="index"
-              >
-                <div
-                  v-if="index < 1"
-                  class="line-header"
-                  style="text-align: center"
-                >
-                  Thực tế
-                </div>
-                <div
-                  v-if="index == 1"
-                  class="line-header"
-                  :class="index == 1 ? 'headerHighlight' : ''"
-                  style="text-align: center"
-                >
-                  Tổng
-                </div>
-                <div
-                  v-if="index > 1"
-                  class="line-header"
-                  style="text-align: center"
-                >
-                  {{ item.TotalShift }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </v-card> -->
       <v-card class="mt-4">
         <div class="calender-all" :key="updateName">
           <div class="calendar">
@@ -723,26 +638,22 @@ export default {
     },
     handleScroll(event) {
       this.$refs.scrollable2.scrollTop = event.target.scrollTop;
-      this.$refs.scrollable5.scrollTop = event.target.scrollTop;
     },
     handleScrollBack(event) {
       this.$refs.scrollable1.scrollTop = event.target.scrollTop;
     },
-    // handleScroll2(event) {
-    //   this.$refs.scrollable3.scrollLeft = event.target.scrollLeft;
-    //   this.$refs.scrollable4.scrollLeft = event.target.scrollLeft;
-    // },
-    // handleScroll2Back(event) {
-    //   this.$refs.scrollable3.scrollLeft = event.target.scrollLeft;
-    //   this.$refs.scrollable1.scrollLeft = event.target.scrollLeft;
-    // },
+    handleScroll2(event) {
+      this.$refs.scrollable3.scrollLeft = event.target.scrollLeft;
+    },
+    handleScroll2Back(event) {
+      this.$refs.scrollable3.scrollLeft = event.target.scrollLeft;
+      this.$refs.scrollable1.scrollLeft = event.target.scrollLeft;
+    },
   },
   mounted() {
     this.$refs.scrollable1.addEventListener("scroll", this.handleScroll);
     this.$refs.scrollable1.addEventListener("scroll", this.handleScroll2);
-    // this.$refs.scrollable2.addEventListener("scroll", this.handleScrollBack);
-    // this.$refs.scrollable5.addEventListener("scroll", this.handleScrollBack);
-    // this.$refs.scrollable4.addEventListener("scroll", this.handleScroll2Back);
+    this.$refs.scrollable2.addEventListener("scroll", this.handleScrollBack);
   },
   created() {
     var now = new Date().getMonth() + 1;
@@ -794,6 +705,10 @@ export default {
     ];
     this.footerData = [...this.headerCalender].concat(this.footerData);
     this.listUserWork = [...this.headerCalender].concat(this.listUserWork);
+    // this.$refs.scrollable1.scrollTop = 0;
+    // this.$refs.scrollable2.scrollTop = 0;
+    // this.$refs.scrollable3.scrollLeft = 0;
+    // this.$refs.scrollable1.scrollLeft = 0;
   },
 };
 </script>
