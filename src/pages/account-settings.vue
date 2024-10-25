@@ -1,16 +1,20 @@
 <script setup>
 import { useRoute } from "vue-router";
 import AccountSettingsAccount from "@/views/pages/account-settings/AccountSettingsAccount.vue";
-import AccountSettingsNotification from "@/views/pages/account-settings/AccountSettingsNotification.vue";
 import AccountSettingsSecurity from "@/views/pages/account-settings/AccountSettingsSecurity.vue";
-
+import AccountSettingsList from "@/views/pages/account-settings/index.vue";
 const route = useRoute();
 const activeTab = ref(route.params.tab);
 
 // tabs
 const tabs = [
   {
-    title: "Tài khoản",
+    title: "Danh sách",
+    icon: "fa-users",
+    tab: "list",
+  },
+  {
+    title: "Cá nhân",
     icon: "bx-user",
     tab: "account",
   },
@@ -19,11 +23,6 @@ const tabs = [
     icon: "bx-lock-open",
     tab: "security",
   },
-  // {
-  //   title: "Thông báo",
-  //   icon: "bx-bell",
-  //   tab: "notification",
-  // },
 ];
 </script>
 
@@ -38,19 +37,14 @@ const tabs = [
     <VDivider />
 
     <VWindow v-model="activeTab" class="mt-5 disable-tab-transition">
-      <!-- Account -->
+      <VWindowItem value="list">
+        <AccountSettingsList />
+      </VWindowItem>
       <VWindowItem value="account">
         <AccountSettingsAccount />
       </VWindowItem>
-
-      <!-- Security -->
       <VWindowItem value="security">
         <AccountSettingsSecurity />
-      </VWindowItem>
-
-      <!-- Notification -->
-      <VWindowItem value="notification">
-        <AccountSettingsNotification />
       </VWindowItem>
     </VWindow>
   </div>

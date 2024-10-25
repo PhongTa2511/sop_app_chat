@@ -1,7 +1,7 @@
 <script setup>
 import { useRoute } from "vue-router";
-import Shift from "@/views/pages/setting/shift.vue";
-import Variable from "@/views/pages/setting/variable.vue";
+import Procedure from "@/views/pages/procedure/index.vue";
+import Variable from "@/views/pages/default/index.vue";
 
 const route = useRoute();
 const activeTab = ref(route.params.tab);
@@ -9,20 +9,15 @@ const activeTab = ref(route.params.tab);
 // tabs
 const tabs = [
   {
-    title: "Ca làm việc",
+    title: "Quy trình",
     icon: "mdi-briefcase",
-    tab: "ca-lam-viec",
+    tab: "quy-trinh",
   },
   {
-    title: "Biến số",
+    title: "Giá trị khởi tạo",
     icon: "mdi-variable-box",
     tab: "bien-so",
   },
-  //   {
-  //     title: "Thiết bị",
-  //     icon: "mdi-deskphone",
-  //     tab: "thiet-bi",
-  //   },
 ];
 </script>
 
@@ -37,16 +32,12 @@ const tabs = [
     <VDivider />
 
     <VWindow v-model="activeTab" class="mt-5 disable-tab-transition">
-      <!-- Tổ chức -->
-      <VWindowItem value="ca-lam-viec">
-        <Shift />
+      <VWindowItem value="quy-trinh">
+        <Procedure />
       </VWindowItem>
       <VWindowItem value="bien-so">
         <Variable />
       </VWindowItem>
-      <!-- <VWindowItem value="thiet-bi">
-        <Device />
-      </VWindowItem> -->
     </VWindow>
   </div>
 </template>

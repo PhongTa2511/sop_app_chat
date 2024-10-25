@@ -22,10 +22,6 @@ export default {
     // set v-badge default color to primary
     color: "primary",
   },
-  VBtn: {
-    // set v-btn default color to primary
-    color: "primary",
-  },
   VChip: {
     elevation: 0,
     density: "comfortable",
@@ -69,8 +65,6 @@ export default {
   },
   VSelect: {
     variant: "outlined",
-    color: "primary",
-    hideDetails: "auto",
     density: "compact",
   },
   VRangeSlider: {
@@ -99,7 +93,7 @@ export default {
   VTextField: {
     variant: "outlined",
     color: "primary",
-    hideDetails: "auto",
+    hideDetails: "false",
     density: "compact",
   },
   VAutocomplete: {
@@ -130,5 +124,41 @@ export default {
     // set v-switch default color to primary
     color: "primary",
     hideDetails: "auto",
+  },
+  VBtn: {
+    color: "primary",
+    rounded: "",
+    flat: true,
+    fontWeight: "400",
+    letterSpacing: "0",
+    variant: "tonal",
+  },
+  VCard: {
+    flat: true,
+    elevation: 0,
+    padding: 20,
+  },
+
+  VAutocomplete: {
+    variant: "outlined",
+    density: "compact",
+  },
+  VCheckbox: {
+    color: "secondary",
+  },
+  VFileInput: {
+    variant: "outlined",
+    density: "compact",
+    color: "secondary",
+  },
+  VDatePicker: {
+    variant: "outlined",
+    density: "compact",
+    color: "secondary",
+  },
+  VTextarea: {
+    variant: "outlined",
+    density: "compact",
+    color: "secondary",
   },
 };

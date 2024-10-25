@@ -191,7 +191,7 @@ getUserInfo();
                 <VTextField
                   v-model="accountDataLocal.Email"
                   label="Email"
-                  placeholder="iKSVR@gmail.com"
+                  placeholder="DTP@gmail.com"
                   type="email"
                 />
               </VCol>

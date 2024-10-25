@@ -60,7 +60,6 @@ $alert-prepend-icon-font-size: 1.125rem !important;
 
 @each $color-name in variables.$theme-colors-name {
   .v-alert {
-
     &:not(.v-alert--prominent).text-#{$color-name},
     &:not(.v-alert--prominent).bg-#{$color-name} {
       .v-alert__prepend {
@@ -121,7 +120,8 @@ $alert-prepend-icon-font-size: 1.125rem !important;
 
 // 👉 VTabs
 .v-tabs--vertical:not(.v-tabs-pill) {
-  border-inline-end: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-inline-end: 1px solid
+    rgba(var(--v-border-color), var(--v-border-opacity));
 
   .v-tab__slider {
     inset-inline-end: 0;
@@ -180,10 +180,16 @@ $alert-prepend-icon-font-size: 1.125rem !important;
 
 // 👉 VTable
 .v-table {
-  color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity)) !important;
+  color: rgba(
+    var(--v-theme-on-surface),
+    var(--v-medium-emphasis-opacity)
+  ) !important;
 
   th {
-    color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity)) !important;
+    color: rgba(
+      var(--v-theme-on-surface),
+      var(--v-high-emphasis-opacity)
+    ) !important;
     font-size: 0.75rem;
     text-align: center !important;
     text-transform: uppercase;

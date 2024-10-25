@@ -61,7 +61,7 @@ const handleNavScroll = (evt) => {
         >
           <!-- <div class="d-flex" v-html="logo" /> -->
           <img :src="logo" alt="" style="height: 40px" />
-          <h1 class="leading-normal">iKSVR</h1>
+          <h1 class="leading-normal">DTP</h1>
         </RouterLink>
       </slot>
     </div>

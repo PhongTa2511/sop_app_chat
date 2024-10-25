@@ -92,7 +92,7 @@ export default {
           </div>
         </template>
 
-        <VCardTitle class="text-h3 font-weight-bold"> iKSVR </VCardTitle>
+        <VCardTitle class="text-h3 font-weight-bold"> DTP </VCardTitle>
       </VCardItem>
 
       <VCardText class="pt-2">
@@ -128,7 +128,7 @@ export default {
               <VTextField
                 v-model="form.Email"
                 label="Email"
-                placeholder="ilab@email.com"
+                placeholder="DTP@email.com"
                 type="email"
                 clearable
               />

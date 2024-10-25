@@ -1,12 +1,8 @@
 import { getToken } from "@/utils/auth.js";
-import request from "./request.js";
-export function UserLogin(data) {
-  return request({
-    url: "User/UserLogin",
-    method: "post",
-    data: data,
-  });
-}
+
+import request from "@/utils/request";
+import requestC from "@/utils/request-cpc1hn";
+
 export function LostPassword(data) {
   return request({
     url: "User/LostPassword",
@@ -36,22 +32,6 @@ export function ChangePassword(data) {
   });
 }
 
-export function GetUserInfo(data) {
-  return request({
-    url: "User/GetUserInfo",
-    method: "post",
-    data: data,
-  });
-}
-
-export function UpdateUserInfo(data) {
-  return request({
-    url: "User/UpdateUserInfo",
-    method: "post",
-    data: data,
-  });
-}
-
 export function GetEmployeeLst(data) {
   return request({
     url: "User/GetEmployeeLst",
@@ -68,6 +48,66 @@ export function AddEmployeeLst(data) {
   });
 }
 
+export function Login(data) {
+  return requestC({
+    url: "User/Login",
+    method: "post",
+    data: data,
+  });
+}
+
+export function GetUserLstAll(data) {
+  return request({
+    url: "User/GetUserLstAll",
+    method: "post",
+    data,
+  });
+}
+export function SetUserRole(data) {
+  return request({
+    url: "User/SetUserRole",
+    method: "post",
+    data,
+  });
+}
+export function DelUserRole(data) {
+  return request({
+    url: "User/DelUserRole",
+    method: "post",
+    data,
+  });
+}
+export function GetUserRole(data) {
+  return request({
+    url: "User/GetUserRole",
+    method: "post",
+    data,
+  });
+}
+export function RegisterAccount(data) {
+  return request({
+    url: "User/GSPRegister",
+    method: "post",
+    data,
+  });
+}
+
+export function UpdateUserInfo(data) {
+  return request({
+    url: "User/UpdateUserInfo",
+    method: "post",
+    data,
+  });
+}
+
+export function GetUserInfo(data) {
+  return request({
+    url: "User/GetUserInfo",
+    method: "post",
+    data,
+  });
+}
+
 export function urlUploadImageAvatar(ID) {
-  return `http://202.191.56.172/LabManagerAPI/File/UploadImageAvatar?UserID=${ID}&Token=${getToken()}`;
+  return `http://202.191.56.172/GSPDTPAPI/File/UploadImageAvatar?UserID=${ID}&Token=${getToken()}`;
 }

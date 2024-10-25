@@ -300,7 +300,7 @@ const isCardDetailsVisible = ref(false);
         <VCardText>
           If you're in the market for new desktops, notebooks, or PDAs, there
           are a myriad of choices. Here's a rundown of some of the best systems
-          available.
+          avaDTPle.
         </VCardText>
 
         <VCardActions>

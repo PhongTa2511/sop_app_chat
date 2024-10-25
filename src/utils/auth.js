@@ -1,18 +1,18 @@
 import Cookies from "js-cookie";
 
-const TokenKey = "TokenILAB";
-const UserName = "UserNameILAB";
-const FullName = "FullNameILAB";
-const PhoneNumber = "PhoneNumberILAB";
+const TokenKey = "TokenDTP";
+const UserName = "UserNameDTP";
+const FullName = "FullNameDTP";
+const PhoneNumber = "PhoneNumberDTP";
 
-const TypeCare = "TypeCareILAB";
-const EmployCode = "CommuneILAB";
-const UserID = "UserIDILAB";
-const Email = "EmailILAB";
-const PageNumber = "PageNumberILAB";
-const RowspPage = "RowspPageILAB";
-const Avatar = "AvatarILAB";
-const RankCustomer = "RankCustomerILAB";
+const TypeCare = "TypeCareDTP";
+const EmployCode = "CommuneDTP";
+const UserID = "UserIDDTP";
+const Email = "EmailDTP";
+const PageNumber = "PageNumberDTP";
+const RowspPage = "RowspPageDTP";
+const Avatar = "AvatarDTP";
+const RankCustomer = "RankCustomerDTP";
 
 export function setToken(token) {
   return Cookies.set(TokenKey, token, { expires: 1 });

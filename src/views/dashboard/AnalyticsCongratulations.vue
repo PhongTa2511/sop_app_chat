@@ -22,7 +22,7 @@ const illustrationJohn = computed(() =>
         <VCardText>
           <span>
             Chào mừng bạn đã đến với<br />
-            Hệ thống checkin iKSVR 🤩
+            Hệ thống checkin DTP 🤩
 
             <!-- Check your new raising badge in your profile. -->
           </span>

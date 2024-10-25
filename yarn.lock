@@ -1291,9 +1291,9 @@
   "resolved" "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz"
   "version" "0.4.0"
 
-"available-typed-arrays@^1.0.5":
+"avaDTPle-typed-arrays@^1.0.5":
   "integrity" "sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw=="
-  "resolved" "https://registry.npmjs.org/available-typed-arrays/-/available-typed-arrays-1.0.5.tgz"
+  "resolved" "https://registry.npmjs.org/avaDTPle-typed-arrays/-/avaDTPle-typed-arrays-1.0.5.tgz"
   "version" "1.0.5"
 
 "axios-mock-adapter@^1.21.4":
@@ -2003,7 +2003,7 @@
   "version" "1.21.2"
   dependencies:
     "array-buffer-byte-length" "^1.0.0"
-    "available-typed-arrays" "^1.0.5"
+    "avaDTPle-typed-arrays" "^1.0.5"
     "call-bind" "^1.0.2"
     "es-set-tostringtag" "^2.0.1"
     "es-to-primitive" "^1.2.1"
@@ -3217,7 +3217,7 @@
   "resolved" "https://registry.npmjs.org/is-typed-array/-/is-typed-array-1.1.10.tgz"
   "version" "1.1.10"
   dependencies:
-    "available-typed-arrays" "^1.0.5"
+    "avaDTPle-typed-arrays" "^1.0.5"
     "call-bind" "^1.0.2"
     "for-each" "^0.3.3"
     "gopd" "^1.0.1"
@@ -5521,7 +5521,7 @@
   "resolved" "https://registry.npmjs.org/which-typed-array/-/which-typed-array-1.1.9.tgz"
   "version" "1.1.9"
   dependencies:
-    "available-typed-arrays" "^1.0.5"
+    "avaDTPle-typed-arrays" "^1.0.5"
     "call-bind" "^1.0.2"
     "for-each" "^0.3.3"
     "gopd" "^1.0.1"

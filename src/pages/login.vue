@@ -1,14 +1,14 @@
 <script>
 import AuthProvider from "@/views/pages/authentication/AuthProvider.vue";
-import logo from "@images/logo-box.png";
-import { UserLogin } from "@/api/user.js";
+import logo from "@images/logos/cpc1hn-logo.png";
+import { Login } from "@/api/user.js";
 import {
   setToken,
   setFullName,
   setPhoneNumber,
-  setUserID,
+  setEmployCode,
   setEmail,
-  setAvatar,
+  setUserName,
 } from "@/utils/auth";
 export default {
   data() {
@@ -27,23 +27,17 @@ export default {
   },
   methods: {
     btLogin() {
-      UserLogin({
-        UserName: this.form.phone,
-        Password: this.form.password,
+      Login({
+        idEmployee: this.form.idEmployee,
+        password: this.form.password,
       }).then((res) => {
         setToken(res.Token);
+        setUserName(this.form.idEmployee);
         setFullName(res.Data.FullName);
-        setPhoneNumber(res.Data.Phone);
-        setUserID(res.Data.UserID);
-        setEmail(res.Data.Email);
-        if (res.Data.Avatar) {
-          var imageAvatar =
-            "http://202.191.56.172/LabManagerAPI/File/GetImageAvatar?UserID=" +
-            res.Data.UserID +
-            "&FileName=" +
-            res.Data.Avatar;
-          setAvatar(imageAvatar);
-        }
+        setPhoneNumber(res.Data.nameEmployee);
+        setEmployCode(res.Data.employeeCode);
+        setEmail(res.Data.emailCompany);
+
         this.$router.push("/");
         notify({
           type: "success",
@@ -66,11 +60,11 @@ export default {
           </div>
         </template>
 
-        <VCardTitle class="text-h3 font-weight-bold"> iKSVR </VCardTitle>
+        <!-- <VCardTitle class="text-h3 font-weight-bold"> DTP </VCardTitle> -->
       </VCardItem>
 
       <VCardText class="pt-2">
-        <h5 class="text-h5 mb-1">Welcome to iKSVR! 👋🏻</h5>
+        <h5 class="text-h5 mb-1">Quản lý quy trình DTP 👋🏻</h5>
         <p class="mb-0">
           Vui lòng đăng nhập vào tài khoản của bạn và bắt đầu trải nghiệm
         </p>
@@ -82,7 +76,7 @@ export default {
             <!-- email -->
             <VCol cols="12">
               <VTextField
-                v-model="form.phone"
+                v-model="form.idEmployee"
                 autofocus
                 placeholder="Nhập số điện thoại"
                 label="Số điện thoại"
@@ -116,16 +110,16 @@ export default {
               </div>
 
               <!-- login button -->
-              <VBtn block type="submit"> Đăng nhập </VBtn>
+              <VBtn block type="submit" rounded="md"> Đăng nhập </VBtn>
             </VCol>
 
             <!-- create account -->
-            <VCol cols="12" class="text-center text-base">
+            <!-- <VCol cols="12" class="text-center text-base">
               <span>Bạn chưa có tải khoản ?</span>
               <RouterLink class="text-primary ms-2" to="/dang-ky">
                 Tạo mới
               </RouterLink>
-            </VCol>
+            </VCol> -->
 
             <!-- <VCol cols="12" class="d-flex align-center">
               <VDivider />
