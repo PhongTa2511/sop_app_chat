@@ -19,7 +19,7 @@
             ></v-text-field>
 
             <v-textarea
-              v-model="createWork.Description"
+              v-model="createWork.WDescription"
               label="Mô tả"
               :rows="2"
             ></v-textarea>
@@ -29,7 +29,7 @@
                 <v-select
                   placeholder="Nhóm xử lý"
                   density="compact"
-                  v-model="userWork.GroupName"
+                  v-model="userWork.GroupEmploy"
                   :items="groupLst"
                   item-value="ValueName"
                   item-title="ValueName"
@@ -39,7 +39,7 @@
                 ></v-select>
                 <v-select
                   placeholder="Người xử lý"
-                  v-model="userWork.UserName"
+                  v-model="userWork.UserID"
                   :items="userLst"
                   item-value="UserName"
                   item-title="FullName"
@@ -62,7 +62,7 @@
                 <v-select
                   placeholder="Nhóm phê duyệt"
                   density="compact"
-                  v-model="userManager.GroupName"
+                  v-model="userManager.GroupEmploy"
                   :items="groupLst"
                   item-value="ValueName"
                   item-title="ValueName"
@@ -73,7 +73,7 @@
                 <v-select
                   placeholder="Người phê duyệt"
                   density="compact"
-                  v-model="userManager.UserName"
+                  v-model="userManager.UserID"
                   :items="userLst"
                   item-value="UserName"
                   item-title="FullName"
@@ -106,46 +106,86 @@
       <v-card>
         <v-card-title>Chỉnh sửa công việc</v-card-title>
         <v-card-text>
-          <v-form v-model="validEdit" ref="editForm">
+          <v-form ref="editForm">
+            <v-text-field
+              v-model="editWork.WorkName"
+              label="Tên công việc"
+              class="mb-2"
+            ></v-text-field>
+
+            <v-textarea
+              v-model="editWork.WDescription"
+              label="Mô tả"
+              :rows="2"
+            ></v-textarea>
+
             <v-row>
-              <v-col cols="10">
+              <v-col :lg="6">
+                <span>Cài đặt xử lý</span>
+                <v-select
+                  placeholder="Nhóm xử lý"
+                  density="compact"
+                  v-model="userWork.GroupEmploy"
+                  :items="groupLst"
+                  item-value="ValueName"
+                  item-title="ValueName"
+                  chips
+                  style="max-width: 280px"
+                  class="mr-2 mt-2"
+                ></v-select>
+                <v-select
+                  placeholder="Người xử lý"
+                  v-model="userWork.UserID"
+                  :items="userLst"
+                  item-value="UserName"
+                  item-title="FullName"
+                  chips
+                  style="max-width: 280px"
+                  class="mr-2 elevent-1"
+                ></v-select>
                 <v-text-field
-                  v-model="editWork.StepName"
-                  label="Tên công việc"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="2">
-                <v-text-field
-                  v-model="editWork.StepOrder"
-                  label="Thứ tự"
+                  v-model="userWork.QuotaTime"
+                  label="Hạn xử lý"
                   type="number"
                   :min="1"
                   :max="1000"
+                  suffix="Ngày"
+                  style="max-width: 280px"
                 ></v-text-field>
               </v-col>
-            </v-row>
-
-            <v-textarea
-              v-model="editWork.Description"
-              label="Mô tả"
-            ></v-textarea>
-
-            <span>Khi bị từ chối</span>
-            <v-row>
-              <v-col cols="6">
-                <v-radio-group v-model="createWork.IsNextStep">
-                  <v-radio label="Chọn công việc quay lại" :value="2"></v-radio>
-                  <v-radio label="Làm lại công việc này" :value="1"></v-radio>
-                </v-radio-group>
-              </v-col>
-              <v-col cols="6" v-if="createWork.IsNextStep == 2">
+              <v-col :lg="6">
+                <span>Cài đặt phê duyệt</span>
                 <v-select
-                  v-model="createWork.StepBack"
-                  :items="optionConfirmLst"
-                  item-text="label"
-                  item-value="value"
-                  label="Chọn công việc quay lại khi bị từ chối"
+                  placeholder="Nhóm phê duyệt"
+                  density="compact"
+                  v-model="userManager.GroupEmploy"
+                  :items="groupLst"
+                  item-value="ValueName"
+                  item-title="ValueName"
+                  chips
+                  style="max-width: 280px"
+                  class="mr-2 mt-2"
                 ></v-select>
+                <v-select
+                  placeholder="Người phê duyệt"
+                  density="compact"
+                  v-model="userManager.UserID"
+                  :items="userLst"
+                  item-value="UserName"
+                  item-title="FullName"
+                  chips
+                  style="max-width: 280px"
+                  class="mr-2"
+                ></v-select>
+                <v-text-field
+                  v-model="userManager.QuotaTime"
+                  label="Hạn phê duyệt"
+                  type="number"
+                  :min="1"
+                  :max="1000"
+                  suffix="Ngày"
+                  style="max-width: 280px"
+                ></v-text-field>
               </v-col>
             </v-row>
           </v-form>
@@ -153,7 +193,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn @click="isShowEditWork = false">Cancel</v-btn>
-          <v-btn color="success" @click="btEditWork">Xác nhận</v-btn>
+          <v-btn color="green" @click="btEditWork">Xác nhận</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -182,20 +222,19 @@
       :headers="headers"
       :items="workLst"
       height="calc(100vh - 300px)"
+      :loading="loadding"
     >
+      <template v-slot:loading>
+        <v-skeleton-loader type="table-row@5"></v-skeleton-loader>
+      </template>
       <template v-slot:item.Key="{ item }">
-        {{ item.raw.Key }}
+        {{ item.Key }}
         <v-icon color="warning" @click="btShowEditWork(item)"
           >mdi-square-edit-outline</v-icon
         >
       </template>
-      <template v-slot:item.action="{ item }">
-        <v-icon color="success" @click="btSeeInfoWork(item)"
-          >mdi-format-list-numbered</v-icon
-        >
-      </template>
       <template v-slot:item.Status="{ item }">
-        <v-chip color="success" v-if="item.raw.Status == 1">Hoạt động</v-chip>
+        <v-chip color="success" v-if="item.Status == 1">Hoạt động</v-chip>
       </template>
     </v-data-table>
   </v-card>
@@ -221,12 +260,11 @@ export default {
           width: 80,
           sortable: false,
         },
-        { title: "Action", key: "action", align: "center", sortable: false },
-        { title: "Mã", key: "StepID" },
-        { title: "Bước", key: "StepName" },
-        { title: "Quay lại", key: "StepBack" },
-        { title: "Thứ tự", key: "StepOrder", align: "center" },
-        { title: "Mô tả", key: "Description" },
+        { title: "Mã", key: "WorkID" },
+        { title: "Công việc", key: "WorkName" },
+        { title: "Mô tả", key: "WDescription" },
+        { title: "BP xử lý", key: "GroupWork" },
+        { title: "BP phê duyệt", key: "GroupManager" },
         { title: "Trạng thái", key: "Status" },
       ],
       isShowCreateWork: false,
@@ -239,6 +277,8 @@ export default {
       groupLst: [],
       userWork: {},
       userManager: {},
+      loadding: false,
+      editWork: {},
     };
   },
 
@@ -261,11 +301,19 @@ export default {
       this.getWorkDefineLst();
     },
     btCreateWork() {
+      var reqAssign = [];
+      if (this.userWork.GroupEmploy && this.userWork.QuotaTime) {
+        reqAssign.push({ ...this.userWork, UserRole: "Xử lý" });
+      }
+      if (this.userManager.GroupEmploy && this.userManager.QuotaTime) {
+        reqAssign.push({ ...this.userWork, UserRole: "Phê duyệt" });
+      }
+
       CreateWorkDefine({
         WorkInfo: {
           ...this.createWork,
         },
-        AssignLst: [],
+        AssignLst: reqAssign,
       }).then((res) => {
         if (res.RespCode == 0) {
           this.getWorkDefineLst();
@@ -279,9 +327,12 @@ export default {
         }
       });
     },
-    btShowUpdateWork(data) {
-      this.isShowUpdateWork = true;
-      this.updateWork = data;
+    btShowEditWork(item) {
+      this.isShowEditWork = true; // Show the edit dialog
+      this.editWork = { ...item }; // Populate editWork with the selected item's data
+
+      this.userWork = item.Data.find((p) => p.UserRole == "Xử lý") ?? {};
+      this.userManager = item.Data.find((p) => p.UserRole == "Phê duyệt") ?? {};
     },
     btUpdateWork() {
       UpdateWorkDefine({
@@ -308,14 +359,19 @@ export default {
         Search: "",
         StepID: this.phaseInfo.StepID,
       }).then((res) => {
-        this.workLst = res.Data.filter((w) => w.Status != 0).map(
-          (item, index) => {
-            return {
-              ...item,
-              Key: index + 1,
-            };
-          }
-        );
+        this.workLst = res.Data.map((item, index) => {
+          var checkWork = item.Data.find((p) => p.UserRole == "Xử lý");
+          var groupWork = checkWork ? checkWork.GroupEmploy : "";
+          var checkManager = item.Data.find((p) => p.UserRole == "Phê duyệt");
+          var groupManager = checkManager ? checkManager.GroupEmploy : "";
+          return {
+            ...item,
+            Key: index + 1,
+            GroupWork: groupWork,
+            GroupMânger: groupManager,
+          };
+        });
+        this.loadding = false;
       });
     },
 
@@ -328,9 +384,46 @@ export default {
     },
 
     getStepByID() {
+      this.loadding = true;
       GetStepByID({ StepID: this.$route.params.id }).then((res) => {
         this.phaseInfo = res.Data;
         this.getWorkDefineLst();
+      });
+    },
+
+    btEditWork() {
+      // Prepare the request payload
+      const reqAssign = [];
+      if (this.userWork.GroupEmploy && this.userWork.QuotaTime) {
+        reqAssign.push({ ...this.userWork, UserRole: "Xử lý" });
+      }
+      if (this.userManager.GroupEmploy && this.userManager.QuotaTime) {
+        reqAssign.push({ ...this.userManager, UserRole: "Phê duyệt" });
+      }
+
+      // Call the UpdateWorkDefine API
+      UpdateWorkDefine({
+        WorkInfo: {
+          ...this.editWork,
+        },
+        AssignLst: reqAssign,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.getWorkDefineLst(); // Refresh the work list
+          this.isShowEditWork = false; // Close the edit dialog
+
+          this.$notify({
+            title: "Thành công",
+            message: "Cập nhật công việc thành công",
+            type: "success",
+          });
+        } else {
+          this.$notify({
+            title: "Thất bại",
+            message: "Cập nhật công việc thất bại",
+            type: "error",
+          });
+        }
       });
     },
   },

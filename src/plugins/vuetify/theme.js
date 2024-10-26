@@ -8,7 +8,7 @@ const theme = {
       colors: {
         blue: "#027CFE",
         orange: "#F0952D",
-        green: "#39C757",
+        green: "#05b187",
         red: "#FF2E53",
         purple: "#5454D4",
         grey: "#8F8E94",
@@ -56,7 +56,7 @@ const theme = {
         "snackbar-color": "#ffffff",
         "tooltip-background": "#262732",
         "tooltip-opacity": 0.9,
-        "table-header-background": "#F5F5F7",
+        "table-header-background": "#fff",
         "high-emphasis-opacity": 0.9,
         "medium-emphasis-opacity": 0.9,
         // Shadows

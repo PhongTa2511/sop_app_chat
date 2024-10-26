@@ -37,12 +37,12 @@ const router = createRouter({
           component: () => import("@/views/pages/procedure/workindex.vue"),
         },
         {
-          path: "quan-tri-he-thong",
-          component: () => import("../pages/manager-system.vue"),
+          path: "danh-sach-quy-trinh",
+          component: () => import("../pages/document.vue"),
         },
         {
-          path: "checkin",
-          component: () => import("@/views/pages/checkin/index.vue"),
+          path: "san-pham",
+          component: () => import("@/views/pages/product/index.vue"),
         },
         {
           path: "lich-lam-viec",

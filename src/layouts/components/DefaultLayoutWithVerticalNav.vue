@@ -63,9 +63,9 @@ const vuetifyTheme = useTheme();
       />
       <VerticalNavLink
         :item="{
-          title: 'Quản trị hệ thống',
-          icon: 'mdi-desktop-classic',
-          to: '/quan-tri-he-thong',
+          title: 'Danh sách quy trình',
+          icon: 'mdi-list-box',
+          to: '/danh-sach-quy-trinh',
         }"
       />
       <!-- <VerticalNavLink
@@ -91,18 +91,18 @@ const vuetifyTheme = useTheme();
       /> -->
       <VerticalNavLink
         :item="{
-          title: 'Checkin',
-          icon: 'mdi-face-recognition',
-          to: '/checkin',
+          title: 'Sản phẩm',
+          icon: 'mdi-package-variant-closed',
+          to: '/san-pham',
         }"
       />
-      <VerticalNavLink
+      <!-- <VerticalNavLink
         :item="{
           title: 'Lịch làm việc',
           icon: 'mdi-calendar-month',
           to: '/lich-lam-viec',
         }"
-      />
+      /> -->
 
       <VerticalNavSectionTitle
         :item="{

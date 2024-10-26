@@ -10,11 +10,13 @@
               label="Tên quy trình(*)"
               placeholder="Nhập trên quy trình"
               required
+              class="mb-2"
             ></v-text-field>
             <v-textarea
               v-model="createProcedure.Description"
               label="Mô tả"
               placeholder="Nhập mô tả quy trình"
+              :rows="2"
             ></v-textarea>
           </v-form>
         </v-card-text>
@@ -201,11 +203,13 @@
               label="Tên quy trình(*)"
               placeholder="Nhập trên quy trình"
               required
+              class="mb-2"
             ></v-text-field>
             <v-textarea
               v-model="createProcedure.Description"
               label="Mô tả"
               placeholder="Nhập mô tả quy trình"
+              :rows="2"
             ></v-textarea>
             <!-- <v-radio-group v-model="createProcedure.Status">
               <v-radio label="Đang hoạt động" :value="1"></v-radio>
