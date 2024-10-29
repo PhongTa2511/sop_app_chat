@@ -66,6 +66,7 @@ export default {
   VSelect: {
     variant: "outlined",
     density: "compact",
+    hideDetails: "auto",
   },
   VRangeSlider: {
     // set v-range-slider default color to primary
@@ -112,11 +113,12 @@ export default {
   VFileInput: {
     variant: "outlined",
     color: "primary",
+    density: "compact",
     hideDetails: "auto",
   },
   VTextarea: {
     variant: "outlined",
-    density: "comfortable",
+    density: "compact",
     color: "primary",
     hideDetails: "auto",
   },
@@ -146,17 +148,7 @@ export default {
   VCheckbox: {
     color: "secondary",
   },
-  VFileInput: {
-    variant: "outlined",
-    density: "compact",
-    color: "secondary",
-  },
   VDatePicker: {
-    variant: "outlined",
-    density: "compact",
-    color: "secondary",
-  },
-  VTextarea: {
     variant: "outlined",
     density: "compact",
     color: "secondary",

@@ -111,41 +111,56 @@
     </v-card>
   </v-dialog>
   <!-- Dialog for creating a document -->
-  <v-dialog v-model="isShowCreateDocument" width="600">
+  <v-dialog v-model="isShowCreateDocument" width="800">
     <v-card>
       <v-card-title>Tạo quy trình mới</v-card-title>
       <v-card-text>
-        <v-text-field
+        <v-select
+          placeholder="Chọn loại quy trình"
+          density="compact"
           v-model="createDocument.TypeDoc"
-          label="Tên hồ sơ"
-          required
-        ></v-text-field>
-        <v-text-field
-          v-model="createDocument.description"
+          :items="procedureLst"
+          item-value="ProcedureID"
+          item-title="ProcedureName"
+          chips
+          class="mb-2"
+        ></v-select>
+        <v-textarea
+          v-model="createDocument.Note"
           label="Mô tả"
           required
-        ></v-text-field>
-        <!-- Thêm nút tải lên file Excel -->
-        <v-file-input
-          v-model="excelFile"
-          label="Tải lên file Excel"
+          :rows="2"
+          class="mb-2"
+        ></v-textarea>
+        <!-- Thay đổi thẻ v-file-input thành nút v-btn để mở tải file Excel -->
+        <v-btn
+          color="green"
+          rounded="8"
+          @click="$refs.fileInput.click()"
+          class="mr-2"
+        >
+          Tải lên file Excel
+        </v-btn>
+        <v-btn color="primary" rounded="8" @click="btExportExcel">
+          Excel mẫu
+        </v-btn>
+        <input
+          ref="fileInput"
+          type="file"
           accept=".xls,.xlsx"
           @change="handleFileUpload"
-          :multiple="false"
-        ></v-file-input>
-        <!-- Hiển thị danh sách file Excel dưới dạng tag -->
-        <div class="mt-3" v-if="excelFileList.length > 0">
-          <span v-for="(file, index) in excelFileList" :key="index">
-            <v-chip class="mr-2" close @click:close="removeFile(index)">
-              {{ file.name }} ({{ file.size }} MB)
-              <!-- Hiển thị kích thước bằng MB -->
-            </v-chip>
-          </span>
-        </div>
+          style="display: none"
+        />
+        <v-data-table
+          :headers="headersProduct"
+          :items="productExcelLst"
+          hide-default-footer
+        >
+        </v-data-table>
       </v-card-text>
       <v-card-actions>
         <v-btn @click="isShowCreateDocument = false" text>Hủy</v-btn>
-        <v-btn color="success" @click="btCreateDocument">Tạo</v-btn>
+        <v-btn color="green" @click="btCreateDocument">Xác nhận</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -157,9 +172,15 @@ import {
   UpdateGSPDocument,
   CreateGSPDocument,
 } from "@/api/briefApi";
-import { formatDate, formatDateDisplayDDMMYY } from "@/helpers/getTime";
-import { GetProcedureNameInfo } from "@/api/procedureApi";
+import {
+  formatDate,
+  formatDateDisplayDDMMYY,
+  formatDateUpload,
+} from "@/helpers/getTime";
+import { GetProcedureNameInfo, GetProcedureLst } from "@/api/procedureApi";
 import { ProcessDocument } from "@/api/documentJobApi";
+import { exportExcel, excelDateToJSDate, convertToDate } from "./function";
+import XLSX from "xlsx";
 
 export default {
   data() {
@@ -189,7 +210,6 @@ export default {
       isShowConfirm: false,
       checkRole: false,
       dataAll: [],
-      checkUpdate: 0,
       loadding: false,
       procedureName: {},
       isShowProcess: false,
@@ -216,41 +236,78 @@ export default {
         { title: "", key: "Action", width: 80 },
         { title: "Trạng thái", key: "Status", sortable: false, width: 100 },
       ],
+      headersProduct: [
+        {
+          title: "STT",
+          sortable: false,
+          key: "Key",
+          width: 40,
+          align: "center",
+        },
+        {
+          title: "Tên hàng hóa",
+          key: "ProductName",
+          sortable: false,
+          width: 200,
+        },
+        { title: "Số lô", key: "Lotcode", sortable: false, width: 80 },
+        {
+          title: "Mã BFO",
+          key: "BFO",
+          sortable: false,
+          align: "center",
+        },
+        {
+          title: "Hạn dùng",
+          key: "ExpDateShow",
+          sortable: false,
+          align: "center",
+        },
+        {
+          title: "SL",
+          key: "Quantity",
+          sortable: false,
+          align: "center",
+        },
+        {
+          title: "ĐVT",
+          key: "Unit",
+          sortable: false,
+          align: "center",
+        },
+        {
+          title: "Tình trạng",
+          key: "StatusText",
+          sortable: false,
+          align: "center",
+        },
+        {
+          title: "Quyết định",
+          key: "Decision",
+          sortable: false,
+          align: "center",
+        },
+        {
+          title: "Ghi chú",
+          key: "Note",
+          sortable: false,
+          align: "center",
+        },
+      ],
+      productExcelLst: [],
       isShowCreateDocument: false, // State for the create document dialog
       createDocument: {
         // Changed from createFile to createDocument
         name: "",
         description: "",
       },
-      excelFile: null, // Thêm biến để lưu file Excel
-      excelFileList: [], // Danh sách file Excel đã tải lên
-      excelFileHeaders: [
-        // Định nghĩa headers cho bảng
-        { text: "Tên file", value: "name" },
-        { text: "Kích thước", value: "size" },
-      ],
+      excelFile: null,
     };
   },
-  watch: {
-    // inputSearch() {
-    //   console.log("123", this.inputSearch.toLowerCase());
-    //   this.fetchTable();
-    // },
-    optionStatus() {
-      this.fetchTable();
-    },
-    checkUpdate() {
-      if (this.checkUpdate != 0) {
-        if (this.checkUpdate + 1 == this.selectLst.length) {
-          this.loadding = false;
-          this.checkUpdate = 0;
-        } else {
-          this.confirmBrief();
-        }
-      }
-    },
-  },
   methods: {
+    btExportExcel() {
+      exportExcel();
+    },
     btShowOpenFile(data) {
       var linkPDF =
         "http://202.191.56.172/RDAPI/File/GetDocumentFile?FileName=" +
@@ -258,7 +315,7 @@ export default {
       window.open(linkPDF, "_blank");
     },
     editHS(data) {
-      this.$router.push("/thong-tin-xuat-khau/" + data.DocumentID);
+      router.push("/thong-tin-xuat-khau/" + data.DocumentID);
     },
     getProcedureNameInfo() {
       GetProcedureNameInfo({
@@ -276,92 +333,16 @@ export default {
         Search: this.inputSearch,
         DocID: "",
       }).then((res) => {
-        this.dataAll = res.Data.filter(
-          (p) => p.Status > 0 && p.TypeDoc != "QT00006"
-        ).map((item, index) => {
+        this.fileLst = res.Data.map((item, index) => {
           return {
             ...item,
             Key: index + 1,
             DateRecept2: formatDateDisplayDDMMYY(item.DateRecept),
           };
         });
-        this.fetchTable();
       });
     },
-    fetchTable() {
-      var dataFilter = [];
-      if (this.optionStatus == 4) {
-        dataFilter = this.dataAll;
-      } else {
-        dataFilter = this.dataAll
-          .filter((o) => o.Status == this.optionStatus)
-          .map((item, index) => {
-            return {
-              ...item,
-              Key: index + 1,
-            };
-          });
-      }
-      dataFilter = dataFilter.filter((o) => {
-        if (this.inputSearch) {
-          return (
-            o.DocName.toLowerCase().includes(this.inputSearch.toLowerCase()) ||
-            o.WarehouseName.toLowerCase().includes(
-              this.inputSearch.toLowerCase()
-            ) ||
-            o.CompanyName.toLowerCase().includes(this.inputSearch.toLowerCase())
-          );
-        } else {
-          return o;
-        }
-      });
 
-      this.lengthDataTable = dataFilter.length;
-
-      this.fileLst = dataFilter.slice(
-        (this.currentPage - 1) * this.pageSize,
-        this.currentPage * this.pageSize
-      );
-    },
-    handleSelectionChange(val) {
-      console.log(val);
-      this.selectLst = val;
-    },
-    confirmBrief() {
-      this.loadding = true;
-      var fileInfo = this.selectLst[this.checkUpdate];
-      UpdateGSPDocument({
-        DocumentInfo: {
-          WarehouseID: fileInfo.WarehouseID,
-          DocumentID: fileInfo.DocumentID,
-          TypeDoc: fileInfo.TypeDoc,
-          DateRecept: formatDate(fileInfo.DateRecept),
-          StepID: fileInfo.StepID,
-          StepStt: fileInfo.StepStt,
-          DateExpired: formatDate(fileInfo.DateExpired),
-          Note: fileInfo.Note,
-          Status: this.statusConfirm,
-          WarehouseName: fileInfo.WarehouseName,
-          CompanyID: fileInfo.CompanyID,
-          CompanyName: fileInfo.CompanyName,
-          StepName: fileInfo.StepName,
-          LinkFile: fileInfo.LinkFile,
-          EmployeeCode: fileInfo.EmployeeCode,
-        },
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.checkUpdate++;
-          this.$notify({
-            title: "Cập nhật",
-            message: "Cập nhật thông tin thành công",
-            type: "success",
-          });
-        } else {
-          this.checkUpdate = 0;
-          this.loadding = false;
-        }
-      });
-    },
     btShowProcess(row) {
       this.fetchProcessDocument(row.DocumentID);
     },
@@ -372,7 +353,7 @@ export default {
             this.workInfo = res.DocumentJobLst;
             this.isShowProcess = true;
           } else {
-            this.$notify({
+            notify({
               title: "Error",
               message: res.RespText,
               type: "error",
@@ -380,7 +361,7 @@ export default {
           }
         })
         .catch((error) => {
-          this.$notify({
+          notify({
             title: "Error",
             message: "Failed to fetch process data.",
             type: "error",
@@ -389,10 +370,16 @@ export default {
         });
     },
     btCreateDocument() {
-      CreateGSPDocument(this.createDocument).then((res) => {
+      CreateGSPDocument({
+        DocumentInfo: {
+          TypeDoc: this.createDocument.TypeDoc,
+          Note: this.createDocument.Note,
+          Data: this.productExcelLst,
+        },
+      }).then((res) => {
         // Updated to use createDocument
         if (res.RespCode === 0) {
-          this.$notify({
+          notify({
             title: "Tạo hồ sơ",
             message: "Hồ sơ đã được tạo thành công",
             type: "success",
@@ -400,7 +387,7 @@ export default {
           this.isShowCreateDocument = false; // Close dialog
           this.getGSPDocumentLst(); // Refresh the document list
         } else {
-          this.$notify({
+          notify({
             title: "Lỗi",
             message: res.RespText,
             type: "error",
@@ -411,22 +398,85 @@ export default {
     handleFileUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        this.excelFileList = [
-          {
-            // Chỉ lưu một file
-            name: file.name,
-            size: (file.size / 1048576).toFixed(2), // Chuyển đổi kích thước từ byte sang MB
-          },
-        ];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const bstr = e.target.result;
+          const wb = XLSX.read(bstr, { type: "binary" });
+          const wsname = wb.SheetNames[0];
+          const ws = wb.Sheets[wsname];
+          const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+          console.log(data);
+
+          this.productExcelLst = this.convertToReq(data).map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+            };
+          });
+        };
+        reader.readAsBinaryString(file);
       }
     },
-    removeFile(index) {
-      this.excelFileList.splice(index, 1); // Xóa file khỏi danh sách
+
+    convertToReq(data) {
+      var lstReq = [];
+      for (var i = 1; i < data.length; i++) {
+        if (data[i][1]) {
+          console.log(new Date(data[i][4]), data[i][4]);
+
+          var req = {
+            Key: data[i][0],
+            ProductName: data[i][1],
+            Lotcode: data[i][2],
+            BFO: data[i][3],
+            ExpDateShow: Number.isInteger(data[i][4])
+              ? formatDateUpload(excelDateToJSDate(data[i][4]))
+              : formatDateUpload(convertToDate(data[i][4])),
+            ExpDate: Number.isInteger(data[i][4])
+              ? formatDateUpload(excelDateToJSDate(data[i][4])) + " 00:00:00"
+              : formatDateUpload(convertToDate(data[i][4])) + " 00:00:00",
+            Quantity: data[i][5],
+            Unit: data[i][6],
+            StatusText: data[i][7],
+            Decision: data[i][8],
+            Note: data[i][9],
+          };
+          lstReq.push(req);
+        }
+      }
+      return lstReq;
+    },
+    getProcedureLst() {
+      GetProcedureLst({
+        PageNumber: 1,
+        RowspPage: 100,
+        Search: "",
+      })
+        .then((res) => {
+          if (res.RespCode === 0) {
+            this.procedureLst = res.Data; // Assuming you want to store the result in procedureLst
+          } else {
+            notify({
+              title: "Error",
+              message: res.RespText,
+              type: "error",
+            });
+          }
+        })
+        .catch((error) => {
+          notify({
+            title: "Error",
+            message: "Failed to fetch procedure list.",
+            type: "error",
+          });
+          console.error(error);
+        });
     },
   },
   created() {
     this.getGSPFileLst();
     this.getProcedureNameInfo();
+    this.getProcedureLst(); // Call the new method to fetch procedure list
   },
 };
 </script>

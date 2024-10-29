@@ -9,43 +9,44 @@
               v-model="createPhase.ProcedureName"
               label="Quy trình xử lý"
               :disabled="true"
+              class="mb-2"
             ></v-text-field>
-            <v-row>
-              <v-col cols="10">
-                <v-text-field
-                  v-model="createPhase.StepName"
-                  label="Tên bước"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="2">
-                <v-text-field
-                  v-model="createPhase.StepOrder"
-                  label="Thứ tự"
-                  type="number"
-                  :min="1"
-                  :max="1000"
-                ></v-text-field>
-              </v-col>
-            </v-row>
+
+            <v-text-field
+              v-model="createPhase.StepName"
+              label="Tên bước"
+              class="mb-2"
+            ></v-text-field>
+
             <v-textarea
               v-model="createPhase.Description"
               label="Mô tả"
+              class="mb-2"
             ></v-textarea>
-            <span>Khi bị từ chối</span>
+
             <v-row>
               <v-col cols="6">
-                <v-radio-group v-model="createPhase.IsNextStep">
-                  <v-radio label="Chọn bước quay lại" :value="2"></v-radio>
-                  <v-radio label="Làm lại bước này" :value="1"></v-radio>
-                </v-radio-group>
-              </v-col>
-              <v-col cols="6" v-if="createPhase.IsNextStep == 2">
+                <span>Khi bị từ chối</span>
                 <v-select
                   v-model="createPhase.StepBack"
-                  :items="optionConfirmLst"
-                  item-text="label"
-                  item-value="value"
-                  label="Chọn bước quay lại khi bị từ chối"
+                  :items="phaseLst"
+                  item-title="StepName"
+                  item-value="StepID"
+                  label="Chọn bước khi bị từ chối"
+                  class="mt-2"
+                  clearable
+                ></v-select>
+              </v-col>
+              <v-col cols="6">
+                <span>Khi tiếp tục</span>
+                <v-select
+                  v-model="createPhase.StepNext"
+                  :items="phaseLst"
+                  item-title="StepName"
+                  item-value="StepID"
+                  label="Chọn bước tiếp theo"
+                  class="mt-2"
+                  clearable
                 ></v-select>
               </v-col>
             </v-row>
@@ -64,44 +65,40 @@
         <v-card-title>Chỉnh sửa bước</v-card-title>
         <v-card-text>
           <v-form v-model="validEdit" ref="editForm">
-            <v-row>
-              <v-col cols="10">
-                <v-text-field
-                  v-model="editPhase.StepName"
-                  label="Tên bước"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="2">
-                <v-text-field
-                  v-model="editPhase.StepOrder"
-                  label="Thứ tự"
-                  type="number"
-                  :min="1"
-                  :max="1000"
-                ></v-text-field>
-              </v-col>
-            </v-row>
+            <v-text-field
+              v-model="editPhase.StepName"
+              label="Tên bước"
+              class="mb-2"
+            ></v-text-field>
 
             <v-textarea
               v-model="editPhase.Description"
               label="Mô tả"
+              class="mb-2"
             ></v-textarea>
-
-            <span>Khi bị từ chối</span>
             <v-row>
               <v-col cols="6">
-                <v-radio-group v-model="createPhase.IsNextStep">
-                  <v-radio label="Chọn bước quay lại" :value="2"></v-radio>
-                  <v-radio label="Làm lại bước này" :value="1"></v-radio>
-                </v-radio-group>
-              </v-col>
-              <v-col cols="6" v-if="createPhase.IsNextStep == 2">
+                <span>Khi bị từ chối</span>
                 <v-select
-                  v-model="createPhase.StepBack"
-                  :items="optionConfirmLst"
-                  item-text="label"
-                  item-value="value"
-                  label="Chọn bước quay lại khi bị từ chối"
+                  v-model="editPhase.StepBack"
+                  :items="phaseLst"
+                  item-title="StepName"
+                  item-value="StepID"
+                  label="Chọn bước khi bị từ chối"
+                  class="mt-2"
+                  clearable
+                ></v-select>
+              </v-col>
+              <v-col cols="6">
+                <span>Khi tiếp tục</span>
+                <v-select
+                  v-model="editPhase.StepNext"
+                  :items="phaseLst"
+                  item-title="StepName"
+                  item-value="StepID"
+                  label="Chọn bước tiếp theo"
+                  class="mt-2"
+                  clearable
                 ></v-select>
               </v-col>
             </v-row>
@@ -182,8 +179,9 @@ export default {
         { title: "Action", key: "action", align: "center", sortable: false },
         { title: "Mã", key: "StepID" },
         { title: "Bước", key: "StepName" },
-        { title: "Quay lại", key: "StepBack" },
-        { title: "Thứ tự", key: "StepOrder", align: "center" },
+        { title: "Từ chối", key: "StepBack" },
+        { title: "Tiếp tục", key: "StepNext" },
+        // { title: "Thứ tự", key: "StepOrder", align: "center" },
         { title: "Mô tả", key: "Description" },
         { title: "Trạng thái", key: "Status" },
       ],
@@ -254,22 +252,18 @@ export default {
         ProcedureID: this.$route.params.id,
       }).then((res) => {
         if (res.RespCode == 0) {
-          this.phaseLst = res.Data.filter((p) => p.Status != 0)
-            .sort((a, b) => {
-              return a.StepOrder - b.StepOrder;
-            })
-            .map((item, index) => {
-              return {
-                ...item,
-                Key: index + 1,
-              };
-            });
+          this.phaseLst = res.Data.map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+            };
+          });
           this.updateUI++;
         }
       });
     },
     btShowEditPhase(item) {
-      this.editPhase = { ...item.raw }; // Populate editPhase with the selected item's data
+      this.editPhase = { ...item }; // Populate editPhase with the selected item's data
       this.isShowEditPhase = true; // Show the edit dialog
     },
     btEditPhase() {

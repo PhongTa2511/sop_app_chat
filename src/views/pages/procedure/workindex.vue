@@ -35,7 +35,7 @@
                   item-title="ValueName"
                   chips
                   style="max-width: 280px"
-                  class="mr-2 mt-2"
+                  class="mb-2 mt-2"
                 ></v-select>
                 <v-select
                   placeholder="Người xử lý"
@@ -45,7 +45,7 @@
                   item-title="FullName"
                   chips
                   style="max-width: 280px"
-                  class="mr-2 elevent-1"
+                  class="mb-2"
                 ></v-select>
                 <v-text-field
                   v-model="userWork.QuotaTime"
@@ -68,7 +68,7 @@
                   item-title="ValueName"
                   chips
                   style="max-width: 280px"
-                  class="mr-2 mt-2"
+                  class="mb-2 mt-2"
                 ></v-select>
                 <v-select
                   placeholder="Người phê duyệt"
@@ -79,7 +79,7 @@
                   item-title="FullName"
                   chips
                   style="max-width: 280px"
-                  class="mr-2"
+                  class="mb-2"
                 ></v-select>
                 <v-text-field
                   v-model="userManager.QuotaTime"
@@ -131,7 +131,7 @@
                   item-title="ValueName"
                   chips
                   style="max-width: 280px"
-                  class="mr-2 mt-2"
+                  class="mb-2 mt-2"
                 ></v-select>
                 <v-select
                   placeholder="Người xử lý"
@@ -141,7 +141,7 @@
                   item-title="FullName"
                   chips
                   style="max-width: 280px"
-                  class="mr-2 elevent-1"
+                  class="mb-2"
                 ></v-select>
                 <v-text-field
                   v-model="userWork.QuotaTime"
@@ -164,7 +164,7 @@
                   item-title="ValueName"
                   chips
                   style="max-width: 280px"
-                  class="mr-2 mt-2"
+                  class="mb-2 mt-2"
                 ></v-select>
                 <v-select
                   placeholder="Người phê duyệt"
@@ -175,7 +175,7 @@
                   item-title="FullName"
                   chips
                   style="max-width: 280px"
-                  class="mr-2"
+                  class="mb-2"
                 ></v-select>
                 <v-text-field
                   v-model="userManager.QuotaTime"
