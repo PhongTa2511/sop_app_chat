@@ -41,6 +41,10 @@ const router = createRouter({
           component: () => import("../pages/document.vue"),
         },
         {
+          path: "thong-tin/:id",
+          component: () => import("@/views/pages/document/docinfo.vue"),
+        },
+        {
           path: "san-pham",
           component: () => import("@/views/pages/product/index.vue"),
         },

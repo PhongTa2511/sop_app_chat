@@ -11,13 +11,24 @@
               :disabled="true"
               class="mb-2"
             ></v-text-field>
-
-            <v-text-field
-              v-model="createPhase.StepName"
-              label="Tên bước"
-              class="mb-2"
-            ></v-text-field>
-
+            <v-row>
+              <v-col lg="10">
+                <v-text-field
+                  v-model="createPhase.StepName"
+                  label="Tên bước"
+                  class="mb-2"
+                ></v-text-field>
+              </v-col>
+              <v-col lg="2">
+                <v-text-field
+                  v-model="createPhase.StepOrder"
+                  label="Thứ tự"
+                  type="number"
+                  :min="1"
+                  :max="1000"
+                ></v-text-field>
+              </v-col>
+            </v-row>
             <v-textarea
               v-model="createPhase.Description"
               label="Mô tả"
@@ -65,11 +76,24 @@
         <v-card-title>Chỉnh sửa bước</v-card-title>
         <v-card-text>
           <v-form v-model="validEdit" ref="editForm">
-            <v-text-field
-              v-model="editPhase.StepName"
-              label="Tên bước"
-              class="mb-2"
-            ></v-text-field>
+            <v-row>
+              <v-col lg="10">
+                <v-text-field
+                  v-model="editPhase.StepName"
+                  label="Tên bước"
+                  class="mb-2"
+                ></v-text-field>
+              </v-col>
+              <v-col lg="2">
+                <v-text-field
+                  v-model="editPhase.StepOrder"
+                  label="Thứ tự"
+                  type="number"
+                  :min="1"
+                  :max="1000"
+                ></v-text-field>
+              </v-col>
+            </v-row>
 
             <v-textarea
               v-model="editPhase.Description"
@@ -181,7 +205,7 @@ export default {
         { title: "Bước", key: "StepName" },
         { title: "Từ chối", key: "StepBack" },
         { title: "Tiếp tục", key: "StepNext" },
-        // { title: "Thứ tự", key: "StepOrder", align: "center" },
+        { title: "Thứ tự", key: "StepOrder", align: "center", sortable: false },
         { title: "Mô tả", key: "Description" },
         { title: "Trạng thái", key: "Status" },
       ],

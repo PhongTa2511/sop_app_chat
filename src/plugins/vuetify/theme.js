@@ -69,6 +69,13 @@ const theme = {
     dark: {
       dark: true,
       colors: {
+        blue: "#027CFE",
+        orange: "#F0952D",
+        green: "#05b187",
+        red: "#FF2E53",
+        purple: "#5454D4",
+        grey: "#8F8E94",
+        accent: "#2FA5D0",
         primary: "#0091FF",
         "on-primary": "#fff",
         secondary: "#8592A3",

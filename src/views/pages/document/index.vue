@@ -8,7 +8,7 @@
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="fileLst"
-      :search="search"
+      :search="inputSearch"
       height="calc(100vh - 210px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
@@ -22,7 +22,7 @@
     >
       <template v-slot:top>
         <div class="d-flex flex-wrap gap-2 px-3">
-          <span>
+          <!-- <span>
             <v-select
               v-model="optionStatus"
               :items="optionStatusLst"
@@ -33,7 +33,7 @@
               style="width: 220px !important"
               hide-details
             ></v-select>
-          </span>
+          </span> -->
 
           <span>
             <v-text-field
@@ -60,6 +60,32 @@
             @click="btExportExcel"
           ></v-btn>
         </div>
+      </template>
+      <template v-slot:item.Status="{ item }">
+        <v-chip :color="getStatus(item.Status).color">
+          {{ getStatus(item.Status).text }}</v-chip
+        >
+      </template>
+      <template v-slot:item.Action="{ item }">
+        <v-icon
+          color="primary"
+          class="me-2"
+          size="small"
+          style="cursor: pointer"
+          @click="editSchedule(item)"
+          >mdi-format-list-numbered</v-icon
+        >
+      </template>
+      <template v-slot:item.Key="{ item }">
+        {{ item.Key }}
+        <v-icon
+          color="orange"
+          class="me-2"
+          size="small"
+          style="cursor: pointer"
+          @click="btPushToDocinfo(item)"
+          >mdi-note-edit</v-icon
+        >
       </template>
     </v-data-table>
   </v-card>
@@ -192,7 +218,7 @@ export default {
       storageLst: [],
       pageSize: 10,
       currentPage: 1,
-      lengthDataTable: 0,
+      totalLength: 0,
       optionStatusLst: [
         { value: 1, label: "Mới tạo" },
         { value: 2, label: "Đang xử lý" },
@@ -222,18 +248,16 @@ export default {
           align: "center",
           width: 80,
         },
-        { title: "Tên sản phẩm", key: "WarehouseName", sortable: false },
-        { title: "Tên xuất khẩu", key: "Name2", sortable: false },
-        { title: "Nước XK", key: "Country", sortable: false },
-        { title: "Khách", key: "CusName", sortable: false, width: 100 },
-        { title: "Deadline", key: "DateExpired", sortable: false, width: 100 },
+        { title: "Sản phẩm", key: "ProductNameLst", sortable: false },
+        { title: "Quy trình", key: "DocName", sortable: false },
         {
-          title: "PL hồ sơ",
-          key: "DocName",
+          title: "Deadline",
+          key: "DateExpiredShow",
           sortable: false,
           width: 100,
         },
-        { title: "", key: "Action", width: 80 },
+
+        { title: "", key: "Action", width: 40, align: "center" },
         { title: "Trạng thái", key: "Status", sortable: false, width: 100 },
       ],
       headersProduct: [
@@ -295,9 +319,8 @@ export default {
         },
       ],
       productExcelLst: [],
-      isShowCreateDocument: false, // State for the create document dialog
+      isShowCreateDocument: false,
       createDocument: {
-        // Changed from createFile to createDocument
         name: "",
         description: "",
       },
@@ -305,6 +328,9 @@ export default {
     };
   },
   methods: {
+    btPushToDocinfo(data) {
+      this.$router.push("/thong-tin/" + data.DocumentID);
+    },
     btExportExcel() {
       exportExcel();
     },
@@ -337,12 +363,28 @@ export default {
           return {
             ...item,
             Key: index + 1,
-            DateRecept2: formatDateDisplayDDMMYY(item.DateRecept),
+            DateExpiredShow: formatDateDisplayDDMMYY(item.DateExpired),
           };
         });
       });
     },
-
+    getStatus(status) {
+      if (status == 0) {
+        return { text: "Hủy", color: "error" };
+      }
+      if (status == 1) {
+        return { text: "Mới tạo", color: "more" };
+      }
+      if (status == 2) {
+        return { text: "Đang làm", color: "blue" };
+      }
+      if (status == 3) {
+        return { text: "Tạm dừng", color: "more" };
+      }
+      if (status == 4) {
+        return { text: "Hoàn thành", color: "success" };
+      }
+    },
     btShowProcess(row) {
       this.fetchProcessDocument(row.DocumentID);
     },
