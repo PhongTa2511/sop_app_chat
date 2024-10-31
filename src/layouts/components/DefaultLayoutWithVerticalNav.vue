@@ -63,32 +63,19 @@ const vuetifyTheme = useTheme();
       />
       <VerticalNavLink
         :item="{
-          title: 'Danh sách quy trình',
+          title: 'Công việc',
+          icon: 'mdi-briefcase-account',
+          to: '/danh-sach-cong-viec',
+        }"
+      />
+      <VerticalNavLink
+        :item="{
+          title: 'Hồ sơ',
           icon: 'mdi-list-box',
-          to: '/danh-sach-quy-trinh',
+          to: '/danh-sach-ho-so',
         }"
       />
-      <!-- <VerticalNavLink
-        :item="{
-          title: 'Thông tin nhân sự',
-          icon: 'mdi-account-group',
-          to: '/thong-tin-nhan-su',
-        }"
-      />
-      <VerticalNavLink
-        :item="{
-          title: 'Thiết bị',
-          icon: 'mdi-deskphone',
-          to: '/thiet-bi',
-        }"
-      />
-      <VerticalNavLink
-        :item="{
-          title: 'Khu vực',
-          icon: 'mdi-lan',
-          to: '/khu-vuc',
-        }"
-      /> -->
+
       <VerticalNavLink
         :item="{
           title: 'Sản phẩm',
@@ -96,14 +83,6 @@ const vuetifyTheme = useTheme();
           to: '/san-pham',
         }"
       />
-      <!-- <VerticalNavLink
-        :item="{
-          title: 'Lịch làm việc',
-          icon: 'mdi-calendar-month',
-          to: '/lich-lam-viec',
-        }"
-      /> -->
-
       <VerticalNavSectionTitle
         :item="{
           heading: 'Cài đặt chung',

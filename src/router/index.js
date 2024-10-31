@@ -37,8 +37,12 @@ const router = createRouter({
           component: () => import("@/views/pages/procedure/workindex.vue"),
         },
         {
-          path: "danh-sach-quy-trinh",
+          path: "danh-sach-ho-so",
           component: () => import("../pages/document.vue"),
+        },
+        {
+          path: "danh-sach-cong-viec",
+          component: () => import("../pages/document-job.vue"),
         },
         {
           path: "thong-tin/:id",
