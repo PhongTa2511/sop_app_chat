@@ -1,7 +1,7 @@
 <script>
 import AuthProvider from "@/views/pages/authentication/AuthProvider.vue";
 import logo from "@images/logos/cpc1hn-logo.png";
-import { Login } from "@/api/user.js";
+import { Login, GetUserInfo } from "@/api/user.js";
 import {
   setToken,
   setFullName,
@@ -33,16 +33,33 @@ export default {
       }).then((res) => {
         setToken(res.Token);
         setUserName(this.form.idEmployee);
-        setFullName(res.Data.FullName);
-        setPhoneNumber(res.Data.nameEmployee);
+        setFullName(res.Data.nameEmployee);
+        setPhoneNumber(res.Data.idEmployee);
         setEmployCode(res.Data.employeeCode);
         setEmail(res.Data.emailCompany);
-
-        this.$router.push("/");
-        notify({
-          type: "success",
-          title: "Thành công",
-          text: "Đăng nhập thành công",
+        GetUserInfo({
+          UserInfo: {
+            UserName: this.form.idEmployee,
+            FullName: res.Data.nameEmployee,
+            PhoneNumber: res.Data.idEmployee,
+            Email: res.Data.emailCompany,
+            EmployeeCode: res.Data.employeeCode,
+          },
+        }).then((resu) => {
+          if (resu.RespCode == 0) {
+            this.$router.push("/");
+            notify({
+              type: "success",
+              title: "Thành công",
+              text: "Đăng nhập thành công",
+            });
+          } else {
+            notify({
+              type: "error",
+              title: "Lỗi",
+              text: resu.RespText,
+            });
+          }
         });
       });
     },

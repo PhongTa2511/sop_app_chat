@@ -376,7 +376,7 @@ export default {
     },
 
     getWorkType() {
-      GetDefaultValue({ Table: "Nhóm nhân viên" }).then((res) => {
+      GetDefaultValue({ Table: "Phòng ban" }).then((res) => {
         if (res.RespCode == 0) {
           this.groupLst = res.DefaultValueLst;
         }

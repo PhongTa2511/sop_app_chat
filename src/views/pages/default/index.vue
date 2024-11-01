@@ -109,9 +109,7 @@
         <v-btn color="blue" variant="text" @click="isShowDel = false"
           >Đóng</v-btn
         >
-        <v-btn variant="text" @click="updateLocalByID(itemDel.RowID, 0)"
-          >Xóa</v-btn
-        >
+        <v-btn variant="text" @click="updateDefaultValue()">Xóa</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

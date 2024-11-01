@@ -52,10 +52,10 @@ const router = createRouter({
           path: "san-pham",
           component: () => import("@/views/pages/product/index.vue"),
         },
-        {
-          path: "lich-lam-viec",
-          component: () => import("../pages/calendar.vue"),
-        },
+        // {
+        //   path: "lich-lam-viec",
+        //   component: () => import("../pages/calendar.vue"),
+        // },
       ],
     },
     {
