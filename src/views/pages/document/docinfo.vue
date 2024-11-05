@@ -68,7 +68,16 @@
   <v-row class="mt-2">
     <v-col cols="12" md="6">
       <v-card class="py-2 px-4 layout-card">
-        <div class="text-h6">Thông tin các bước</div>
+        <div class="d-flex justify-space-between">
+          <div class="text-h6">Thông tin các bước</div>
+          <v-btn
+            rounded="full"
+            color="green"
+            icon="mdi-progress-check"
+            size="x-small"
+          >
+          </v-btn>
+        </div>
         <v-divider class="my-2"></v-divider>
         <div v-for="(item, index) in processLst" :key="index" class="mx-2 my-2">
           <div class="d-flex">
@@ -148,7 +157,12 @@
             </v-chip>
             {{ stepInfo.StepName }}
           </div>
-          <div v-if="stepInfo.Description">
+
+          <div
+            v-if="stepInfo.Description"
+            class="text-subtitle-1 py-1 px-2"
+            style="white-space: normal"
+          >
             Mô tả: {{ stepInfo.Description }}
           </div>
         </div>
@@ -190,8 +204,10 @@
             <v-col :lg="6">
               <span>Cài đặt xử lý</span>
               <v-select
+                v-model="item.UserJob.GroupEmploy"
                 placeholder="Nhóm xử lý"
                 density="compact"
+                :items="groupLst"
                 item-value="ValueName"
                 item-title="ValueName"
                 chips
@@ -199,14 +215,17 @@
                 class="mb-2 mt-2"
               ></v-select>
               <v-select
+                v-model="item.UserJob.UserID"
+                :items="userLst"
                 placeholder="Người xử lý"
                 item-value="UserName"
-                item-title="FullName"
+                item-title="FullNameCode"
                 chips
                 style="max-width: 280px"
                 class="mb-2"
               ></v-select>
               <v-text-field
+                v-model="item.UserJob.QuotaTime"
                 label="Hạn xử lý"
                 type="number"
                 :min="1"
@@ -218,6 +237,8 @@
             <v-col :lg="6">
               <span>Cài đặt phê duyệt</span>
               <v-select
+                v-model="item.UserMana.GroupEmploy"
+                :items="groupLst"
                 placeholder="Nhóm phê duyệt"
                 density="compact"
                 item-value="ValueName"
@@ -227,6 +248,8 @@
                 class="mb-2 mt-2"
               ></v-select>
               <v-select
+                v-model="item.UserMana.UserID"
+                :items="userLst"
                 placeholder="Người phê duyệt"
                 density="compact"
                 item-value="UserName"
@@ -236,6 +259,7 @@
                 class="mb-2"
               ></v-select>
               <v-text-field
+                v-model="item.UserMana.QuotaTime"
                 label="Hạn phê duyệt"
                 type="number"
                 :min="1"
@@ -250,7 +274,7 @@
               variant="outlined"
               rounded="8"
               size="small"
-              @click="isShowInfoStep = false"
+              @click="btAddUserInWork(item)"
               color="green"
               >Giao việc</v-btn
             >
@@ -264,7 +288,14 @@
 <script>
 import { GSPGetGSPDocumentInfoByID } from "@/api/briefApi";
 import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
-import { ProcessDocument, GetDocumentJobByDocID } from "@/api/documentJobApi";
+import {
+  ProcessDocument,
+  GetDocumentJobByDocID,
+  AddAssignLst,
+} from "@/api/documentJobApi";
+import { GetDefaultValue } from "@/api/default";
+import { GetUserLstAll } from "@/api/user";
+
 export default {
   data() {
     return {
@@ -307,9 +338,30 @@ export default {
       isShowInfoStep: false,
       stepInfo: {},
       workLst: [],
+      userLst: [],
+      groupLst: [],
     };
   },
   methods: {
+    getdefault() {
+      GetDefaultValue({ Table: "Phòng ban" }).then((res) => {
+        if (res.RespCode == 0) {
+          this.groupLst = res.DefaultValueLst;
+        }
+      });
+      GetUserLstAll({
+        PageNumber: 1,
+        RowspPage: 10000,
+        Search: "",
+      }).then((res) => {
+        this.userLst = res.Data.map((item) => {
+          return {
+            ...item,
+            FullNameCode: item.FullName + " - " + item.EmployeeCode,
+          };
+        });
+      });
+    },
     btShowInfoStep(data) {
       this.isShowInfoStep = true;
       this.stepInfo = data;
@@ -322,9 +374,29 @@ export default {
       }).then((res) => {
         if (res.RespCode == 0) {
           this.workLst = res.DocumentJobLst.map((item, index) => {
+            var userJob = null;
+            var a = item.UserAssignLst.find((p) => p.UserRole == "Xử lý");
+            if (a) {
+              userJob = a;
+            }
+            var a = item.AssignLst.find((p) => p.UserRole == "Xử lý");
+            if (a) {
+              userJob = a;
+            }
+            var userMana = null;
+            var b = item.UserAssignLst.find((p) => p.UserRole == "Phê duyệt");
+            if (b) {
+              userMana = b;
+            }
+            var b = item.AssignLst.find((p) => p.UserRole == "Phê duyệt");
+            if (b) {
+              userMana = b;
+            }
             return {
               ...item,
               Key: index + 1,
+              UserJob: userJob ?? {},
+              UserMana: userMana ?? {},
             };
           });
         }
@@ -373,9 +445,33 @@ export default {
         }
       });
     },
+    btAddUserInWork(data) {
+      var asi = [];
+      if (data.UserJob.UserID) {
+        asi.push(data.UserJob);
+      }
+      if (data.UserMana.UserID) {
+        asi.push(data.UserMana);
+      }
+      AddAssignLst({
+        DocumentID: data.DocumentID,
+        StepID: data.StepID,
+        WorkID: data.WorkID,
+        AssignLst: asi,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            title: "Thành công",
+            message: "Gán nhân sự thành công",
+            type: "success",
+          });
+        }
+      });
+    },
   },
   created() {
     this.getDocumentInfoByID();
+    this.getdefault();
   },
 };
 </script>

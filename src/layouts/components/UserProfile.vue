@@ -8,6 +8,8 @@ import {
   removeEmail,
   getFullName,
   getAvatar,
+  getPosition,
+  getSpecialize,
 } from "@/utils/auth";
 export default {
   data() {
@@ -15,6 +17,8 @@ export default {
       avatar1: avatar1,
       fullName: getFullName(),
       avatar: getAvatar(),
+      position: getPosition(),
+      specialize: getSpecialize(),
     };
   },
   methods: {
@@ -60,7 +64,7 @@ export default {
                   offset-y="3"
                   color="success"
                 >
-                  <VAvatar color="primary" variant="tonal">
+                  <VAvatar color="" variant="text">
                     <VImg :src="avatar" v-if="avatar" />
                     <div v-else>
                       <div v-if="fullName">{{ fullName[0] }}</div>
@@ -74,7 +78,9 @@ export default {
             <VListItemTitle class="font-weight-semibold">
               {{ fullName }}
             </VListItemTitle>
-            <VListItemSubtitle>Admin</VListItemSubtitle>
+            <VListItemSubtitle
+              >{{ position }} - {{ specialize }}</VListItemSubtitle
+            >
           </VListItem>
           <VDivider class="my-2" />
 

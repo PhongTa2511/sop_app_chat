@@ -17,7 +17,7 @@ const refInputEl = ref();
 const accountDataLocal = ref(structuredClone(accountData));
 var specializeLst = ref([]);
 var positionLst = ref([]);
-
+const userName = getUserName();
 const resetForm = () => {
   accountDataLocal.value = structuredClone(accountData);
 };
@@ -34,7 +34,7 @@ const changeAvatar = (file) => {
     const params = new FormData();
     params.append("file", files[0]);
 
-    Axios.post(urlUploadImageAvatar(getUserID()), params).then((res) => {
+    Axios.post(urlUploadImageAvatar(userName), params).then((res) => {
       console.log(res);
       if (res.data.RespCode == 0) {
         notify({
@@ -43,11 +43,10 @@ const changeAvatar = (file) => {
           text: "Lưu thông tin chăm sóc thành công",
         });
         accountDataLocal.value.avatarImg =
-          "http://202.191.56.172/GSPDTPAPI/File/GetImageAvatar?UserID=" +
-          getUserID() +
-          "&FileName=" +
-          res.data.FileName;
+          "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+          userName;
         setAvatar(accountDataLocal.value.avatarImg);
+        location.reload();
       } else {
         notify({
           title: "Lỗi",
@@ -68,6 +67,11 @@ const getUserInfo = () => {
     accountDataLocal.value = {
       ...res.UserInfo,
     };
+    if (res.UserInfo.LinkImage) {
+      accountDataLocal.value.avatarImg =
+        "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+        res.UserInfo.UserName;
+    }
   });
 };
 
@@ -127,7 +131,7 @@ getDefaultValue();
                 <VCardText class="d-flex">
                   <!-- 👉 Avatar -->
                   <VAvatar
-                    v-if="accountDataLocal.Avatar"
+                    v-if="accountDataLocal.LinkImage"
                     rounded="lg"
                     size="100"
                     class="me-6"
@@ -247,7 +251,7 @@ getDefaultValue();
             />
           </div>
 
-          <VBtn :disabled="!isAccountDeactivated" color="error" class="mt-3">
+          <VBtn :disabled="!isAccountDeactivated" color="red" class="mt-3">
             Deactivate Account
           </VBtn>
         </VCardText>

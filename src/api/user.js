@@ -109,5 +109,5 @@ export function GetUserInfo(data) {
 }
 
 export function urlUploadImageAvatar(ID) {
-  return `http://202.191.56.172/GSPDTPAPI/File/UploadImageAvatar?UserID=${ID}&Token=${getToken()}`;
+  return `http://202.191.56.172/GSPDTPAPI/File/UploadAvatarUser?UserName=${ID}&Token=${getToken()}`;
 }

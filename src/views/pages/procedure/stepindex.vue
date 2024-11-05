@@ -140,7 +140,9 @@
       <div class="d-flex" style="justify-content: space-between">
         <h6 class="text-h5 py-2">
           <div>Quy trình: {{ procedureInfo.ProcedureName }}</div>
-          <div class="text-h6">Mô tả: {{ procedureInfo.Description }}</div>
+          <div class="text-subtitle-1 py-1 px-2" style="white-space: normal">
+            Mô tả: {{ procedureInfo.Description }}
+          </div>
         </h6>
         <div class="d-flex">
           <v-btn
@@ -159,6 +161,9 @@
         <v-icon color="orange" @click="btShowEditPhase(item)"
           >mdi-square-edit-outline</v-icon
         >
+        <v-icon color="red" class="me-2" @click="btShowDel(item)"
+          >mdi-trash-can
+        </v-icon>
       </template>
       <template v-slot:item.action="{ item }">
         <v-icon color="green" @click="btPushToWork(item)"
@@ -170,6 +175,20 @@
       </template>
     </v-data-table>
   </v-card>
+  <v-dialog v-model="isShowDel" width="400">
+    <v-card>
+      <v-toolbar class="pl-1" color="red" title="Xóa bước" center></v-toolbar>
+      <v-card-text>
+        <div class="text-h5 pt-4">Có chắc bạn muốn xóa bước này không?</div>
+      </v-card-text>
+      <v-card-actions class="justify-end">
+        <v-btn color="blue" variant="text" @click="isShowDel = false"
+          >Đóng</v-btn
+        >
+        <v-btn color="red" variant="text" @click="btDelStep()">Xóa</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -178,6 +197,7 @@ import {
   CreateStep,
   UpdateStep,
   GetStepByProcedure,
+  DelStep,
 } from "@/api/procedureApi";
 // import { CreateStep, GetStepByProcedure } from "@/api/phaseApi";
 export default {
@@ -191,13 +211,14 @@ export default {
         StepOrder: 1,
       },
       isShowCreatePhase: false,
+      isShowDel: false,
       valid: false,
       headers: [
         {
           title: "STT",
           key: "Key",
           align: "center",
-          width: 80,
+          width: 120,
           sortable: false,
         },
         { title: "Action", key: "action", align: "center", sortable: false },
@@ -217,9 +238,34 @@ export default {
         StepOrder: 1,
         // Add other fields as necessary
       },
+      itemDel: {},
     };
   },
   methods: {
+    btShowDel(data) {
+      this.itemDel = data;
+      this.isShowDel = true;
+    },
+    btDelStep() {
+      DelStep({
+        StepID: this.itemDel.StepID,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            type: "success",
+            title: "Thành công",
+            text: "Xóa thành thành công",
+          });
+          this.getProcedureByID();
+        } else {
+          notify({
+            type: "error",
+            title: "Lỗi",
+            text: res.RespText,
+          });
+        }
+      });
+    },
     getProcedureByID() {
       GetProcedureByID({ ProcedureID: this.$route.params.id }).then((res) => {
         if (res.RespCode == 0) {
@@ -255,8 +301,8 @@ export default {
       } else {
         notify({
           title: "Lỗi",
-          text: "Thêm Bước thành công",
-          type: "success",
+          text: res.RespText,
+          type: "error",
         });
       }
     },

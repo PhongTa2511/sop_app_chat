@@ -5,14 +5,14 @@ const UserName = "UserNameDTP";
 const FullName = "FullNameDTP";
 const PhoneNumber = "PhoneNumberDTP";
 
-const TypeCare = "TypeCareDTP";
+const Position = "PositionDTP";
 const EmployCode = "CommuneDTP";
 const UserID = "UserIDDTP";
 const Email = "EmailDTP";
 const PageNumber = "PageNumberDTP";
 const RowspPage = "RowspPageDTP";
 const Avatar = "AvatarDTP";
-const RankCustomer = "RankCustomerDTP";
+const Specialize = "SpecializeDTP";
 
 export function setToken(token) {
   return Cookies.set(TokenKey, token, { expires: 1 });
@@ -114,22 +114,22 @@ export function removeAvatar() {
   return Cookies.remove(Avatar);
 }
 
-export function setRankCustomer(name) {
-  return Cookies.set(RankCustomer, name);
+export function setSpecialize(name) {
+  return Cookies.set(Specialize, name);
 }
-export function getRankCustomer() {
-  return Cookies.get(RankCustomer);
+export function getSpecialize() {
+  return Cookies.get(Specialize);
 }
-export function removeRankCustomer() {
-  return Cookies.remove(RankCustomer);
+export function removeSpecialize() {
+  return Cookies.remove(Specialize);
 }
 
-export function setTypeCare(name) {
-  return Cookies.set(TypeCare, name);
+export function setPosition(name) {
+  return Cookies.set(Position, name);
 }
-export function getTypeCare() {
-  return Cookies.get(TypeCare);
+export function getPosition() {
+  return Cookies.get(Position);
 }
-export function removeTypeCare() {
-  return Cookies.remove(TypeCare);
+export function removePosition() {
+  return Cookies.remove(Position);
 }

@@ -45,9 +45,7 @@
         <v-chip color="success" size="small" v-if="item.Status == 1">
           Đang dùng
         </v-chip>
-        <v-chip color="error" size="small" v-if="item.Status == 0">
-          Xóa
-        </v-chip>
+        <v-chip color="red" size="small" v-if="item.Status == 0"> Xóa </v-chip>
       </template>
       <template v-slot:item.Action="{ item }">
         <v-icon color="red" size="small" @click="btShowDel(item)">
@@ -101,7 +99,7 @@
   </v-dialog>
   <v-dialog v-model="isShowDel" width="400">
     <v-card>
-      <v-toolbar class="pl-2" color="error" title="Xóa" center></v-toolbar>
+      <v-toolbar class="pl-2" color="red" title="Xóa" center></v-toolbar>
       <v-card-text>
         <div class="text-h5 pt-4">Có chắc bạn muốn xóa giá trị này không?</div>
       </v-card-text>

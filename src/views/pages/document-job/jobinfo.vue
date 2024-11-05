@@ -140,7 +140,9 @@
   </v-row>
   <v-dialog v-model="isShowInfoStep" max-width="800px">
     <v-card>
-      <v-card-title class="d-flex justify-space-between align-center">
+      <v-card-title
+        class="d-flex justify-space-between align-center text-truncate"
+      >
         <div>
           <div class="text-h5 text-medium-emphasis">
             <v-chip :color="stepInfo.Status == 1 ? 'blue' : ''">
@@ -148,7 +150,11 @@
             </v-chip>
             {{ stepInfo.StepName }}
           </div>
-          <div v-if="stepInfo.Description">
+          <div
+            v-if="stepInfo.Description"
+            class="text-subtitle-1 py-1 px-2"
+            style="white-space: normal"
+          >
             Mô tả: {{ stepInfo.Description }}
           </div>
         </div>

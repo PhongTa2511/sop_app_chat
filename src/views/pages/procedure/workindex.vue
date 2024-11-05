@@ -199,17 +199,19 @@
     </v-dialog>
 
     <v-card-title>
-      <div class="d-flex" style="justify-content: space-between">
+      <div class="d-flex justify-space-between">
         <h6 class="text-h5 py-2">
           <div>
             <v-chip color="blue"> Bước {{ phaseInfo.StepOrder }} </v-chip>
             {{ phaseInfo.StepName }}
           </div>
-          <div class="text-h6">Mô tả: {{ phaseInfo.Description }}</div>
+          <div class="text-subtitle-1 py-1 px-2" style="white-space: normal">
+            Mô tả: {{ phaseInfo.Description }}
+          </div>
         </h6>
         <div class="d-flex">
           <v-btn
-            color="success"
+            color="green"
             icon="mdi-playlist-plus"
             style="height: 42px"
             class="mr-1"
@@ -218,6 +220,7 @@
         </div>
       </div>
     </v-card-title>
+
     <v-data-table
       :headers="headers"
       :items="workLst"
@@ -234,7 +237,7 @@
         >
       </template>
       <template v-slot:item.Status="{ item }">
-        <v-chip color="success" v-if="item.Status == 1">Hoạt động</v-chip>
+        <v-chip color="green" v-if="item.Status == 1">Hoạt động</v-chip>
       </template>
     </v-data-table>
   </v-card>
@@ -319,9 +322,9 @@ export default {
           this.getWorkDefineLst();
           this.isShowCreateWork = false;
 
-          this.$notify({
+          notify({
             title: "Thành công",
-            message: "Tạo đầu việc mới thành công",
+            text: "Tạo đầu việc mới thành công",
             type: "success",
           });
         }
@@ -343,9 +346,9 @@ export default {
         if (res.RespCode == 0) {
           this.updateWork = {};
           this.isShowUpdateWork = false;
-          this.$notify({
+          notify({
             title: "Thành công",
-            message: "Cập nhật đầu việc thành công",
+            text: "Cập nhật đầu việc thành công",
             type: "success",
           });
         }
@@ -412,15 +415,15 @@ export default {
           this.getWorkDefineLst(); // Refresh the work list
           this.isShowEditWork = false; // Close the edit dialog
 
-          this.$notify({
+          notify({
             title: "Thành công",
-            message: "Cập nhật công việc thành công",
+            text: "Cập nhật công việc thành công",
             type: "success",
           });
         } else {
-          this.$notify({
+          notify({
             title: "Thất bại",
-            message: "Cập nhật công việc thất bại",
+            text: "Cập nhật công việc thất bại",
             type: "error",
           });
         }

@@ -3,7 +3,7 @@
     <!-- 👉 Footer: left content -->
     <span class="d-flex align-center">
       &copy; 2024
-      <VIcon icon="bx-heart" color="error" size="1.25rem" class="mx-1" />
+      <VIcon icon="bx-heart" color="red" size="1.25rem" class="mx-1" />
       <a
         href="https://emglab.vn"
         target="_blank"

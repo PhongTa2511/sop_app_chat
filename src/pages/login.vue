@@ -9,6 +9,8 @@ import {
   setEmployCode,
   setEmail,
   setUserName,
+  setPosition,
+  setSpecialize,
 } from "@/utils/auth";
 export default {
   data() {
@@ -47,6 +49,9 @@ export default {
           },
         }).then((resu) => {
           if (resu.RespCode == 0) {
+            setPosition(resu.UserInfo.Position);
+            setSpecialize(resu.UserInfo.Specialize);
+
             this.$router.push("/");
             notify({
               type: "success",

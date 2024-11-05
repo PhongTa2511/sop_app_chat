@@ -132,7 +132,7 @@
       </v-card-text>
       <v-card-actions>
         <v-btn @click="isShowConfirm = false" text>Hủy</v-btn>
-        <v-btn color="success" @click="confirmBrief">Xác nhận</v-btn>
+        <v-btn color="green" @click="confirmBrief">Xác nhận</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

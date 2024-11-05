@@ -23,7 +23,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn @click="isShowCreate = false">Cancel</v-btn>
-          <v-btn color="success" @click="btCreateProcedure">Xác nhận</v-btn>
+          <v-btn color="green" @click="btCreateProcedure">Xác nhận</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -189,7 +189,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn @click="isShowProName = false">Cancel</v-btn>
-          <v-btn color="success" @click="btCreateProcedureName">Xác nhận</v-btn>
+          <v-btn color="green" @click="btCreateProcedureName">Xác nhận</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -220,7 +220,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn @click="isShowUpdate = false">Cancel</v-btn>
-          <v-btn color="success" @click="btEditProcedure">Cập nhật</v-btn>
+          <v-btn color="green" @click="btEditProcedure">Cập nhật</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -374,9 +374,9 @@ export default {
       UpdateProcedureNameInfo({ Data: this.createProcedureName }).then(
         (res) => {
           if (res.RespCode == 0) {
-            this.$notify({
+            notify({
               title: "Thành công",
-              message: "Thay đổi tên tiêu đề thành công",
+              text: "Thay đổi tên tiêu đề thành công",
               type: "success",
             });
             this.isShowProName = false;
@@ -434,17 +434,17 @@ export default {
             this.isShowCreate = false;
             this.createProcedure = {};
             this.getProcedure();
-            this.$notify({
+            notify({
               title: "Thành công",
-              message: "Tạo quy trình mới thành công",
+              text: "Tạo quy trình mới thành công",
               type: "success",
             });
           }
         });
       } else {
-        this.$notify({
+        notify({
           title: "Nhắc nhở",
-          message: "Vui lòng nhập đầy đủ thông tin",
+          text: "Vui lòng nhập đầy đủ thông tin",
           type: "warning",
         });
       }
@@ -467,17 +467,17 @@ export default {
             this.isShowUpdate = false;
             this.createProcedure = {};
             this.getProcedure();
-            this.$notify({
+            notify({
               title: "Thành công",
-              message: "Tạo quy trình mới thành công",
+              text: "Tạo quy trình mới thành công",
               type: "success",
             });
           }
         });
       } else {
-        this.$notify({
+        notify({
           title: "Nhắc nhở",
-          message: "Vui lòng nhập đầy đủ thông tin",
+          text: "Vui lòng nhập đầy đủ thông tin",
           type: "warning",
         });
       }
@@ -497,9 +497,9 @@ export default {
       DelProcedure({ ProcedureID: data.ProcedureID }).then((res) => {
         if (res.RespCode == 0) {
           this.getProcedure();
-          this.$notify({
+          notify({
             title: "Thành công",
-            message: "Xóa quy trình thành công",
+            text: "Xóa quy trình thành công",
             type: "success",
           });
         }
