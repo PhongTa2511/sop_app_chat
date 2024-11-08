@@ -46,7 +46,11 @@
       ]"
     >
       <template v-slot:item.Status="{ item }">
-        <v-chip color="green" size="small" v-if="item.Status == 1">
+        <v-chip
+          color="green"
+          size="small"
+          v-if="item.Status == 1 || item.Status == 2"
+        >
           Đang làm
         </v-chip>
         <v-chip color="red" size="small" v-if="item.Status == 0"> Xóa </v-chip>

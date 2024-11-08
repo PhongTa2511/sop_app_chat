@@ -26,11 +26,8 @@ const vuetifyTheme = useTheme();
           <VIcon icon="bx-menu" />
         </IconBtn>
 
-        <!-- 👉 Search -->
-        <div
-          class="d-flex align-center cursor-pointer"
-          style="user-select: none"
-        >
+        <!-- 👉 Search  style="user-select: none"-->
+        <div class="d-flex align-center cursor-pointer">
           <IconBtn>
             <VIcon icon="bx-search" />
           </IconBtn>

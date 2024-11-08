@@ -1,7 +1,7 @@
 import { getToken } from "@/utils/auth.js";
 
 import request from "@/utils/request";
-import requestC from "@/utils/request-cpc1hn";
+// import requestC from "@/utils/request-cpc1hn";
 
 export function LostPassword(data) {
   return request({
@@ -49,8 +49,8 @@ export function AddEmployeeLst(data) {
 }
 
 export function Login(data) {
-  return requestC({
-    url: "User/Login",
+  return request({
+    url: "User/GSPLogin",
     method: "post",
     data: data,
   });

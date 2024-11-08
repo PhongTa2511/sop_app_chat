@@ -30,22 +30,22 @@ export default {
   methods: {
     btLogin() {
       Login({
-        idEmployee: this.form.idEmployee,
-        password: this.form.password,
+        UserName: this.form.idEmployee,
+        Password: this.form.password,
       }).then((res) => {
         setToken(res.Token);
         setUserName(this.form.idEmployee);
-        setFullName(res.Data.nameEmployee);
-        setPhoneNumber(res.Data.idEmployee);
-        setEmployCode(res.Data.employeeCode);
-        setEmail(res.Data.emailCompany);
+        setFullName(res.UserInfo.FullName);
+        setPhoneNumber(res.UserInfo.PhoneNumber);
+        setEmployCode(res.UserInfo.EmployeeCode);
+        setEmail(res.UserInfo.Email);
         GetUserInfo({
           UserInfo: {
             UserName: this.form.idEmployee,
-            FullName: res.Data.nameEmployee,
-            PhoneNumber: res.Data.idEmployee,
-            Email: res.Data.emailCompany,
-            EmployeeCode: res.Data.employeeCode,
+            FullName: res.UserInfo.FullName,
+            PhoneNumber: res.UserInfo.PhoneNumber,
+            Email: res.UserInfo.Email,
+            EmployeeCode: res.UserInfo.EmployeeCode,
           },
         }).then((resu) => {
           if (resu.RespCode == 0) {

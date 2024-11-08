@@ -204,7 +204,7 @@ export default {
     //   });
     // },
     btPushToDocinfo(data) {
-      this.$router.push("/cong-viec/" + data.RowID);
+      this.$router.push("/thong-tin-cong-viec/" + data.RowID);
     },
     btPage(data) {
       this.pageNumber = data;

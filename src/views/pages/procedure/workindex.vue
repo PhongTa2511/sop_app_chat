@@ -232,9 +232,10 @@
       </template>
       <template v-slot:item.Key="{ item }">
         {{ item.Key }}
-        <v-icon color="warning" @click="btShowEditWork(item)"
+        <v-icon color="orange" @click="btShowEditWork(item)"
           >mdi-square-edit-outline</v-icon
         >
+        <v-icon color="red" @click="delWorkDefine(item)">mdi-delete</v-icon>
       </template>
       <template v-slot:item.Status="{ item }">
         <v-chip color="green" v-if="item.Status == 1">Hoạt động</v-chip>
@@ -248,6 +249,7 @@ import {
   GetStepByID,
   CreateWorkDefine,
   UpdateWorkDefine,
+  DelWorkDefine,
   GetWorkDefineLst,
 } from "@/api/procedureApi";
 import { GetDefaultValue } from "@/api/default";
@@ -260,7 +262,7 @@ export default {
           title: "STT",
           key: "Key",
           align: "center",
-          width: 80,
+          width: 120,
           sortable: false,
         },
         { title: "Mã", key: "WorkID" },
@@ -426,6 +428,20 @@ export default {
             text: "Cập nhật công việc thất bại",
             type: "error",
           });
+        }
+      });
+    },
+    delWorkDefine(data) {
+      DelWorkDefine({
+        WorkID: data.WorkID,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            title: "Thành công",
+            text: "Cập nhật công việc thành công",
+            type: "success",
+          });
+          this.getWorkDefineLst();
         }
       });
     },

@@ -5,24 +5,23 @@
       &copy; 2024
       <VIcon icon="bx-heart" color="red" size="1.25rem" class="mx-1" />
       <a
-        href="https://emglab.vn"
+        href=""
         target="_blank"
         rel="noopener noreferrer"
         class="text-primary ms-1"
-        >Emglab</a
+        >DTP</a
       >
     </span>
     <!-- 👉 Footer: right content -->
-    <span class="d-md-flex gap-x-4 text-primary d-none">
+    <span class="d-md-flex text-primary d-none">
       <!-- <a href="https://themeselection.com/license/" target="noopener noreferrer"
         >License</a
       >
       <a href="https://themeselection.com/" target="noopener noreferrer"
         >More Themes</a
       > -->
-      <a href="tel:+0397613784" target="noopener noreferrer"
-        >HỖ TRỢ: 0397.613.784</a
-      >
+      <VIcon icon="bx-phone-call" color="green" size="1.25rem" class="mx-1" />
+      <a href="tel:+0397613784" target="noopener noreferrer"> 0397.613.784</a>
     </span>
   </div>
 </template>

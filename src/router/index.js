@@ -37,6 +37,10 @@ const router = createRouter({
           component: () => import("@/views/pages/procedure/workindex.vue"),
         },
         {
+          path: "thong-tin-cong-viec/:id",
+          component: () => import("@/views/pages/document-job/jobinfo.vue"),
+        },
+        {
           path: "danh-sach-ho-so",
           component: () => import("../pages/document.vue"),
         },
