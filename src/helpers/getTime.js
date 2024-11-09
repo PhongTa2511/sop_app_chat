@@ -64,3 +64,11 @@ export function formatDate2(date) {
     return date;
   }
 }
+
+export function formatDateHHDDMM(date) {
+  if (date) {
+    return moment(date).format("HH:mm DD-MM");
+  } else {
+    return date;
+  }
+}

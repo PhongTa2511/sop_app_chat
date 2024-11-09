@@ -132,6 +132,7 @@
                   chips
                   style="max-width: 280px"
                   class="mb-2 mt-2"
+                  clearable
                 ></v-select>
                 <v-select
                   placeholder="Người xử lý"
@@ -142,6 +143,7 @@
                   chips
                   style="max-width: 280px"
                   class="mb-2"
+                  clearable
                 ></v-select>
                 <v-text-field
                   v-model="userWork.QuotaTime"
@@ -151,6 +153,7 @@
                   :max="1000"
                   suffix="Ngày"
                   style="max-width: 280px"
+                  clearable
                 ></v-text-field>
               </v-col>
               <v-col :lg="6">
@@ -165,6 +168,7 @@
                   chips
                   style="max-width: 280px"
                   class="mb-2 mt-2"
+                  clearable
                 ></v-select>
                 <v-select
                   placeholder="Người phê duyệt"
@@ -176,6 +180,7 @@
                   chips
                   style="max-width: 280px"
                   class="mb-2"
+                  clearable
                 ></v-select>
                 <v-text-field
                   v-model="userManager.QuotaTime"
@@ -185,6 +190,7 @@
                   :max="1000"
                   suffix="Ngày"
                   style="max-width: 280px"
+                  clearable
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -311,7 +317,7 @@ export default {
         reqAssign.push({ ...this.userWork, UserRole: "Xử lý" });
       }
       if (this.userManager.GroupEmploy && this.userManager.QuotaTime) {
-        reqAssign.push({ ...this.userWork, UserRole: "Phê duyệt" });
+        reqAssign.push({ ...this.userManager, UserRole: "Phê duyệt" });
       }
 
       CreateWorkDefine({
@@ -399,12 +405,8 @@ export default {
     btEditWork() {
       // Prepare the request payload
       const reqAssign = [];
-      if (this.userWork.GroupEmploy && this.userWork.QuotaTime) {
-        reqAssign.push({ ...this.userWork, UserRole: "Xử lý" });
-      }
-      if (this.userManager.GroupEmploy && this.userManager.QuotaTime) {
-        reqAssign.push({ ...this.userManager, UserRole: "Phê duyệt" });
-      }
+      reqAssign.push({ ...this.userWork, UserRole: "Xử lý" });
+      reqAssign.push({ ...this.userManager, UserRole: "Phê duyệt" });
 
       // Call the UpdateWorkDefine API
       UpdateWorkDefine({

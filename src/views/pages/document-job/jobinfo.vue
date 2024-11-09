@@ -401,14 +401,55 @@
             rounded
             border="green md"
           >
-            <div class="text-body-2">
+            <div class="text-body-2 position-relative">
               {{ job.JobName }}
+              <v-icon
+                v-if="job.Status == 4"
+                class="position-absolute right-0"
+                color="green"
+                size="small"
+                >mdi-check-circle-outline</v-icon
+              >
+              <v-icon
+                v-if="job.Status == 5"
+                class="position-absolute right-0"
+                color="red"
+                size="small"
+                >mdi-close-circle-outline</v-icon
+              >
             </div>
             <div v-for="(ass, indass) in job.AssignLst" :key="indass">
-              <div class="text-caption">
-                <v-icon color="blue" size="small">mdi-account-edit</v-icon>
-                {{ ass.FullName }}
-                <v-icon color="blue" size="small">mdi-clock</v-icon>
+              <div class="text-caption" v-if="ass.UserRole == 'Xử lý'">
+                <div>
+                  <v-icon color="blue" size="small">mdi-account-edit</v-icon>
+                  {{ ass.FullName }}
+                  <v-icon color="blue" size="small" v-if="job.TimeModifyShow"
+                    >mdi-clock</v-icon
+                  >
+                  {{ job.TimeModifyShow }}
+                </div>
+                <div v-html="job.Report"></div>
+              </div>
+              <div class="text-caption" v-if="ass.UserRole == 'Phê duyệt'">
+                <div>
+                  <v-icon color="red" size="small">mdi-account-check</v-icon>
+                  {{ ass.FullName }}
+                  <v-icon color="red" size="small" v-if="job.TimeApproveShow"
+                    >mdi-clock</v-icon
+                  >
+                  {{ job.TimeApproveShow }}
+                </div>
+                <div v-html="job.NoteApprove"></div>
+              </div>
+              <div class="file-lst" v-if="ass.FileLst.length > 0">
+                <v-chip
+                  v-for="(file, indfile) in ass.FileLst"
+                  :key="indfile"
+                  size="small"
+                  class="file"
+                >
+                  {{ file.MineFile }}
+                </v-chip>
               </div>
             </div>
           </v-sheet>
@@ -447,7 +488,7 @@
 
 <script>
 import { GSPGetGSPDocumentInfoByID } from "@/api/briefApi";
-import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
+import { formatDateDisplayDDMMYY, formatDateHHDDMM } from "@/helpers/getTime";
 import {
   ProcessDocument,
   GetDocumentJobInfo,
@@ -564,7 +605,18 @@ export default {
         DocumentID: docID,
       }).then((res) => {
         if (res.RespCode == 0) {
-          this.processLst = res.DocumentJobLst;
+          this.processLst = res.DocumentJobLst.map((item, index) => {
+            item.StepLst = item.StepLst.map((job, indjob) => {
+              return {
+                ...job,
+                TimeModifyShow: formatDateHHDDMM(job.TimeModify),
+                TimeApproveShow: formatDateHHDDMM(job.TimeApprove),
+              };
+            });
+            return {
+              ...item,
+            };
+          });
         }
       });
     },
@@ -821,6 +873,39 @@ export default {
   &::-webkit-scrollbar-thumb {
     background: #bec5ce;
     border-radius: 20px;
+  }
+  .file-lst {
+    display: flex;
+    overflow: scroll;
+    padding: 4px 0;
+    margin-bottom: 4px;
+    &::-webkit-scrollbar-track-piece {
+      background: #ffffff;
+    }
+
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #bec5ce;
+      border-radius: 20px;
+    }
+  }
+  .file {
+    margin-right: 4px;
+    // margin-bottom: 4px;
+    max-width: 250px !important;
+    min-width: 60px;
+    white-space: normal;
+    position: relative;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    &:hover {
+      background: #f0f0f0;
+    }
   }
 }
 </style>
