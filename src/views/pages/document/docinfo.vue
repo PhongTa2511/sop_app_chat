@@ -98,21 +98,6 @@
                 </v-btn>
               </template>
               <v-list>
-                <!-- <v-list-item>
-                  <v-btn
-                    prepend-icon="mdi-bell-ring"
-                    size="small"
-                    color="gray"
-                    rounded="4"
-                    block
-
-                  >
-                    <template v-slot:prepend>
-                      <v-icon color="blue"></v-icon>
-                    </template>
-                    Giao việc
-                  </v-btn>
-                </v-list-item> -->
                 <v-list-item>
                   <v-btn
                     prepend-icon="mdi-information-box"

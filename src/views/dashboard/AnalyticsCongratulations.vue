@@ -22,7 +22,7 @@ const illustrationJohn = computed(() =>
         <VCardText>
           <span>
             Chào mừng bạn đã đến với<br />
-            Hệ thống checkin DTP 🤩
+            Hệ thống quản lý hồ sơ DTP 🤩
 
             <!-- Check your new raising badge in your profile. -->
           </span>

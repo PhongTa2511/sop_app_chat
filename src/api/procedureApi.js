@@ -155,3 +155,45 @@ export function GetUserApproveByWork(data) {
     data,
   });
 }
+export function CreateForm(data) {
+  return request({
+    url: "Form/CreateForm",
+    method: "post",
+    data,
+  });
+}
+export function UpdateForm(data) {
+  return request({
+    url: "Form/UpdateForm",
+    method: "post",
+    data,
+  });
+}
+export function DelForm(data) {
+  return request({
+    url: "Form/DelForm",
+    method: "post",
+    data,
+  });
+}
+export function GetFormLst(data) {
+  return request({
+    url: "Form/GetFormLst",
+    method: "post",
+    data,
+  });
+}
+export function GetFormLstByID(data) {
+  return request({
+    url: "Form/GetFormLstByID",
+    method: "post",
+    data,
+  });
+}
+export function GetFormByID(data) {
+  return request({
+    url: "Form/GetFormByID",
+    method: "post",
+    data,
+  });
+}

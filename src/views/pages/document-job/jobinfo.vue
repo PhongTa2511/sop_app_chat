@@ -214,10 +214,93 @@
           </div>
         </div>
         <div v-else>
-          <div v-if="dataJobInfo.Report">
-            <div class="text-h6">Nội dung báo cáo</div>
-            <div>{{ userJob.FullName }}</div>
-            <div v-html="dataJobInfo.Report"></div>
+          <div v-if="dataJobInfo.Report" class="px-4">
+            <v-row>
+              <v-col lg="8">
+                <div class="text-h6">Nội dung báo cáo</div>
+                <div class="pb-1 text-subtitle-2">
+                  <v-icon color="blue" size="small">mdi-account-edit</v-icon>
+                  {{ userJob.FullName }}
+                </div>
+                <div class="pb-1 text-subtitle-2">
+                  <v-icon color="green" size="small"
+                    >mdi-clock-time-four-outline</v-icon
+                  >
+                  {{ dataJobInfo.TimeModify }}
+                </div>
+                <div class="pb-1 text-subtitle-2">
+                  <v-icon color="orange" size="small">mdi-timer-sand</v-icon>
+                  Định mức:
+                  {{ userJob.QuotaTime }} Ngày
+                </div>
+                <div
+                  v-html="dataJobInfo.Report"
+                  class="border-md px-2 py-1 rounded"
+                ></div>
+              </v-col>
+              <v-col lg="4">
+                <div class="d-flex justify-sm-space-between">
+                  <div>Tệp đính kèm</div>
+                </div>
+                <v-divider class="my-2"></v-divider>
+                <v-chip-group
+                  color="green"
+                  column
+                  v-if="
+                    userJob && userJob.FileLst && userJob.FileLst.length > 0
+                  "
+                >
+                  <v-menu
+                    location="end"
+                    v-for="(item, index) in userJob.FileLst"
+                    :key="index"
+                  >
+                    <template v-slot:activator="{ props }">
+                      <v-chip color="orange" v-bind="props">
+                        {{ item.NameFile }}
+                      </v-chip>
+                    </template>
+
+                    <v-list>
+                      <v-list-item v-if="isPreviewSupported(item.MineFile)">
+                        <v-list-item-title>
+                          <v-btn
+                            @click="previewFile(item)"
+                            size="small"
+                            rounded="8"
+                            class="mb-1"
+                          >
+                            <v-icon class="mr-1">mdi-file-eye</v-icon> Xem trước
+                          </v-btn>
+                        </v-list-item-title>
+                      </v-list-item>
+
+                      <v-list-item>
+                        <v-list-item-title>
+                          <v-btn
+                            @click="downloadFile(item)"
+                            size="small"
+                            rounded="8"
+                            color="green"
+                            block
+                            class="mb-1"
+                          >
+                            <v-icon class="mr-1">mdi-file-download</v-icon> Tải
+                            ngay
+                          </v-btn>
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-chip-group>
+                <div v-else class="text-center py-4">
+                  <v-icon color="red" class="my-2" size="large"
+                    >mdi-note-search</v-icon
+                  >
+                  <p>Chưa có file nào</p>
+                </div>
+              </v-col>
+            </v-row>
           </div>
         </div>
         <div

@@ -14,9 +14,9 @@ const tabs = [
   //   tab: "to-chuc",
   // },
   {
-    title: "Danh sách quy trình",
+    title: "Danh sách hồ sơ",
     icon: "mdi-text-box",
-    tab: "quy-trinh",
+    tab: "ho-so",
   },
   // {
   //   title: "Máy chấm công",
@@ -41,7 +41,7 @@ const tabs = [
       <!-- <VWindowItem value="to-chuc">
         <ManagerSystem />
       </VWindowItem> -->
-      <VWindowItem value="quy-trinh">
+      <VWindowItem value="ho-so">
         <Document />
       </VWindowItem>
       <!-- <VWindowItem value="thiet-bi">

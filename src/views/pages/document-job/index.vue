@@ -221,7 +221,7 @@ export default {
         return { text: "Đang làm", color: "blue" };
       }
       if (status == 3) {
-        return { text: "Tạm dừng", color: "more" };
+        return { text: "Đã báo cáo", color: "blue" };
       }
       if (status == 4) {
         return { text: "Hoàn thành", color: "green" };

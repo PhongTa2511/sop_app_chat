@@ -281,6 +281,15 @@
           >mdi-format-list-numbered
         </v-icon>
       </template>
+      <template v-slot:item.Form="{ item }">
+        <v-icon
+          color="blue"
+          size="small"
+          class="me-2"
+          @click="btShowLstForm(item)"
+          >mdi-form-select
+        </v-icon>
+      </template>
     </v-data-table-server>
   </v-card>
 </template>
@@ -303,6 +312,7 @@ export default {
       headers: [
         { title: "STT", sortable: false, key: "Key" },
         { title: "Bước", key: "Step", sortable: false },
+        { title: "Form", key: "Form", sortable: false },
         { title: "Mã quy trình", key: "ProcedureID", sortable: false },
         {
           title: "Tên quy trình",
@@ -397,12 +407,13 @@ export default {
         }
       });
     },
+    btShowLstForm(data) {
+      this.$router.push("/form/" + data.ProcedureID);
+    },
     btShowLstPhase(data) {
-      console.log(data);
       this.$router.push("/buoc/" + data.ProcedureID);
     },
     btCreate(data) {
-      console.log(data);
       if (data.PlaceID.length < 8) {
         this.placeInfoBFO = data;
         this.getPlaceStandardLst(data);
