@@ -199,7 +199,7 @@
             ></v-textarea>
             <div class="d-flex justify-space-between">
               <span>Thêm các trường thông tin</span>
-              <v-btn icon color="green" size="x-small" @click="addField">
+              <v-btn icon color="green" size="x-small" @click="addField2">
                 <v-icon>mdi-plus</v-icon>
               </v-btn>
             </div>
@@ -299,7 +299,7 @@
                             v-bind="props"
                             size="x-small"
                             color="red"
-                            @click="removeField(index)"
+                            @click="removeField2(index)"
                           >
                             <v-icon>mdi-delete</v-icon>
                           </v-btn>
@@ -316,7 +316,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn @click="isShowEditPhase = false">Cancel</v-btn>
-          <v-btn color="green" @click="btEditPhase">Xác nhận</v-btn>
+          <v-btn color="green" @click="btEditForm">Xác nhận</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -486,7 +486,7 @@ export default {
       });
     },
     btcreateForm() {
-      if (this.createForm.Parameter && this.createForm.TypeForm) {
+      if (this.createForm.NameForm && this.createForm.TypeForm) {
         CreateForm({
           FormHeaderInfo: {
             ...this.createForm,
@@ -568,10 +568,17 @@ export default {
       });
     },
     btEditForm() {
-      if (this.editForm.StepName && this.editForm.Description) {
+      if (this.editForm.IDForm) {
         UpdateForm({
-          StepInfo: {
+          FormHeaderInfo: {
             ...this.editForm,
+            FormLineLst: this.editForm.FormLineLst.map((item, index) => {
+              return {
+                ...item,
+                Required: index + 1,
+                OptionAnswer: JSON.stringify(item.Options),
+              };
+            }),
           },
         }).then((res) => {
           if (res.RespCode == 0) {
@@ -603,6 +610,12 @@ export default {
     },
     removeField(index) {
       this.createForm.FormLineLst.splice(index, 1); // Remove the field at the specified index
+    },
+    addField2() {
+      this.editForm.FormLineLst.push({ Parameter: "", Type: 1 }); // Add a new field
+    },
+    removeField2(index) {
+      this.editForm.FormLineLst.splice(index, 1); // Remove the field at the specified index
     },
     setFieldType(field, type) {
       field.Type = type;

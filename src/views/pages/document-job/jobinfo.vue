@@ -461,13 +461,6 @@
       <v-card class="py-2 px-4 layout-card">
         <div class="d-flex justify-space-between">
           <div class="text-h6">Quá trình thực hiện</div>
-          <!-- <v-btn
-            rounded="full"
-            color="green"
-            icon="mdi-progress-check"
-            size="x-small"
-          >
-          </v-btn> -->
         </div>
         <v-divider class="my-2"></v-divider>
         <div v-for="(item, index) in processLst" :key="index" class="mx-2 my-2">
@@ -525,14 +518,48 @@
                 <div v-html="job.NoteApprove"></div>
               </div>
               <div class="file-lst" v-if="ass.FileLst.length > 0">
-                <v-chip
+                <v-menu
+                  location="end"
                   v-for="(file, indfile) in ass.FileLst"
                   :key="indfile"
-                  size="small"
-                  class="file"
                 >
-                  {{ file.MineFile }}
-                </v-chip>
+                  <template v-slot:activator="{ props }">
+                    <v-chip color="gray" v-bind="props" class="mr-1">
+                      {{ file.MineFile }}
+                    </v-chip>
+                  </template>
+
+                  <v-list>
+                    <v-list-item v-if="isPreviewSupported(file.MineFile)">
+                      <v-list-item-title>
+                        <v-btn
+                          @click="previewFile(file)"
+                          size="small"
+                          rounded="8"
+                          class="mb-1"
+                        >
+                          <v-icon class="mr-1">mdi-file-eye</v-icon> Xem trước
+                        </v-btn>
+                      </v-list-item-title>
+                    </v-list-item>
+
+                    <v-list-item>
+                      <v-list-item-title>
+                        <v-btn
+                          @click="downloadFile(file)"
+                          size="small"
+                          rounded="8"
+                          color="green"
+                          block
+                          class="mb-1"
+                        >
+                          <v-icon class="mr-1">mdi-file-download</v-icon> Tải
+                          ngay
+                        </v-btn>
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
               </div>
             </div>
           </v-sheet>
@@ -585,6 +612,14 @@ import { urlUploadFile } from "./function";
 import mammoth from "mammoth";
 import XLSX from "xlsx";
 import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi";
+import {
+  previewFile,
+  fetchXlsxContent,
+  fetchDoc,
+  isPreviewSupported,
+  downloadFile,
+} from "@/utils/function";
+
 export default {
   components: {
     Editor,
@@ -643,20 +678,20 @@ export default {
   },
   methods: {
     isPreviewSupported(fileExtension) {
-      const cleanedExtension = fileExtension.trim().toLowerCase();
-      const supportedExtensions = [
-        ".pdf",
-        ".docx",
-        ".xlsx",
-        ".png",
-        ".jpg",
-        ".jpeg",
-      ];
-      return supportedExtensions.includes(cleanedExtension);
+      return isPreviewSupported(fileExtension);
     },
     downloadFile(file) {
-      const previewUrl = `https://crm.icpc1hn.work/GSPDTPAPI/File/GetDocumentFile?FileName=${file.LinkFile}`;
-      window.open(previewUrl);
+      downloadFile(file);
+    },
+    previewFile(file) {
+      previewFile(file);
+      this.isLoading = false;
+    },
+    fetchDoc(url) {
+      fetchDoc(url);
+    },
+    fetchXlsxContent(url) {
+      fetchXlsxContent(url);
     },
     deleteFile(file) {
       DelDocumentFile({
@@ -861,76 +896,6 @@ export default {
         });
       }
     },
-    async previewFile(file) {
-      if (!this.isPreviewSupported(file.MineFile)) {
-        alert("File này không hỗ trợ xem trước.");
-        return;
-      }
-      this.isLoading = true;
-      this.nameFile = file.NameFile.toUpperCase();
-      this.docContent = "";
-      const fileExtension = file.MineFile.toLowerCase();
-      this.fileMine = fileExtension;
-      const previewUrl = `https://crm.icpc1hn.work/GSPDTPAPI/File/GetDocumentFile?FileName=${file.LinkFile}`;
-      console.log(previewUrl);
-
-      // Check for supported file types
-      if (fileExtension === ".pdf") {
-        this.fileUrl = previewUrl;
-        this.isShowFile = true;
-        // this.docContent = `<iframe :src="${this.fileUrl}" width="100%" height="600px"></iframe>`;
-      } else if (fileExtension === ".docx") {
-        this.fileUrl = previewUrl;
-        this.isShowFile = true;
-        await this.fetchDoc(this.fileUrl);
-      } else if (fileExtension === ".xlsx") {
-        this.fileUrl = previewUrl;
-        this.isShowFile = true;
-        await this.fetchXlsxContent(this.fileUrl);
-      } else if ([".png", ".jpg", ".jpeg"].includes(fileExtension)) {
-        this.isShowFile = true;
-        this.docContent = `<img lazy src="${previewUrl}" alt="Image preview" width="100%" />`;
-      }
-      this.isLoading = false;
-    },
-    async fetchDoc(url) {
-      try {
-        const response = await fetch(url);
-        const arrayBuffer = await response.arrayBuffer();
-        const result = await mammoth.convertToHtml({ arrayBuffer });
-        this.docContent = result.value;
-      } catch (error) {
-        console.error("Error loading document:", error);
-      }
-    },
-    async fetchXlsxContent(url) {
-      try {
-        const response = await fetch(url);
-        const arrayBuffer = await response.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer, { type: "array" });
-        var html = XLSX.utils.sheet_to_html(
-          workbook.Sheets[workbook.SheetNames[0]]
-        );
-        html = html
-          .replace(
-            /<table/g,
-            `<table style='border: 1px solid black; border-collapse: collapse; text-align:center'`
-          )
-          .replace(
-            /<th/g,
-            `<th style='border: 1px solid black; border-collapse: collapse; padding:8px'`
-          )
-          .replace(
-            /<td/g,
-            `<td style='border: 1px solid black; border-collapse: collapse; padding:8px'`
-          );
-        console.log(html);
-
-        this.docContent = html;
-      } catch (error) {
-        console.error("Error loading spreadsheet:", error);
-      }
-    },
   },
   created() {
     this.getDocumentJobInfo();
@@ -974,6 +939,9 @@ export default {
     &::-webkit-scrollbar-thumb {
       background: #bec5ce;
       border-radius: 20px;
+    }
+    .v-chip {
+      min-width: 60px;
     }
   }
   .file {

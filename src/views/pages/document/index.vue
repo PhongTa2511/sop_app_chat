@@ -1,5 +1,5 @@
 <template>
-  <v-card class="py-4">
+  <v-card class="pt-4">
     <v-data-table
       :items-per-page="pageSize"
       :items-length="totalLength"
@@ -22,19 +22,6 @@
     >
       <template v-slot:top>
         <div class="d-flex flex-wrap gap-2 px-3">
-          <!-- <span>
-            <v-select
-              v-model="optionStatus"
-              :items="optionStatusLst"
-              label="Địa bàn"
-              item-title="label"
-              item-value="value"
-              class="ml-1"
-              style="width: 220px !important"
-              hide-details
-            ></v-select>
-          </span> -->
-
           <span>
             <v-text-field
               v-model="inputSearch"
@@ -57,7 +44,6 @@
             variant="tonal"
             icon="mdi-reload"
             style="height: 42px"
-            @click="btExportExcel"
           ></v-btn>
         </div>
       </template>
@@ -68,12 +54,12 @@
       </template>
       <template v-slot:item.Action="{ item }">
         <v-icon
-          color="primary"
+          color="green"
           class="me-2"
           size="small"
           style="cursor: pointer"
-          @click="editSchedule(item)"
-          >mdi-format-list-numbered</v-icon
+          @click="btShowProcess(item)"
+          >mdi-mdi-progress-check</v-icon
         >
       </template>
       <template v-slot:item.Key="{ item }">
@@ -91,30 +77,127 @@
   </v-card>
   <v-dialog v-model="isShowProcess" width="600">
     <v-card>
-      <v-card-title>Quá trình thực hiện</v-card-title>
+      <v-card-title class="d-flex justify-space-between align-center">
+        <div class="text-h5 text-medium-emphasis ps-2">Quá trình thực hiện</div>
+
+        <v-btn
+          icon="mdi-close"
+          variant="text"
+          rounded-full
+          size="small"
+          color="gray"
+          @click="isShowProcess = false"
+        ></v-btn>
+      </v-card-title>
       <v-card-text>
-        <v-stepper vertical>
-          <v-stepper-step
-            v-for="(item, index) in workInfo"
+        <v-card class="layout-card">
+          <div
+            v-for="(item, index) in processLst"
             :key="index"
-            :complete="item.Status === 3"
-            :step="index + 1"
-            :editable="false"
+            class="mx-2 my-2"
           >
-            <template v-slot:label>{{ item.StepName }}</template>
-            <template v-slot:content>
-              <div v-for="(step, ind) in item.StepLst" :key="ind">
-                <div>{{ step.JobName }}</div>
-                <div v-if="step.Report">
-                  {{ step.ReportName }} - {{ step.Report }}
+            <div class="d-flex">
+              <v-chip class="mr-2">
+                {{ item.StepOrder }}
+              </v-chip>
+              {{ item.StepName }}
+            </div>
+            <v-sheet
+              v-for="(job, indjob) in item.StepLst"
+              :key="indjob"
+              class="px-1 py-1"
+              rounded
+              border="green md"
+            >
+              <div class="text-body-2 position-relative">
+                {{ job.JobName }}
+                <v-icon
+                  v-if="job.Status == 4"
+                  class="position-absolute right-0"
+                  color="green"
+                  size="small"
+                  >mdi-check-circle-outline</v-icon
+                >
+                <v-icon
+                  v-if="job.Status == 5"
+                  class="position-absolute right-0"
+                  color="red"
+                  size="small"
+                  >mdi-close-circle-outline</v-icon
+                >
+              </div>
+              <div v-for="(ass, indass) in job.AssignLst" :key="indass">
+                <div class="text-caption" v-if="ass.UserRole == 'Xử lý'">
+                  <div>
+                    <v-icon color="blue" size="small">mdi-account-edit</v-icon>
+                    {{ ass.FullName }}
+                    <v-icon color="blue" size="small" v-if="job.TimeModifyShow"
+                      >mdi-clock</v-icon
+                    >
+                    {{ job.TimeModifyShow }}
+                  </div>
+                  <div v-html="job.Report"></div>
                 </div>
-                <div v-if="step.NoteApprove">
-                  {{ step.ManagerName }} - {{ step.NoteApprove }}
+                <div class="text-caption" v-if="ass.UserRole == 'Phê duyệt'">
+                  <div>
+                    <v-icon color="red" size="small">mdi-account-check</v-icon>
+                    {{ ass.FullName }}
+                    <v-icon color="red" size="small" v-if="job.TimeApproveShow"
+                      >mdi-clock</v-icon
+                    >
+                    {{ job.TimeApproveShow }}
+                  </div>
+                  <div v-html="job.NoteApprove"></div>
+                </div>
+                <div class="file-lst" v-if="ass.FileLst.length > 0">
+                  <v-menu
+                    location="end"
+                    v-for="(file, indfile) in ass.FileLst"
+                    :key="indfile"
+                  >
+                    <template v-slot:activator="{ props }">
+                      <v-chip color="gray" v-bind="props" class="mr-1">
+                        {{ file.MineFile }}
+                      </v-chip>
+                    </template>
+
+                    <v-list>
+                      <v-list-item v-if="isPreviewSupported(file.MineFile)">
+                        <v-list-item-title>
+                          <v-btn
+                            @click="previewFile(file)"
+                            size="small"
+                            rounded="8"
+                            class="mb-1"
+                          >
+                            <v-icon class="mr-1">mdi-file-eye</v-icon> Xem trước
+                          </v-btn>
+                        </v-list-item-title>
+                      </v-list-item>
+
+                      <v-list-item>
+                        <v-list-item-title>
+                          <v-btn
+                            @click="downloadFile(file)"
+                            size="small"
+                            rounded="8"
+                            color="green"
+                            block
+                            class="mb-1"
+                          >
+                            <v-icon class="mr-1">mdi-file-download</v-icon> Tải
+                            ngay
+                          </v-btn>
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
                 </div>
               </div>
-            </template>
-          </v-stepper-step>
-        </v-stepper>
+            </v-sheet>
+            <v-divider class="my-2" color="blue"></v-divider>
+          </div>
+        </v-card>
       </v-card-text>
     </v-card>
   </v-dialog>
@@ -136,10 +219,9 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-  <!-- Dialog for creating a document -->
-  <v-dialog v-model="isShowCreateDocument" width="800">
+  <v-dialog v-model="isShowCreateDocument" max-width="600">
     <v-card>
-      <v-card-title>Tạo quy trình mới</v-card-title>
+      <v-card-title>Tạo hồ sơ mới</v-card-title>
       <v-card-text>
         <v-select
           placeholder="Chọn loại quy trình"
@@ -158,31 +240,6 @@
           :rows="2"
           class="mb-2"
         ></v-textarea>
-        <!-- Thay đổi thẻ v-file-input thành nút v-btn để mở tải file Excel -->
-        <v-btn
-          color="green"
-          rounded="8"
-          @click="$refs.fileInput.click()"
-          class="mr-2"
-        >
-          Tải lên file Excel
-        </v-btn>
-        <v-btn color="primary" rounded="8" @click="btExportExcel">
-          Excel mẫu
-        </v-btn>
-        <input
-          ref="fileInput"
-          type="file"
-          accept=".xls,.xlsx"
-          @change="handleFileUpload"
-          style="display: none"
-        />
-        <v-data-table
-          :headers="headersProduct"
-          :items="productExcelLst"
-          hide-default-footer
-        >
-        </v-data-table>
       </v-card-text>
       <v-card-actions>
         <v-btn @click="isShowCreateDocument = false" text>Hủy</v-btn>
@@ -198,16 +255,17 @@ import {
   UpdateGSPDocument,
   CreateGSPDocument,
 } from "@/api/briefApi";
-import {
-  formatDate,
-  formatDateDisplayDDMMYY,
-  formatDateUpload,
-} from "@/helpers/getTime";
+
 import { GetProcedureNameInfo, GetProcedureLst } from "@/api/procedureApi";
 import { ProcessDocument } from "@/api/documentJobApi";
-import { exportExcel, excelDateToJSDate, convertToDate } from "./function";
-import XLSX from "xlsx";
-
+import { formatDateDisplayDDMMYY, formatDateHHDDMM } from "@/helpers/getTime";
+import {
+  previewFile,
+  fetchXlsxContent,
+  fetchDoc,
+  isPreviewSupported,
+  downloadFile,
+} from "@/utils/function";
 export default {
   data() {
     return {
@@ -248,7 +306,7 @@ export default {
           align: "center",
           width: 80,
         },
-        { title: "Sản phẩm", key: "ProductNameLst", sortable: false },
+        { title: "Mã hồ sơ", key: "DocumentID", sortable: false },
         { title: "Quy trình", key: "DocName", sortable: false },
         {
           title: "Deadline",
@@ -256,68 +314,11 @@ export default {
           sortable: false,
           width: 100,
         },
-
+        { title: "Người xử lý", key: "EmployeeName", sortable: false },
         { title: "", key: "Action", width: 40, align: "center" },
         { title: "Trạng thái", key: "Status", sortable: false, width: 100 },
       ],
-      headersProduct: [
-        {
-          title: "STT",
-          sortable: false,
-          key: "Key",
-          width: 40,
-          align: "center",
-        },
-        {
-          title: "Tên hàng hóa",
-          key: "ProductName",
-          sortable: false,
-          width: 200,
-        },
-        { title: "Số lô", key: "Lotcode", sortable: false, width: 80 },
-        {
-          title: "Mã BFO",
-          key: "BFO",
-          sortable: false,
-          align: "center",
-        },
-        {
-          title: "Hạn dùng",
-          key: "ExpDateShow",
-          sortable: false,
-          align: "center",
-        },
-        {
-          title: "SL",
-          key: "Quantity",
-          sortable: false,
-          align: "center",
-        },
-        {
-          title: "ĐVT",
-          key: "Unit",
-          sortable: false,
-          align: "center",
-        },
-        {
-          title: "Tình trạng",
-          key: "StatusText",
-          sortable: false,
-          align: "center",
-        },
-        {
-          title: "Quyết định",
-          key: "Decision",
-          sortable: false,
-          align: "center",
-        },
-        {
-          title: "Ghi chú",
-          key: "Note",
-          sortable: false,
-          align: "center",
-        },
-      ],
+
       productExcelLst: [],
       isShowCreateDocument: false,
       createDocument: {
@@ -328,12 +329,26 @@ export default {
     };
   },
   methods: {
+    isPreviewSupported(fileExtension) {
+      return isPreviewSupported(fileExtension);
+    },
+    downloadFile(file) {
+      downloadFile(file);
+    },
+    previewFile(file) {
+      previewFile(file);
+      this.isLoading = false;
+    },
+    fetchDoc(url) {
+      fetchDoc(url);
+    },
+    fetchXlsxContent(url) {
+      fetchXlsxContent(url);
+    },
     btPushToDocinfo(data) {
       this.$router.push("/thong-tin/" + data.DocumentID);
     },
-    btExportExcel() {
-      exportExcel();
-    },
+
     btShowOpenFile(data) {
       var linkPDF =
         "http://202.191.56.172/RDAPI/File/GetDocumentFile?FileName=" +
@@ -392,12 +407,23 @@ export default {
       ProcessDocument({ DocumentID: documentID })
         .then((res) => {
           if (res.RespCode === 0) {
-            this.workInfo = res.DocumentJobLst;
+            this.processLst = res.DocumentJobLst.map((item, index) => {
+              item.StepLst = item.StepLst.map((job, indjob) => {
+                return {
+                  ...job,
+                  TimeModifyShow: formatDateHHDDMM(job.TimeModify),
+                  TimeApproveShow: formatDateHHDDMM(job.TimeApprove),
+                };
+              });
+              return {
+                ...item,
+              };
+            });
             this.isShowProcess = true;
           } else {
             notify({
               title: "Error",
-              message: res.RespText,
+              text: res.RespText,
               type: "error",
             });
           }
@@ -405,7 +431,7 @@ export default {
         .catch((error) => {
           notify({
             title: "Error",
-            message: "Failed to fetch process data.",
+            text: "Failed to fetch process data.",
             type: "error",
           });
           console.error(error);
@@ -437,57 +463,7 @@ export default {
         }
       });
     },
-    handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const bstr = e.target.result;
-          const wb = XLSX.read(bstr, { type: "binary" });
-          const wsname = wb.SheetNames[0];
-          const ws = wb.Sheets[wsname];
-          const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-          console.log(data);
 
-          this.productExcelLst = this.convertToReq(data).map((item, index) => {
-            return {
-              ...item,
-              Key: index + 1,
-            };
-          });
-        };
-        reader.readAsBinaryString(file);
-      }
-    },
-
-    convertToReq(data) {
-      var lstReq = [];
-      for (var i = 1; i < data.length; i++) {
-        if (data[i][1]) {
-          console.log(new Date(data[i][4]), data[i][4]);
-
-          var req = {
-            Key: data[i][0],
-            ProductName: data[i][1],
-            Lotcode: data[i][2],
-            BFO: data[i][3],
-            ExpDateShow: Number.isInteger(data[i][4])
-              ? formatDateUpload(excelDateToJSDate(data[i][4]))
-              : formatDateUpload(convertToDate(data[i][4])),
-            ExpDate: Number.isInteger(data[i][4])
-              ? formatDateUpload(excelDateToJSDate(data[i][4])) + " 00:00:00"
-              : formatDateUpload(convertToDate(data[i][4])) + " 00:00:00",
-            Quantity: data[i][5],
-            Unit: data[i][6],
-            StatusText: data[i][7],
-            Decision: data[i][8],
-            Note: data[i][9],
-          };
-          lstReq.push(req);
-        }
-      }
-      return lstReq;
-    },
     getProcedureLst() {
       GetProcedureLst({
         PageNumber: 1,
@@ -524,49 +500,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.file-lst {
-  display: inline-block;
-  .file {
-    display: inline-block;
-    border: 1px solid #aeaeae;
-    padding: 8px;
-    margin-right: 8px;
-    border-radius: 8px;
-    min-width: 200px !important;
-    max-width: 250px !important;
-    white-space: normal;
-    position: relative;
-    cursor: pointer;
-    &:hover {
-      background: #f0f0f0;
-    }
-    .trash {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      color: #f56c6c;
-    }
-    .file-name {
-      font-weight: 600;
-      margin-right: 24px;
-    }
-    .des {
-      font-size: 14px;
-      color: #93969b;
-      margin: 8px 0;
-    }
-  }
-}
-.frame-item {
-  border: 1px dashed #93969b;
-  border-radius: 12px;
-  margin-bottom: 8px;
-  padding: 4px 8px;
-}
-.progress {
+.layout-card {
+  min-height: 250px;
+  max-height: calc(100vh - 150px);
+  overflow-y: scroll;
+  margin-bottom: -10px;
   margin-top: -20px;
-  overflow-y: auto;
-  height: calc(100vh - 160px);
   &::-webkit-scrollbar-track-piece {
     background: #ffffff;
   }
@@ -580,13 +519,41 @@ export default {
     background: #bec5ce;
     border-radius: 20px;
   }
-}
-</style>
-<style>
-.el-table_1_column_1
-  .cell
-  .el-checkbox__input
-  .el-checkbox__inner:nth-child(0) {
-  display: none !important;
+  .file-lst {
+    display: flex;
+    overflow: scroll;
+    padding: 4px 0;
+    margin-bottom: 4px;
+    &::-webkit-scrollbar-track-piece {
+      background: #ffffff;
+    }
+
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #bec5ce;
+      border-radius: 20px;
+    }
+    .v-chip {
+      min-width: 60px;
+    }
+  }
+  .file {
+    margin-right: 4px;
+    // margin-bottom: 4px;
+    max-width: 250px !important;
+    min-width: 60px;
+    white-space: normal;
+    position: relative;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 12px;
+    &:hover {
+      background: #f0f0f0;
+    }
+  }
 }
 </style>

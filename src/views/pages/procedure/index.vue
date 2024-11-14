@@ -264,9 +264,9 @@
         <v-icon color="orange" class="me-2" @click="btShowEditProcedure(item)"
           >mdi-square-edit-outline
         </v-icon>
-        <v-icon color="orange" class="me-2" @click="btShowProName(item)"
+        <!-- <v-icon color="orange" class="me-2" @click="btShowProName(item)"
           >mdi-note-edit-outline
-        </v-icon>
+        </v-icon> -->
       </template>
       <template v-slot:item.Status="{ item }">
         <v-chip color="blue" v-if="item.Status == 1"> Mới tạo </v-chip>
@@ -310,7 +310,7 @@ export default {
     return {
       isMenuSearch: false,
       headers: [
-        { title: "STT", sortable: false, key: "Key" },
+        { title: "STT", sortable: false, key: "Key", width: 120 },
         { title: "Bước", key: "Step", sortable: false },
         { title: "Form", key: "Form", sortable: false },
         { title: "Mã quy trình", key: "ProcedureID", sortable: false },

@@ -73,13 +73,13 @@ const vuetifyTheme = useTheme();
         }"
       />
 
-      <VerticalNavLink
+      <!-- <VerticalNavLink
         :item="{
           title: 'Sản phẩm',
           icon: 'mdi-package-variant-closed',
           to: '/san-pham',
         }"
-      />
+      /> -->
       <VerticalNavSectionTitle
         :item="{
           heading: 'Cài đặt chung',
