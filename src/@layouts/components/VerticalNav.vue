@@ -1,7 +1,7 @@
 <script setup>
 import { PerfectScrollbar } from "vue3-perfect-scrollbar";
 import { useDisplay } from "vuetify";
-import logo from "@/assets/images/logo-box.png";
+import logo from "@/assets/images/logos/dtp-logo.png";
 
 const props = defineProps({
   tag: {
@@ -61,7 +61,7 @@ const handleNavScroll = (evt) => {
         >
           <!-- <div class="d-flex" v-html="logo" /> -->
           <img :src="logo" alt="" style="height: 40px" />
-          <h1 class="leading-normal">DTP</h1>
+          <h3 class="leading-normal">Quản lý hồ sơ</h3>
         </RouterLink>
       </slot>
     </div>

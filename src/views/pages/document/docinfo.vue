@@ -2,7 +2,7 @@
   <v-card class="py-4">
     <div class="d-flex justify-space-between mb-4 mx-4" v-if="docInfo.TypeDoc">
       <div>
-        <div class="text-h5">
+        <div class="text-h5" style="white-space: normal">
           Hồ sơ:
           {{ docInfo.DocName }}
           <v-chip
@@ -33,11 +33,11 @@
             ></v-btn>
           </template>
           <v-list>
-            <v-list-item>
+            <!-- <v-list-item>
               <v-btn size="small" color="blue" rounded="4" block>
                 Bắt đầu
               </v-btn>
-            </v-list-item>
+            </v-list-item> -->
             <v-list-item>
               <v-btn size="small" color="gray" rounded="4" block>
                 Tạm dừng
@@ -57,7 +57,13 @@
         </v-menu>
       </div>
     </div>
-
+    <input
+      ref="fileInput"
+      type="file"
+      accept=".xls,.xlsx"
+      @change="handleFileUpload"
+      style="display: none"
+    />
     <v-tabs v-model="tab" grow>
       <v-tab
         v-for="(item, index) in formTabLst"
@@ -67,13 +73,7 @@
         show-arrows
       ></v-tab>
     </v-tabs>
-    <input
-      ref="fileInput"
-      type="file"
-      accept=".xls,.xlsx"
-      @change="handleFileUpload"
-      style="display: none"
-    />
+
     <v-tabs-window v-model="tab">
       <v-tabs-window-item
         v-for="(item, index) in formTabLst"
@@ -809,13 +809,6 @@ export default {
       }).then((res) => {
         if (res.RespCode == 0) {
           this.docInfo = res.Data;
-          this.docInfo.Data = this.docInfo.Data.map((item, index) => {
-            return {
-              ...item,
-              Key: index + 1,
-              ExpDateShow: formatDateDisplayDDMMYY(item.ExpDate),
-            };
-          });
           this.processDocument();
         }
       });
@@ -882,7 +875,7 @@ export default {
               );
               console.log("anhthanfh", len);
               len = len.length;
-              for (var i = 1; i <= len; i++) {
+              for (var i = 0; i < len; i++) {
                 var itemlst = item.DocumentFormLineLst.filter(
                   (p) => p.IDFormLine == i
                 );

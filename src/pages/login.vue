@@ -1,6 +1,6 @@
 <script>
 import AuthProvider from "@/views/pages/authentication/AuthProvider.vue";
-import logo from "@images/logos/cpc1hn-logo.png";
+import logo from "@images/logos/dtp-logo.png";
 import { Login, GetUserInfo } from "@/api/user.js";
 import {
   setToken,

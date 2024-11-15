@@ -24,6 +24,7 @@
     "chart.js": "^4.1.2",
     "eslint-import-resolver-alias": "^1.1.2",
     "file-saver": "^2.0.5",
+    "firebase": "^11.0.2",
     "js-cookie": "2.2.0",
     "jwt-decode": "^3.1.2",
     "lodash.debounce": "^4.0.8",

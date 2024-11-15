@@ -1,3 +1,6 @@
+import mammoth from "mammoth";
+import XLSX from "xlsx";
+
 export async function previewFile(file) {
   if (!this.isPreviewSupported(file.MineFile)) {
     alert("File này không hỗ trợ xem trước.");

@@ -207,7 +207,7 @@
     <v-card-title>
       <div class="d-flex justify-space-between">
         <h6 class="text-h5 py-2">
-          <div>
+          <div style="white-space: normal">
             <v-chip color="blue"> Bước {{ phaseInfo.StepOrder }} </v-chip>
             {{ phaseInfo.StepName }}
           </div>
@@ -271,12 +271,22 @@ export default {
           width: 120,
           sortable: false,
         },
-        { title: "Mã", key: "WorkID" },
-        { title: "Công việc", key: "WorkName" },
-        { title: "Mô tả", key: "WDescription" },
-        { title: "BP xử lý", key: "GroupWork" },
-        { title: "BP phê duyệt", key: "GroupManager" },
-        { title: "Trạng thái", key: "Status" },
+        { title: "Mã", key: "WorkID", sortable: false },
+        { title: "Công việc", key: "WorkName", sortable: false },
+        { title: "Mô tả", key: "WDescription", sortable: false },
+        {
+          title: "BP xử lý",
+          key: "GroupWork",
+          align: "center",
+          sortable: false,
+        },
+        {
+          title: "BP phê duyệt",
+          key: "GroupManager",
+          align: "center",
+          sortable: false,
+        },
+        { title: "Trạng thái", key: "Status", sortable: false },
       ],
       isShowCreateWork: false,
       isShowEditWork: false,
@@ -375,11 +385,12 @@ export default {
           var groupWork = checkWork ? checkWork.GroupEmploy : "";
           var checkManager = item.Data.find((p) => p.UserRole == "Phê duyệt");
           var groupManager = checkManager ? checkManager.GroupEmploy : "";
+
           return {
             ...item,
             Key: index + 1,
             GroupWork: groupWork,
-            GroupMânger: groupManager,
+            GroupManager: groupManager,
           };
         });
         this.loadding = false;

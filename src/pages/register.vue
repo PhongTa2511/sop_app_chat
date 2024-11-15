@@ -1,6 +1,6 @@
 <script>
 import AuthProvider from "@/views/pages/authentication/AuthProvider.vue";
-import logo from "@images/logo-box.png";
+import logo from "@/assets/images/logos/dtp-logo.png";
 import { GetOTPCheck, UserRegister } from "@/api/user";
 export default {
   data() {

@@ -1,5 +1,5 @@
 <template>
-  <v-card class="py-4">
+  <v-card class="pt-4">
     <v-data-table
       :items-per-page="rowspPage"
       :items-length="totalLength"

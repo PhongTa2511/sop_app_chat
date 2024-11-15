@@ -25,45 +25,143 @@
             {{ dataJobInfo.JobName }}
           </div>
         </v-card-title>
-        <v-data-table
-          no-data-text="Không có dữ liệu"
-          :headers="headers"
-          :items="desserts"
-          hide-default-footer
-        >
-          <template v-slot:top>
-            <div class="d-flex justify-sm-space-between text-button px-6">
-              <div>Danh sách sản phẩm</div>
+        <v-tabs v-model="tab" grow>
+          <v-tab
+            v-for="(item, index) in formTabLst"
+            :key="index"
+            :text="item.NameForm"
+            :value="item"
+            show-arrows
+          ></v-tab>
+        </v-tabs>
 
-              <v-btn
-                color="green"
-                icon="mdi-microsoft-excel"
-                style="height: 42px; margin-top: -12px"
-              ></v-btn>
-            </div>
-          </template>
-          <template v-slot:item.Status="{ item }">
-            <v-chip color="green" size="small" v-if="item.Status == 1">
-              Đang làm
-            </v-chip>
-            <v-chip color="red" size="small" v-if="item.Status == 0">
-              Xóa
-            </v-chip>
-          </template>
-          <template v-slot:item.Quantity="{ item }">
-            <div>{{ item.Quantity }}</div>
-            <div>{{ item.Unit }}</div>
-          </template>
-          <template v-slot:item.StatusText="{ item }">
-            <div>{{ item.StatusText }}</div>
-            <div>{{ item.ExpDateShow }}</div>
-          </template>
-          <template v-slot:item.Action="{ item }">
-            <v-icon color="primary" size="small" @click="btShowDel(item.raw)">
-              mdi-delete
-            </v-icon>
-          </template>
-        </v-data-table>
+        <v-tabs-window v-model="tab">
+          <v-tabs-window-item
+            v-for="(item, index) in formTabLst"
+            :key="index"
+            :value="item"
+          >
+            <v-card flat v-if="tab.TypeForm == 2">
+              <v-data-table
+                no-data-text="Không có dữ liệu"
+                :headers="headers"
+                :items="desserts"
+                min-height="calc( 210px)"
+                items-per-page-text="Số dòng 1 trang"
+                sort-asc-icon="mdi-menu-up"
+                sort-desc-icon="mdi-menu-down"
+                hide-default-footer
+              >
+                <template v-slot:top="{ item }">
+                  <div class="mx-auto mt-2">
+                    <v-btn
+                      size="small"
+                      color="blue"
+                      rounded="md"
+                      @click="btShowAdd"
+                      >Thêm mới</v-btn
+                    >
+
+                    <v-menu>
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          size="small"
+                          color="green"
+                          rounded="md"
+                          class="mx-2"
+                          v-bind="props"
+                          >Thêm Excel</v-btn
+                        >
+                      </template>
+                      <v-list>
+                        <v-list-item>
+                          <v-btn
+                            prepend-icon="mdi-microsoft-excel"
+                            size="small"
+                            color="gray"
+                            rounded="4"
+                            block
+                            @click="btExportExcel"
+                          >
+                            <template v-slot:prepend>
+                              <v-icon color="blue"></v-icon>
+                            </template>
+                            Excel Mẫu
+                          </v-btn>
+                        </v-list-item>
+                        <v-list-item>
+                          <v-btn
+                            prepend-icon="mdi-microsoft-excel"
+                            size="small"
+                            color="gray"
+                            rounded="4"
+                            block
+                            @click="triggerFileInputClick"
+                          >
+                            <template v-slot:prepend>
+                              <v-icon color="green"></v-icon>
+                            </template>
+                            Thêm Excel
+                          </v-btn>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                    <v-btn
+                      size="small"
+                      color="green"
+                      rounded="md"
+                      @click="updateDocumentForm(tab)"
+                      >Lưu thông tin</v-btn
+                    >
+                  </div>
+                </template>
+
+                <template v-slot:item.Key="{ item }">
+                  {{ item.Key }}
+                  <v-icon
+                    color="orange"
+                    size="small"
+                    style="cursor: pointer"
+                    @click="openEditDialog(item)"
+                    >mdi-note-edit</v-icon
+                  >
+                  <v-icon
+                    color="red"
+                    size="small"
+                    style="cursor: pointer"
+                    @click="deleteDessert(item.Key)"
+                    >mdi-delete</v-icon
+                  >
+                </template>
+              </v-data-table>
+            </v-card>
+            <v-card flat v-if="tab.TypeForm == 1">
+              <div class="d-flex justify-center mt-2">
+                <v-btn
+                  rounded="4"
+                  color="green"
+                  size="small"
+                  @click="updateDocumentForm(tab)"
+                  >Lưu thông tin</v-btn
+                >
+              </div>
+              <v-row class="px-4 py-4">
+                <v-col
+                  lg="4"
+                  md="6"
+                  cols="12"
+                  v-for="(line, indexline) in tab.DocumentFormLineLst"
+                  :key="indexline"
+                >
+                  <v-text-field
+                    :label="line.Parameter"
+                    v-model="line.TextResult"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+            </v-card>
+          </v-tabs-window-item>
+        </v-tabs-window>
         <v-divider></v-divider>
         <div class="px-2 py-2 pb-4">
           <div class="mt-2 px-2 text-subtitle-2">
@@ -86,7 +184,7 @@
           "
         >
           <v-row>
-            <v-col lg="8">
+            <v-col lg="8" md="8" cols="12">
               <div class="text-h6">Nội dung báo cáo</div>
               <div class="pb-1 text-subtitle-2">
                 <v-icon color="blue" size="small">mdi-account-edit</v-icon>
@@ -111,7 +209,7 @@
               >
               </editor>
             </v-col>
-            <v-col lg="4">
+            <v-col lg="4" md="4" cols="12">
               <div class="d-flex justify-sm-space-between">
                 <div>Tệp đính kèm</div>
                 <v-btn
@@ -216,7 +314,7 @@
         <div v-else>
           <div v-if="dataJobInfo.Report" class="px-4">
             <v-row>
-              <v-col lg="8">
+              <v-col lg="8" md="8" cols="12">
                 <div class="text-h6">Nội dung báo cáo</div>
                 <div class="pb-1 text-subtitle-2">
                   <v-icon color="blue" size="small">mdi-account-edit</v-icon>
@@ -238,7 +336,7 @@
                   class="border-md px-2 py-1 rounded"
                 ></div>
               </v-col>
-              <v-col lg="4">
+              <v-col lg="4" md="4" cols="12">
                 <div class="d-flex justify-sm-space-between">
                   <div>Tệp đính kèm</div>
                 </div>
@@ -313,7 +411,7 @@
           "
         >
           <v-row>
-            <v-col lg="8">
+            <v-col lg="8" md="8" cols="12">
               <div class="text-h6">Nội dung phê duyệt</div>
               <div v-if="userMana">
                 <div class="pb-1 text-subtitle-2">
@@ -341,7 +439,7 @@
               >
               </editor>
             </v-col>
-            <v-col lg="4">
+            <v-col lg="4" md="4" cols="12">
               <div class="d-flex justify-sm-space-between">
                 <div>Tệp đính kèm</div>
                 <v-btn
@@ -449,10 +547,93 @@
           </div>
         </div>
         <div v-else>
-          <div v-if="dataJobInfo.NoteApprove">
-            <div class="text-h6">Nội dung phê duyệt</div>
-            <div>{{ userMana.FullName }}</div>
-            <div v-html="dataJobInfo.NoteApprove"></div>
+          <div v-if="dataJobInfo.NoteApprove" class="px-4">
+            <v-row>
+              <v-col lg="8" md="8" cols="12">
+                <div class="text-h6">Nội dung phê duyệt</div>
+                <div class="pb-1 text-subtitle-2">
+                  <v-icon color="red" size="small">mdi-account-edit</v-icon>
+                  {{ userMana.FullName }}
+                </div>
+                <div class="pb-1 text-subtitle-2">
+                  <v-icon color="green" size="small"
+                    >mdi-clock-time-four-outline</v-icon
+                  >
+                  {{ dataJobInfo.TimeApprove }}
+                </div>
+                <div class="pb-1 text-subtitle-2">
+                  <v-icon color="orange" size="small">mdi-timer-sand</v-icon>
+                  Định mức:
+                  {{ userMana.QuotaTime }} Ngày
+                </div>
+                <div
+                  v-html="dataJobInfo.NoteApprove"
+                  class="border-md px-2 py-1 rounded"
+                ></div>
+              </v-col>
+              <v-col lg="4" md="4" cols="12">
+                <div class="d-flex justify-sm-space-between">
+                  <div>Tệp đính kèm</div>
+                </div>
+                <v-divider class="my-2"></v-divider>
+                <v-chip-group
+                  color="green"
+                  column
+                  v-if="
+                    userMana && userMana.FileLst && userMana.FileLst.length > 0
+                  "
+                >
+                  <v-menu
+                    location="end"
+                    v-for="(item, index) in userMana.FileLst"
+                    :key="index"
+                  >
+                    <template v-slot:activator="{ props }">
+                      <v-chip color="orange" v-bind="props">
+                        {{ item.NameFile }}
+                      </v-chip>
+                    </template>
+
+                    <v-list>
+                      <v-list-item v-if="isPreviewSupported(item.MineFile)">
+                        <v-list-item-title>
+                          <v-btn
+                            @click="previewFile(item)"
+                            size="small"
+                            rounded="8"
+                            class="mb-1"
+                          >
+                            <v-icon class="mr-1">mdi-file-eye</v-icon> Xem trước
+                          </v-btn>
+                        </v-list-item-title>
+                      </v-list-item>
+
+                      <v-list-item>
+                        <v-list-item-title>
+                          <v-btn
+                            @click="downloadFile(item)"
+                            size="small"
+                            rounded="8"
+                            color="green"
+                            block
+                            class="mb-1"
+                          >
+                            <v-icon class="mr-1">mdi-file-download</v-icon> Tải
+                            ngay
+                          </v-btn>
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-chip-group>
+                <div v-else class="text-center py-4">
+                  <v-icon color="red" class="my-2" size="large"
+                    >mdi-note-search</v-icon
+                  >
+                  <p>Chưa có file nào</p>
+                </div>
+              </v-col>
+            </v-row>
           </div>
         </div>
       </v-card>
@@ -609,8 +790,7 @@ import Editor from "@tinymce/tinymce-vue";
 import { getUserName, getToken } from "@/utils/auth";
 import Axios from "axios";
 import { urlUploadFile } from "./function";
-import mammoth from "mammoth";
-import XLSX from "xlsx";
+
 import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi";
 import {
   previewFile,
@@ -619,6 +799,7 @@ import {
   isPreviewSupported,
   downloadFile,
 } from "@/utils/function";
+import { GetDocumentFormByDocID } from "@/api/documentFormApi";
 
 export default {
   components: {
@@ -637,32 +818,7 @@ export default {
         paste_block_drop: true,
         branding: false,
       },
-      headers: [
-        {
-          title: "STT",
-          sortable: false,
-          key: "Key",
-          align: "center",
-          width: 80,
-        },
-        { title: "Mã BFO", key: "BFO", sortable: false },
-        { title: "Sản phẩm", key: "ProductName", sortable: false, width: 300 },
-        { title: "Số lô", key: "Lotcode", sortable: false },
-        { title: "Sl", key: "Quantity", sortable: false },
-        { title: "Trạng thái", key: "StatusText", sortable: false, width: 300 },
-        {
-          title: "Quyết định",
-          key: "Decision",
-          sortable: false,
-          width: 100,
-        },
-        {
-          title: "Ghi chú",
-          key: "Note",
-          sortable: false,
-          width: 100,
-        },
-      ],
+      headers: [],
       desserts: [],
       search: "",
       dataJobInfo: {},
@@ -674,6 +830,8 @@ export default {
       nameFile: "",
       isLoading: false,
       processLst: [],
+      formTabLst: [],
+      tab: "",
     };
   },
   methods: {
@@ -820,13 +978,6 @@ export default {
       GetDocumentJobInfo({ RowID: this.$route.params.id }).then((res) => {
         if (res.RespCode == 0) {
           this.dataJobInfo = res.Data;
-          this.desserts = res.Data.ProductLst.map((item, index) => {
-            return {
-              ...item,
-              Key: index + 1,
-              ExpDateShow: formatDateDisplayDDMMYY(item.ExpDate),
-            };
-          });
           this.userJob = this.dataJobInfo.AssignLst.find(
             (p) => p.UserRole == "Xử lý"
           );
@@ -834,6 +985,7 @@ export default {
             (p) => p.UserRole == "Phê duyệt"
           );
           this.processDocument(this.dataJobInfo.DocumentID);
+          this.getDocumentFormByDocID(this.dataJobInfo.DocumentID);
         }
       });
     },
@@ -895,6 +1047,73 @@ export default {
           type: "error",
         });
       }
+    },
+    getDocumentFormByDocID(docID) {
+      GetDocumentFormByDocID({
+        DocumentID: docID,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.formTabLst = res.DocumentFormLst.map((item) => {
+            if (item.TypeForm == 1) {
+              if (item.DocumentFormLineLst.length == 0) {
+                item.DocumentFormLineLst = item.DNFormLineLst;
+              }
+            }
+            if (item.TypeForm == 2) {
+              this.headers = [
+                {
+                  title: "STT",
+                  sortable: false,
+                  key: "Key",
+                  align: "center",
+                  width: 100,
+                },
+              ];
+              for (var i = 0; i < item.DNFormLineLst.length; i++) {
+                const line = item.DNFormLineLst[i];
+                this.headers.push({
+                  title: line.Parameter,
+                  sortable: false,
+                  key: "Line" + line.Required,
+                  align: "center",
+                  type: line.Type,
+                  options: line.Type == 2 ? JSON.parse(line.OptionAnswer) : [],
+                });
+              }
+              var len = item.DocumentFormLineLst.filter(
+                (item, index, self) =>
+                  index ===
+                  self.findIndex((obj) => obj.IDFormLine === item.IDFormLine)
+              );
+              console.log("anhthanfh", len);
+              len = len.length;
+              for (var i = 1; i <= len; i++) {
+                var itemlst = item.DocumentFormLineLst.filter(
+                  (p) => p.IDFormLine == i
+                );
+                var itemde = {};
+                itemlst.forEach((ele, inle) => {
+                  itemde["Line" + (inle + 1)] = ele.TextResult;
+                });
+                this.desserts.push(itemde);
+              }
+              this.desserts = this.desserts.map((item, index) => {
+                return {
+                  ...item,
+                  Key: index + 1,
+                };
+              });
+            }
+
+            return {
+              ...item,
+            };
+          });
+          if (this.formTabLst.length > 0) {
+            this.tab = this.formTabLst[0];
+          }
+        }
+      });
     },
   },
   created() {

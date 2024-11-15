@@ -318,13 +318,11 @@ export default {
           title: "Tên quy trình",
           key: "ProcedureName",
           sortable: false,
-          align: "center",
         },
         {
           title: "Mô tả",
           key: "Description",
           sortable: false,
-          align: "center",
         },
         {
           title: "Thời gian tạo",
