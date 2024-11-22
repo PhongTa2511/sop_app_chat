@@ -61,7 +61,7 @@ const handleNavScroll = (evt) => {
         >
           <!-- <div class="d-flex" v-html="logo" /> -->
           <img :src="logo" alt="" style="height: 40px" />
-          <h3 class="leading-normal">Quản lý hồ sơ</h3>
+          <h3 class="leading-normal">Quản lý quy trình</h3>
         </RouterLink>
       </slot>
     </div>

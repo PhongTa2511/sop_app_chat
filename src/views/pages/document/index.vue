@@ -44,6 +44,7 @@
             variant="tonal"
             icon="mdi-reload"
             style="height: 42px"
+            @click="getGSPDocumentLst"
           ></v-btn>
         </div>
       </template>
@@ -59,7 +60,7 @@
           size="small"
           style="cursor: pointer"
           @click="btShowProcess(item)"
-          >mdi-mdi-progress-check</v-icon
+          >mdi-progress-check</v-icon
         >
       </template>
       <template v-slot:item.Key="{ item }">
@@ -308,6 +309,7 @@ export default {
         },
         { title: "Mã hồ sơ", key: "DocumentID", sortable: false },
         { title: "Quy trình", key: "DocName", sortable: false },
+        { title: "Ghi chú", key: "Description", sortable: false },
         {
           title: "Deadline",
           key: "DateExpiredShow",
@@ -367,7 +369,7 @@ export default {
         }
       });
     },
-    getGSPFileLst() {
+    getGSPDocumentLst() {
       GetGSPDocumentLst({
         PageNumber: this.currentPage,
         RowspPage: this.pageSize,
@@ -388,16 +390,16 @@ export default {
         return { text: "Hủy", color: "error" };
       }
       if (status == 1) {
-        return { text: "Mới tạo", color: "more" };
+        return { text: "Mới tạo", color: "blue" };
       }
       if (status == 2) {
-        return { text: "Đang làm", color: "blue" };
+        return { text: "Đang làm", color: "success" };
       }
       if (status == 3) {
         return { text: "Tạm dừng", color: "more" };
       }
       if (status == 4) {
-        return { text: "Hoàn thành", color: "success" };
+        return { text: "Hoàn thành", color: "green" };
       }
     },
     btShowProcess(row) {
@@ -492,7 +494,7 @@ export default {
     },
   },
   created() {
-    this.getGSPFileLst();
+    this.getGSPDocumentLst();
     this.getProcedureNameInfo();
     this.getProcedureLst(); // Call the new method to fetch procedure list
   },

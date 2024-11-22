@@ -9,16 +9,15 @@ import "@core/scss/template/index.scss";
 import Notifications, { notify } from "@kyvg/vue3-notification";
 import "@layouts/styles/index.scss";
 import "@styles/styles.scss";
-import { createPinia } from "pinia";
-import { createApp } from "vue";
 
+import { createApp } from "vue";
+import "./socket";
 loadFonts();
 // Create vue app
 const app = createApp(App);
 
 // Use plugins
 app.use(vuetify);
-app.use(createPinia());
 app.use(router);
 app.use(Notifications);
 window.notify = notify;

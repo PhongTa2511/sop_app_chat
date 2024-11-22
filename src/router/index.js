@@ -20,10 +20,10 @@ const router = createRouter({
         //   path: "khu-vuc",
         //   component: () => import("../pages/typography.vue"),
         // },
-        // {
-        //   path: "thiet-bi",
-        //   component: () => import("../pages/icons.vue"),
-        // },
+        {
+          path: "nhan-tin",
+          component: () => import("@/views/pages/chat/index.vue"),
+        },
         {
           path: "cai-dat",
           component: () => import("../pages/setting.vue"),

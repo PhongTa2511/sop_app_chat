@@ -160,7 +160,7 @@ export default {
         { title: "Quy trình", key: "ProcedureName", sortable: false },
         { title: "Bước", key: "StepName", sortable: false },
         { title: "Công việc", key: "JobName", sortable: false },
-        { title: "Sản phẩm", key: "ProductNameLst", sortable: false },
+        { title: "Ghi chú", key: "Description", sortable: false },
 
         {
           title: "Bắt đầu",

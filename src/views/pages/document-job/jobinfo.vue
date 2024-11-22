@@ -775,6 +775,82 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <v-dialog v-model="isShowEdit" max-width="600px">
+    <v-card>
+      <v-card-title>
+        <span class="text-h5">Chỉnh sửa thông tin</span>
+      </v-card-title>
+      <v-card-text>
+        <v-row>
+          <v-col
+            v-for="(header, index) in headers.filter((p) => p.title != 'STT')"
+            :key="index"
+            cols="12"
+          >
+            <v-text-field
+              v-if="header.type == 1"
+              :label="header.title"
+              v-model="editDocument[header.key]"
+            ></v-text-field>
+            <v-select
+              v-if="header.type == 2"
+              v-model="editDocument[header.key]"
+              :label="header.title"
+              placeholder="Nhập thông tin"
+              density="compact"
+              :items="header.options"
+              item-value="Name"
+              item-title="Name"
+              chips
+              clearable
+            ></v-select>
+          </v-col>
+        </v-row>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn @click="isShowEdit = false">Hủy</v-btn>
+        <v-btn color="green" @click="updateDocument">Lưu</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog v-model="isShowAddNew" max-width="600px">
+    <v-card>
+      <v-card-title>
+        <span class="text-h5">Thêm mới thông tin</span>
+      </v-card-title>
+      <v-card-text>
+        <v-row>
+          <v-col
+            v-for="(header, index) in headers.filter((p) => p.title != 'STT')"
+            :key="index"
+            cols="12"
+          >
+            <v-text-field
+              v-if="header.type == 1"
+              :label="header.title"
+              v-model="newDocument[header.key]"
+            ></v-text-field>
+            <v-select
+              v-if="header.type == 2"
+              v-model="newDocument[header.key]"
+              :label="header.title"
+              placeholder="Nhập thông tin"
+              density="compact"
+              :items="header.options"
+              item-value="Name"
+              item-title="Name"
+              chips
+              clearable
+            ></v-select>
+          </v-col>
+        </v-row>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn @click="isShowAddNew = false">Hủy</v-btn>
+        <v-btn color="green" @click="addNewDocument">Lưu</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -800,7 +876,8 @@ import {
   downloadFile,
 } from "@/utils/function";
 import { GetDocumentFormByDocID } from "@/api/documentFormApi";
-
+import { exportExcel } from "./function";
+import XLSX from "xlsx";
 export default {
   components: {
     Editor,
@@ -832,9 +909,56 @@ export default {
       processLst: [],
       formTabLst: [],
       tab: "",
+      editDocument: {},
+      isShowEdit: false,
+      newDocument: {},
+      isShowAddNew: false,
     };
   },
   methods: {
+    btExportExcel() {
+      exportExcel(this.headers);
+    },
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const bstr = e.target.result;
+          const wb = XLSX.read(bstr, { type: "binary" });
+          const wsname = wb.SheetNames[0];
+          const ws = wb.Sheets[wsname];
+          const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+          console.log(data);
+
+          this.desserts = this.convertToReq(data).map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+            };
+          });
+        };
+        reader.readAsBinaryString(file);
+      }
+    },
+    addNewDocument() {
+      this.isShowAddNew = false;
+      this.desserts.push(this.newDocument);
+      this.desserts = this.desserts.map((item, index) => {
+        return {
+          ...item,
+          Key: index + 1,
+        };
+      });
+      console.log(this.desserts);
+    },
+    btShowAdd() {
+      this.isShowAddNew = true;
+    },
+    openEditDialog(item) {
+      this.isShowEdit = true;
+      this.editDocument = { ...item };
+    },
     isPreviewSupported(fileExtension) {
       return isPreviewSupported(fileExtension);
     },
@@ -1085,9 +1209,8 @@ export default {
                   index ===
                   self.findIndex((obj) => obj.IDFormLine === item.IDFormLine)
               );
-              console.log("anhthanfh", len);
               len = len.length;
-              for (var i = 1; i <= len; i++) {
+              for (var i = 0; i < len; i++) {
                 var itemlst = item.DocumentFormLineLst.filter(
                   (p) => p.IDFormLine == i
                 );
@@ -1114,6 +1237,12 @@ export default {
           }
         }
       });
+    },
+    deleteDessert(key) {
+      this.desserts = this.desserts.filter((item) => item.Key !== key);
+    },
+    triggerFileInputClick() {
+      this.$refs.fileInput.click();
     },
   },
   created() {

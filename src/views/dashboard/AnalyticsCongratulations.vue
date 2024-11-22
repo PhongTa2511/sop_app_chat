@@ -3,10 +3,19 @@ import { useTheme } from "vuetify";
 import illustrationJohnDark from "@images/cards/illustration-john-dark.png";
 import illustrationJohnLight from "@images/cards/illustration-john-light.png";
 import { getFullName } from "@/utils/auth";
+import { ref } from "vue";
+
 const { global } = useTheme();
 const illustrationJohn = computed(() =>
   global.name.value === "dark" ? illustrationJohnDark : illustrationJohnLight
 );
+
+const openGuide = () => {
+  window.open(
+    "https://www.canva.com/design/DAGV2wlVNGM/GQlkdckxLdSTx_bzlUCSBw/view?utm_content=DAGV2wlVNGM&utm_campaign=designshare&utm_medium=link&utm_source=editor",
+    "_blank"
+  );
+};
 </script>
 
 <template>
@@ -27,7 +36,9 @@ const illustrationJohn = computed(() =>
             <!-- Check your new raising badge in your profile. -->
           </span>
           <br />
-          <VBtn variant="tonal" class="mt-4" size="small"> Xem hướng dẫn </VBtn>
+          <VBtn variant="tonal" class="mt-4" size="small" @click="openGuide">
+            Xem hướng dẫn
+          </VBtn>
         </VCardText>
       </VCol>
 

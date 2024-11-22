@@ -78,7 +78,7 @@ const chartOptions = computed(() => {
     <VCardText class="d-flex justify-space-between h-100">
       <div class="d-flex flex-column justify-space-between gap-y-4">
         <div>
-          <h6 class="text-h6 text-no-wrap mb-1">Check In</h6>
+          <h6 class="text-h6 text-no-wrap mb-1">Tương Tác</h6>
           <VChip color="warning"> Năm 2024 </VChip>
         </div>
 
@@ -88,7 +88,7 @@ const chartOptions = computed(() => {
             <span>68.2%</span>
           </div>
 
-          <h5 class="text-h5">84,686 Lượt</h5>
+          <h5 class="text-h5">4,686 Click</h5>
         </div>
       </div>
 

@@ -15,14 +15,12 @@ import wallet from "@images/cards/wallet-info.png";
 
 <template>
   <VRow>
-    <!-- 👉 Congratulations -->
     <VCol cols="12" md="8">
       <AnalyticsCongratulations />
     </VCol>
 
-    <VCol cols="12" sm="4">
+    <!-- <VCol cols="12" sm="4">
       <VRow>
-        <!-- 👉 Profit -->
         <VCol cols="12" md="6">
           <CardStatisticsVertical
             v-bind="{
@@ -34,7 +32,6 @@ import wallet from "@images/cards/wallet-info.png";
           />
         </VCol>
 
-        <!-- 👉 Sales -->
         <VCol cols="12" md="6">
           <CardStatisticsVertical
             v-bind="{
@@ -48,14 +45,12 @@ import wallet from "@images/cards/wallet-info.png";
       </VRow>
     </VCol>
 
-    <!-- 👉 Total Revenue -->
     <VCol cols="12" md="8" order="2" order-md="1">
       <AnalyticsTotalRevenue />
-    </VCol>
+    </VCol> -->
 
     <VCol cols="12" sm="8" md="4" order="1" order-md="2">
-      <VRow>
-        <!-- 👉 Payments -->
+      <!-- <VRow>
         <VCol cols="12" sm="6">
           <CardStatisticsVertical
             v-bind="{
@@ -67,7 +62,6 @@ import wallet from "@images/cards/wallet-info.png";
           />
         </VCol>
 
-        <!-- 👉 Revenue -->
         <VCol cols="12" sm="6">
           <CardStatisticsVertical
             v-bind="{
@@ -78,29 +72,13 @@ import wallet from "@images/cards/wallet-info.png";
             }"
           />
         </VCol>
-      </VRow>
+      </VRow> -->
 
       <VRow>
-        <!-- 👉 Profit Report -->
         <VCol cols="12" sm="12">
           <AnalyticsProfitReport />
         </VCol>
       </VRow>
     </VCol>
-
-    <!-- 👉 Order Statistics -->
-    <!-- <VCol cols="12" md="4" sm="6" order="3">
-      <AnalyticsOrderStatistics />
-    </VCol> -->
-
-    <!-- 👉 Tabs chart -->
-    <!-- <VCol cols="12" md="4" sm="6" order="3">
-      <AnalyticsFinanceTabs />
-    </VCol> -->
-
-    <!-- 👉 Transactions -->
-    <!-- <VCol cols="12" md="4" sm="6" order="3">
-      <AnalyticsTransactions />
-    </VCol> -->
   </VRow>
 </template>

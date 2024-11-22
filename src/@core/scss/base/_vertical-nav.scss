@@ -24,7 +24,8 @@
     // 👉 Nav header
     .nav-header {
       overflow: hidden;
-      padding: variables.$vertical-nav-header-padding;
+      padding: 0 16px;
+      margin-top: 0 !important;
       margin-inline: variables.$vertical-nav-header-inline-spacing;
       min-block-size: variables.$vertical-nav-header-height;
 
@@ -35,11 +36,19 @@
 
         @at-root {
           // Move logo a bit to align center with the icons in vertical nav mini variant
-          .layout-vertical-nav-collapsed#{$sl-layout-nav-type-vertical}:not(.hovered) .nav-header .app-logo {
-            transform: translateX(variables.$vertical-nav-header-logo-translate-x-when-vertical-nav-mini);
+          .layout-vertical-nav-collapsed#{$sl-layout-nav-type-vertical}:not(
+              .hovered
+            )
+            .nav-header
+            .app-logo {
+            transform: translateX(
+              variables.$vertical-nav-header-logo-translate-x-when-vertical-nav-mini
+            );
 
             @include layoutsMixins.rtl {
-              transform: translateX(-(variables.$vertical-nav-header-logo-translate-x-when-vertical-nav-mini));
+              transform: translateX(
+                -(variables.$vertical-nav-header-logo-translate-x-when-vertical-nav-mini)
+              );
             }
           }
         }
@@ -58,13 +67,12 @@
     .vertical-nav-items-shadow {
       position: absolute;
       z-index: 1;
-      background:
-        linear-gradient(
-          rgb(#{variables.$vertical-nav-background-color-rgb}) 5%,
-          rgba(#{variables.$vertical-nav-background-color-rgb}, 75%) 45%,
-          rgba(#{variables.$vertical-nav-background-color-rgb}, 20%) 80%,
-          transparent
-        );
+      background: linear-gradient(
+        rgb(#{variables.$vertical-nav-background-color-rgb}) 5%,
+        rgba(#{variables.$vertical-nav-background-color-rgb}, 75%) 45%,
+        rgba(#{variables.$vertical-nav-background-color-rgb}, 20%) 80%,
+        transparent
+      );
       block-size: 55px;
       inline-size: 100%;
       inset-block-start: calc(#{variables.$vertical-nav-header-height} - 2px);
@@ -170,7 +178,9 @@
       .nav-group-arrow {
         flex-shrink: 0;
         transform-origin: center;
-        transition: transform variables.$vertical-nav-nav-group-arrow-transition-duration variables.$vertical-nav-nav-group-arrow-transition-timing-function;
+        transition: transform
+          variables.$vertical-nav-nav-group-arrow-transition-duration
+          variables.$vertical-nav-nav-group-arrow-transition-timing-function;
         will-change: transform;
       }
 

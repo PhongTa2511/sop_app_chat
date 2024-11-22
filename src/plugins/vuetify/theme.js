@@ -29,6 +29,7 @@ const theme = {
         background: "#F5F5F9",
         "on-background": "#000000",
         surface: "#fff",
+        "green-lighten-5": "#E8F5E9",
         "on-surface": "#000000",
         "grey-50": "#FAFAFA",
         "grey-100": "#EBEEF0",

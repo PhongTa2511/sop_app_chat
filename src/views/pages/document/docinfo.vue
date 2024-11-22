@@ -39,17 +39,35 @@
               </v-btn>
             </v-list-item> -->
             <v-list-item>
-              <v-btn size="small" color="gray" rounded="4" block>
+              <v-btn
+                size="small"
+                color="gray"
+                rounded="4"
+                block
+                @click="updateGSPDocument(3)"
+              >
                 Tạm dừng
               </v-btn>
             </v-list-item>
             <v-list-item>
-              <v-btn size="small" color="green" rounded="4" block>
+              <v-btn
+                size="small"
+                color="green"
+                rounded="4"
+                block
+                @click="updateGSPDocument(4)"
+              >
                 Hoàn thành
               </v-btn>
             </v-list-item>
             <v-list-item>
-              <v-btn size="small" color="red" rounded="4" block>
+              <v-btn
+                size="small"
+                color="red"
+                rounded="4"
+                block
+                @click="updateGSPDocument(0)"
+              >
                 Hủy hồ sơ
               </v-btn>
             </v-list-item>
@@ -607,7 +625,7 @@
 </template>
 
 <script>
-import { GSPGetGSPDocumentInfoByID } from "@/api/briefApi";
+import { GSPGetGSPDocumentInfoByID, UpdateGSPDocument } from "@/api/briefApi";
 import { formatDateDisplayDDMMYY, formatDateHHDDMM } from "@/helpers/getTime";
 import {
   ProcessDocument,
@@ -703,6 +721,28 @@ export default {
         }
       }
       return lstReq;
+    },
+    updateGSPDocument(status) {
+      UpdateGSPDocument({
+        DocumentInfo: {
+          DocumentID: this.$route.params.id,
+          Status: status,
+        },
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            title: "Thành công",
+            text: "Cập nhật thành công",
+            type: "success",
+          });
+        } else {
+          notify({
+            title: "Lỗi",
+            text: res.RespText,
+            type: "error",
+          });
+        }
+      });
     },
     getdefault() {
       GetDefaultValue({ Table: "Phòng ban" }).then((res) => {
@@ -830,7 +870,7 @@ export default {
         if (res.RespCode == 0) {
           notify({
             title: "Thành công",
-            message: "Gán nhân sự thành công",
+            text: "Gán nhân sự thành công",
             type: "success",
           });
         }
@@ -999,5 +1039,18 @@ export default {
   min-height: 250px;
   max-height: 500px;
   overflow-y: scroll;
+  &::-webkit-scrollbar-track-piece {
+    background: #ffffff;
+  }
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #bec5ce;
+    border-radius: 20px;
+  }
 }
 </style>

@@ -75,9 +75,9 @@ const vuetifyTheme = useTheme();
 
       <!-- <VerticalNavLink
         :item="{
-          title: 'Sản phẩm',
-          icon: 'mdi-package-variant-closed',
-          to: '/san-pham',
+          title: 'Trao đổi',
+          icon: 'mdi-message-text',
+          to: '/nhan-tin',
         }"
       /> -->
       <VerticalNavSectionTitle
