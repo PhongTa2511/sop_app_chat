@@ -17,6 +17,7 @@
             hide-details
             single-line
             class="mx-6 my-2"
+            v-model="searchGroup"
           ></v-text-field>
           <v-list>
             <v-list-item
@@ -64,9 +65,14 @@
           <v-spacer></v-spacer>
 
           <template v-if="$vuetify.display.mdAndUp">
-            <v-btn icon="mdi-magnify" variant="text" color="blue"></v-btn>
+            <v-btn
+              icon="mdi-magnify"
+              variant="text"
+              color="blue"
+              @click="openSearchDialog"
+            ></v-btn>
 
-            <v-btn icon="mdi-filter" variant="text" color="blue"></v-btn>
+            <!-- <v-btn icon="mdi-filter" variant="text" color="blue"></v-btn> -->
           </template>
 
           <v-btn
@@ -267,6 +273,41 @@
     <v-dialog v-model="showImageDialog" max-width="600px">
       <v-img :src="selectedImage" aspect-ratio="1"></v-img>
     </v-dialog>
+    <v-dialog v-model="showSearchDialog" max-width="600px">
+      <v-card>
+        <v-card-title>Tìm kiếm tin nhắn</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="searchQuery"
+            label="Nhập từ khóa"
+            @keyup.enter="searchMessages"
+          ></v-text-field>
+          <v-list>
+            <v-list-item
+              v-for="message in searchResults"
+              :key="message.MessageID"
+            >
+              <template v-slot:prepend>
+                <v-avatar size="small" color="secondary">
+                  <v-img v-if="message.LinkImage" :src="message.Avatar"></v-img>
+                  <v-icon v-else size="x-small">mdi-account</v-icon>
+                </v-avatar>
+              </template>
+
+              <template v-slot:title>
+                {{ message.TextContent }}
+              </template>
+              <template v-slot:subtitle>
+                {{ message.FullName }} - {{ message.TimeShow }}
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn text @click="showSearchDialog = false">Đóng</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 <script>
@@ -282,6 +323,7 @@ import { getUserName } from "@/utils/auth";
 import socket from "@/socket";
 import RightChat from "./components/right-chat.vue";
 import Axios from "axios";
+import { formatDateDisplay } from "@/helpers/getTime";
 
 export default {
   name: "app",
@@ -335,12 +377,19 @@ export default {
       rowspPage: 20,
       currentPage: 1,
       loadingMore: false,
+      searchGroup: "",
+      showSearchDialog: false,
+      searchResults: [],
+      searchQuery: "",
     };
   },
   watch: {
     groupInfo() {
       this.getMessageByGoupID();
       socket.emit("joinGroup", this.groupInfo.GroupID);
+    },
+    searchGroup() {
+      this.getGroupLstByUserID();
     },
   },
   methods: {
@@ -387,7 +436,7 @@ export default {
       GetGroupLstByUserID({
         PageNumber: 1,
         RowspPage: 10,
-        Search: "",
+        Search: this.searchGroup,
         ComID: "",
         UserID: this.senderID,
       }).then((res) => {
@@ -566,6 +615,31 @@ export default {
           this.currentPage += 1; // Update current page
         }
         this.loadingMore = false; // Reset loading state
+      });
+    },
+    openSearchDialog() {
+      this.showSearchDialog = true;
+    },
+    searchMessages() {
+      GetMessageByGoupID({
+        GroupID: this.groupInfo.GroupID,
+        PageNumber: 1,
+        RowspPage: this.rowspPage,
+        Search: this.searchQuery,
+        ComID: "",
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.searchResults = res.Data.map((item) => {
+            return {
+              ...item,
+              Avatar: item.LinkImage
+                ? "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+                  item.SenderID
+                : null,
+              TimeShow: formatDateDisplay(item.TimeCreate),
+            };
+          });
+        }
       });
     },
   },
