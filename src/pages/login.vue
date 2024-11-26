@@ -11,6 +11,7 @@ import {
   setUserName,
   setPosition,
   setSpecialize,
+  setAvatar,
 } from "@/utils/auth";
 export default {
   data() {
@@ -51,7 +52,12 @@ export default {
           if (resu.RespCode == 0) {
             setPosition(resu.UserInfo.Position);
             setSpecialize(resu.UserInfo.Specialize);
-
+            if (resu.UserInfo.LinkImage && resu.UserInfo.LinkImage != "") {
+              setAvatar(
+                "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+                  resu.UserInfo.UserName
+              );
+            }
             this.$router.push("/");
             notify({
               type: "success",

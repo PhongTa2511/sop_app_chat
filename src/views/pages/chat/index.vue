@@ -1,5 +1,12 @@
 <template>
   <div>
+    <input
+      ref="fileInput"
+      type="file"
+      accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.png,.jpg,.jpeg,.rar"
+      @change="handleFileUpload"
+      style="display: none"
+    />
     <v-card>
       <v-layout>
         <v-navigation-drawer v-model="drawerLeft" :width="300" class="py-4">
@@ -22,16 +29,22 @@
               variant="text"
               class="py-4"
               @click="selectGroup(folder)"
+              :active="folder.GroupID == groupInfo.GroupID"
             >
               <template v-slot:prepend>
-                <v-avatar>
-                  <v-img
-                    src="https://cdn.vuetifyjs.com/images/john.jpg"
-                  ></v-img>
+                <v-avatar
+                  :color="
+                    folder.GroupID == groupInfo.GroupID ? 'blue' : 'secondary'
+                  "
+                >
+                  <v-img v-if="folder.Avatar" :src="folder.LinkImage"></v-img>
+                  <v-icon v-else>mdi-account-supervisor</v-icon>
                 </v-avatar>
               </template>
-
-              <template v-slot:append>
+              <template v-slot:subtitle>
+                {{ folder.TextContent ?? "Hãy bắt đầu cuộc trò chuyện" }}
+              </template>
+              <template v-slot:append v-if="folder.TimeCreate">
                 <div class="text-subtitle-2">{{ folder.TimeShow }}</div>
               </template>
             </v-list-item>
@@ -65,45 +78,129 @@
         </v-app-bar>
 
         <v-main style="height: calc(100vh - 154px)" class="position-relative">
-          <v-list ref="chatList" class="custome-content">
-            <v-list-item v-for="mes in messageLst" :key="mes.MessageID">
+          <v-list
+            ref="chatList"
+            class="custome-content"
+            v-if="messageLst.length > 0"
+            @scroll="handleScroll"
+          >
+            <div v-if="loadingMore" class="loading-indicator">
+              <v-progress-circular
+                indeterminate
+                color="blue"
+              ></v-progress-circular>
+            </div>
+            <v-list-item
+              v-for="(mes, index) in messageLst"
+              :key="mes.MessageID"
+              style="padding: 0 4px 0 8px; margin-top: 4px"
+            >
               <template v-slot:prepend v-if="!mes.IsMine">
-                <v-avatar size="small">
-                  <v-img
-                    src="https://cdn.vuetifyjs.com/images/john.jpg"
-                  ></v-img>
+                <v-avatar size="small" v-if="mes.isLatest" color="secondary">
+                  <v-img v-if="mes.LinkImage" :src="mes.Avatar"></v-img>
+                  <v-icon v-else size="x-small">mdi-account</v-icon>
                 </v-avatar>
+                <v-avatar size="small" v-else></v-avatar>
               </template>
+
               <template v-slot:append v-else>
-                <v-avatar size="small">
-                  <v-img
-                    src="https://cdn.vuetifyjs.com/images/john.jpg"
-                  ></v-img>
+                <v-avatar size="small" color="blue" v-if="mes.isLatest">
+                  <v-img v-if="mes.LinkImage" :src="mes.Avatar"></v-img>
+                  <v-icon v-else size="x-small">mdi-account</v-icon>
                 </v-avatar>
+                <v-avatar size="small" v-else></v-avatar>
               </template>
+
               <div
+                v-if="
+                  !mes.IsMine && index > 0
+                    ? messageLst[index - 1].SenderID != mes.SenderID
+                    : false
+                "
+                class="custom-layout-name"
+              >
+                {{ mes.NickName ? mes.NickName : mes.LastName }}
+              </div>
+              <div
+                v-if="mes.IsAttachment == 0"
                 :class="{
-                  'float-right text-right is-mine': mes.IsMine,
+                  'float-right  is-mine': mes.IsMine,
                 }"
                 class="custom-layout-text"
               >
                 {{ mes.TextContent }}
               </div>
+              <div
+                v-else-if="mes.IsAttachment == 1"
+                :class="{
+                  'float-right text-right': mes.IsMine,
+                }"
+              >
+                <v-img
+                  :width="200"
+                  aspect-ratio="1/1"
+                  cover
+                  :src="mes.LinkFile"
+                  class="text-center custom-layout-text"
+                  @click="btShowImage(mes)"
+                >
+                  <template v-slot:error>
+                    <v-icon color="red" class="text-center mt-3" size="large">
+                      mdi-file-image-remove</v-icon
+                    >
+                    <div class="text-subtitle-2 mt-1">Hình ảnh bị lỗi</div>
+                  </template>
+                </v-img>
+              </div>
+              <div
+                v-else-if="mes.IsAttachment == 2"
+                :class="{
+                  'float-right ': mes.IsMine,
+                }"
+                class="custom-layout-text"
+              >
+                <div class="d-flex">
+                  <v-btn
+                    icon
+                    rounded="fill"
+                    color="grey-800"
+                    size="small"
+                    @click="btDownloadFile(mes)"
+                  >
+                    <v-icon> mdi-file-document-outline </v-icon>
+                  </v-btn>
+                  <div class="pl-2">
+                    <div class="text-subtitle-2">
+                      {{ mes.TextContent }}
+                    </div>
+                    <div>
+                      {{ mes.SizeFileText }}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </v-list-item>
           </v-list>
-
+          <div v-else class="text-center" style="margin-top: 30%">
+            <div>
+              <v-icon color="blue" size="40">mdi-forum</v-icon>
+              <div>Hãy bắt đầu cuộc trò chuyện</div>
+            </div>
+          </div>
           <div
             class="d-flex align-center px-1 position-absolute bottom-0 mb-2"
             :style="{
               left: drawerLeft ? '300px' : '0',
               right: drawerRight ? '300px' : '0',
             }"
+            style="background: #fff"
           >
             <v-btn
               icon="mdi-link-variant"
               rounded="pill"
               color="blue"
               variant="text"
+              @click="$refs.fileInput.click()"
             >
             </v-btn>
             <v-menu
@@ -167,19 +264,25 @@
         </v-navigation-drawer>
       </v-layout>
     </v-card>
+    <v-dialog v-model="showImageDialog" max-width="600px">
+      <v-img :src="selectedImage" aspect-ratio="1"></v-img>
+    </v-dialog>
   </div>
 </template>
 <script>
 // import { sendMessage, onMessage, onMessage2 } from "@/socket";
 import {
-  SendMessage,
-  GetGroupMessageLst,
+  SendMessageChat,
+  GetGroupLstByUserID,
   GetMessageByGoupID,
+  urlUploadMessageFile,
 } from "@/api/messageApi";
 import { notify } from "@kyvg/vue3-notification";
 import { getUserName } from "@/utils/auth";
 import socket from "@/socket";
 import RightChat from "./components/right-chat.vue";
+import Axios from "axios";
+
 export default {
   name: "app",
   components: {
@@ -192,86 +295,6 @@ export default {
       groupInfo: null,
       groupLst: [],
       messageLst: [],
-      groups: [
-        {
-          id: 1,
-          name: "Nhóm 1",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 1",
-          isMine: true,
-        },
-        {
-          id: 2,
-          name: "Nhóm 2",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 2",
-          isMine: false,
-        },
-        {
-          id: 1,
-          name: "Nhóm 1",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 1",
-          isMine: true,
-        },
-        {
-          id: 2,
-          name: "Nhóm 2",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 2",
-          isMine: false,
-        },
-        {
-          id: 1,
-          name: "Nhóm 1",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 1",
-          isMine: true,
-        },
-        {
-          id: 2,
-          name: "Nhóm 2",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 2",
-          isMine: false,
-        },
-        {
-          id: 1,
-          name: "Nhóm 1",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 1",
-          isMine: true,
-        },
-        {
-          id: 2,
-          name: "Nhóm 2",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 2",
-          isMine: false,
-        },
-        {
-          id: 1,
-          name: "Nhóm 1",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 1",
-          isMine: true,
-        },
-        {
-          id: 2,
-          name: "Nhóm 2",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 2",
-          isMine: false,
-        },
-        {
-          id: 1,
-          name: "Nhóm 1",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 1",
-          isMine: true,
-        },
-        {
-          id: 1,
-          name: "Nhóm 1",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 1",
-          isMine: true,
-        },
-        {
-          id: 2,
-          name: "Nhóm 2",
-          lastMessage: "Bạn đã nhận được tin nhắn mới từ Nhóm 2",
-          isMine: false,
-        },
-      ],
       newMessage: "",
       senderID: getUserName(),
       showEmojiPicker: false,
@@ -307,6 +330,11 @@ export default {
         "🎶",
         "💖",
       ],
+      showImageDialog: false,
+      selectedImage: "",
+      rowspPage: 20,
+      currentPage: 1,
+      loadingMore: false,
     };
   },
   watch: {
@@ -316,8 +344,47 @@ export default {
     },
   },
   methods: {
-    getGroupMessageLst() {
-      GetGroupMessageLst({
+    btDownloadFile(data) {
+      window.open(data.LinkFile, "_blank");
+    },
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const sizeFile = file.size;
+        const params = new FormData();
+        params.append("file", file);
+
+        var req = {
+          SenderID: this.senderID,
+          GroupID: this.groupInfo.GroupID,
+          RecipientID: null,
+          IsAttachment: 1,
+          IsMine: true,
+          SizeFile: sizeFile,
+        };
+        SendMessageChat({
+          Data: req,
+        }).then((res) => {
+          if (res.RespCode == 0) {
+            Axios.post(urlUploadMessageFile(res.Data.MessageID), params).then(
+              (resfile) => {
+                if (resfile.data.RespCode == 0) {
+                  socket.emit("sendMessage", res.Data);
+                } else {
+                  notify({
+                    title: "Lỗi",
+                    text: res.data.RespText,
+                    type: "error",
+                  });
+                }
+              }
+            );
+          }
+        });
+      }
+    },
+    getGroupLstByUserID() {
+      GetGroupLstByUserID({
         PageNumber: 1,
         RowspPage: 10,
         Search: "",
@@ -329,6 +396,9 @@ export default {
             return {
               ...item,
               TimeShow: this.calculateTimeDifference(item.TimeCreate),
+              LinkImage:
+                "http://202.191.56.172/GSPDTPAPI/File/GetAvatarGroup?GroupID=" +
+                item.GroupID,
             };
           });
           if (this.groupLst.length > 0) {
@@ -341,20 +411,17 @@ export default {
       const date1 = new Date();
       const date2 = new Date(time2);
       date2.setHours(date2.getHours() - 7);
-
-      // Tính chênh lệch thời gian bằng phút
       const differenceInMinutes = Math.abs((date1 - date2) / (1000 * 60));
-
-      // Nếu nhỏ hơn 60 phút, trả về số phút
       if (differenceInMinutes <= 1) {
         return `Vừa xong`;
       }
-
       if (differenceInMinutes < 60) {
         return `${parseInt(differenceInMinutes)} phút`;
       }
-
-      // Nếu lớn hơn hoặc bằng 60 phút, trả về số giờ và phút
+      const days = Math.floor(differenceInMinutes / (60 * 24));
+      if (days >= 1) {
+        return `${days} ngày`;
+      }
       const hours = Math.floor(differenceInMinutes / 60);
       const minutes = differenceInMinutes % 60;
       return `${hours}h${parseInt(minutes)}p`;
@@ -368,16 +435,14 @@ export default {
         IsAttachment: 0,
         IsMine: true,
       };
-      SendMessage({
+      SendMessageChat({
         Data: req,
       }).then((res) => {
         if (res.RespCode == 0) {
-          this.messageLst.push(req);
-          this.scrollBottom();
-          socket.emit("sendMessage", req);
+          socket.emit("sendMessage", res.Data);
         }
       });
-      this.newMessage = ""; // Xóa input sau khi gửi
+      this.newMessage = "";
     },
     selectGroup(groupInfo) {
       this.groupInfo = groupInfo;
@@ -385,21 +450,62 @@ export default {
     getMessageByGoupID() {
       GetMessageByGoupID({
         GroupID: this.groupInfo.GroupID,
+        PageNumber: 1,
+        RowspPage: this.rowspPage,
+        Search: "",
+        ComID: "",
       }).then((res) => {
         if (res.RespCode == 0) {
           this.messageLst = res.Data.map((item) => {
+            const fullName = item.FullName ?? "noname";
+            const nameParts = fullName.split(" ");
+            const lastName =
+              nameParts[nameParts.length - 1] == ""
+                ? nameParts[nameParts.length - 2]
+                : nameParts[nameParts.length - 1];
             return {
               ...item,
               IsMine: item.SenderID == this.senderID ? true : false,
+              Avatar: item.LinkImage
+                ? "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+                  item.SenderID
+                : null,
+              LastName: lastName,
+              LinkFile:
+                item.IsAttachment != 0
+                  ? "http://202.191.56.172/GSPDTPAPI/File/GetMessageFile?MessageID=" +
+                    item.MessageID
+                  : null,
+              SizeFileText:
+                item.IsAttachment > 0
+                  ? this.formatFileSize(item.SizeFile)
+                  : null,
             };
           });
+          this.messageLst = this.markLatestMessages(this.messageLst);
           this.scrollBottom();
         }
       });
     },
+    formatFileSize(sizeInBytes) {
+      if (sizeInBytes < 1024 * 1024) {
+        return (sizeInBytes / 1024).toFixed(2) + " KB";
+      } else {
+        return (sizeInBytes / (1024 * 1024)).toFixed(2) + " MB";
+      }
+    },
+    markLatestMessages(messages) {
+      messages.sort((a, b) => new Date(a.TimeCreate) - new Date(b.TimeCreate));
+      return messages.map((message, index, arr) => {
+        const isLatest =
+          index === arr.length - 1 ||
+          arr[index + 1].SenderID !== message.SenderID;
+        return { ...message, isLatest };
+      });
+    },
     scrollBottom() {
       this.$nextTick(() => {
-        if (this.$refs.chatList.$el) {
+        if (this.$refs.chatList) {
           this.$refs.chatList.$el.scrollTop =
             this.$refs.chatList.$el.scrollHeight;
         }
@@ -408,28 +514,113 @@ export default {
     addEmoji(emoji) {
       this.newMessage += emoji;
     },
+    btShowImage(mes) {
+      this.selectedImage = mes.LinkFile;
+      this.showImageDialog = true;
+    },
+    handleScroll() {
+      const chatList = this.$refs.chatList.$el;
+      if (chatList.scrollTop === 0 && !this.loadingMore) {
+        this.loadMoreMessages();
+      }
+    },
+    loadMoreMessages() {
+      if (this.loadingMore) return; // Prevent multiple loads
+      this.loadingMore = true; // Set loading state to true
+      GetMessageByGoupID({
+        GroupID: this.groupInfo.GroupID,
+        PageNumber: this.currentPage + 1, // Increment page number
+        RowspPage: this.rowspPage,
+        Search: "",
+        ComID: "",
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          var dataAll = res.Data.map((item) => {
+            const fullName = item.FullName ?? "noname";
+            const nameParts = fullName.split(" ");
+            const lastName =
+              nameParts[nameParts.length - 1] == ""
+                ? nameParts[nameParts.length - 2]
+                : nameParts[nameParts.length - 1];
+            return {
+              ...item,
+              IsMine: item.SenderID == this.senderID ? true : false,
+              Avatar: item.LinkImage
+                ? "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+                  item.SenderID
+                : null,
+              LastName: lastName,
+              LinkFile:
+                item.IsAttachment != 0
+                  ? "http://202.191.56.172/GSPDTPAPI/File/GetMessageFile?MessageID=" +
+                    item.MessageID
+                  : null,
+              SizeFileText:
+                item.IsAttachment > 0
+                  ? this.formatFileSize(item.SizeFile)
+                  : null,
+            };
+          });
+          this.messageLst = [...dataAll, ...this.messageLst]; // Prepend new messages
+          this.messageLst = this.markLatestMessages(this.messageLst);
+          this.currentPage += 1; // Update current page
+        }
+        this.loadingMore = false; // Reset loading state
+      });
+    },
   },
   created() {
-    this.getGroupMessageLst();
+    this.getGroupLstByUserID();
     socket.on("receiveMessage", (message) => {
       if (
         message.SenderID != this.senderID &&
         message.GroupID == this.groupInfo.GroupID
       ) {
-        this.messageLst.push({ ...message, IsMine: false });
+        this.messageLst.push({
+          ...message,
+          IsMine: false,
+          LinkFile:
+            message.IsAttachment != 0
+              ? "http://202.191.56.172/GSPDTPAPI/File/GetMessageFile?MessageID=" +
+                message.MessageID
+              : null,
+          SizeFileText:
+            message.IsAttachment > 0
+              ? this.formatFileSize(message.SizeFile)
+              : null,
+        });
         this.groupInfo.TextContent = message.TextContent;
         this.scrollBottom();
-        notify({
-          type: "success",
-          title: "Tin nhắn mới",
-          text: message.TextContent,
+      }
+      if (
+        message.SenderID == this.senderID &&
+        message.GroupID == this.groupInfo.GroupID
+      ) {
+        this.messageLst.push({
+          ...message,
+          IsMine: true,
+          LinkFile:
+            message.IsAttachment != 0
+              ? "http://202.191.56.172/GSPDTPAPI/File/GetMessageFile?MessageID=" +
+                message.MessageID
+              : null,
+          SizeFileText:
+            message.IsAttachment > 0
+              ? this.formatFileSize(message.SizeFile)
+              : null,
         });
+        this.groupInfo.TextContent = message.TextContent;
+        this.scrollBottom();
       }
     });
   },
 };
 </script>
 <style lang="scss" scoped>
+.custom-layout-name {
+  font-size: 12px;
+  padding-left: 8px;
+}
 .custom-layout-text {
   display: inline-block;
   padding: 6px 12px;
@@ -482,5 +673,10 @@ export default {
 }
 .text-right {
   text-align: right;
+}
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0; /* Thêm khoảng cách trên và dưới */
 }
 </style>

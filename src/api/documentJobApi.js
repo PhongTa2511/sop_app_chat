@@ -31,6 +31,14 @@ export function AddAssignLst(data) {
   });
 }
 
+export function SendMailAddAssignLst(data) {
+  return request({
+    url: "GSPDocumentJob/SendMailAddAssignLst",
+    method: "post",
+    data,
+  });
+}
+
 export function GetDocumentJobByEm(data) {
   return request({
     url: "GSPDocumentJob/GetDocumentJobByEm",

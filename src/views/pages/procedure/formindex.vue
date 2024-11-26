@@ -524,6 +524,8 @@ export default {
     },
     btShowcreateForm() {
       this.createForm.ProcedureID = this.procedureInfo.ProcedureID;
+      this.createForm.StepID = this.$route.params.stepid;
+      this.createForm.WorkID = this.$route.params.workid;
       this.createForm.ProcedureName = this.procedureInfo.ProcedureName;
       this.isShowcreateForm = true;
     },
@@ -533,6 +535,8 @@ export default {
     getFormLstByID() {
       GetFormLstByID({
         ProcedureID: this.$route.params.id,
+        StepID: this.$route.params.stepid,
+        WorkID: this.$route.params.workid,
       }).then((res) => {
         if (res.RespCode == 0) {
           this.formLst = res.Data.map((item, index) => {

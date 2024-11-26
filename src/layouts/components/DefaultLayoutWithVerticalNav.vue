@@ -73,13 +73,13 @@ const vuetifyTheme = useTheme();
         }"
       />
 
-      <!-- <VerticalNavLink
+      <VerticalNavLink
         :item="{
           title: 'Trao đổi',
           icon: 'mdi-message-text',
           to: '/nhan-tin',
         }"
-      /> -->
+      />
       <VerticalNavSectionTitle
         :item="{
           heading: 'Cài đặt chung',

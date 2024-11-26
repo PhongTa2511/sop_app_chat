@@ -412,8 +412,18 @@
               rounded="8"
               size="small"
               @click="btAddUserInWork(item)"
+              color="blue"
+              class="mr-1"
+              >Gán người xử lý</v-btn
+            >
+            <v-btn
+              variant="outlined"
+              rounded="8"
+              size="small"
+              @click="btSendMailAddUserInWork(item)"
               color="green"
-              >Giao việc</v-btn
+              class="ml-1"
+              >Gửi mail thực hiện</v-btn
             >
           </div>
         </v-form>
@@ -631,6 +641,7 @@ import {
   ProcessDocument,
   GetDocumentJobByDocID,
   AddAssignLst,
+  SendMailAddAssignLst,
 } from "@/api/documentJobApi";
 import { GetDefaultValue } from "@/api/default";
 import { GetUserLstAll } from "@/api/user";
@@ -862,6 +873,29 @@ export default {
         asi.push(data.UserMana);
       }
       AddAssignLst({
+        DocumentID: data.DocumentID,
+        StepID: data.StepID,
+        WorkID: data.WorkID,
+        AssignLst: asi,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            title: "Thành công",
+            text: "Gán nhân sự thành công",
+            type: "success",
+          });
+        }
+      });
+    },
+    btSendMailAddUserInWork(data) {
+      var asi = [];
+      if (data.UserJob.UserID) {
+        asi.push(data.UserJob);
+      }
+      if (data.UserMana.UserID) {
+        asi.push(data.UserMana);
+      }
+      SendMailAddAssignLst({
         DocumentID: data.DocumentID,
         StepID: data.StepID,
         WorkID: data.WorkID,

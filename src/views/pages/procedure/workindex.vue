@@ -246,6 +246,15 @@
       <template v-slot:item.Status="{ item }">
         <v-chip color="green" v-if="item.Status == 1">Hoạt động</v-chip>
       </template>
+      <template v-slot:item.Form="{ item }">
+        <v-icon
+          color="blue"
+          size="small"
+          class="me-2"
+          @click="btShowLstForm(item)"
+          >mdi-form-select
+        </v-icon>
+      </template>
     </v-data-table>
   </v-card>
 </template>
@@ -271,6 +280,7 @@ export default {
           width: 120,
           sortable: false,
         },
+        { title: "Form", key: "Form", sortable: false },
         { title: "Mã", key: "WorkID", sortable: false },
         { title: "Công việc", key: "WorkName", sortable: false },
         { title: "Mô tả", key: "WDescription", sortable: false },
@@ -313,7 +323,11 @@ export default {
         this.userLst = res.Data;
       });
     },
-
+    btShowLstForm(data) {
+      this.$router.push(
+        "/form2/" + data.ProcedureID + "/" + data.StepID + "/" + data.WorkID
+      );
+    },
     btShowCreateWork() {
       this.isShowCreateWork = true;
       this.createWork.ProcedureID = this.phaseInfo.ProcedureID;

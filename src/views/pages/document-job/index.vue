@@ -79,7 +79,7 @@
         >
       </template>
       <template v-slot:item.QuotaTime="{ item }">
-        {{ item.QuotaTime }} Ngày
+        {{ item.QuotaTime ?? 0 }} Ngày
       </template>
     </v-data-table>
   </v-card>
@@ -239,13 +239,17 @@ export default {
             var quotaTime = 0;
             if (item.Status === 1) {
               var checkJob = item.AssignLst.find((p) => p.UserRole == "Xử lý");
-              quotaTime = checkJob.QuotaTime;
+              if (checkJob) {
+                quotaTime = checkJob.QuotaTime ?? 0;
+              }
             }
             if (item.Status == 3) {
               var checkMana = item.AssignLst.find(
                 (p) => p.UserRole == "Phê duyệt"
               );
-              quotaTime = checkMana.QuotaTime;
+              if (checkMana) {
+                quotaTime = checkMana.QuotaTime ?? 0;
+              }
             }
 
             return {

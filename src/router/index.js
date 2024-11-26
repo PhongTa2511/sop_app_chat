@@ -33,6 +33,10 @@ const router = createRouter({
           component: () => import("@/views/pages/procedure/stepindex.vue"),
         },
         {
+          path: "form2/:id/:stepid/:workid",
+          component: () => import("@/views/pages/procedure/formindex.vue"),
+        },
+        {
           path: "form/:id",
           component: () => import("@/views/pages/procedure/formindex.vue"),
         },

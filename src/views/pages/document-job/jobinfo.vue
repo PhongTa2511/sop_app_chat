@@ -919,28 +919,28 @@ export default {
     btExportExcel() {
       exportExcel(this.headers);
     },
-    handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const bstr = e.target.result;
-          const wb = XLSX.read(bstr, { type: "binary" });
-          const wsname = wb.SheetNames[0];
-          const ws = wb.Sheets[wsname];
-          const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-          console.log(data);
+    // handleFileUpload(event) {
+    //   const file = event.target.files[0];
+    //   if (file) {
+    //     const reader = new FileReader();
+    //     reader.onload = (e) => {
+    //       const bstr = e.target.result;
+    //       const wb = XLSX.read(bstr, { type: "binary" });
+    //       const wsname = wb.SheetNames[0];
+    //       const ws = wb.Sheets[wsname];
+    //       const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    //       console.log(data);
 
-          this.desserts = this.convertToReq(data).map((item, index) => {
-            return {
-              ...item,
-              Key: index + 1,
-            };
-          });
-        };
-        reader.readAsBinaryString(file);
-      }
-    },
+    //       this.desserts = this.convertToReq(data).map((item, index) => {
+    //         return {
+    //           ...item,
+    //           Key: index + 1,
+    //         };
+    //       });
+    //     };
+    //     reader.readAsBinaryString(file);
+    //   }
+    // },
     addNewDocument() {
       this.isShowAddNew = false;
       this.desserts.push(this.newDocument);
