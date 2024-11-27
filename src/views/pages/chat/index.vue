@@ -134,7 +134,10 @@
                 }"
                 class="custom-layout-text"
               >
-                {{ mes.TextContent }}
+                <div
+                  :style="{ whiteSpace: 'pre-line' }"
+                  v-html="mes.TextContent"
+                ></div>
               </div>
               <div
                 v-else-if="mes.IsAttachment == 1"
@@ -243,7 +246,7 @@
               placeholder="Aa"
               v-model="newMessage"
               class="customText"
-              @keyup.enter="sendMessageHandler"
+              @keydown="handleKeyPress"
               auto-grow
               color="blue"
               max-rows="6"
@@ -476,22 +479,24 @@ export default {
       return `${hours}h${parseInt(minutes)}p`;
     },
     sendMessageHandler() {
-      var req = {
-        SenderID: this.senderID,
-        GroupID: this.groupInfo.GroupID,
-        RecipientID: null,
-        TextContent: this.newMessage,
-        IsAttachment: 0,
-        IsMine: true,
-      };
-      SendMessageChat({
-        Data: req,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          socket.emit("sendMessage", res.Data);
-        }
-      });
-      this.newMessage = "";
+      if (this.newMessage && this.newMessage.trim() != "") {
+        var req = {
+          SenderID: this.senderID,
+          GroupID: this.groupInfo.GroupID,
+          RecipientID: null,
+          TextContent: this.newMessage.trim(),
+          IsAttachment: 0,
+          IsMine: true,
+        };
+        SendMessageChat({
+          Data: req,
+        }).then((res) => {
+          if (res.RespCode == 0) {
+            socket.emit("sendMessage", res.Data);
+          }
+        });
+        this.newMessage = "";
+      }
     },
     selectGroup(groupInfo) {
       this.groupInfo = groupInfo;
@@ -642,10 +647,27 @@ export default {
         }
       });
     },
+    handleKeyPress(event) {
+      if (event.shiftKey && event.key === "Enter") {
+        this.newMessage += "\n";
+        event.preventDefault();
+      } else if (event.key === "Enter") {
+        this.sendMessageHandler();
+        event.preventDefault();
+      }
+    },
   },
   created() {
     this.getGroupLstByUserID();
     socket.on("receiveMessage", (message) => {
+      console.log(message);
+
+      const fullName = message.FullName ?? "noname";
+      const nameParts = fullName.split(" ");
+      const lastName =
+        nameParts[nameParts.length - 1] == ""
+          ? nameParts[nameParts.length - 2]
+          : nameParts[nameParts.length - 1];
       if (
         message.SenderID != this.senderID &&
         message.GroupID == this.groupInfo.GroupID
@@ -662,7 +684,13 @@ export default {
             message.IsAttachment > 0
               ? this.formatFileSize(message.SizeFile)
               : null,
+          Avatar: message.LinkImage
+            ? "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+              message.SenderID
+            : null,
+          LastName: lastName,
         });
+        this.messageLst = this.markLatestMessages(this.messageLst);
         this.groupInfo.TextContent = message.TextContent;
         this.scrollBottom();
       }
@@ -682,7 +710,13 @@ export default {
             message.IsAttachment > 0
               ? this.formatFileSize(message.SizeFile)
               : null,
+          Avatar: message.LinkImage
+            ? "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+              message.SenderID
+            : null,
+          LastName: lastName,
         });
+        this.messageLst = this.markLatestMessages(this.messageLst);
         this.groupInfo.TextContent = message.TextContent;
         this.scrollBottom();
       }
