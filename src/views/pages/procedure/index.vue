@@ -492,15 +492,7 @@ export default {
       }
     },
     btShowDel(data) {
-      this.$confirm("Có chắc bạn muốn xóa quy trình này", "Warning", {
-        confirmButtonText: "Có",
-        cancelButtonText: "Không",
-        type: "warning",
-      })
-        .then(() => {
-          this.btDelProcedure(data);
-        })
-        .catch(() => {});
+      this.btDelProcedure(data);
     },
     btDelProcedure(data) {
       DelProcedure({ ProcedureID: data.ProcedureID }).then((res) => {
