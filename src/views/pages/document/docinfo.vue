@@ -108,6 +108,7 @@
             sort-asc-icon="mdi-menu-up"
             sort-desc-icon="mdi-menu-down"
             hide-default-footer
+            :items-per-page="rowspPage"
           >
             <template v-slot:top="{ item }">
               <div class="mx-auto mt-2">
@@ -658,8 +659,8 @@ export default {
       headers: [],
       desserts: [],
       docInfo: {},
-      pageSize: 10,
-      currentPage: 1,
+      rowspPage: 1000,
+      pageNumber: 1,
       totalLength: 0,
       processLst: [],
       isShowInfoStep: false,
@@ -947,7 +948,6 @@ export default {
                   index ===
                   self.findIndex((obj) => obj.IDFormLine === item.IDFormLine)
               );
-              console.log("anhthanfh", len);
               len = len.length;
               for (var i = 0; i < len; i++) {
                 var itemlst = item.DocumentFormLineLst.filter(

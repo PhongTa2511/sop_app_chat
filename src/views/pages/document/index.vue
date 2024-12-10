@@ -1,7 +1,7 @@
 <template>
   <v-card class="pt-4">
-    <v-data-table
-      :items-per-page="pageSize"
+    <v-data-table-server
+      :items-per-page="rowspPage"
       :items-length="totalLength"
       @update:itemsPerPage="btRow"
       @update:page="btPage"
@@ -74,7 +74,7 @@
           >mdi-note-edit</v-icon
         >
       </template>
-    </v-data-table>
+    </v-data-table-server>
   </v-card>
   <v-dialog v-model="isShowProcess" width="600">
     <v-card>
@@ -275,8 +275,8 @@ export default {
       fileLst: [],
       isShowCreateFile: false,
       storageLst: [],
-      pageSize: 10,
-      currentPage: 1,
+      rowspPage: 10,
+      pageNumber: 1,
       totalLength: 0,
       optionStatusLst: [
         { value: 1, label: "Mới tạo" },
@@ -309,7 +309,7 @@ export default {
         },
         { title: "Mã hồ sơ", key: "DocumentID", sortable: false },
         { title: "Quy trình", key: "DocName", sortable: false },
-        { title: "Ghi chú", key: "Description", sortable: false },
+        { title: "Ghi chú", key: "Note", sortable: false },
         {
           title: "Deadline",
           key: "DateExpiredShow",
@@ -330,7 +330,21 @@ export default {
       excelFile: null,
     };
   },
+  watch: {
+    pageNumber(value) {
+      this.getGSPDocumentLst();
+    },
+    rowspPage(value) {
+      this.getGSPDocumentLst();
+    },
+  },
   methods: {
+    btPage(data) {
+      this.pageNumber = data;
+    },
+    btRow(data) {
+      this.rowspPage = data;
+    },
     isPreviewSupported(fileExtension) {
       return isPreviewSupported(fileExtension);
     },
@@ -371,18 +385,20 @@ export default {
     },
     getGSPDocumentLst() {
       GetGSPDocumentLst({
-        PageNumber: this.currentPage,
-        RowspPage: this.pageSize,
+        PageNumber: this.pageNumber,
+        RowspPage: this.rowspPage,
         Search: this.inputSearch,
         DocID: "",
       }).then((res) => {
         this.fileLst = res.Data.map((item, index) => {
+          var num = (this.pageNumber - 1) * this.rowspPage;
           return {
             ...item,
-            Key: index + 1,
+            Key: index + 1 + num,
             DateExpiredShow: formatDateDisplayDDMMYY(item.DateExpired),
           };
         });
+        this.totalLength = res.TotalRows;
       });
     },
     getStatus(status) {
