@@ -125,7 +125,6 @@ import {
   formatDateDisplayDDMMYY,
   formatDateUpload,
 } from "@/helpers/getTime";
-import { GetProcedureNameInfo, GetProcedureLst } from "@/api/procedureApi";
 import { ProcessDocument, GetDocumentJobByEm } from "@/api/documentJobApi";
 
 export default {
@@ -240,7 +239,7 @@ export default {
             if (item.Status === 1) {
               var checkJob = item.AssignLst.find((p) => p.UserRole == "Xử lý");
               if (checkJob) {
-                quotaTime = checkJob.QuotaTime ?? 0;
+                quotaTime = checkJob.QuotaTime || 0;
               }
             }
             if (item.Status == 3) {
@@ -248,7 +247,7 @@ export default {
                 (p) => p.UserRole == "Phê duyệt"
               );
               if (checkMana) {
-                quotaTime = checkMana.QuotaTime ?? 0;
+                quotaTime = checkMana.QuotaTime || 0;
               }
             }
 

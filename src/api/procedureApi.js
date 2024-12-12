@@ -35,13 +35,6 @@ export function GetProcedureByID(data) {
     data,
   });
 }
-export function GetProcedureNameInfo(data) {
-  return request({
-    url: "Procedure/GetProcedureNameInfo",
-    method: "post",
-    data,
-  });
-}
 export function UpdateProcedureNameInfo(data) {
   return request({
     url: "Procedure/UpdateProcedureNameInfo",

@@ -257,7 +257,7 @@ import {
   CreateGSPDocument,
 } from "@/api/briefApi";
 
-import { GetProcedureNameInfo, GetProcedureLst } from "@/api/procedureApi";
+import { GetProcedureLst } from "@/api/procedureApi";
 import { ProcessDocument } from "@/api/documentJobApi";
 import { formatDateDisplayDDMMYY, formatDateHHDDMM } from "@/helpers/getTime";
 import {
@@ -296,7 +296,6 @@ export default {
       checkRole: false,
       dataAll: [],
       loadding: false,
-      procedureName: {},
       isShowProcess: false,
       workInfo: {},
       headers: [
@@ -373,15 +372,6 @@ export default {
     },
     editHS(data) {
       router.push("/thong-tin-xuat-khau/" + data.DocumentID);
-    },
-    getProcedureNameInfo() {
-      GetProcedureNameInfo({
-        Data: "QT00005",
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.procedureName = res.Data;
-        }
-      });
     },
     getGSPDocumentLst() {
       GetGSPDocumentLst({
@@ -511,7 +501,6 @@ export default {
   },
   created() {
     this.getGSPDocumentLst();
-    this.getProcedureNameInfo();
     this.getProcedureLst(); // Call the new method to fetch procedure list
   },
 };

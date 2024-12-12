@@ -1,5 +1,12 @@
 <template>
   <v-row>
+    <input
+      ref="fileInputExcel"
+      type="file"
+      accept=".xls,.xlsx"
+      @change="handleFileUploadExcel"
+      style="display: none"
+    />
     <v-col :lg="8" cols="12">
       <v-card class="layout-card">
         <v-card-title class="text-h6 py-4">
@@ -9,7 +16,8 @@
             <v-btn
               color="blue"
               icon="mdi-list-box"
-              style="height: 42px"
+              size="small"
+              @click="$router.push('/thong-tin/' + dataJobInfo.DocumentID)"
             ></v-btn>
           </div>
           <div class="text-subtitle-1">
@@ -96,7 +104,7 @@
                             color="gray"
                             rounded="4"
                             block
-                            @click="triggerFileInputClick"
+                            @click="triggerFileInputClickExcel"
                           >
                             <template v-slot:prepend>
                               <v-icon color="green"></v-icon>
@@ -875,7 +883,10 @@ import {
   isPreviewSupported,
   downloadFile,
 } from "@/utils/function";
-import { GetDocumentFormByDocID } from "@/api/documentFormApi";
+import {
+  GetDocumentFormByDocID,
+  UpdateDocumentForm,
+} from "@/api/documentFormApi";
 import { exportExcel } from "./function";
 import XLSX from "xlsx";
 export default {
@@ -916,31 +927,78 @@ export default {
     };
   },
   methods: {
+    updateDocumentForm(data) {
+      var docForm = {
+        DocumentID: this.dataJobInfo.DocumentID,
+        IDForm: data.IDForm,
+        ProcedureID: this.docInfo.TypeDoc,
+        NameForm: data.NameForm,
+        Description: data.Description,
+        TypeForm: data.TypeForm,
+      };
+      var docFormLine = [];
+      if (data.TypeForm == 2) {
+        this.desserts.forEach((item, ind) => {
+          var len = this.headers.filter((p) => p.title != "STT").length;
+          for (let index = 1; index <= len; index++) {
+            var line = {
+              DocumentID: this.dataJobInfo.DocumentID,
+              IDForm: data.IDForm,
+              StepID: data.StepID,
+              WorkID: data.WorkID,
+              Parameter: item.title,
+              Type: item.type,
+              OptionAnswer: JSON.stringify(item.options),
+              Required: index,
+              TextResult: item["Line" + index],
+              IDFormLine: ind,
+            };
+            docFormLine.push(line);
+          }
+        });
+        docForm.DocumentFormLineLst = docFormLine;
+      }
+      if (data.TypeForm == 1) {
+        docForm.DocumentFormLineLst = data.DocumentFormLineLst;
+      }
+
+      UpdateDocumentForm({
+        DocumentFormInfo: docForm,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            title: "Thành công",
+            text: "Lưu thông tin thành công",
+            type: "success",
+          });
+        }
+      });
+    },
     btExportExcel() {
       exportExcel(this.headers);
     },
-    // handleFileUpload(event) {
-    //   const file = event.target.files[0];
-    //   if (file) {
-    //     const reader = new FileReader();
-    //     reader.onload = (e) => {
-    //       const bstr = e.target.result;
-    //       const wb = XLSX.read(bstr, { type: "binary" });
-    //       const wsname = wb.SheetNames[0];
-    //       const ws = wb.Sheets[wsname];
-    //       const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-    //       console.log(data);
+    handleFileUploadExcel(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const bstr = e.target.result;
+          const wb = XLSX.read(bstr, { type: "binary" });
+          const wsname = wb.SheetNames[0];
+          const ws = wb.Sheets[wsname];
+          const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+          console.log(data);
 
-    //       this.desserts = this.convertToReq(data).map((item, index) => {
-    //         return {
-    //           ...item,
-    //           Key: index + 1,
-    //         };
-    //       });
-    //     };
-    //     reader.readAsBinaryString(file);
-    //   }
-    // },
+          this.desserts = this.convertToReq(data).map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+            };
+          });
+        };
+        reader.readAsBinaryString(file);
+      }
+    },
     addNewDocument() {
       this.isShowAddNew = false;
       this.desserts.push(this.newDocument);
@@ -1243,6 +1301,9 @@ export default {
     },
     triggerFileInputClick() {
       this.$refs.fileInput.click();
+    },
+    triggerFileInputClickExcel() {
+      this.$refs.fileInputExcel.click();
     },
   },
   created() {

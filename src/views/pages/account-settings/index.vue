@@ -335,9 +335,6 @@ export default {
             return {
               ...item,
               Key: index + 1 + a,
-              Organization: item.OrganizationLst.map((it) => {
-                return it.OrganizationName;
-              }).join(", "),
             };
           });
           this.totalLength = res.TotalRows;

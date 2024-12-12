@@ -867,11 +867,41 @@ export default {
     },
     btAddUserInWork(data) {
       var asi = [];
-      if (data.UserJob.UserID) {
-        asi.push(data.UserJob);
+      if (
+        data.UserJob.UserID &&
+        data.UserJob.GroupEmploy &&
+        data.UserJob.QuotaTime
+      ) {
+        asi.push({
+          ...data.UserJob,
+          UserRole: "Xử lý",
+        });
+      } else {
+        notify({
+          title: "Nhắc nhờ",
+          text: "Vui lòng nhập thông tin người xử lý",
+          type: "warn",
+        });
+        return;
       }
       if (data.UserMana.UserID) {
-        asi.push(data.UserMana);
+        if (
+          data.UserMana.UserID &&
+          data.UserMana.GroupEmploy &&
+          data.UserMana.QuotaTime
+        ) {
+          asi.push({
+            ...data.UserMana,
+            UserRole: "Phê duyệt",
+          });
+        } else {
+          notify({
+            title: "Nhắc nhờ",
+            text: "Vui lòng nhập thông tin người phê duyệt",
+            type: "warn",
+          });
+          return;
+        }
       }
       AddAssignLst({
         DocumentID: data.DocumentID,
@@ -890,11 +920,41 @@ export default {
     },
     btSendMailAddUserInWork(data) {
       var asi = [];
-      if (data.UserJob.UserID) {
-        asi.push(data.UserJob);
+      if (
+        data.UserJob.UserID &&
+        data.UserJob.GroupEmploy &&
+        data.UserJob.QuotaTime
+      ) {
+        asi.push({
+          ...data.UserJob,
+          UserRole: "Xử lý",
+        });
+      } else {
+        notify({
+          title: "Nhắc nhờ",
+          text: "Vui lòng nhập thông tin người xử lý",
+          type: "warn",
+        });
+        return;
       }
       if (data.UserMana.UserID) {
-        asi.push(data.UserMana);
+        if (
+          data.UserMana.UserID &&
+          data.UserMana.GroupEmploy &&
+          data.UserMana.QuotaTime
+        ) {
+          asi.push({
+            ...data.UserMana,
+            UserRole: "Phê duyệt",
+          });
+        } else {
+          notify({
+            title: "Nhắc nhờ",
+            text: "Vui lòng nhập thông tin người phê duyệt",
+            type: "warn",
+          });
+          return;
+        }
       }
       SendMailAddAssignLst({
         DocumentID: data.DocumentID,
