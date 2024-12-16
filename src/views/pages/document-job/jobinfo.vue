@@ -162,9 +162,21 @@
                   :key="indexline"
                 >
                   <v-text-field
+                    v-if="line.Type == 1"
                     :label="line.Parameter"
                     v-model="line.TextResult"
                   ></v-text-field>
+                  <v-autocomplete
+                    v-if="line.Type == 2"
+                    v-model="line.TextResult"
+                    :label="line.Parameter"
+                    :items="line.Options"
+                    item-value="Name"
+                    item-title="Name"
+                    chips
+                    hide-details
+                    multiple
+                  ></v-autocomplete>
                 </v-col>
               </v-row>
             </v-card>
@@ -931,7 +943,7 @@ export default {
       var docForm = {
         DocumentID: this.dataJobInfo.DocumentID,
         IDForm: data.IDForm,
-        ProcedureID: this.docInfo.TypeDoc,
+        ProcedureID: this.dataJobInfo.ProcedureID,
         NameForm: data.NameForm,
         Description: data.Description,
         TypeForm: data.TypeForm,
@@ -1237,9 +1249,27 @@ export default {
         if (res.RespCode == 0) {
           this.formTabLst = res.DocumentFormLst.map((item) => {
             if (item.TypeForm == 1) {
-              if (item.DocumentFormLineLst.length == 0) {
-                item.DocumentFormLineLst = item.DNFormLineLst;
-              }
+              item.DocumentFormLineLst = item.DNFormLineLst.map((ele) => {
+                var options = [];
+                if (ele.OptionAnswer) {
+                  options = JSON.parse(ele.OptionAnswer);
+                }
+
+                var check = item.DocumentFormLineLst.find(
+                  (p) => p.Required == ele.Required
+                );
+                if (check) {
+                  return {
+                    ...check,
+                    Options: options,
+                  };
+                } else {
+                  return {
+                    ...ele,
+                    Options: options,
+                  };
+                }
+              });
             }
             if (item.TypeForm == 2) {
               this.headers = [

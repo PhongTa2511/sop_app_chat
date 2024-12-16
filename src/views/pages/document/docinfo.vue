@@ -208,9 +208,21 @@
               :key="indexline"
             >
               <v-text-field
+                v-if="line.Type == 1"
                 :label="line.Parameter"
                 v-model="line.TextResult"
               ></v-text-field>
+              <v-autocomplete
+                v-if="line.Type == 2"
+                v-model="line.TextResult"
+                :label="line.Parameter"
+                :items="line.Options"
+                item-value="Name"
+                item-title="Name"
+                chips
+                hide-details
+                multiple
+              ></v-autocomplete>
             </v-col>
           </v-row>
         </v-card>
@@ -351,6 +363,7 @@
                 chips
                 style="max-width: 280px"
                 class="mb-2 mt-2"
+                clearable
               ></v-select>
               <v-select
                 v-model="item.UserJob.UserID"
@@ -361,6 +374,7 @@
                 chips
                 style="max-width: 280px"
                 class="mb-2"
+                clearable
               ></v-select>
               <v-text-field
                 v-model="item.UserJob.QuotaTime"
@@ -370,6 +384,7 @@
                 :max="1000"
                 suffix="Ngày"
                 style="max-width: 280px"
+                clearable
               ></v-text-field>
             </v-col>
             <v-col :lg="6">
@@ -384,6 +399,7 @@
                 chips
                 style="max-width: 280px"
                 class="mb-2 mt-2"
+                clearable
               ></v-select>
               <v-select
                 v-model="item.UserMana.UserID"
@@ -395,6 +411,7 @@
                 chips
                 style="max-width: 280px"
                 class="mb-2"
+                clearable
               ></v-select>
               <v-text-field
                 v-model="item.UserMana.QuotaTime"
@@ -404,6 +421,7 @@
                 :max="1000"
                 suffix="Ngày"
                 style="max-width: 280px"
+                clearable
               ></v-text-field>
             </v-col>
           </v-row>
@@ -978,9 +996,27 @@ export default {
         if (res.RespCode == 0) {
           this.formTabLst = res.DocumentFormLst.map((item) => {
             if (item.TypeForm == 1) {
-              if (item.DocumentFormLineLst.length == 0) {
-                item.DocumentFormLineLst = item.DNFormLineLst;
-              }
+              item.DocumentFormLineLst = item.DNFormLineLst.map((ele) => {
+                var options = [];
+                if (ele.OptionAnswer) {
+                  options = JSON.parse(ele.OptionAnswer);
+                }
+
+                var check = item.DocumentFormLineLst.find(
+                  (p) => p.Required == ele.Required
+                );
+                if (check) {
+                  return {
+                    ...check,
+                    Options: options,
+                  };
+                } else {
+                  return {
+                    ...ele,
+                    Options: options,
+                  };
+                }
+              });
             }
             if (item.TypeForm == 2) {
               this.headers = [
