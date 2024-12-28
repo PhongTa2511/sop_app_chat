@@ -44,7 +44,7 @@ export default {
     color="success"
     bordered
   >
-    <VAvatar class="cursor-pointer" color="primary" variant="tonal">
+    <VAvatar class="cursor-pointer" color="blue" variant="text">
       <VImg :src="avatar" v-if="avatar" />
       <div v-else>
         <div v-if="fullName">{{ fullName[0] }}</div>
@@ -64,7 +64,7 @@ export default {
                   offset-y="3"
                   color="success"
                 >
-                  <VAvatar color="" variant="text">
+                  <VAvatar variant="text">
                     <VImg :src="avatar" v-if="avatar" />
                     <div v-else>
                       <div v-if="fullName">{{ fullName[0] }}</div>

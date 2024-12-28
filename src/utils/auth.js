@@ -13,6 +13,7 @@ const PageNumber = "PageNumberDTP";
 const RowspPage = "RowspPageDTP";
 const Avatar = "AvatarDTP";
 const Specialize = "SpecializeDTP";
+const ComID = "ComIDDTP";
 
 export function setToken(token) {
   return Cookies.set(TokenKey, token, { expires: 1 });

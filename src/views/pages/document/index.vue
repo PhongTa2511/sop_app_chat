@@ -248,6 +248,35 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <v-dialog v-model="isShowFile" persistent width="800">
+    <v-card>
+      <v-card-item>
+        <div v-if="isLoading">Đang tải...</div>
+        <div v-else>
+          <strong>{{ nameFile }}</strong>
+          <div v-if="fileMine == '.pdf'">
+            <iframe
+              :src="
+                'https://docs.google.com/gview?embedded=true&url=' +
+                encodeURIComponent(fileUrl)
+              "
+              width="100%"
+              height="600px"
+            ></iframe>
+          </div>
+          <div v-else>
+            <div
+              v-html="docContent"
+              style="height: calc(100vh - 200px); overflow: auto"
+            ></div>
+          </div>
+        </div>
+      </v-card-item>
+      <v-card-actions>
+        <v-btn @click="isShowFile = false">Đóng</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -261,7 +290,6 @@ import { GetProcedureLst } from "@/api/procedureApi";
 import { ProcessDocument } from "@/api/documentJobApi";
 import { formatDateDisplayDDMMYY, formatDateHHDDMM } from "@/helpers/getTime";
 import {
-  previewFile,
   fetchXlsxContent,
   fetchDoc,
   isPreviewSupported,
@@ -327,6 +355,11 @@ export default {
         description: "",
       },
       excelFile: null,
+      fileUrl: "",
+      isShowFile: false,
+      docContent: "",
+      nameFile: "",
+      isLoading: false,
     };
   },
   watch: {
@@ -350,15 +383,35 @@ export default {
     downloadFile(file) {
       downloadFile(file);
     },
-    previewFile(file) {
-      previewFile(file);
+    async previewFile(file) {
+      if (!this.isPreviewSupported(file.MineFile)) {
+        alert("File này không hỗ trợ xem trước.");
+        return;
+      }
+      this.isLoading = true;
+      this.nameFile = file.NameFile.toUpperCase();
+      this.docContent = "";
+      const fileExtension = file.MineFile.toLowerCase();
+      this.fileMine = fileExtension;
+      const previewUrl = `http://202.191.56.172/GSPDTPAPI/File/GetDocumentFile?FileName=${file.LinkFile}`;
+      if (fileExtension === ".pdf") {
+        this.fileUrl = previewUrl;
+        window.open(
+          "https://docs.google.com/gview?embedded=true&url=" + previewUrl
+        );
+      } else if (fileExtension === ".docx") {
+        this.fileUrl = previewUrl;
+        this.isShowFile = true;
+        this.docContent = await fetchDoc(this.fileUrl);
+      } else if (fileExtension === ".xlsx") {
+        this.fileUrl = previewUrl;
+        this.isShowFile = true;
+        this.docContent = await fetchXlsxContent(this.fileUrl);
+      } else if ([".png", ".jpg", ".jpeg"].includes(fileExtension)) {
+        this.isShowFile = true;
+        this.docContent = `<img lazy src="${previewUrl}" alt="Image preview" width="100%" />`;
+      }
       this.isLoading = false;
-    },
-    fetchDoc(url) {
-      fetchDoc(url);
-    },
-    fetchXlsxContent(url) {
-      fetchXlsxContent(url);
     },
     btPushToDocinfo(data) {
       this.$router.push("/thong-tin/" + data.DocumentID);
@@ -366,7 +419,7 @@ export default {
 
     btShowOpenFile(data) {
       var linkPDF =
-        "http://202.191.56.172/RDAPI/File/GetDocumentFile?FileName=" +
+        "http://202.191.56.172/GSPDTPAPI/File/GetDocumentFile?FileName=" +
         data.LinkFile;
       window.open(linkPDF, "_blank");
     },

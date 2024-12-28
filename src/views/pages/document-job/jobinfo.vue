@@ -58,6 +58,7 @@
                 items-per-page-text="Số dòng 1 trang"
                 sort-asc-icon="mdi-menu-up"
                 sort-desc-icon="mdi-menu-down"
+                items-per-page="1000"
                 hide-default-footer
               >
                 <template v-slot:top="{ item }">
@@ -786,7 +787,10 @@
             ></iframe>
           </div>
           <div v-else>
-            <div v-html="docContent"></div>
+            <div
+              v-html="docContent"
+              style="height: calc(100vh - 200px); overflow: auto"
+            ></div>
           </div>
         </div>
       </v-card-item>
@@ -889,7 +893,6 @@ import { urlUploadFile } from "./function";
 
 import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi";
 import {
-  previewFile,
   fetchXlsxContent,
   fetchDoc,
   isPreviewSupported,
@@ -971,7 +974,22 @@ export default {
         docForm.DocumentFormLineLst = docFormLine;
       }
       if (data.TypeForm == 1) {
-        docForm.DocumentFormLineLst = data.DocumentFormLineLst;
+        docForm.DocumentFormLineLst = data.DocumentFormLineLst.map((item) => {
+          if (item.Type == 2) {
+            var textAnswer =
+              item.TextResult && item.TextResult != ""
+                ? item.TextResult.join(" | ")
+                : "";
+            return {
+              ...item,
+              TextResult: textAnswer,
+            };
+          } else {
+            return {
+              ...item,
+            };
+          }
+        });
       }
 
       UpdateDocumentForm({
@@ -1035,15 +1053,35 @@ export default {
     downloadFile(file) {
       downloadFile(file);
     },
-    previewFile(file) {
-      previewFile(file);
+    async previewFile(file) {
+      if (!this.isPreviewSupported(file.MineFile)) {
+        alert("File này không hỗ trợ xem trước.");
+        return;
+      }
+      this.isLoading = true;
+      this.nameFile = file.NameFile.toUpperCase();
+      this.docContent = "";
+      const fileExtension = file.MineFile.toLowerCase();
+      this.fileMine = fileExtension;
+      const previewUrl = `http://202.191.56.172/GSPDTPAPI/File/GetDocumentFile?FileName=${file.LinkFile}`;
+      if (fileExtension === ".pdf") {
+        this.fileUrl = previewUrl;
+        window.open(
+          "https://docs.google.com/gview?embedded=true&url=" + previewUrl
+        );
+      } else if (fileExtension === ".docx") {
+        this.fileUrl = previewUrl;
+        this.isShowFile = true;
+        this.docContent = await fetchDoc(this.fileUrl);
+      } else if (fileExtension === ".xlsx") {
+        this.fileUrl = previewUrl;
+        this.isShowFile = true;
+        this.docContent = await fetchXlsxContent(this.fileUrl);
+      } else if ([".png", ".jpg", ".jpeg"].includes(fileExtension)) {
+        this.isShowFile = true;
+        this.docContent = `<img lazy src="${previewUrl}" alt="Image preview" width="100%" />`;
+      }
       this.isLoading = false;
-    },
-    fetchDoc(url) {
-      fetchDoc(url);
-    },
-    fetchXlsxContent(url) {
-      fetchXlsxContent(url);
     },
     deleteFile(file) {
       DelDocumentFile({
@@ -1259,9 +1297,19 @@ export default {
                   (p) => p.Required == ele.Required
                 );
                 if (check) {
+                  var text = "";
+                  if (check.Type == 2) {
+                    text =
+                      check.TextResult && check.TextResult != ""
+                        ? check.TextResult.split(" | ")
+                        : [];
+                  } else {
+                    text = check.TextResult;
+                  }
                   return {
                     ...check,
                     Options: options,
+                    TextResult: text,
                   };
                 } else {
                   return {

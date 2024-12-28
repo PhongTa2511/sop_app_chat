@@ -12,6 +12,8 @@ import {
   setPosition,
   setSpecialize,
   setAvatar,
+  setComID,
+  removeAvatar,
 } from "@/utils/auth";
 export default {
   data() {
@@ -40,6 +42,7 @@ export default {
         setPhoneNumber(res.UserInfo.PhoneNumber);
         setEmployCode(res.UserInfo.EmployeeCode);
         setEmail(res.UserInfo.Email);
+        removeAvatar();
         GetUserInfo({
           UserInfo: {
             UserName: this.form.idEmployee,

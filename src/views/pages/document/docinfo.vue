@@ -23,6 +23,30 @@
         </div>
       </div>
       <div>
+        <v-tooltip text="Trao đổi">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              size="small"
+              color="red"
+              class="mr-1"
+              icon="mdi-chat"
+              @click="btChat"
+            ></v-btn>
+          </template>
+        </v-tooltip>
+        <v-tooltip text="Lưu thông tin">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              size="small"
+              color="green"
+              class="mr-1"
+              icon="mdi-file-document-check"
+              @click="updateGSPDocument(2)"
+            ></v-btn>
+          </template>
+        </v-tooltip>
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn
@@ -47,6 +71,17 @@
                 @click="updateGSPDocument(3)"
               >
                 Tạm dừng
+              </v-btn>
+            </v-list-item>
+            <v-list-item>
+              <v-btn
+                size="small"
+                color="success"
+                rounded="4"
+                block
+                @click="updateGSPDocument(2)"
+              >
+                Đang làm
               </v-btn>
             </v-list-item>
             <v-list-item>
@@ -651,11 +686,44 @@
       </v-card-text>
     </v-card>
   </v-dialog>
+  <v-dialog v-model="isShowFile" persistent width="800">
+    <v-card>
+      <v-card-item>
+        <div v-if="isLoading">Đang tải...</div>
+        <div v-else>
+          <strong>{{ nameFile }}</strong>
+          <div v-if="fileMine == '.pdf'">
+            <iframe
+              :src="
+                'https://docs.google.com/gview?embedded=true&url=' +
+                encodeURIComponent(fileUrl)
+              "
+              width="100%"
+              height="600px"
+            ></iframe>
+          </div>
+          <div v-else>
+            <div
+              v-html="docContent"
+              style="height: calc(100vh - 200px); overflow: auto"
+            ></div>
+          </div>
+        </div>
+      </v-card-item>
+      <v-card-actions>
+        <v-btn @click="isShowFile = false">Đóng</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 import { GSPGetGSPDocumentInfoByID, UpdateGSPDocument } from "@/api/briefApi";
-import { formatDateDisplayDDMMYY, formatDateHHDDMM } from "@/helpers/getTime";
+import {
+  formatDateDisplayDDMMYY,
+  formatDateHHDDMM,
+  formatDate,
+} from "@/helpers/getTime";
 import {
   ProcessDocument,
   GetDocumentJobByDocID,
@@ -670,6 +738,13 @@ import {
 } from "@/api/documentFormApi";
 import { exportExcel } from "./function";
 import XLSX from "xlsx";
+import {
+  fetchXlsxContent,
+  fetchDoc,
+  isPreviewSupported,
+  downloadFile,
+} from "@/utils/function";
+import { CreateGroup } from "@/api/messageApi";
 
 export default {
   data() {
@@ -693,24 +768,137 @@ export default {
       isShowEdit: false,
       editDocument: {},
       isShowProcess: false,
+      fileUrl: "",
+      isShowFile: false,
+      docContent: "",
+      nameFile: "",
+      isLoading: false,
     };
   },
+  watch: {
+    tab(value) {
+      console.log(value);
+      if (value.headers && value.desserts) {
+        this.headers = value.headers;
+        var lengthMax = 0;
+        this.desserts = value.desserts.map((item, index) => {
+          var line = "";
+          for (var header = 0; header < this.headers.length; header++) {
+            line = item[this.headers[header].key];
+            if (header > 0) {
+              var checkText = this.checkNumberTypeOrPhone(line);
+              item["Line" + header] = checkText.value;
+
+              if (!checkText.isValid) {
+                if (
+                  checkText.value.length > lengthMax &&
+                  checkText.value.length < 80
+                ) {
+                  lengthMax = checkText.value.length;
+                  this.headers[header].minWidth = 200;
+                }
+                if (
+                  checkText.value.length > lengthMax &&
+                  checkText.value.length >= 80
+                ) {
+                  this.headers[header].minWidth = 300;
+                  lengthMax = checkText.value.length;
+                }
+              }
+            }
+          }
+          return {
+            ...item,
+          };
+        });
+      }
+    },
+  },
   methods: {
+    checkNumberTypeOrPhone(str) {
+      const isPhone = /^[+]?[0-9]{9,15}$/.test(str);
+      if (isPhone) {
+        return { isValid: true, type: "Text", value: str }; // Là số điện thoại, giữ nguyên dạng text
+      }
+      const num = parseFloat(str);
+      if (isNaN(num)) {
+        return { isValid: false, type: null, value: str }; // Không hợp lệ
+      }
+
+      // Kiểm tra kiểu số: Int hay Float
+      if (Number.isInteger(num)) {
+        return {
+          isValid: true,
+          type: "Int",
+          value: new Intl.NumberFormat("en-US").format(num),
+        }; // Số nguyên
+      } else {
+        return {
+          isValid: true,
+          type: "Float",
+          value: new Intl.NumberFormat("en-US").format(num),
+        }; // Số thập phân
+      }
+    },
+    btChat() {
+      if (this.docInfo.GroupID) {
+        this.$router.push({
+          path: "/nhan-tin",
+          query: { docID: this.docInfo.DocumentID },
+        });
+      } else {
+        CreateGroup({
+          Data: {
+            DocumentID: this.docInfo.DocumentID,
+          },
+        }).then((res) => {
+          if (res.RespCode == 0) {
+            this.$router.push({
+              path: "/nhan-tin",
+              query: { docID: this.docInfo.DocumentID },
+            });
+          }
+        });
+      }
+    },
     isPreviewSupported(fileExtension) {
       return isPreviewSupported(fileExtension);
     },
     downloadFile(file) {
       downloadFile(file);
     },
-    previewFile(file) {
-      previewFile(file);
+    async previewFile(file) {
+      if (!this.isPreviewSupported(file.MineFile)) {
+        alert("File này không hỗ trợ xem trước.");
+        return;
+      }
+      this.isLoading = true;
+      this.nameFile = file.NameFile.toUpperCase();
+      this.docContent = "";
+      const fileExtension = file.MineFile.toLowerCase();
+      this.fileMine = fileExtension;
+      const previewUrl = `http://202.191.56.172/GSPDTPAPI/File/GetDocumentFile?FileName=${file.LinkFile}`;
+      if (fileExtension === ".pdf") {
+        this.fileUrl = previewUrl;
+        window.open(
+          "https://docs.google.com/gview?embedded=true&url=" + previewUrl
+        );
+      } else if (fileExtension === ".docx") {
+        this.fileUrl = previewUrl;
+        this.isShowFile = true;
+        this.docContent = await fetchDoc(this.fileUrl);
+      } else if (fileExtension === ".xlsx") {
+        console.log("chạy vào đây");
+
+        this.fileUrl = previewUrl;
+        this.isShowFile = true;
+        this.docContent = await fetchXlsxContent(this.fileUrl);
+        console.log("this.docContent", this.docContent);
+      } else if ([".png", ".jpg", ".jpeg"].includes(fileExtension)) {
+        this.isShowFile = true;
+        this.docContent = `<img lazy src="${previewUrl}" alt="Image preview" width="100%" />`;
+      }
       this.isLoading = false;
-    },
-    fetchDoc(url) {
-      fetchDoc(url);
-    },
-    fetchXlsxContent(url) {
-      fetchXlsxContent(url);
     },
     btExportExcel() {
       exportExcel(this.headers);
@@ -725,8 +913,6 @@ export default {
           const wsname = wb.SheetNames[0];
           const ws = wb.Sheets[wsname];
           const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-          console.log(data);
-
           this.desserts = this.convertToReq(data).map((item, index) => {
             return {
               ...item,
@@ -744,7 +930,16 @@ export default {
         if (data[i][1]) {
           var req = {};
           this.headers.forEach((ele, index) => {
-            req["Line" + index] = data[i][index];
+            let value = data[i][index];
+            if (typeof value === "number") {
+              if (Number.isInteger(value)) {
+                value = Math.round(value);
+              } else {
+                value = parseFloat(value.toFixed(2));
+              }
+            }
+
+            req["Line" + index] = value;
           });
 
           lstReq.push(req);
@@ -755,6 +950,9 @@ export default {
     updateGSPDocument(status) {
       UpdateGSPDocument({
         DocumentInfo: {
+          ...this.docInfo,
+          DateExpired: formatDate(this.docInfo.DateExpired),
+          DateRecept: formatDate(this.docInfo.DateRecept),
           DocumentID: this.$route.params.id,
           Status: status,
         },
@@ -1006,9 +1204,19 @@ export default {
                   (p) => p.Required == ele.Required
                 );
                 if (check) {
+                  var text = "";
+                  if (check.Type == 2) {
+                    text =
+                      check.TextResult && check.TextResult != ""
+                        ? check.TextResult.split(" | ")
+                        : [];
+                  } else {
+                    text = check.TextResult;
+                  }
                   return {
                     ...check,
                     Options: options,
+                    TextResult: text,
                   };
                 } else {
                   return {
@@ -1019,22 +1227,22 @@ export default {
               });
             }
             if (item.TypeForm == 2) {
-              this.headers = [
+              item.headers = [
                 {
                   title: "STT",
                   sortable: false,
                   key: "Key",
                   align: "center",
-                  width: 100,
                 },
               ];
+
               for (var i = 0; i < item.DNFormLineLst.length; i++) {
                 const line = item.DNFormLineLst[i];
-                this.headers.push({
+                item.headers.push({
                   title: line.Parameter,
                   sortable: false,
                   key: "Line" + line.Required,
-                  align: "center",
+                  align: "left",
                   type: line.Type,
                   options: line.Type == 2 ? JSON.parse(line.OptionAnswer) : [],
                 });
@@ -1045,6 +1253,7 @@ export default {
                   self.findIndex((obj) => obj.IDFormLine === item.IDFormLine)
               );
               len = len.length;
+              item.desserts = [];
               for (var i = 0; i < len; i++) {
                 var itemlst = item.DocumentFormLineLst.filter(
                   (p) => p.IDFormLine == i
@@ -1053,9 +1262,9 @@ export default {
                 itemlst.forEach((ele, inle) => {
                   itemde["Line" + (inle + 1)] = ele.TextResult;
                 });
-                this.desserts.push(itemde);
+                item.desserts.push(itemde);
               }
-              this.desserts = this.desserts.map((item, index) => {
+              item.desserts = item.desserts.map((item, index) => {
                 return {
                   ...item,
                   Key: index + 1,
@@ -1119,7 +1328,22 @@ export default {
         docForm.DocumentFormLineLst = docFormLine;
       }
       if (data.TypeForm == 1) {
-        docForm.DocumentFormLineLst = data.DocumentFormLineLst;
+        docForm.DocumentFormLineLst = data.DocumentFormLineLst.map((item) => {
+          if (item.Type == 2) {
+            var textAnswer =
+              item.TextResult && item.TextResult != ""
+                ? item.TextResult.join(" | ")
+                : "";
+            return {
+              ...item,
+              TextResult: textAnswer,
+            };
+          } else {
+            return {
+              ...item,
+            };
+          }
+        });
       }
 
       UpdateDocumentForm({
