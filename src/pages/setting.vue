@@ -2,6 +2,7 @@
 import { useRoute } from "vue-router";
 import Procedure from "@/views/pages/procedure/index.vue";
 import Variable from "@/views/pages/default/index.vue";
+import Group from "@/views/pages/default/group.vue";
 
 const route = useRoute();
 const activeTab = ref(route.params.tab);
@@ -12,6 +13,11 @@ const tabs = [
     title: "Quy trình",
     icon: "mdi-briefcase",
     tab: "quy-trinh",
+  },
+  {
+    title: "Nhóm",
+    icon: "mdi-account-group",
+    tab: "nhom",
   },
   {
     title: "Giá trị khởi tạo",
@@ -34,6 +40,9 @@ const tabs = [
     <VWindow v-model="activeTab" class="mt-5 disable-tab-transition">
       <VWindowItem value="quy-trinh">
         <Procedure />
+      </VWindowItem>
+      <VWindowItem value="nhom">
+        <Group />
       </VWindowItem>
       <VWindowItem value="bien-so">
         <Variable />

@@ -55,40 +55,61 @@
         </v-chip>
         <v-chip color="red" size="small" v-if="item.Status == 0"> Xóa </v-chip>
       </template>
-      <template v-slot:item.Action="{ item }">
-        <v-icon color="primary" size="small" @click="btShowDel(item.raw)">
-          mdi-delete
+      <template v-slot:item.Key="{ item }">
+        {{ item.Key }}
+        <v-icon color="orange" size="small" @click="btShowUpdate(item)">
+          mdi-square-edit-outline
         </v-icon>
       </template>
     </v-data-table-server>
   </v-card>
-  <v-dialog v-model="isShowCreate" persistent width="400">
+
+  <v-dialog v-model="isShowUpdateAccount" persistent width="400">
     <v-card>
       <v-card-title>
-        <h6 class="text-h6 px-3 py-2">Thêm giá trị mới</h6>
+        <h6 class="text-h6 pt-2">Cập nhật tài khoản</h6>
       </v-card-title>
       <v-card-text>
         <v-row>
           <v-col cols="12">
             <v-text-field
-              label="Tên bảng"
-              v-model="defaultInfo.TableValue"
+              label="Họ tên"
+              v-model="updateAccount.FullName"
               hide-details=""
             ></v-text-field>
           </v-col>
           <v-col cols="12">
             <v-text-field
-              label="Giá trị"
-              v-model="defaultInfo.ValueName"
+              label="Email"
+              v-model="updateAccount.Email"
               hide-details=""
             ></v-text-field>
           </v-col>
           <v-col cols="12">
             <v-text-field
-              label="Giá trị 2"
-              v-model="defaultInfo.ValueName2"
+              label="Số điện thoại"
+              v-model="updateAccount.PhoneNumber"
               hide-details=""
             ></v-text-field>
+          </v-col>
+          <v-col cols="12">
+            <v-select
+              label="Nhóm"
+              v-model="updateAccount.TeamID"
+              :items="teamLst"
+              item-value="TeamID"
+              item-title="TeamName"
+            ></v-select>
+          </v-col>
+          <v-col cols="12">
+            <v-select
+              label="Chức vụ"
+              v-model="updateAccount.Role"
+              :items="positionLst"
+              item-value="ValueName"
+              item-title="ValueName"
+              hide-details=""
+            ></v-select>
           </v-col>
         </v-row>
       </v-card-text>
@@ -97,27 +118,11 @@
         <v-btn
           color="blue-darken-1"
           variant="text"
-          @click="isShowCreate = false"
+          @click="isShowUpdateAccount = false"
         >
           Đóng
         </v-btn>
-        <v-btn @click="createDefaultValue"> Xác nhận </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-  <v-dialog v-model="isShowDel" width="400">
-    <v-card>
-      <v-toolbar class="pl-2" color="red" title="Xóa" center></v-toolbar>
-      <v-card-text>
-        <div class="text-h5 pt-4">Có chắc bạn muốn xóa giá trị này không?</div>
-      </v-card-text>
-      <v-card-actions class="justify-end">
-        <v-btn color="blue" variant="text" @click="isShowDel = false"
-          >Đóng</v-btn
-        >
-        <v-btn variant="text" @click="updateLocalByID(itemDel.RowID, 0)"
-          >Xóa</v-btn
-        >
+        <v-btn @click="updateUserInfo"> Xác nhận </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -132,7 +137,7 @@ import {
   DelUserRole,
   GetUserRole,
 } from "@/api/user";
-import { GetOrganizationLstByUser } from "@/api/organization";
+import { GetTeamLst } from "@/api/teamApi";
 import { GetDefaultValue } from "@/api/default";
 
 export default {
@@ -149,13 +154,13 @@ export default {
         { title: "Họ tên", key: "FullName", sortable: false },
         { title: "Tài khoản", key: "PhoneNumber", sortable: false },
         { title: "Email", key: "Email", sortable: false },
-        { title: "Chức vụ", key: "Position", sortable: false },
         {
-          title: "Phòng ban",
-          key: "Specialize",
+          title: "Nhóm",
+          key: "TeamName",
           sortable: false,
           align: "center",
         },
+        { title: "Chức vụ", key: "Role", sortable: false },
         {
           title: "Trạng thái",
           key: "Status",
@@ -163,7 +168,6 @@ export default {
           width: 100,
           align: "center",
         },
-        { title: "", key: "Action", width: 80 },
       ],
       desserts: [],
       search: "",
@@ -236,6 +240,7 @@ export default {
         },
       ],
       positionLst: [],
+      teamLst: [],
     };
   },
   watch: {
@@ -260,9 +265,17 @@ export default {
       this.rowspPage = data;
     },
     getDefaultValue() {
-      GetDefaultValue({ Table: "Phòng ban" }).then((res) => {
+      GetDefaultValue({ Table: "Chức vụ" }).then((res) => {
         if (res.RespCode == 0) {
           this.positionLst = res.DefaultValueLst.filter((p) => p.Status > 0);
+        }
+      });
+      GetTeamLst({
+        RowspPage: 10000,
+        PageNumber: 1,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.teamLst = res.Data;
         }
       });
     },
@@ -371,27 +384,18 @@ export default {
       this.isShowUpdateAccount = true;
       this.updateAccount = {
         ...data,
-        Organization: data.OrganizationLst.map((p) => {
-          return p.OrganizationID;
-        }),
-        Position: data.Position ? data.Position.split("; ") : "",
       };
     },
     updateUserInfo() {
       UpdateUserInfo({
         UserInfo: {
           UserName: this.updateAccount.UserName,
-          // Password: this.updateAccount.Password,
           Email: this.updateAccount.Email,
           FullName: this.updateAccount.FullName,
           PhoneNumber: this.updateAccount.PhoneNumber,
-          Position: this.updateAccount.Position.join("; "),
+          Role: this.updateAccount.Role,
+          TeamID: this.updateAccount.TeamID,
           Status: this.updateAccount.Status,
-          OrganizationLst: this.updateAccount.Organization.map((item) => {
-            return {
-              OrganizationID: item,
-            };
-          }),
         },
       }).then((res) => {
         if (res.RespCode == 0) {

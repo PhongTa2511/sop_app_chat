@@ -138,12 +138,21 @@
             no-data-text="Không có dữ liệu"
             :headers="headers"
             :items="desserts"
-            min-height="calc( 210px)"
+            height="calc(100vh - 310px)"
             items-per-page-text="Số dòng 1 trang"
             sort-asc-icon="mdi-menu-up"
             sort-desc-icon="mdi-menu-down"
-            hide-default-footer
             :items-per-page="rowspPage"
+            :items-length="desserts.length"
+            @update:itemsPerPage="btRow"
+            @update:page="btPage"
+            fixed-header
+            :items-per-page-options="[
+              { value: 10, title: '10' },
+              { value: 50, title: '50' },
+              { value: 100, title: '100' },
+              { value: 10000, title: 'All' },
+            ]"
           >
             <template v-slot:top="{ item }">
               <div class="mx-auto mt-2">
@@ -752,7 +761,7 @@ export default {
       headers: [],
       desserts: [],
       docInfo: {},
-      rowspPage: 1000,
+      rowspPage: 10,
       pageNumber: 1,
       totalLength: 0,
       processLst: [],
@@ -777,7 +786,6 @@ export default {
   },
   watch: {
     tab(value) {
-      console.log(value);
       if (value.headers && value.desserts) {
         this.headers = value.headers;
         var lengthMax = 0;
@@ -788,21 +796,22 @@ export default {
             if (header > 0) {
               var checkText = this.checkNumberTypeOrPhone(line);
               item["Line" + header] = checkText.value;
-
               if (!checkText.isValid) {
-                if (
-                  checkText.value.length > lengthMax &&
-                  checkText.value.length < 80
-                ) {
-                  lengthMax = checkText.value.length;
-                  this.headers[header].minWidth = 200;
-                }
-                if (
-                  checkText.value.length > lengthMax &&
-                  checkText.value.length >= 80
-                ) {
-                  this.headers[header].minWidth = 300;
-                  lengthMax = checkText.value.length;
+                if (checkText.value) {
+                  if (
+                    checkText.value.length > lengthMax &&
+                    checkText.value.length < 80
+                  ) {
+                    lengthMax = checkText.value.length;
+                    this.headers[header].minWidth = 200;
+                  }
+                  if (
+                    checkText.value.length > lengthMax &&
+                    checkText.value.length >= 80
+                  ) {
+                    this.headers[header].minWidth = 300;
+                    lengthMax = checkText.value.length;
+                  }
                 }
               }
             }
@@ -815,6 +824,12 @@ export default {
     },
   },
   methods: {
+    btPage(data) {
+      this.pageNumber = data;
+    },
+    btRow(data) {
+      this.rowspPage = data;
+    },
     checkNumberTypeOrPhone(str) {
       const isPhone = /^[+]?[0-9]{9,15}$/.test(str);
       if (isPhone) {

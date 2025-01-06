@@ -12,7 +12,6 @@ import {
   setPosition,
   setSpecialize,
   setAvatar,
-  setComID,
   removeAvatar,
 } from "@/utils/auth";
 export default {
@@ -53,7 +52,7 @@ export default {
           },
         }).then((resu) => {
           if (resu.RespCode == 0) {
-            setPosition(resu.UserInfo.Position);
+            setPosition(resu.UserInfo.Role);
             setSpecialize(resu.UserInfo.Specialize);
             if (resu.UserInfo.LinkImage && resu.UserInfo.LinkImage != "") {
               setAvatar(

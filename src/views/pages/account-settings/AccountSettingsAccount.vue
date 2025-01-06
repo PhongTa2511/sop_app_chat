@@ -212,22 +212,20 @@ getDefaultValue();
                   placeholder="Nhập max nhân viên"
                 />
                 <VSelect
-                  v-model="accountDataLocal.Specialize"
-                  label="Phòng ban"
+                  v-model="accountDataLocal.TeamID"
+                  label="Nhóm"
                   :items="specializeLst"
                   item-value="ValueName"
                   item-title="ValueName"
-                  placeholder="Chọn phòng ban"
+                  placeholder="Chọn nhóm"
                   class="mb-2 mt-2"
+                  readonly
                 />
-                <VSelect
-                  v-model="accountDataLocal.Position"
-                  label="Chức vụ"
-                  placeholder="Chọn chức vụ"
-                  item-value="ValueName"
-                  item-title="ValueName"
-                  :items="positionLst"
-                  class="mb-2"
+                <VTextField
+                  v-model="accountDataLocal.Role"
+                  label="Mã nhân viên"
+                  placeholder="Nhập max nhân viên"
+                  readonly
                 />
               </VCol>
               <VDivider />
