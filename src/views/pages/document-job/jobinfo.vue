@@ -33,7 +33,7 @@
             {{ dataJobInfo.JobName }}
           </div>
         </v-card-title>
-        <v-tabs v-model="tab" grow>
+        <v-tabs v-model="tab" grow v-if="formTabLst.length > 0">
           <v-tab
             v-for="(item, index) in formTabLst"
             :key="index"
@@ -43,7 +43,7 @@
           ></v-tab>
         </v-tabs>
 
-        <v-tabs-window v-model="tab">
+        <v-tabs-window v-model="tab" v-if="formTabLst.length > 0">
           <v-tabs-window-item
             v-for="(item, index) in formTabLst"
             :key="index"
@@ -235,8 +235,8 @@
                 <div>Tệp đính kèm</div>
                 <v-btn
                   color="blue"
-                  style="height: 42px"
                   icon="mdi-link-plus"
+                  size="small"
                   @click="$refs.fileInput.click()"
                 >
                 </v-btn>
@@ -667,7 +667,18 @@
         <v-divider class="my-2"></v-divider>
         <div v-for="(item, index) in processLst" :key="index" class="mx-2 my-2">
           <div class="d-flex">
-            <v-chip class="mr-2">
+            <v-chip
+              class="mr-2"
+              :color="
+                item.Status == 1
+                  ? 'blue'
+                  : item.Status == 4
+                  ? 'green'
+                  : item.Status == 5
+                  ? 'red'
+                  : 'gray'
+              "
+            >
               {{ item.StepOrder }}
             </v-chip>
             {{ item.StepName }}
@@ -677,7 +688,15 @@
             :key="indjob"
             class="px-1 py-1"
             rounded
-            border="green md"
+            :border="
+              item.Status == 1
+                ? 'blue md'
+                : item.Status == 4
+                ? 'green md'
+                : item.Status == 5
+                ? 'red md'
+                : 'gray md'
+            "
           >
             <div class="text-body-2 position-relative">
               {{ job.JobName }}
@@ -1285,7 +1304,9 @@ export default {
         DocumentID: docID,
       }).then((res) => {
         if (res.RespCode == 0) {
-          this.formTabLst = res.DocumentFormLst.map((item) => {
+          this.formTabLst = res.DocumentFormLst.filter(
+            (p) => p.WorkID == this.dataJobInfo.WorkID
+          ).map((item) => {
             if (item.TypeForm == 1) {
               item.DocumentFormLineLst = item.DNFormLineLst.map((ele) => {
                 var options = [];

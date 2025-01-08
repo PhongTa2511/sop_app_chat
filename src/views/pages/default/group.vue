@@ -126,6 +126,7 @@
           density="compact"
           :items="procedureLst"
           item-value="ProcedureID"
+          return-object
           item-title="ProcedureName"
           chips
           class="mb-2 mt-2"
@@ -268,12 +269,12 @@ export default {
     },
     updateItem() {
       UpdateTeamInfo({
-        Data: {
+        TeamInfo: {
           ...this.updateInfo,
           Status: 2,
           Data: this.updateInfo.Data.map((item) => {
             return {
-              ProcedureID: item,
+              ...item,
               TeamID: this.updateInfo.TeamID,
             };
           }),
