@@ -360,7 +360,7 @@
             </div>
             <div>
               <v-autocomplete
-                placeholder="Người phê duyệt"
+                placeholder="Người đại diện"
                 density="compact"
                 v-model="item.UserID"
                 :items="item.UserLst"
