@@ -7,6 +7,21 @@ export function GetTeamLst(data) {
     data,
   });
 }
+export function GetTeamLstProID(data) {
+  return request({
+    url: "Team/GetTeamLstProID",
+    method: "post",
+    data,
+  });
+}
+
+export function GetTeamLstDocID(data) {
+  return request({
+    url: "Team/GetTeamLstDocID",
+    method: "post",
+    data,
+  });
+}
 export function AddTeamInfo(data) {
   return request({
     url: "Team/AddTeamInfo",

@@ -63,6 +63,14 @@ export function GetUserLstAll(data) {
     data,
   });
 }
+
+export function GetUserLstByTeamID(data) {
+  return request({
+    url: "User/GetUserLstByTeamID",
+    method: "post",
+    data,
+  });
+}
 export function SetUserRole(data) {
   return request({
     url: "User/SetUserRole",

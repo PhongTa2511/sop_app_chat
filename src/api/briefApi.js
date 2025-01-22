@@ -37,7 +37,6 @@ export function GSPGetGSPDocumentInfoByID(data) {
   });
 }
 
-
 export function GetGSPDocumentByStoreID(data) {
   return request({
     url: "GSPDocument/GetGSPDocumentByStoreID",
@@ -45,4 +44,10 @@ export function GetGSPDocumentByStoreID(data) {
     data,
   });
 }
-  
+export function UpdateDocumentAssign(data) {
+  return request({
+    url: "GSPDocument/UpdateDocumentAssign",
+    method: "post",
+    data,
+  });
+}

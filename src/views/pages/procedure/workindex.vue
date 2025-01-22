@@ -29,26 +29,28 @@
                 <v-select
                   placeholder="Nhóm xử lý"
                   density="compact"
-                  v-model="userWork.GroupEmploy"
+                  v-model="userWork.ComID"
                   :items="groupLst"
-                  item-value="ValueName"
-                  item-title="ValueName"
+                  item-value="TeamID"
+                  item-title="TeamName"
                   chips
                   style="max-width: 280px"
                   class="mb-2 mt-2"
                   clearable
                 ></v-select>
-                <v-select
+                <v-autocomplete
                   placeholder="Người xử lý"
                   v-model="userWork.UserID"
-                  :items="userLst"
+                  :items="userLstWork"
                   item-value="UserName"
                   item-title="FullName"
                   chips
                   style="max-width: 280px"
                   class="mb-2"
                   clearable
-                ></v-select>
+                  hide-details
+                  @update:menu="getUserLstByTeamIDWork(userWork.ComID)"
+                ></v-autocomplete>
                 <v-text-field
                   v-model="userWork.QuotaTime"
                   label="Hạn xử lý"
@@ -65,27 +67,29 @@
                 <v-select
                   placeholder="Nhóm phê duyệt"
                   density="compact"
-                  v-model="userManager.GroupEmploy"
+                  v-model="userManager.ComID"
                   :items="groupLst"
-                  item-value="ValueName"
-                  item-title="ValueName"
+                  item-value="TeamID"
+                  item-title="TeamName"
                   chips
                   style="max-width: 280px"
                   class="mb-2 mt-2"
                   clearable
                 ></v-select>
-                <v-select
+                <v-autocomplete
                   placeholder="Người phê duyệt"
                   density="compact"
                   v-model="userManager.UserID"
-                  :items="userLst"
+                  :items="userLstMana"
                   item-value="UserName"
                   item-title="FullName"
                   chips
                   style="max-width: 280px"
                   class="mb-2"
                   clearable
-                ></v-select>
+                  hide-details
+                  @update:menu="getUserLstByTeamIDMana(userManager.ComID)"
+                ></v-autocomplete>
                 <v-text-field
                   v-model="userManager.QuotaTime"
                   label="Hạn phê duyệt"
@@ -131,26 +135,28 @@
                 <v-select
                   placeholder="Nhóm xử lý"
                   density="compact"
-                  v-model="userWork.GroupEmploy"
+                  v-model="userWork.ComID"
                   :items="groupLst"
-                  item-value="ValueName"
-                  item-title="ValueName"
+                  item-value="TeamID"
+                  item-title="TeamName"
                   chips
                   style="max-width: 280px"
                   class="mb-2 mt-2"
                   clearable
                 ></v-select>
-                <v-select
+                <v-autocomplete
                   placeholder="Người xử lý"
                   v-model="userWork.UserID"
-                  :items="userLst"
+                  :items="userLstWork"
                   item-value="UserName"
                   item-title="FullName"
                   chips
                   style="max-width: 280px"
                   class="mb-2"
                   clearable
-                ></v-select>
+                  hide-details
+                  @update:menu="getUserLstByTeamID(userWork.ComID)"
+                ></v-autocomplete>
                 <v-text-field
                   v-model="userWork.QuotaTime"
                   label="Hạn xử lý"
@@ -167,27 +173,29 @@
                 <v-select
                   placeholder="Nhóm phê duyệt"
                   density="compact"
-                  v-model="userManager.GroupEmploy"
+                  v-model="userManager.ComID"
                   :items="groupLst"
-                  item-value="ValueName"
-                  item-title="ValueName"
+                  item-value="TeamID"
+                  item-title="TeamName"
                   chips
                   style="max-width: 280px"
                   class="mb-2 mt-2"
                   clearable
                 ></v-select>
-                <v-select
+                <v-autocomplete
                   placeholder="Người phê duyệt"
                   density="compact"
                   v-model="userManager.UserID"
-                  :items="userLst"
+                  :items="userLstMana"
                   item-value="UserName"
                   item-title="FullName"
                   chips
                   style="max-width: 280px"
                   class="mb-2"
                   clearable
-                ></v-select>
+                  hide-details
+                  @update:menu="getUserLstByTeamIDMana(userManager.ComID)"
+                ></v-autocomplete>
                 <v-text-field
                   v-model="userManager.QuotaTime"
                   label="Hạn phê duyệt"
@@ -274,7 +282,8 @@ import {
   GetWorkDefineLst,
 } from "@/api/procedureApi";
 import { GetDefaultValue } from "@/api/default";
-import { GetUserLstAll } from "@/api/user";
+import { GetUserLstAll, GetUserLstByTeamID } from "@/api/user";
+import { GetTeamLstProID } from "@/api/teamApi";
 export default {
   data() {
     return {
@@ -310,7 +319,8 @@ export default {
       createWork: {},
       updateWork: {},
       workLst: [],
-      userLst: [],
+      userLstWork: [],
+      userLstMana: [],
       groupLst: [],
       userWork: {},
       userManager: {},
@@ -318,17 +328,45 @@ export default {
       editWork: {},
     };
   },
+  watch: {
+    "userWork.ComID"(value) {
+      if (value) {
+        this.userWork.GroupEmploy = this.groupLst.find(
+          (p) => p.TeamID == value
+        ).TeamName;
+      }
+    },
+    "userManager.ComID"(value) {
+      if (value) {
+        this.userManager.GroupEmploy = this.groupLst.find(
+          (p) => p.TeamID == value
+        ).TeamName;
+      }
+    },
+  },
 
   methods: {
-    getUserLstAll() {
-      GetUserLstAll({
+    getUserLstByTeamIDWork(teamID) {
+      GetUserLstByTeamID({
         PageNumber: 1,
         RowspPage: 10000,
         Search: "",
+        TeamID: teamID,
       }).then((res) => {
-        this.userLst = res.Data;
+        this.userLstWork = res.Data;
       });
     },
+    getUserLstByTeamIDMana(teamID) {
+      GetUserLstByTeamID({
+        PageNumber: 1,
+        RowspPage: 10000,
+        Search: "",
+        TeamID: teamID,
+      }).then((res) => {
+        this.userLstMana = res.Data;
+      });
+    },
+
     btShowLstForm(data) {
       this.$router.push(
         "/form2/" + data.ProcedureID + "/" + data.StepID + "/" + data.WorkID
@@ -373,7 +411,17 @@ export default {
       this.editWork = { ...item }; // Populate editWork with the selected item's data
 
       this.userWork = item.Data.find((p) => p.UserRole == "Xử lý") ?? {};
+      if (this.userWork.ComID != 0) {
+        this.getUserLstByTeamIDWork(this.userWork.ComID);
+      } else {
+        this.userWork.ComID = null;
+      }
       this.userManager = item.Data.find((p) => p.UserRole == "Phê duyệt") ?? {};
+      if (this.userManager.ComID != 0) {
+        this.getUserLstByTeamIDWork(this.userManager.ComID);
+      } else {
+        this.userManager.ComID = null;
+      }
     },
     btUpdateWork() {
       UpdateWorkDefine({
@@ -418,9 +466,11 @@ export default {
     },
 
     getWorkType() {
-      GetDefaultValue({ Table: "Phòng ban" }).then((res) => {
+      GetTeamLstProID({
+        ProcedureID: this.phaseInfo.ProcedureID,
+      }).then((res) => {
         if (res.RespCode == 0) {
-          this.groupLst = res.DefaultValueLst;
+          this.groupLst = res.Data;
         }
       });
     },
@@ -430,6 +480,7 @@ export default {
       GetStepByID({ StepID: this.$route.params.id }).then((res) => {
         this.phaseInfo = res.Data;
         this.getWorkDefineLst();
+        this.getWorkType();
       });
     },
 
@@ -482,8 +533,8 @@ export default {
 
   created() {
     this.getStepByID();
-    this.getWorkType();
-    this.getUserLstAll();
+    // this.getWorkType();
+    // this.getUserLstAll();
   },
 };
 </script>

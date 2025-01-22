@@ -327,7 +327,7 @@
               color="blue"
               class="mr-2"
               rounded="8"
-              @click="reportDocumentJob"
+              @click="openStepDialog(0)"
               >Báo cáo</v-btn
             >
           </div>
@@ -559,10 +559,10 @@
               color="green"
               class="mr-2"
               rounded="8"
-              @click="approveDocumentJob(4)"
+              @click="openStepDialog(4)"
               >Phê duyệt</v-btn
             >
-            <v-btn color="red" rounded="8" @click="approveDocumentJob(5)"
+            <v-btn color="red" rounded="8" @click="openStepDialog(5)"
               >Từ chối</v-btn
             >
           </div>
@@ -894,6 +894,28 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <v-dialog v-model="isShowSteps" width="600">
+    <v-card>
+      <v-card-title>Danh sách các bước thực hiện</v-card-title>
+      <v-card-text style="margin-top: -24px">
+        <v-list>
+          <v-list-item v-for="(step, index) in stepLst" :key="index">
+            <v-checkbox
+              v-model="step.Checked"
+              :label="step.StepOrder + '. ' + step.StepName"
+              color="blue"
+              class="px-3"
+              hide-details
+            ></v-checkbox>
+          </v-list-item>
+        </v-list>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn @click="isShowSteps = false">Đóng</v-btn>
+        <v-btn color="green" @click="btConfirm">Xác nhận</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -958,6 +980,8 @@ export default {
       isShowEdit: false,
       newDocument: {},
       isShowAddNew: false,
+      stepLst: [],
+      isShowSteps: false,
     };
   },
   methods: {
@@ -1245,9 +1269,11 @@ export default {
         ReportDocumentJob({
           ID: this.$route.params.id,
           Note: this.dataJobInfo.Report,
+          Data: this.stepLst.filter((p) => p.Checked),
         }).then((res) => {
           if (res.RespCode == 0) {
             this.getDocumentJobInfo();
+            this.isShowSteps = false;
             notify({
               title: "Thành công",
               text: "Báo cáo thành công",
@@ -1270,14 +1296,16 @@ export default {
       }
     },
     approveDocumentJob(status) {
-      if (this.dataJobInfo.Report && this.dataJobInfo.Report != "") {
+      if (this.dataJobInfo.NoteApprove && this.dataJobInfo.NoteApprove != "") {
         ApproveDocumentJob({
           ID: this.$route.params.id,
           Status: status,
           NoteApprove: this.dataJobInfo.NoteApprove,
+          Data: this.stepLst.filter((p) => p.Checked),
         }).then((res) => {
           if (res.RespCode == 0) {
             this.getDocumentJobInfo();
+            this.isShowSteps = false;
             notify({
               title: "Thành công",
               text: "Phê duyệt thành công",
@@ -1297,6 +1325,80 @@ export default {
           text: "Chưa nhập nội dung phê duyệt",
           type: "error",
         });
+      }
+    },
+    openStepDialog(status) {
+      var proStepLst = this.processLst.filter(
+        (item, index, self) =>
+          index === self.findIndex((el) => el.StepID === item.StepID)
+      );
+      if (status == 4) {
+        this.stepLst = proStepLst
+          .filter(
+            (p) => parseInt(p.StepOrder) > parseInt(this.dataJobInfo.StepOrder)
+          )
+          .map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+              Checked: false,
+            };
+          });
+        if (this.dataJobInfo.StepNext && this.dataJobInfo.StepNext != "") {
+          this.approveDocumentJob(4);
+        } else {
+          if (this.stepLst.length == 0) {
+            this.approveDocumentJob(4);
+          } else {
+            this.isShowSteps = true;
+            this.statusJob = status;
+          }
+        }
+      }
+      if (status == 5) {
+        this.stepLst = proStepLst.map((item, index) => {
+          return {
+            ...item,
+            Key: index + 1,
+            Checked: false,
+          };
+        });
+        if (this.dataJobInfo.StepBack && this.dataJobInfo.StepBack != "") {
+          this.approveDocumentJob(5);
+        } else {
+          if (this.stepLst.length == 0) {
+            this.approveDocumentJob(5);
+          } else {
+            this.isShowSteps = true;
+            this.statusJob = status;
+          }
+        }
+      }
+      if (status == 0) {
+        this.stepLst = proStepLst
+          .filter(
+            (p) => parseInt(p.StepOrder) > parseInt(this.dataJobInfo.StepOrder)
+          )
+          .map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+              Checked: true,
+            };
+          });
+        if (this.stepLst.length == 0) {
+          this.reportDocumentJob();
+        } else {
+          this.isShowSteps = true;
+          this.statusJob = status;
+        }
+      }
+    },
+    btConfirm() {
+      if (this.statusJob == 4 || this.statusJob == 5) {
+        this.approveDocumentJob(this.statusJob);
+      } else {
+        this.reportDocumentJob();
       }
     },
     getDocumentFormByDocID(docID) {

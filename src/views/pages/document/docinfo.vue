@@ -332,11 +332,49 @@
     </v-col>
     <v-col cols="12" md="6">
       <v-card class="py-2 px-4 layout-card">
-        <div class="text-h6">Các file liên quan</div>
+        <div class="d-flex justify-space-between">
+          <div class="text-h6">Các nhóm thực hiện</div>
+          <v-tooltip text="Lưu thông tin" v-if="teamLst.length > 0">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                v-bind="props"
+                size="x-small"
+                color="green"
+                class="mr-1"
+                icon="mdi-account-check"
+                @click="updateDocumentAssign()"
+              ></v-btn>
+            </template>
+          </v-tooltip>
+        </div>
+
         <v-divider class="my-2"></v-divider>
-        <div class="text-center py-8">
+        <div class="text-center py-8" v-if="teamLst.length == 0">
           <v-icon color="red" size="large"> mdi-text-box-search </v-icon>
-          <div>Chưa có file nào đính kèm</div>
+          <div>Chưa có nhóm nào trong quy trình</div>
+        </div>
+        <div v-else>
+          <div v-for="(item, index) in teamLst" :key="index" class="mx-2 my-2">
+            <div class="d-flex" style="color: rgb(var(--v-theme-blue))">
+              {{ item.TeamName }}
+            </div>
+            <div>
+              <v-autocomplete
+                placeholder="Người phê duyệt"
+                density="compact"
+                v-model="item.UserID"
+                :items="item.UserLst"
+                item-value="UserName"
+                item-title="FullName"
+                chips
+                style="max-width: 280px"
+                class="mb-2"
+                clearable
+                hide-details
+              ></v-autocomplete>
+            </div>
+            <!-- <v-divider class="my-2" color="blue"></v-divider> -->
+          </div>
         </div>
       </v-card>
     </v-col>
@@ -398,28 +436,30 @@
             <v-col :lg="6">
               <span>Cài đặt xử lý</span>
               <v-select
-                v-model="item.UserJob.GroupEmploy"
+                v-model="item.UserJob.ComID"
                 placeholder="Nhóm xử lý"
                 density="compact"
                 :items="groupLst"
-                item-value="ValueName"
-                item-title="ValueName"
+                item-value="TeamID"
+                item-title="TeamName"
                 chips
                 style="max-width: 280px"
                 class="mb-2 mt-2"
                 clearable
               ></v-select>
-              <v-select
+              <v-autocomplete
                 v-model="item.UserJob.UserID"
-                :items="userLst"
+                :items="userLstWork"
                 placeholder="Người xử lý"
                 item-value="UserName"
-                item-title="FullNameCode"
+                item-title="FullName"
                 chips
                 style="max-width: 280px"
                 class="mb-2"
                 clearable
-              ></v-select>
+                hide-details
+                @update:menu="getUserLstByTeamIDWork(item.UserJob.ComID)"
+              ></v-autocomplete>
               <v-text-field
                 v-model="item.UserJob.QuotaTime"
                 label="Hạn xử lý"
@@ -434,20 +474,20 @@
             <v-col :lg="6">
               <span>Cài đặt phê duyệt</span>
               <v-select
-                v-model="item.UserMana.GroupEmploy"
+                v-model="item.UserMana.ComID"
                 :items="groupLst"
                 placeholder="Nhóm phê duyệt"
                 density="compact"
-                item-value="ValueName"
-                item-title="ValueName"
+                item-value="TeamID"
+                item-title="TeamName"
                 chips
                 style="max-width: 280px"
                 class="mb-2 mt-2"
                 clearable
               ></v-select>
-              <v-select
+              <v-autocomplete
                 v-model="item.UserMana.UserID"
-                :items="userLst"
+                :items="userLstMana"
                 placeholder="Người phê duyệt"
                 density="compact"
                 item-value="UserName"
@@ -456,7 +496,9 @@
                 style="max-width: 280px"
                 class="mb-2"
                 clearable
-              ></v-select>
+                hide-details
+                @update:menu="getUserLstByTeamIDMana(item.UserMana.ComID)"
+              ></v-autocomplete>
               <v-text-field
                 v-model="item.UserMana.QuotaTime"
                 label="Hạn phê duyệt"
@@ -727,20 +769,19 @@
 </template>
 
 <script>
-import { GSPGetGSPDocumentInfoByID, UpdateGSPDocument } from "@/api/briefApi";
 import {
-  formatDateDisplayDDMMYY,
-  formatDateHHDDMM,
-  formatDate,
-} from "@/helpers/getTime";
+  GSPGetGSPDocumentInfoByID,
+  UpdateGSPDocument,
+  UpdateDocumentAssign,
+} from "@/api/briefApi";
+import { formatDateHHDDMM, formatDate } from "@/helpers/getTime";
 import {
   ProcessDocument,
   GetDocumentJobByDocID,
   AddAssignLst,
   SendMailAddAssignLst,
 } from "@/api/documentJobApi";
-import { GetDefaultValue } from "@/api/default";
-import { GetUserLstAll } from "@/api/user";
+import { GetUserLstByTeamID } from "@/api/user";
 import {
   GetDocumentFormByDocID,
   UpdateDocumentForm,
@@ -754,7 +795,7 @@ import {
   downloadFile,
 } from "@/utils/function";
 import { CreateGroup } from "@/api/messageApi";
-
+import { GetTeamLstProID, GetTeamLstDocID } from "@/api/teamApi";
 export default {
   data() {
     return {
@@ -768,8 +809,10 @@ export default {
       isShowInfoStep: false,
       stepInfo: {},
       workLst: [],
-      userLst: [],
+      userLstWork: [],
+      userLstMana: [],
       groupLst: [],
+      teamLst: [],
       formTabLst: [],
       tab: "",
       isShowAddNew: false,
@@ -824,6 +867,38 @@ export default {
     },
   },
   methods: {
+    updateDocumentAssign() {
+      UpdateDocumentAssign({
+        Data: this.teamLst,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            title: "Thành công",
+            type: "success",
+          });
+        }
+      });
+    },
+    getUserLstByTeamIDWork(teamID) {
+      GetUserLstByTeamID({
+        PageNumber: 1,
+        RowspPage: 10000,
+        Search: "",
+        TeamID: teamID,
+      }).then((res) => {
+        this.userLstWork = res.Data;
+      });
+    },
+    getUserLstByTeamIDMana(teamID) {
+      GetUserLstByTeamID({
+        PageNumber: 1,
+        RowspPage: 10000,
+        Search: "",
+        TeamID: teamID,
+      }).then((res) => {
+        this.userLstMana = res.Data;
+      });
+    },
     btPage(data) {
       this.pageNumber = data;
     },
@@ -988,23 +1063,37 @@ export default {
       });
     },
     getdefault() {
-      GetDefaultValue({ Table: "Phòng ban" }).then((res) => {
+      GetTeamLstProID({
+        ProcedureID: this.docInfo.TypeDoc,
+      }).then((res) => {
         if (res.RespCode == 0) {
-          this.groupLst = res.DefaultValueLst;
+          this.groupLst = res.Data;
         }
       });
-      GetUserLstAll({
-        PageNumber: 1,
-        RowspPage: 10000,
-        Search: "",
+      GetTeamLstDocID({
+        ProcedureID: this.docInfo.DocumentID,
       }).then((res) => {
-        this.userLst = res.Data.map((item) => {
-          return {
-            ...item,
-            FullNameCode: item.FullName + " - " + item.EmployeeCode,
-          };
-        });
+        if (res.RespCode == 0) {
+          this.teamLst = res.Data;
+        }
       });
+      // GetDefaultValue({ Table: "Phòng ban" }).then((res) => {
+      //   if (res.RespCode == 0) {
+      //     this.groupLst = res.DefaultValueLst;
+      //   }
+      // });
+      // GetUserLstAll({
+      //   PageNumber: 1,
+      //   RowspPage: 10000,
+      //   Search: "",
+      // }).then((res) => {
+      //   this.userLst = res.Data.map((item) => {
+      //     return {
+      //       ...item,
+      //       FullNameCode: item.FullName + " - " + item.EmployeeCode,
+      //     };
+      //   });
+      // });
     },
     btShowInfoStep(data) {
       this.isShowInfoStep = true;
@@ -1093,16 +1182,13 @@ export default {
         if (res.RespCode == 0) {
           this.docInfo = res.Data;
           this.processDocument();
+          this.getdefault();
         }
       });
     },
     btAddUserInWork(data) {
       var asi = [];
-      if (
-        data.UserJob.UserID &&
-        data.UserJob.GroupEmploy &&
-        data.UserJob.QuotaTime
-      ) {
+      if (data.UserJob.UserID && data.UserJob.ComID && data.UserJob.QuotaTime) {
         asi.push({
           ...data.UserJob,
           UserRole: "Xử lý",
@@ -1118,7 +1204,7 @@ export default {
       if (data.UserMana.UserID) {
         if (
           data.UserMana.UserID &&
-          data.UserMana.GroupEmploy &&
+          data.UserMana.ComID &&
           data.UserMana.QuotaTime
         ) {
           asi.push({
@@ -1151,11 +1237,7 @@ export default {
     },
     btSendMailAddUserInWork(data) {
       var asi = [];
-      if (
-        data.UserJob.UserID &&
-        data.UserJob.GroupEmploy &&
-        data.UserJob.QuotaTime
-      ) {
+      if (data.UserJob.UserID && data.UserJob.ComID && data.UserJob.QuotaTime) {
         asi.push({
           ...data.UserJob,
           UserRole: "Xử lý",
@@ -1171,7 +1253,7 @@ export default {
       if (data.UserMana.UserID) {
         if (
           data.UserMana.UserID &&
-          data.UserMana.GroupEmploy &&
+          data.UserMana.ComID &&
           data.UserMana.QuotaTime
         ) {
           asi.push({
@@ -1398,7 +1480,6 @@ export default {
   created() {
     this.getDocumentInfoByID();
     this.getDocumentFormByDocID();
-    this.getdefault();
   },
 };
 </script>
