@@ -49,7 +49,6 @@
                   class="mb-2"
                   clearable
                   hide-details
-                  @update:menu="getUserLstByTeamIDWork(userWork.ComID)"
                 ></v-autocomplete>
                 <v-text-field
                   v-model="userWork.QuotaTime"
@@ -88,7 +87,6 @@
                   class="mb-2"
                   clearable
                   hide-details
-                  @update:menu="getUserLstByTeamIDMana(userManager.ComID)"
                 ></v-autocomplete>
                 <v-text-field
                   v-model="userManager.QuotaTime"
@@ -155,7 +153,6 @@
                   class="mb-2"
                   clearable
                   hide-details
-                  @update:menu="getUserLstByTeamID(userWork.ComID)"
                 ></v-autocomplete>
                 <v-text-field
                   v-model="userWork.QuotaTime"
@@ -194,7 +191,6 @@
                   class="mb-2"
                   clearable
                   hide-details
-                  @update:menu="getUserLstByTeamIDMana(userManager.ComID)"
                 ></v-autocomplete>
                 <v-text-field
                   v-model="userManager.QuotaTime"
@@ -331,16 +327,12 @@ export default {
   watch: {
     "userWork.ComID"(value) {
       if (value) {
-        this.userWork.GroupEmploy = this.groupLst.find(
-          (p) => p.TeamID == value
-        ).TeamName;
+        this.userLstWork = this.groupLst.find((p) => p.TeamID == value).UserLst;
       }
     },
     "userManager.ComID"(value) {
       if (value) {
-        this.userManager.GroupEmploy = this.groupLst.find(
-          (p) => p.TeamID == value
-        ).TeamName;
+        this.userLstMana = this.groupLst.find((p) => p.TeamID == value).UserLst;
       }
     },
   },
