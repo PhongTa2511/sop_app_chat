@@ -9,7 +9,9 @@ import "@core/scss/template/index.scss";
 import Notifications, { notify } from "@kyvg/vue3-notification";
 import "@layouts/styles/index.scss";
 import "@styles/styles.scss";
-
+import { QuillEditor } from "@vueup/vue-quill";
+import "@vueup/vue-quill/dist/vue-quill.bubble.css";
+import "@vueup/vue-quill/dist/vue-quill.snow.css";
 import { createApp } from "vue";
 import "./socket";
 loadFonts();
@@ -20,6 +22,7 @@ const app = createApp(App);
 app.use(vuetify);
 app.use(router);
 app.use(Notifications);
+app.component("QuillEditor", QuillEditor);
 window.notify = notify;
 // Mount vue app
 app.mount("#app");

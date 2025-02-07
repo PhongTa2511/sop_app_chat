@@ -222,13 +222,16 @@
                 Định mức:
                 {{ userJob.QuotaTime }} Ngày
               </div>
-              <editor
-                api-key="6w0abawgyowzfiuqw8k55c3k1nnkmg6evr9u8219zn2kf9ob"
-                v-model="dataJobInfo.Report"
-                :init="editorConfig"
-                style="z-index: 1000000"
-              >
-              </editor>
+              <div class="quill">
+                <QuillEditor
+                  v-model:content="dataJobInfo.Report"
+                  contentType="html"
+                  theme="snow"
+                  toolbar="minimal"
+                  style="border: none"
+                >
+                </QuillEditor>
+              </div>
             </v-col>
             <v-col lg="4" md="4" cols="12">
               <div class="d-flex justify-sm-space-between">
@@ -452,13 +455,16 @@
                 </div>
               </div>
 
-              <editor
-                api-key="6w0abawgyowzfiuqw8k55c3k1nnkmg6evr9u8219zn2kf9ob"
-                v-model="dataJobInfo.NoteApprove"
-                :init="editorConfig"
-                style="z-index: 1000000"
-              >
-              </editor>
+              <div class="quill">
+                <QuillEditor
+                  v-model:content="dataJobInfo.NoteApprove"
+                  contentType="html"
+                  theme="snow"
+                  toolbar="minimal"
+                  style="border: none"
+                >
+                </QuillEditor>
+              </div>
             </v-col>
             <v-col lg="4" md="4" cols="12">
               <div class="d-flex justify-sm-space-between">
@@ -1568,5 +1574,22 @@ export default {
       background: #f0f0f0;
     }
   }
+  .quill {
+    height: 200px;
+    border: 2px solid rgb(var(--v-theme-grey));
+    border-radius: 8px;
+  }
+}
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+  border-radius: 8px;
+}
+</style>
+
+<style lang="scss">
+.ql-toolbar.ql-snow {
+  border: none !important;
 }
 </style>
