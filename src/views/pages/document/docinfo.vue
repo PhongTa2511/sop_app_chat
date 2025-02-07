@@ -137,7 +137,7 @@
           <v-data-table
             no-data-text="Không có dữ liệu"
             :headers="headers"
-            :items="desserts"
+            :items="desserts.filter((p) => p.Status > 0)"
             height="calc(100vh - 310px)"
             items-per-page-text="Số dòng 1 trang"
             sort-asc-icon="mdi-menu-up"
@@ -227,7 +227,7 @@
                 color="red"
                 size="small"
                 style="cursor: pointer"
-                @click="deleteDessert(item.Key)"
+                @click="deleteDessert(item)"
                 >mdi-delete</v-icon
               >
             </template>
@@ -906,11 +906,20 @@ export default {
       this.rowspPage = data;
     },
     checkNumberTypeOrPhone(str) {
+      // Nếu chuỗi chứa chữ cái (ví dụ: "triệu", "k", "b"), nhận dạng là Text
+      if (/[^0-9.,+\s]/.test(str)) {
+        return { isValid: true, type: "Text", value: str };
+      }
+
+      // Kiểm tra định dạng số điện thoại
       const isPhone = /^[+]?[0-9]{9,15}$/.test(str);
       if (isPhone) {
-        return { isValid: true, type: "Text", value: str }; // Là số điện thoại, giữ nguyên dạng text
+        return { isValid: true, type: "Text", value: str }; // Là số điện thoại
       }
-      const num = parseFloat(str);
+
+      // Loại bỏ dấu ',' và '.' trước khi chuyển đổi thành số
+      const cleanedStr = str.replace(/[,.]/g, "");
+      const num = parseFloat(cleanedStr);
       if (isNaN(num)) {
         return { isValid: false, type: null, value: str }; // Không hợp lệ
       }
@@ -1365,6 +1374,7 @@ export default {
                 return {
                   ...item,
                   Key: index + 1,
+                  Status: 1,
                 };
               });
             }
@@ -1418,6 +1428,7 @@ export default {
               Required: index,
               TextResult: item["Line" + index],
               IDFormLine: ind,
+              Status: item.Status,
             };
             docFormLine.push(line);
           }
@@ -1461,17 +1472,22 @@ export default {
     },
     updateDocument() {
       this.isShowEdit = false;
-      this.desserts.push(this.editDocument);
-      this.desserts = this.desserts.map((item, index) => {
-        return {
-          ...item,
-          Key: index + 1,
-        };
-      });
+      console.log(this.editDocument);
+
+      // Tìm index của phần tử có Key trùng với editDocument.Key
+      const index = this.desserts.findIndex(
+        (p) => p.Key === this.editDocument.Key
+      );
+
+      if (index !== -1) {
+        // Cập nhật phần tử trong mảng
+        this.desserts[index] = { ...this.editDocument };
+      }
+
       console.log(this.desserts);
     },
-    deleteDessert(key) {
-      this.desserts = this.desserts.filter((item) => item.Key !== key);
+    deleteDessert(data) {
+      data.Status = 0;
     },
     triggerFileInputClick() {
       this.$refs.fileInput.click();
