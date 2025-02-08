@@ -8,7 +8,6 @@
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="fileLst"
-      :search="inputSearch"
       height="calc(100vh - 210px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
@@ -24,13 +23,51 @@
         <div class="d-flex flex-wrap gap-2 px-3">
           <span>
             <v-text-field
-              v-model="inputSearch"
-              label="Tìm kiếm"
+              v-model="searchDocumentID"
+              label="Mã hồ sơ"
               hide-details
-              style="width: 250px !important"
-              prepend-inner-icon="mdi-magnify"
+              style="width: 150px !important"
               clearable
             ></v-text-field>
+          </span>
+          <span>
+            <v-text-field
+              v-model="searchJobName"
+              label="Công việc"
+              hide-details
+              style="width: 150px !important"
+              clearable
+            ></v-text-field>
+          </span>
+          <span>
+            <v-text-field
+              v-model="searchNote"
+              label="Ghi chú"
+              hide-details
+              style="width: 150px !important"
+              clearable
+            ></v-text-field>
+          </span>
+          <span>
+            <v-text-field
+              v-model="searchEmployeeName"
+              label="Nhân viên"
+              hide-details
+              style="width: 150px !important"
+              clearable
+            ></v-text-field>
+          </span>
+          <span>
+            <v-select
+              v-model="optionStatus"
+              placeholder="Trạng thái"
+              density="compact"
+              :items="optionStatusLst"
+              item-value="value"
+              item-title="label"
+              chips
+              style="width: 150px !important"
+            ></v-select>
           </span>
           <v-btn
             color="blue"
@@ -298,26 +335,26 @@ import {
 export default {
   data() {
     return {
-      inputSearch: "",
-      createFile: {},
+      searchDocumentID: "",
+      searchJobName: "",
+      searchNote: "",
+      searchEmployeeName: "",
       fileLst: [],
-      isShowCreateFile: false,
-      storageLst: [],
       rowspPage: 10,
       pageNumber: 1,
       totalLength: 0,
       optionStatusLst: [
         { value: 1, label: "Mới tạo" },
-        { value: 2, label: "Đang xử lý" },
-        { value: 3, label: "Hoàn thành" },
-        { value: 4, label: "Tất cả" },
+        { value: 2, label: "Đang làm" },
+        { value: 4, label: "Hoàn thành" },
+        { value: 0, label: "Tất cả" },
       ],
       optionConfirmLst: [
         { value: 0, label: "Dừng xử lý" },
         { value: 2, label: "Đang xử lý" },
         { value: 3, label: "Hoàn thnh" },
       ],
-      optionStatus: 4,
+      optionStatus: 0,
       selectLst: [],
       statusConfirm: null,
       isShowConfirm: false,
@@ -336,6 +373,7 @@ export default {
         },
         { title: "Mã hồ sơ", key: "DocumentID", sortable: false },
         { title: "Quy trình", key: "DocName", sortable: false },
+        { title: "Công việc", key: "JobName", sortable: false },
         { title: "Ghi chú", key: "Note", sortable: false },
         {
           title: "Deadline",
@@ -427,10 +465,29 @@ export default {
       router.push("/thong-tin-xuat-khau/" + data.DocumentID);
     },
     getGSPDocumentLst() {
+      this.loadding = true;
+      const searchParams = {
+        doc: this.searchDocumentID,
+        job: this.searchJobName,
+        note: this.searchNote,
+        em: this.searchEmployeeName,
+        sta: this.optionStatus ?? "",
+      };
+      this.$router.push({
+        path: this.$route.path,
+        query: searchParams, // Chuyển đổi searchParams thành đối tượng
+      });
+      const searchString = [
+        this.searchDocumentID,
+        this.searchJobName,
+        this.searchNote,
+        this.searchEmployeeName,
+        this.optionStatus,
+      ].join("|");
       GetGSPDocumentLst({
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
-        Search: this.inputSearch,
+        Search: searchString,
         DocID: "",
       }).then((res) => {
         this.fileLst = res.Data.map((item, index) => {

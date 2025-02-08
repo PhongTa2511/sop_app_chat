@@ -1,6 +1,6 @@
 <template>
-  <v-card class="pt-4">
-    <v-data-table
+  <v-card class="pt-2">
+    <v-data-table-server
       :items-per-page="rowspPage"
       :items-length="totalLength"
       @update:itemsPerPage="btRow"
@@ -22,49 +22,89 @@
     >
       <template v-slot:top>
         <div class="d-flex flex-wrap gap-2 px-3">
-          <!-- <span>
-            <v-select
-              v-model="optionStatus"
-              :items="optionStatusLst"
-              label="Địa bàn"
-              item-title="label"
-              item-value="value"
-              class="ml-1"
-              style="width: 220px !important"
-              hide-details
-            ></v-select>
-          </span> -->
-
           <span>
-            <v-text-field
-              v-model="inputSearch"
-              label="Tìm kiếm"
-              hide-details
-              style="width: 250px !important"
-              prepend-inner-icon="mdi-magnify"
-              clearable
-            ></v-text-field>
+            <v-menu :close-on-content-click="false">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  color="blue"
+                  size="small"
+                  icon=" mdi-filter"
+                  v-bind="props"
+                >
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item>
+                  <v-text-field
+                    v-model="proName"
+                    label="Hồ sơ"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+
+                  <v-text-field
+                    v-model="workName"
+                    label="Công việc"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+
+                  <v-text-field
+                    v-model="note"
+                    label="Ghi chú"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="employeeName"
+                    label="Nhân viên"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+                  <v-select
+                    class="pt-2"
+                    v-model="workOver"
+                    label="Tình trạng"
+                    density="compact"
+                    :items="workOverLst"
+                    item-value="value"
+                    item-title="value"
+                  ></v-select>
+                  <v-btn block class="rounded mt-2" @click="getDocumentJobByEm"
+                    >Tìm kiếm</v-btn
+                  >
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </span>
-          <!-- <v-btn
-            color="blue"
-            variant="tonal"
-            icon="mdi-playlist-plus"
-            style="height: 42px"
-            @click="isShowCreateDocument = true"
-          ></v-btn> -->
           <v-btn
             color="green"
             variant="tonal"
             icon="mdi-reload"
-            style="height: 42px"
+            size="small"
             @click="getDocumentJobByEm"
           ></v-btn>
         </div>
       </template>
       <template v-slot:item.Status="{ item }">
-        <v-chip :color="getStatus(item.Status).color">
+        <v-chip :color="getStatus(item.Status).color" size="x-small">
           {{ getStatus(item.Status).text }}</v-chip
         >
+        <div style="font-size: 12px">
+          {{ item.FullName }}
+        </div>
       </template>
 
       <template v-slot:item.Key="{ item }">
@@ -78,10 +118,35 @@
           >mdi-note-edit</v-icon
         >
       </template>
-      <template v-slot:item.QuotaTime="{ item }">
-        {{ item.QuotaTime ?? 0 }} Ngày
+      <template v-slot:item.Time="{ item }">
+        <div style="color: green">
+          {{ item.TimeStartShow }}
+        </div>
+        <div style="color: red">
+          {{ item.TimeEndShow }}
+        </div>
       </template>
-    </v-data-table>
+      <template v-slot:item.ProcedureName="{ item }">
+        <div :class="itemRowBackground(item)">
+          {{ item.ProcedureName }}
+        </div>
+      </template>
+      <template v-slot:item.StepName="{ item }">
+        <div :class="itemRowBackground(item)">
+          {{ item.StepName }}
+        </div>
+      </template>
+      <template v-slot:item.JobName="{ item }">
+        <div :class="itemRowBackground(item)">
+          {{ item.JobName }}
+        </div>
+      </template>
+      <template v-slot:item.Note="{ item }">
+        <div :class="itemRowBackground(item)">
+          {{ item.Note }}
+        </div>
+      </template>
+    </v-data-table-server>
   </v-card>
   <v-dialog v-model="isShowProcess" width="600">
     <v-card>
@@ -120,18 +185,14 @@ import {
   UpdateGSPDocument,
   CreateGSPDocument,
 } from "@/api/briefApi";
-import {
-  formatDate,
-  formatDateDisplayDDMMYY,
-  formatDateUpload,
-} from "@/helpers/getTime";
+import { formatDateDisplayDDMMYY, formatDate } from "@/helpers/getTime";
 import { ProcessDocument, GetDocumentJobByEm } from "@/api/documentJobApi";
 
 export default {
   data() {
     return {
       isShowProcess: false,
-      inputSearch: "",
+      loadding: false,
 
       rowspPage: 10,
       pageNumber: 1,
@@ -159,49 +220,55 @@ export default {
         { title: "Quy trình", key: "ProcedureName", sortable: false },
         { title: "Bước", key: "StepName", sortable: false },
         { title: "Công việc", key: "JobName", sortable: false },
-        { title: "Ghi chú", key: "Description", sortable: false },
+        { title: "Ghi chú", key: "Note", sortable: false },
 
         {
-          title: "Bắt đầu",
-          key: "TimeStartShow",
-          sortable: false,
-          width: 100,
-        },
-        {
-          title: "Thời hạn",
-          key: "QuotaTime",
+          title: "Thời gian",
+          key: "Time",
           sortable: false,
           width: 100,
         },
 
         // { title: "", key: "Action", width: 40, align: "center" },
-        { title: "Trạng thái", key: "Status", sortable: false, width: 100 },
+        { title: "Trạng thái", key: "Status", sortable: false, width: 120 },
       ],
       jobLst: [],
+      workOver: "Tất cả",
+      workOverLst: [
+        { value: "Tất cả" },
+        { value: "Quá hạn" },
+        { value: "Đúng hạn" },
+      ],
+      proName: "",
+      workName: "",
+      note: "",
+      employeeName: "",
     };
   },
   watch: {
     search() {
-      this.getUserLst();
+      this.getDocumentJobByEm();
     },
-    pageNumber(newValue) {
-      this.getUserLst();
+    pageNumber() {
+      this.getDocumentJobByEm();
     },
-    rowspPage(newValue) {
-      this.getUserLst();
+    rowspPage() {
+      this.getDocumentJobByEm();
     },
   },
   methods: {
-    // btShowProcessDocument(data) {
-    //   this.isShowProcess = true;
-    //    ProcessDocument({
-    //     DocumentID: data,
-    //   }).then((res) => {
-    //     if (res.RespCode == 0) {
-    //       this.processLst = res.DocumentJobLst;
-    //     }
-    //   });
-    // },
+    itemRowBackground(item) {
+      const endDate = new Date(item.TimeEnd);
+      endDate.setHours(0, 0, 0, 0);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (endDate.getTime() < today.getTime()) {
+        return "wilExpired365";
+      }
+      return "";
+    },
     btPushToDocinfo(data) {
       this.$router.push("/thong-tin-cong-viec/" + data.RowID);
     },
@@ -227,39 +294,49 @@ export default {
       }
     },
     getDocumentJobByEm() {
+      this.loadding = true;
+      const searchParams = {
+        proName: this.proName,
+        workName: this.workName,
+        note: this.note,
+        employeeName: this.employeeName,
+        workOver: this.workOver,
+      };
+      this.$router.push({
+        path: this.$route.path,
+        query: searchParams, // Chuyển đổi searchParams thành đối tượng
+      });
       GetDocumentJobByEm({
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
         Status: 1,
-        Search: this.inputSearch,
+        Search:
+          (this.proName ?? "") +
+          "|" +
+          (this.workName ?? "") +
+          "|" +
+          (this.note ?? "") +
+          "|" +
+          (this.employeeName ?? "") +
+          "|" +
+          (this.workOver ?? ""),
       }).then((res) => {
         if (res.RespCode == 0) {
           this.jobLst = res.DocumentJobLst.map((item, index) => {
-            var quotaTime = 0;
-            if (item.Status === 1) {
-              var checkJob = item.AssignLst.find((p) => p.UserRole == "Xử lý");
-              if (checkJob) {
-                quotaTime = checkJob.QuotaTime || 0;
-              }
-            }
-            if (item.Status == 3) {
-              var checkMana = item.AssignLst.find(
-                (p) => p.UserRole == "Phê duyệt"
-              );
-              if (checkMana) {
-                quotaTime = checkMana.QuotaTime || 0;
-              }
-            }
-
+            var dateStart = new Date(item.TimeStart);
+            var num = (this.pageNumber - 1) * this.rowspPage;
+            dateStart.setDate(dateStart.getDate() + item.QuotaTime ?? 0);
             return {
               ...item,
-              Key: index + 1,
+              Key: index + 1 + num,
               TimeStartShow: formatDateDisplayDDMMYY(item.TimeStart),
-              QuotaTime: quotaTime,
+              TimeEndShow: formatDateDisplayDDMMYY(dateStart),
+              TimeEnd: formatDate(dateStart),
             };
           });
           this.totalLength = res.TotalRows;
         }
+        this.loadding = false;
       });
     },
   },
@@ -329,10 +406,7 @@ export default {
 }
 </style>
 <style>
-.el-table_1_column_1
-  .cell
-  .el-checkbox__input
-  .el-checkbox__inner:nth-child(0) {
-  display: none !important;
+.wilExpired365 {
+  color: red;
 }
 </style>

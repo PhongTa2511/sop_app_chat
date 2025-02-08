@@ -449,7 +449,7 @@
               ></v-select>
               <v-autocomplete
                 v-model="item.UserJob.UserID"
-                :items="userLstWork"
+                :items="getUserLstByTeamID(item.UserJob.ComID)"
                 placeholder="Người xử lý"
                 item-value="UserName"
                 item-title="FullName"
@@ -458,7 +458,6 @@
                 class="mb-2"
                 clearable
                 hide-details
-                @update:menu="getUserLstByTeamIDWork(item.UserJob.ComID)"
               ></v-autocomplete>
               <v-text-field
                 v-model="item.UserJob.QuotaTime"
@@ -487,7 +486,7 @@
               ></v-select>
               <v-autocomplete
                 v-model="item.UserMana.UserID"
-                :items="userLstMana"
+                :items="getUserLstByTeamID(item.UserMana.ComID)"
                 placeholder="Người phê duyệt"
                 density="compact"
                 item-value="UserName"
@@ -497,7 +496,6 @@
                 class="mb-2"
                 clearable
                 hide-details
-                @update:menu="getUserLstByTeamIDMana(item.UserMana.ComID)"
               ></v-autocomplete>
               <v-text-field
                 v-model="item.UserMana.QuotaTime"
@@ -867,6 +865,15 @@ export default {
     },
   },
   methods: {
+    getUserLstByTeamID(teamID) {
+      if (teamID) {
+        var data = this.groupLst.find((p) => p.TeamID == teamID);
+        if (data) {
+          return this.groupLst.find((p) => p.TeamID == teamID).UserLst;
+        }
+      }
+      return [];
+    },
     updateDocumentAssign() {
       UpdateDocumentAssign({
         Data: this.teamLst,
@@ -879,26 +886,26 @@ export default {
         }
       });
     },
-    getUserLstByTeamIDWork(teamID) {
-      GetUserLstByTeamID({
-        PageNumber: 1,
-        RowspPage: 10000,
-        Search: "",
-        TeamID: teamID,
-      }).then((res) => {
-        this.userLstWork = res.Data;
-      });
-    },
-    getUserLstByTeamIDMana(teamID) {
-      GetUserLstByTeamID({
-        PageNumber: 1,
-        RowspPage: 10000,
-        Search: "",
-        TeamID: teamID,
-      }).then((res) => {
-        this.userLstMana = res.Data;
-      });
-    },
+    // getUserLstByTeamIDWork(teamID) {
+    //   GetUserLstByTeamID({
+    //     PageNumber: 1,
+    //     RowspPage: 10000,
+    //     Search: "",
+    //     TeamID: teamID,
+    //   }).then((res) => {
+    //     this.userLstWork = res.Data;
+    //   });
+    // },
+    // getUserLstByTeamIDMana(teamID) {
+    //   GetUserLstByTeamID({
+    //     PageNumber: 1,
+    //     RowspPage: 10000,
+    //     Search: "",
+    //     TeamID: teamID,
+    //   }).then((res) => {
+    //     this.userLstMana = res.Data;
+    //   });
+    // },
     btPage(data) {
       this.pageNumber = data;
     },
@@ -1086,23 +1093,6 @@ export default {
           this.teamLst = res.Data;
         }
       });
-      // GetDefaultValue({ Table: "Phòng ban" }).then((res) => {
-      //   if (res.RespCode == 0) {
-      //     this.groupLst = res.DefaultValueLst;
-      //   }
-      // });
-      // GetUserLstAll({
-      //   PageNumber: 1,
-      //   RowspPage: 10000,
-      //   Search: "",
-      // }).then((res) => {
-      //   this.userLst = res.Data.map((item) => {
-      //     return {
-      //       ...item,
-      //       FullNameCode: item.FullName + " - " + item.EmployeeCode,
-      //     };
-      //   });
-      // });
     },
     btShowInfoStep(data) {
       this.isShowInfoStep = true;
@@ -1398,7 +1388,6 @@ export default {
           Key: index + 1,
         };
       });
-      console.log(this.desserts);
     },
     btShowAdd() {
       this.isShowAddNew = true;

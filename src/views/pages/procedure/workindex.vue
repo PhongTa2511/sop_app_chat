@@ -327,37 +327,47 @@ export default {
   watch: {
     "userWork.ComID"(value) {
       if (value) {
-        this.userLstWork = this.groupLst.find((p) => p.TeamID == value).UserLst;
+        var data = this.groupLst.find((p) => p.TeamID == value);
+        if (data) {
+          this.userLstWork = this.groupLst.find(
+            (p) => p.TeamID == value
+          ).UserLst;
+        }
       }
     },
     "userManager.ComID"(value) {
       if (value) {
-        this.userLstMana = this.groupLst.find((p) => p.TeamID == value).UserLst;
+        var data = this.groupLst.find((p) => p.TeamID == value);
+        if (data) {
+          this.userLstMana = this.groupLst.find(
+            (p) => p.TeamID == value
+          ).UserLst;
+        }
       }
     },
   },
 
   methods: {
-    getUserLstByTeamIDWork(teamID) {
-      GetUserLstByTeamID({
-        PageNumber: 1,
-        RowspPage: 10000,
-        Search: "",
-        TeamID: teamID,
-      }).then((res) => {
-        this.userLstWork = res.Data;
-      });
-    },
-    getUserLstByTeamIDMana(teamID) {
-      GetUserLstByTeamID({
-        PageNumber: 1,
-        RowspPage: 10000,
-        Search: "",
-        TeamID: teamID,
-      }).then((res) => {
-        this.userLstMana = res.Data;
-      });
-    },
+    // getUserLstByTeamIDWork(teamID) {
+    //   GetUserLstByTeamID({
+    //     PageNumber: 1,
+    //     RowspPage: 10000,
+    //     Search: "",
+    //     TeamID: teamID,
+    //   }).then((res) => {
+    //     this.userLstWork = res.Data;
+    //   });
+    // },
+    // getUserLstByTeamIDMana(teamID) {
+    //   GetUserLstByTeamID({
+    //     PageNumber: 1,
+    //     RowspPage: 10000,
+    //     Search: "",
+    //     TeamID: teamID,
+    //   }).then((res) => {
+    //     this.userLstMana = res.Data;
+    //   });
+    // },
 
     btShowLstForm(data) {
       this.$router.push(

@@ -32,6 +32,10 @@
             <v-chip color="green">{{ dataJobInfo.WorkID }}</v-chip>
             {{ dataJobInfo.JobName }}
           </div>
+          <div class="mt-2 text-subtitle-1">
+            <v-chip color="orange">Note</v-chip>
+            {{ dataJobInfo.Note }}
+          </div>
         </v-card-title>
         <v-tabs v-model="tab" grow v-if="formTabLst.length > 0">
           <v-tab
@@ -138,7 +142,7 @@
                     color="red"
                     size="small"
                     style="cursor: pointer"
-                    @click="deleteDessert(item.Key)"
+                    @click="deleteDessert(item)"
                     >mdi-delete</v-icon
                   >
                 </template>
@@ -1078,6 +1082,29 @@ export default {
         reader.readAsBinaryString(file);
       }
     },
+    convertToReq(data) {
+      var lstReq = [];
+      for (var i = 1; i < data.length; i++) {
+        if (data[i][1]) {
+          var req = {};
+          this.headers.forEach((ele, index) => {
+            let value = data[i][index];
+            if (typeof value === "number") {
+              if (Number.isInteger(value)) {
+                value = Math.round(value);
+              } else {
+                value = parseFloat(value.toFixed(2));
+              }
+            }
+
+            req["Line" + index] = value;
+          });
+
+          lstReq.push(req);
+        }
+      }
+      return lstReq;
+    },
     addNewDocument() {
       this.isShowAddNew = false;
       this.desserts.push(this.newDocument);
@@ -1095,6 +1122,25 @@ export default {
     openEditDialog(item) {
       this.isShowEdit = true;
       this.editDocument = { ...item };
+    },
+    updateDocument() {
+      this.isShowEdit = false;
+      console.log(this.editDocument);
+
+      // Tìm index của phần tử có Key trùng với editDocument.Key
+      const index = this.desserts.findIndex(
+        (p) => p.Key === this.editDocument.Key
+      );
+
+      if (index !== -1) {
+        // Cập nhật phần tử trong mảng
+        this.desserts[index] = { ...this.editDocument };
+      }
+
+      console.log(this.desserts);
+    },
+    deleteDessert(data) {
+      data.Status = 0;
     },
     isPreviewSupported(fileExtension) {
       return isPreviewSupported(fileExtension);
