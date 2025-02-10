@@ -43,7 +43,7 @@ const changeAvatar = (file) => {
           text: "Lưu thông tin chăm sóc thành công",
         });
         accountDataLocal.value.avatarImg =
-          "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+          "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
           userName;
         setAvatar(accountDataLocal.value.avatarImg);
         location.reload();
@@ -69,7 +69,7 @@ const getUserInfo = () => {
     };
     if (res.UserInfo.LinkImage) {
       accountDataLocal.value.avatarImg =
-        "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+        "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
         res.UserInfo.UserName;
     }
   });

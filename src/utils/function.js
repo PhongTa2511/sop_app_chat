@@ -52,6 +52,6 @@ export function isPreviewSupported(fileExtension) {
 }
 
 export function downloadFile(file) {
-  const previewUrl = `http://202.191.56.172/GSPDTPAPI/File/GetDocumentFile?FileName=${file.LinkFile}`;
+  const previewUrl = `https://sop.icpc1hn.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`;
   window.open(previewUrl);
 }

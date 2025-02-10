@@ -65,8 +65,8 @@ export function GetMemberLstByGroupID(data) {
 }
 
 export function urlUploadImageGroup(ID) {
-  return `http://202.191.56.172/GSPDTPAPI/File/UploadAvatarGroup?UserName=${getUserName()}&Token=${getToken()}&GroupID=${ID}`;
+  return `https://sop.icpc1hn.work/api/File/UploadAvatarGroup?UserName=${getUserName()}&Token=${getToken()}&GroupID=${ID}`;
 }
 export function urlUploadMessageFile(ID) {
-  return `http://202.191.56.172/GSPDTPAPI/File/UploadMessageFile?UserName=${getUserName()}&Token=${getToken()}&MessageID=${ID}`;
+  return `https://sop.icpc1hn.work/api/File/UploadMessageFile?UserName=${getUserName()}&Token=${getToken()}&MessageID=${ID}`;
 }

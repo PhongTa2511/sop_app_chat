@@ -4,7 +4,7 @@ var token = getToken();
 var username = getUserName();
 
 export function urlUploadFile(data) {
-  return `http://202.191.56.172/GSPDTPAPI/File/UploadDocumentFile?UserName=${username}&Token=${token}&RowID=${data}`;
+  return `https://sop.icpc1hn.work/api/File/UploadDocumentFile?UserName=${username}&Token=${token}&RowID=${data}`;
 }
 
 export function formatJson(filterVal, jsonData) {

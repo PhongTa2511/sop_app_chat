@@ -449,7 +449,7 @@ export default {
               ...item,
               TimeShow: this.calculateTimeDifference(item.TimeCreate),
               LinkImage:
-                "http://202.191.56.172/GSPDTPAPI/File/GetAvatarGroup?GroupID=" +
+                "https://sop.icpc1hn.work/api/File/GetAvatarGroup?GroupID=" +
                 item.GroupID,
             };
           });
@@ -521,13 +521,13 @@ export default {
               ...item,
               IsMine: item.SenderID == this.senderID ? true : false,
               Avatar: item.LinkImage
-                ? "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+                ? "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
                   item.SenderID
                 : null,
               LastName: lastName,
               LinkFile:
                 item.IsAttachment != 0
-                  ? "http://202.191.56.172/GSPDTPAPI/File/GetMessageFile?MessageID=" +
+                  ? "https://sop.icpc1hn.work/api/File/GetMessageFile?MessageID=" +
                     item.MessageID
                   : null,
               SizeFileText:
@@ -600,13 +600,13 @@ export default {
               ...item,
               IsMine: item.SenderID == this.senderID ? true : false,
               Avatar: item.LinkImage
-                ? "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+                ? "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
                   item.SenderID
                 : null,
               LastName: lastName,
               LinkFile:
                 item.IsAttachment != 0
-                  ? "http://202.191.56.172/GSPDTPAPI/File/GetMessageFile?MessageID=" +
+                  ? "https://sop.icpc1hn.work/api/File/GetMessageFile?MessageID=" +
                     item.MessageID
                   : null,
               SizeFileText:
@@ -638,7 +638,7 @@ export default {
             return {
               ...item,
               Avatar: item.LinkImage
-                ? "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+                ? "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
                   item.SenderID
                 : null,
               TimeShow: formatDateDisplay(item.TimeCreate),
@@ -677,7 +677,7 @@ export default {
           IsMine: false,
           LinkFile:
             message.IsAttachment != 0
-              ? "http://202.191.56.172/GSPDTPAPI/File/GetMessageFile?MessageID=" +
+              ? "https://sop.icpc1hn.work/api/File/GetMessageFile?MessageID=" +
                 message.MessageID
               : null,
           SizeFileText:
@@ -685,7 +685,7 @@ export default {
               ? this.formatFileSize(message.SizeFile)
               : null,
           Avatar: message.LinkImage
-            ? "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+            ? "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
               message.SenderID
             : null,
           LastName: lastName,
@@ -703,7 +703,7 @@ export default {
           IsMine: true,
           LinkFile:
             message.IsAttachment != 0
-              ? "http://202.191.56.172/GSPDTPAPI/File/GetMessageFile?MessageID=" +
+              ? "https://sop.icpc1hn.work/api/File/GetMessageFile?MessageID=" +
                 message.MessageID
               : null,
           SizeFileText:
@@ -711,7 +711,7 @@ export default {
               ? this.formatFileSize(message.SizeFile)
               : null,
           Avatar: message.LinkImage
-            ? "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+            ? "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
               message.SenderID
             : null,
           LastName: lastName,

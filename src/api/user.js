@@ -117,5 +117,5 @@ export function GetUserInfo(data) {
 }
 
 export function urlUploadImageAvatar(ID) {
-  return `http://202.191.56.172/GSPDTPAPI/File/UploadAvatarUser?UserName=${ID}&Token=${getToken()}`;
+  return `https://sop.icpc1hn.work/api/File/UploadAvatarUser?UserName=${ID}&Token=${getToken()}`;
 }

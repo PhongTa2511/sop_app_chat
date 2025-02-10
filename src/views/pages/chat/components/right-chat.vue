@@ -315,7 +315,7 @@ export default {
                 text: "Cập nhật ảnh đại diện thành công",
               });
               this.groupInfo.LinkImage =
-                "http://202.191.56.172/GSPDTPAPI/File/GetAvatarGroup?GroupID=" +
+                "https://sop.icpc1hn.work/api/File/GetAvatarGroup?GroupID=" +
                 this.groupInfo.GroupID +
                 "&timestamp=" +
                 new Date().getTime();
@@ -340,7 +340,7 @@ export default {
             return {
               ...item,
               Avatar: item.LinkImage
-                ? "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+                ? "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
                   item.UserID
                 : null,
             };

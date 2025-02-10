@@ -431,7 +431,7 @@ export default {
       this.docContent = "";
       const fileExtension = file.MineFile.toLowerCase();
       this.fileMine = fileExtension;
-      const previewUrl = `http://202.191.56.172/GSPDTPAPI/File/GetDocumentFile?FileName=${file.LinkFile}`;
+      const previewUrl = `https://sop.icpc1hn.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`;
       if (fileExtension === ".pdf") {
         this.fileUrl = previewUrl;
         window.open(
@@ -457,7 +457,7 @@ export default {
 
     btShowOpenFile(data) {
       var linkPDF =
-        "http://202.191.56.172/GSPDTPAPI/File/GetDocumentFile?FileName=" +
+        "https://sop.icpc1hn.work/api/File/GetDocumentFile?FileName=" +
         data.LinkFile;
       window.open(linkPDF, "_blank");
     },

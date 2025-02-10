@@ -56,7 +56,7 @@ export default {
             setSpecialize(resu.UserInfo.Specialize);
             if (resu.UserInfo.LinkImage && resu.UserInfo.LinkImage != "") {
               setAvatar(
-                "http://202.191.56.172/GSPDTPAPI/File/GetAvatarUser?UserName=" +
+                "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
                   resu.UserInfo.UserName
               );
             }

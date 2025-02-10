@@ -15,7 +15,7 @@ import { useNotification } from "@kyvg/vue3-notification";
 
 const notification = useNotification();
 const service = axios.create({
-  baseURL: "http://202.191.56.172/GSPDTPAPI/",
+  baseURL: "https://sop.icpc1hn.work/api/",
   // baseURL: "http://localhost:44375/",
   withCredentials: true, // send cookies when cross-domain requests
   timeout: 20000, // request timeout
