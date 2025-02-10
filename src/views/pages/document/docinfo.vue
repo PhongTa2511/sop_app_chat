@@ -23,6 +23,18 @@
         </div>
       </div>
       <div>
+        <v-tooltip text="Bắt đầu" v-if="isShowStart">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              size="small"
+              color="blue"
+              class="mr-1"
+              icon="mdi-gesture-double-tap"
+              @click="isShowSteps = true"
+            ></v-btn>
+          </template>
+        </v-tooltip>
         <v-tooltip text="Trao đổi">
           <template v-slot:activator="{ props }">
             <v-btn
@@ -764,6 +776,30 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <v-dialog v-model="isShowSteps" width="600">
+    <v-card>
+      <v-card-title>Danh sách các bước thực hiện</v-card-title>
+      <v-card-text style="margin-top: -24px">
+        <v-list>
+          <v-radio-group v-model="stepStart">
+            <v-radio
+              v-for="(step, index) in processLst"
+              :key="index"
+              :label="step.StepOrder + '. ' + step.StepName"
+              :value="step.StepID"
+              color="blue"
+              class="px-3"
+              hide-details
+            ></v-radio>
+          </v-radio-group>
+        </v-list>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn @click="isShowSteps = false">Đóng</v-btn>
+        <v-btn color="green" @click="startDocument">Xác nhận</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -778,8 +814,8 @@ import {
   GetDocumentJobByDocID,
   AddAssignLst,
   SendMailAddAssignLst,
+  StartDocument,
 } from "@/api/documentJobApi";
-import { GetUserLstByTeamID } from "@/api/user";
 import {
   GetDocumentFormByDocID,
   UpdateDocumentForm,
@@ -823,6 +859,9 @@ export default {
       docContent: "",
       nameFile: "",
       isLoading: false,
+      isShowStart: false,
+      stepStart: "",
+      isShowSteps: false,
     };
   },
   watch: {
@@ -886,26 +925,6 @@ export default {
         }
       });
     },
-    // getUserLstByTeamIDWork(teamID) {
-    //   GetUserLstByTeamID({
-    //     PageNumber: 1,
-    //     RowspPage: 10000,
-    //     Search: "",
-    //     TeamID: teamID,
-    //   }).then((res) => {
-    //     this.userLstWork = res.Data;
-    //   });
-    // },
-    // getUserLstByTeamIDMana(teamID) {
-    //   GetUserLstByTeamID({
-    //     PageNumber: 1,
-    //     RowspPage: 10000,
-    //     Search: "",
-    //     TeamID: teamID,
-    //   }).then((res) => {
-    //     this.userLstMana = res.Data;
-    //   });
-    // },
     btPage(data) {
       this.pageNumber = data;
     },
@@ -913,25 +932,18 @@ export default {
       this.rowspPage = data;
     },
     checkNumberTypeOrPhone(str) {
-      // Nếu chuỗi chứa chữ cái (ví dụ: "triệu", "k", "b"), nhận dạng là Text
       if (/[^0-9.,+\s]/.test(str)) {
         return { isValid: true, type: "Text", value: str };
       }
-
-      // Kiểm tra định dạng số điện thoại
       const isPhone = /^[+]?[0-9]{9,15}$/.test(str);
       if (isPhone) {
         return { isValid: true, type: "Text", value: str }; // Là số điện thoại
       }
-
-      // Loại bỏ dấu ',' và '.' trước khi chuyển đổi thành số
       const cleanedStr = str.replace(/[,.]/g, "");
       const num = parseFloat(cleanedStr);
       if (isNaN(num)) {
         return { isValid: false, type: null, value: str }; // Không hợp lệ
       }
-
-      // Kiểm tra kiểu số: Int hay Float
       if (Number.isInteger(num)) {
         return {
           isValid: true,
@@ -1159,7 +1171,11 @@ export default {
         DocumentID: this.$route.params.id,
       }).then((res) => {
         if (res.RespCode == 0) {
+          this.isShowStart = true;
           this.processLst = res.DocumentJobLst.map((item, index) => {
+            if (item.StepLst.length > 0) {
+              this.isShowStart = false;
+            }
             item.StepLst = item.StepLst.map((job, indjob) => {
               return {
                 ...job,
@@ -1480,6 +1496,27 @@ export default {
     },
     triggerFileInputClick() {
       this.$refs.fileInput.click();
+    },
+    startDocument() {
+      StartDocument({
+        DocumentID: this.$route.params.id,
+        StepID: this.stepStart,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.isShowSteps = false;
+          this.getDocumentInfoByID();
+          notify({
+            title: "Thành công",
+            type: "success",
+          });
+        } else {
+          notify({
+            title: "Lỗi",
+            text: res.RespText,
+            type: "error",
+          });
+        }
+      });
     },
   },
   created() {

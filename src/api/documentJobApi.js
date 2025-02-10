@@ -86,3 +86,11 @@ export function CancelDocument(data) {
     data,
   });
 }
+
+export function StartDocument(data) {
+  return request({
+    url: "GSPDocumentJob/StartDocument",
+    method: "post",
+    data,
+  });
+}
