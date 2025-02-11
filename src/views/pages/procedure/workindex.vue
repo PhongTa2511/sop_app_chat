@@ -278,7 +278,7 @@ import {
   GetWorkDefineLst,
 } from "@/api/procedureApi";
 import { GetDefaultValue } from "@/api/default";
-import { GetUserLstAll, GetUserLstByTeamID } from "@/api/user";
+import { GetUserLstByTeamID } from "@/api/user";
 import { GetTeamLstProID } from "@/api/teamApi";
 export default {
   data() {
@@ -348,26 +348,26 @@ export default {
   },
 
   methods: {
-    // getUserLstByTeamIDWork(teamID) {
-    //   GetUserLstByTeamID({
-    //     PageNumber: 1,
-    //     RowspPage: 10000,
-    //     Search: "",
-    //     TeamID: teamID,
-    //   }).then((res) => {
-    //     this.userLstWork = res.Data;
-    //   });
-    // },
-    // getUserLstByTeamIDMana(teamID) {
-    //   GetUserLstByTeamID({
-    //     PageNumber: 1,
-    //     RowspPage: 10000,
-    //     Search: "",
-    //     TeamID: teamID,
-    //   }).then((res) => {
-    //     this.userLstMana = res.Data;
-    //   });
-    // },
+    getUserLstByTeamIDWork(teamID) {
+      GetUserLstByTeamID({
+        PageNumber: 1,
+        RowspPage: 10000,
+        Search: "",
+        TeamID: teamID,
+      }).then((res) => {
+        this.userLstWork = res.Data;
+      });
+    },
+    getUserLstByTeamIDMana(teamID) {
+      GetUserLstByTeamID({
+        PageNumber: 1,
+        RowspPage: 10000,
+        Search: "",
+        TeamID: teamID,
+      }).then((res) => {
+        this.userLstMana = res.Data;
+      });
+    },
 
     btShowLstForm(data) {
       this.$router.push(
@@ -383,10 +383,10 @@ export default {
     },
     btCreateWork() {
       var reqAssign = [];
-      if (this.userWork.GroupEmploy && this.userWork.QuotaTime) {
+      if (this.userWork.ComID && this.userWork.QuotaTime) {
         reqAssign.push({ ...this.userWork, UserRole: "Xử lý" });
       }
-      if (this.userManager.GroupEmploy && this.userManager.QuotaTime) {
+      if (this.userManager.ComID && this.userManager.QuotaTime) {
         reqAssign.push({ ...this.userManager, UserRole: "Phê duyệt" });
       }
 
@@ -424,6 +424,7 @@ export default {
       } else {
         this.userManager.ComID = null;
       }
+      console.log();
     },
     btUpdateWork() {
       UpdateWorkDefine({
@@ -535,8 +536,6 @@ export default {
 
   created() {
     this.getStepByID();
-    // this.getWorkType();
-    // this.getUserLstAll();
   },
 };
 </script>

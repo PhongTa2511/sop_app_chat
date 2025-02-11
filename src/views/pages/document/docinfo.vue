@@ -1035,8 +1035,10 @@ export default {
             return {
               ...item,
               Key: index + 1,
+              Status: 1,
             };
           });
+          console.log(this.desserts);
         };
         reader.readAsBinaryString(file);
       }
@@ -1063,6 +1065,8 @@ export default {
           lstReq.push(req);
         }
       }
+      console.log("lstReq", lstReq);
+
       return lstReq;
     },
     updateGSPDocument(status) {
@@ -1364,11 +1368,11 @@ export default {
                   index ===
                   self.findIndex((obj) => obj.IDFormLine === item.IDFormLine)
               );
-              len = len.length;
+              var numlen = len.length;
               item.desserts = [];
-              for (var i = 0; i < len; i++) {
+              for (var i = 0; i < numlen; i++) {
                 var itemlst = item.DocumentFormLineLst.filter(
-                  (p) => p.IDFormLine == i
+                  (p) => p.IDFormLine == len[i].IDFormLine
                 );
                 var itemde = {};
                 itemlst.forEach((ele, inle) => {
@@ -1384,7 +1388,6 @@ export default {
                 };
               });
             }
-
             return {
               ...item,
             };
@@ -1477,19 +1480,12 @@ export default {
     },
     updateDocument() {
       this.isShowEdit = false;
-      console.log(this.editDocument);
-
-      // Tìm index của phần tử có Key trùng với editDocument.Key
       const index = this.desserts.findIndex(
         (p) => p.Key === this.editDocument.Key
       );
-
       if (index !== -1) {
-        // Cập nhật phần tử trong mảng
         this.desserts[index] = { ...this.editDocument };
       }
-
-      console.log(this.desserts);
     },
     deleteDessert(data) {
       data.Status = 0;

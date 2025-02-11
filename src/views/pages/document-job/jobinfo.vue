@@ -21,19 +21,19 @@
             ></v-btn>
           </div>
           <div class="text-subtitle-1">
-            <v-chip color="blue">{{ dataJobInfo.ProcedureID }}</v-chip>
+            <v-chip color="blue">Quy trình</v-chip>
             {{ dataJobInfo.ProcedureName }}
           </div>
           <div class="mt-2 text-subtitle-1">
-            <v-chip color="red">{{ dataJobInfo.StepID }}</v-chip>
+            <v-chip color="red">Bước {{ dataJobInfo.StepOrder }}</v-chip>
             {{ dataJobInfo.StepName }}
           </div>
           <div class="mt-2 text-subtitle-1">
-            <v-chip color="green">{{ dataJobInfo.WorkID }}</v-chip>
+            <v-chip color="green">Công việc</v-chip>
             {{ dataJobInfo.JobName }}
           </div>
           <div class="mt-2 text-subtitle-1">
-            <v-chip color="orange">Note</v-chip>
+            <v-chip color="orange">Hồ sơ</v-chip>
             {{ dataJobInfo.Note }}
           </div>
         </v-card-title>
@@ -961,17 +961,6 @@ export default {
   },
   data() {
     return {
-      username: getUserName(),
-      token: getToken(),
-      editorConfig: {
-        plugins:
-          " preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars link table pagebreak nonbreaking insertdatetime advlist lists wordcount charmap emoticons",
-        toolbar:
-          " undo redo |  bold italic underline   fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent | emoticons image media  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap ",
-
-        paste_block_drop: true,
-        branding: false,
-      },
       headers: [],
       desserts: [],
       search: "",
@@ -993,6 +982,49 @@ export default {
       stepLst: [],
       isShowSteps: false,
     };
+  },
+  watch: {
+    tab(value) {
+      console.log("123", value);
+
+      if (value.headers && value.desserts) {
+        this.headers = value.headers;
+        var lengthMax = 0;
+        this.desserts = value.desserts.map((item, index) => {
+          var line = "";
+          for (var header = 0; header < this.headers.length; header++) {
+            line = item[this.headers[header].key];
+            if (header > 0) {
+              var checkText = this.checkNumberTypeOrPhone(line);
+              item["Line" + header] = checkText.value;
+              if (!checkText.isValid) {
+                if (checkText.value) {
+                  if (
+                    checkText.value.length > lengthMax &&
+                    checkText.value.length < 80
+                  ) {
+                    lengthMax = checkText.value.length;
+                    this.headers[header].minWidth = 200;
+                  }
+                  if (
+                    checkText.value.length > lengthMax &&
+                    checkText.value.length >= 80
+                  ) {
+                    this.headers[header].minWidth = 300;
+                    lengthMax = checkText.value.length;
+                  }
+                }
+              }
+            }
+          }
+          return {
+            ...item,
+          };
+        });
+
+        console.log("anhthanfh 123", this.desserts);
+      }
+    },
   },
   methods: {
     updateDocumentForm(data) {
@@ -1057,6 +1089,33 @@ export default {
         }
       });
     },
+    checkNumberTypeOrPhone(str) {
+      if (/[^0-9.,+\s]/.test(str)) {
+        return { isValid: true, type: "Text", value: str };
+      }
+      const isPhone = /^[+]?[0-9]{9,15}$/.test(str);
+      if (isPhone) {
+        return { isValid: true, type: "Text", value: str }; // Là số điện thoại
+      }
+      const cleanedStr = str.replace(/[,.]/g, "");
+      const num = parseFloat(cleanedStr);
+      if (isNaN(num)) {
+        return { isValid: false, type: null, value: str }; // Không hợp lệ
+      }
+      if (Number.isInteger(num)) {
+        return {
+          isValid: true,
+          type: "Int",
+          value: new Intl.NumberFormat("en-US").format(num),
+        }; // Số nguyên
+      } else {
+        return {
+          isValid: true,
+          type: "Float",
+          value: new Intl.NumberFormat("en-US").format(num),
+        }; // Số thập phân
+      }
+    },
     btExportExcel() {
       exportExcel(this.headers);
     },
@@ -1076,6 +1135,7 @@ export default {
             return {
               ...item,
               Key: index + 1,
+              Status: 1,
             };
           });
         };
@@ -1125,19 +1185,12 @@ export default {
     },
     updateDocument() {
       this.isShowEdit = false;
-      console.log(this.editDocument);
-
-      // Tìm index của phần tử có Key trùng với editDocument.Key
       const index = this.desserts.findIndex(
         (p) => p.Key === this.editDocument.Key
       );
-
       if (index !== -1) {
-        // Cập nhật phần tử trong mảng
         this.desserts[index] = { ...this.editDocument };
       }
-
-      console.log(this.desserts);
     },
     deleteDessert(data) {
       data.Status = 0;
@@ -1495,7 +1548,7 @@ export default {
               });
             }
             if (item.TypeForm == 2) {
-              this.headers = [
+              item.headers = [
                 {
                   title: "STT",
                   sortable: false,
@@ -1506,11 +1559,11 @@ export default {
               ];
               for (var i = 0; i < item.DNFormLineLst.length; i++) {
                 const line = item.DNFormLineLst[i];
-                this.headers.push({
+                item.headers.push({
                   title: line.Parameter,
                   sortable: false,
                   key: "Line" + line.Required,
-                  align: "center",
+                  align: "left",
                   type: line.Type,
                   options: line.Type == 2 ? JSON.parse(line.OptionAnswer) : [],
                 });
@@ -1520,25 +1573,26 @@ export default {
                   index ===
                   self.findIndex((obj) => obj.IDFormLine === item.IDFormLine)
               );
-              len = len.length;
-              for (var i = 0; i < len; i++) {
+              var numlen = len.length;
+              item.desserts = [];
+              for (var i = 0; i < numlen; i++) {
                 var itemlst = item.DocumentFormLineLst.filter(
-                  (p) => p.IDFormLine == i
+                  (p) => p.IDFormLine == len[i].IDFormLine
                 );
                 var itemde = {};
                 itemlst.forEach((ele, inle) => {
                   itemde["Line" + (inle + 1)] = ele.TextResult;
                 });
-                this.desserts.push(itemde);
+                item.desserts.push(itemde);
               }
-              this.desserts = this.desserts.map((item, index) => {
+              item.desserts = item.desserts.map((item, index) => {
                 return {
                   ...item,
                   Key: index + 1,
+                  Status: 1,
                 };
               });
             }
-
             return {
               ...item,
             };

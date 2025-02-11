@@ -73,14 +73,14 @@
             color="blue"
             variant="tonal"
             icon="mdi-playlist-plus"
-            style="height: 42px"
+            size="small"
             @click="isShowCreateDocument = true"
           ></v-btn>
           <v-btn
             color="green"
             variant="tonal"
             icon="mdi-reload"
-            style="height: 42px"
+            size="small"
             @click="getGSPDocumentLst"
           ></v-btn>
         </div>
