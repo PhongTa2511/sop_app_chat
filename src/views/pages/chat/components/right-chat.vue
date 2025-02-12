@@ -307,7 +307,6 @@ export default {
 
         Axios.post(urlUploadImageGroup(this.groupInfo.GroupID), params).then(
           (res) => {
-            console.log(res);
             if (res.data.RespCode == 0) {
               notify({
                 type: "success",

@@ -424,7 +424,6 @@ export default {
       } else {
         this.userManager.ComID = null;
       }
-      console.log();
     },
     btUpdateWork() {
       UpdateWorkDefine({

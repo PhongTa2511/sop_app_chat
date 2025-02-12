@@ -285,7 +285,6 @@ export default {
       this.getUserRole(data.UserName);
     },
     setUserRole(data) {
-      console.log("adsfasf", data);
       var a = this.optionRoles.find((p) => p.RoleID == data.RoleIDSelect);
       SetUserRole({
         UserRoleInfo: {
@@ -417,7 +416,6 @@ export default {
         type: "warning",
       })
         .then(() => {
-          console.log("anhthanfh 1234", data);
           UpdateUserInfo({
             UserInfo: {
               UserName: data.UserName,

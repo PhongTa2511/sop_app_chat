@@ -422,7 +422,8 @@ export default {
         { title: "Mã", key: "IDForm" },
         { title: "Tên phiếu", key: "NameForm" },
         { title: "Loại", key: "TypeForm" },
-        { title: "Mô tả", key: "Description" },
+        { title: "Bước", key: "StepName" },
+        { title: "Công việc", key: "WorkName" },
         { title: "Trạng thái", key: "Status" },
       ],
       isShowEditPhase: false,
@@ -545,7 +546,6 @@ export default {
               Key: index + 1,
             };
           });
-          console.log("anhthanfh", this.formLst);
         }
       });
     },

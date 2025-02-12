@@ -660,8 +660,6 @@ export default {
   created() {
     this.getGroupLstByUserID();
     socket.on("receiveMessage", (message) => {
-      console.log(message);
-
       const fullName = message.FullName ?? "noname";
       const nameParts = fullName.split(" ");
       const lastName =

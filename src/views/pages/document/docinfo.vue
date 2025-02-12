@@ -1006,12 +1006,9 @@ export default {
         this.isShowFile = true;
         this.docContent = await fetchDoc(this.fileUrl);
       } else if (fileExtension === ".xlsx") {
-        console.log("chạy vào đây");
-
         this.fileUrl = previewUrl;
         this.isShowFile = true;
         this.docContent = await fetchXlsxContent(this.fileUrl);
-        console.log("this.docContent", this.docContent);
       } else if ([".png", ".jpg", ".jpeg"].includes(fileExtension)) {
         this.isShowFile = true;
         this.docContent = `<img lazy src="${previewUrl}" alt="Image preview" width="100%" />`;
@@ -1038,7 +1035,6 @@ export default {
               Status: 1,
             };
           });
-          console.log(this.desserts);
         };
         reader.readAsBinaryString(file);
       }
@@ -1065,8 +1061,6 @@ export default {
           lstReq.push(req);
         }
       }
-      console.log("lstReq", lstReq);
-
       return lstReq;
     },
     updateGSPDocument(status) {
@@ -1113,12 +1107,13 @@ export default {
     btShowInfoStep(data) {
       this.isShowInfoStep = true;
       this.stepInfo = data;
-      this.getDocumentJobByDocID(data.StepID);
+      this.getDocumentJobByDocID(data.StepID, data.RowID);
     },
-    getDocumentJobByDocID(stepID) {
+    getDocumentJobByDocID(stepID, rowID) {
       GetDocumentJobByDocID({
         DocumentID: this.$route.params.id,
         StepID: stepID,
+        RowID: rowID,
       }).then((res) => {
         if (res.RespCode == 0) {
           this.workLst = res.DocumentJobLst.map((item, index) => {
@@ -1405,6 +1400,7 @@ export default {
         return {
           ...item,
           Key: index + 1,
+          Status: 1,
         };
       });
     },

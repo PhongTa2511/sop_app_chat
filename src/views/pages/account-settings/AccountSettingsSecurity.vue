@@ -36,7 +36,6 @@ function checkPassword(password) {
   return true;
 }
 function changePassword() {
-  console.log(currentPassword.value, newPassword.value, confirmPassword.value);
   if (currentPassword.value && newPassword.value && confirmPassword.value) {
     if (!checkPassword(newPassword.value)) {
       notify({

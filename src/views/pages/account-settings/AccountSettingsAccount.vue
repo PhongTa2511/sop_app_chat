@@ -35,7 +35,6 @@ const changeAvatar = (file) => {
     params.append("file", files[0]);
 
     Axios.post(urlUploadImageAvatar(userName), params).then((res) => {
-      console.log(res);
       if (res.data.RespCode == 0) {
         notify({
           type: "success",

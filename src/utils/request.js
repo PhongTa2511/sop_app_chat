@@ -53,7 +53,6 @@ service.interceptors.response.use(
     // if the custom code is not 20000, it is judged as an error.
     if (res.RespCode !== 0) {
       if (res.RespCode === -1) {
-        // console.log("đã vào đây");
         notification.notify({
           type: "error",
           title: "Hết hạn",

@@ -374,7 +374,7 @@ export default {
         { title: "Mã hồ sơ", key: "DocumentID", sortable: false },
         { title: "Quy trình", key: "DocName", sortable: false },
         { title: "Công việc", key: "JobName", sortable: false },
-        { title: "Ghi chú", key: "Note", sortable: false },
+        { title: "Hồ sơ", key: "Note", sortable: false },
         {
           title: "Deadline",
           key: "DateExpiredShow",

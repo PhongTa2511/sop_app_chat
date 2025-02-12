@@ -985,8 +985,6 @@ export default {
   },
   watch: {
     tab(value) {
-      console.log("123", value);
-
       if (value.headers && value.desserts) {
         this.headers = value.headers;
         var lengthMax = 0;
@@ -1021,8 +1019,6 @@ export default {
             ...item,
           };
         });
-
-        console.log("anhthanfh 123", this.desserts);
       }
     },
   },
@@ -1129,8 +1125,6 @@ export default {
           const wsname = wb.SheetNames[0];
           const ws = wb.Sheets[wsname];
           const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-          console.log(data);
-
           this.desserts = this.convertToReq(data).map((item, index) => {
             return {
               ...item,
@@ -1172,9 +1166,9 @@ export default {
         return {
           ...item,
           Key: index + 1,
+          Status: 1,
         };
       });
-      console.log(this.desserts);
     },
     btShowAdd() {
       this.isShowAddNew = true;
@@ -1449,6 +1443,7 @@ export default {
               Checked: false,
             };
           });
+
         if (this.dataJobInfo.StepNext && this.dataJobInfo.StepNext != "") {
           this.approveDocumentJob(4);
         } else {
@@ -1491,11 +1486,19 @@ export default {
               Checked: true,
             };
           });
-        if (this.stepLst.length == 0) {
+        if (this.dataJobInfo.AssignLst.length > 1) {
           this.reportDocumentJob();
         } else {
-          this.isShowSteps = true;
-          this.statusJob = status;
+          if (this.dataJobInfo.StepNext && this.dataJobInfo.StepNext != "") {
+            this.reportDocumentJob();
+          } else {
+            if (this.stepLst.length == 0) {
+              this.reportDocumentJob();
+            } else {
+              this.isShowSteps = true;
+              this.statusJob = status;
+            }
+          }
         }
       }
     },

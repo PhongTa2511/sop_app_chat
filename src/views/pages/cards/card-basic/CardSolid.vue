@@ -14,7 +14,6 @@ var dataShowLst = [];
 watch(
   () => props.dataLst,
   (newCount, oldCount) => {
-    console.log(newCount);
     dataShowLst = newCount.map((item) => {
       return {
         ...item,

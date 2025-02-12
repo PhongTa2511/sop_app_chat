@@ -23,7 +23,6 @@ export default {
   },
   methods: {
     btLogout() {
-      console.log("chạy vào đây");
       removeToken();
       removeFullName();
       removePhoneNumber();
