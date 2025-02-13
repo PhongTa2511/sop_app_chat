@@ -214,6 +214,18 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="isShowConfirmDelete" max-width="400px">
+      <v-card>
+        <v-card-title>Xác nhận xóa</v-card-title>
+        <v-card-text>Bạn có chắc chắn muốn xóa công việc này?</v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="isShowConfirmDelete = false">Hủy</v-btn>
+          <v-btn color="red" @click="confirmDelete">Xóa</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-card-title>
       <div class="d-flex justify-space-between">
         <h6 class="text-h5 py-2">
@@ -322,6 +334,8 @@ export default {
       userManager: {},
       loadding: false,
       editWork: {},
+      isShowConfirmDelete: false,
+      workToDelete: null,
     };
   },
   watch: {
@@ -518,8 +532,12 @@ export default {
       });
     },
     delWorkDefine(data) {
+      this.workToDelete = data; // Lưu công việc cần xóa
+      this.isShowConfirmDelete = true; // Hiển thị dialog xác nhận
+    },
+    confirmDelete() {
       DelWorkDefine({
-        WorkID: data.WorkID,
+        WorkID: this.workToDelete.WorkID,
       }).then((res) => {
         if (res.RespCode == 0) {
           notify({
@@ -530,6 +548,7 @@ export default {
           this.getWorkDefineLst();
         }
       });
+      this.isShowConfirmDelete = false; // Đóng dialog xác nhận
     },
   },
 

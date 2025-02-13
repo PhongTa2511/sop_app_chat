@@ -64,7 +64,7 @@
     </v-data-table-server>
   </v-card>
 
-  <v-dialog v-model="isShowUpdateAccount" persistent width="400">
+  <v-dialog v-model="isShowUpdateAccount" persistent width="450">
     <v-card>
       <v-card-title>
         <h6 class="text-h6 pt-2">Cập nhật tài khoản</h6>
@@ -92,7 +92,7 @@
               hide-details=""
             ></v-text-field>
           </v-col>
-          <v-col cols="12">
+          <!-- <v-col cols="12">
             <v-select
               label="Nhóm"
               v-model="updateAccount.TeamID"
@@ -110,8 +110,38 @@
               item-title="ValueName"
               hide-details=""
             ></v-select>
-          </v-col>
+          </v-col> -->
+          <div style="width: 100%" class="mx-3">
+            <span> Nhóm </span>
+            <v-btn
+              class="float-right"
+              icon="mdi-plus"
+              size="x-small"
+              @click="btShowAddTeam"
+            >
+            </v-btn>
+          </div>
+          <div style="width: 100%" class="mx-3">
+            <v-chip
+              class="mb-1"
+              color="blue"
+              v-for="(item, index) in updateAccount.Data"
+              :key="index"
+              ><v-icon color="green"> mdi-account-multiple </v-icon>
+              {{ item.TeamName }}
+              <v-icon color="green" class="ml-4"> mdi-tag-text </v-icon>
+              {{ item.Role }}
+              <v-icon
+                color="red"
+                class="ml-4 cursor-pointer"
+                @click="btRemoveTeam(item)"
+              >
+                mdi-close
+              </v-icon>
+            </v-chip>
+          </div>
         </v-row>
+        <div></div>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -123,6 +153,48 @@
           Đóng
         </v-btn>
         <v-btn @click="updateUserInfo"> Xác nhận </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog v-model="isShowAddTeam" persistent width="380">
+    <v-card>
+      <v-card-title>
+        <h6 class="text-h6 pt-2">Thêm nhóm</h6>
+      </v-card-title>
+      <v-card-text>
+        <v-row>
+          <v-col cols="12">
+            <v-select
+              label="Nhóm"
+              v-model="teamRoleUser.TeamID"
+              :items="teamLst"
+              item-value="TeamID"
+              item-title="TeamName"
+            ></v-select>
+          </v-col>
+          <v-col cols="12">
+            <v-select
+              label="Chức vụ"
+              v-model="teamRoleUser.Role"
+              :items="positionLst"
+              item-value="ValueName"
+              item-title="ValueName"
+              hide-details=""
+            ></v-select>
+          </v-col>
+        </v-row>
+        <div></div>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          color="blue-darken-1"
+          variant="text"
+          @click="isShowAddTeam = false"
+        >
+          Đóng
+        </v-btn>
+        <v-btn @click="btAddTeam"> Xác nhận </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -185,62 +257,11 @@ export default {
       userRole: {},
       userRoleLst: [],
       organization: [],
-      optionRoles: [
-        {
-          RoleName: "Thêm/ sửa/ xóa tài khoản",
-          RoleID: 1,
-        },
-        {
-          RoleName: "Phê duyệt tài khoản",
-          RoleID: 2,
-        },
-        {
-          RoleName: "Thêm/ sửa/ xóa đơn vị",
-          RoleID: 3,
-        },
-        {
-          RoleName: "Phê duyệt đơn vị",
-          RoleID: 4,
-        },
-        {
-          RoleName: "Thêm/ sửa/ xóa hồ sơ",
-          RoleID: 5,
-        },
-        {
-          RoleName: "Phân công xử lý hồ sơ",
-          RoleID: 6,
-        },
-        {
-          RoleName: "Khóa cập nhật hồ sơ",
-          RoleID: 7,
-        },
-        {
-          RoleName: "Thêm sửa xóa quy trình/ đầu việc/ form",
-          RoleID: 8,
-        },
-        {
-          RoleName: "Khóa cập nhật quy trình/ đầu việc/ form",
-          RoleID: 9,
-        },
-        {
-          RoleName: "Admin đơn vị",
-          RoleID: 10,
-        },
-        {
-          RoleName: "Tạo lịch nhắc việc",
-          RoleID: 11,
-        },
-        {
-          RoleName: "Xử lý văn bản",
-          RoleID: 12,
-        },
-        {
-          RoleName: "Thêm/ sửa/ xóa liên hệ",
-          RoleID: 14,
-        },
-      ],
+
       positionLst: [],
       teamLst: [],
+      isShowAddTeam: false,
+      teamRoleUser: {},
     };
   },
   watch: {
@@ -255,6 +276,45 @@ export default {
     },
   },
   methods: {
+    btRemoveTeam(data) {
+      this.updateAccount.Data = this.updateAccount.Data.filter(
+        (p) => p.TeamID != data.TeamID
+      );
+    },
+    btAddTeam() {
+      if (this.teamRoleUser.TeamID && this.teamRoleUser.Role) {
+        const existingTeamIndex = this.updateAccount.Data.findIndex(
+          (p) => p.TeamID == this.teamRoleUser.TeamID
+        );
+
+        if (existingTeamIndex !== -1) {
+          // Cập nhật thông tin nếu TeamID đã tồn tại
+          this.updateAccount.Data[existingTeamIndex] = {
+            ...this.updateAccount.Data[existingTeamIndex],
+            Role: this.teamRoleUser.Role, // Cập nhật chỉ Role
+          };
+        } else {
+          // Thêm mới nếu TeamID chưa tồn tại
+          this.updateAccount.Data.push({
+            ...this.teamRoleUser,
+            TeamName: this.teamLst.find(
+              (p) => p.TeamID == this.teamRoleUser.TeamID
+            ).TeamName,
+          });
+        }
+        this.isShowAddTeam = false;
+      } else {
+        notify({
+          title: "Cảnh báo",
+          message: "Nhập đầy đủ thông tin",
+          type: "error",
+        });
+      }
+    },
+    btShowAddTeam() {
+      this.isShowAddTeam = true;
+      this.teamRoleUser = {};
+    },
     btShowCreate() {
       this.isShowCreate = true;
     },
@@ -284,26 +344,7 @@ export default {
       this.userRole = data;
       this.getUserRole(data.UserName);
     },
-    setUserRole(data) {
-      var a = this.optionRoles.find((p) => p.RoleID == data.RoleIDSelect);
-      SetUserRole({
-        UserRoleInfo: {
-          RowID: data.RowID,
-          UserID: data.UserName,
-          Role: data.RoleIDSelect,
-          Description: a.RoleName,
-        },
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.getUserRole(data.UserName);
-          notify({
-            title: "Phân quyền",
-            message: "Thêm quyền thành công",
-            type: "success",
-          });
-        }
-      });
-    },
+
     delUserRole(data) {
       DelUserRole({
         UserRoleInfo: {
@@ -353,32 +394,7 @@ export default {
         }
       });
     },
-    registerAccount() {
-      RegisterAccount({
-        Password: this.createAccount.Password,
-        Email: this.createAccount.Email,
-        FullName: this.createAccount.FullName,
-        PhoneNumber: this.createAccount.PhoneNumber,
-        Position: this.createAccount.Position.join("; "),
-        OrganizationLst: this.createAccount.organization.map((item, index) => {
-          return {
-            OrganizationID: item,
-          };
-        }),
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.isShowCreate = false;
-          this.createAccount = {};
-          this.getUserLst();
-          notify({
-            title: "Tài khoản",
-            message:
-              "Tạo tài khoản thành công. Mật khẩu sẽ gửi về mail của bạn",
-            type: "success",
-          });
-        }
-      });
-    },
+
     btShowUpdate(data) {
       this.isShowUpdateAccount = true;
       this.updateAccount = {
@@ -388,6 +404,7 @@ export default {
     updateUserInfo() {
       UpdateUserInfo({
         UserInfo: {
+          ...this.updateAccount,
           UserName: this.updateAccount.UserName,
           Email: this.updateAccount.Email,
           FullName: this.updateAccount.FullName,

@@ -59,6 +59,19 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="isShowConfirmDelete" max-width="500px" persistent>
+      <v-card>
+        <v-card-title>Xác nhận xóa</v-card-title>
+        <v-card-text> Bạn có chắc chắn muốn xóa quy trình này? </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="isShowConfirmDelete = false">Hủy</v-btn>
+          <v-btn color="red" @click="confirmDelete">Xóa</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-card-title>
       <div class="d-flex" style="justify-content: space-between">
         <h6 class="text-h6 py-2">Danh sách quy trình</h6>
@@ -172,6 +185,8 @@ export default {
       isShowUpdate: false,
       isShowCreate: false,
       procedureLst: [],
+      isShowConfirmDelete: false,
+      procedureToDelete: null,
     };
   },
   watch: {
@@ -262,7 +277,13 @@ export default {
       }
     },
     btShowDel(data) {
-      this.btDelProcedure(data);
+      this.procedureToDelete = data;
+      this.isShowConfirmDelete = true;
+    },
+    confirmDelete() {
+      this.btDelProcedure(this.procedureToDelete);
+      this.isShowConfirmDelete = false;
+      this.procedureToDelete = null;
     },
     btDelProcedure(data) {
       DelProcedure({ ProcedureID: data.ProcedureID }).then((res) => {

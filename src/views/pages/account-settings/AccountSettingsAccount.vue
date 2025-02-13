@@ -117,144 +117,106 @@ getDefaultValue();
 </script>
 
 <template>
-  <VRow>
-    <VCol cols="12">
-      <VCard title="Thông Tin Tài Khoản">
-        <VDivider />
+  <VCard title="Thông Tin Tài Khoản">
+    <VDivider />
 
-        <VCardText>
-          <!-- 👉 Form -->
-          <VForm class="">
-            <VRow>
-              <v-col md="4">
-                <VCardText class="d-flex">
-                  <!-- 👉 Avatar -->
-                  <VAvatar
-                    v-if="accountDataLocal.LinkImage"
-                    rounded="lg"
-                    size="100"
-                    class="me-6"
-                    :image="accountDataLocal.avatarImg"
+    <VCardText>
+      <VForm class="">
+        <VRow>
+          <v-col md="4">
+            <div>ẢNH ĐẠI DIỆN</div>
+            <VCardText class="d-flex">
+              <VAvatar
+                v-if="accountDataLocal.LinkImage"
+                rounded="lg"
+                size="100"
+                class="me-6"
+                :image="accountDataLocal.avatarImg"
+              />
+              <div v-else>
+                <div
+                  class="default-avatar text-h3 font-weight-medium"
+                  v-if="accountDataLocal.FullName"
+                >
+                  {{ accountDataLocal.FullName[0] }}
+                </div>
+              </div>
+              <form class="d-flex flex-column justify-center gap-5">
+                <div class="d-flex flex-wrap gap-2">
+                  <VBtn color="primary" @click="refInputEl?.click()">
+                    <VIcon icon="bx-cloud-upload" class="" />
+                    <span>Tải ảnh mới</span>
+                  </VBtn>
+
+                  <input
+                    ref="refInputEl"
+                    type="file"
+                    name="file"
+                    accept=".jpeg,.png,.jpg,GIF"
+                    hidden
+                    @input="changeAvatar"
                   />
-                  <div v-else>
-                    <div
-                      class="default-avatar text-h3 font-weight-medium"
-                      v-if="accountDataLocal.FullName"
-                    >
-                      {{ accountDataLocal.FullName[0] }}
-                    </div>
-                  </div>
-                  <form class="d-flex flex-column justify-center gap-5">
-                    <div class="d-flex flex-wrap gap-2">
-                      <VBtn color="primary" @click="refInputEl?.click()">
-                        <VIcon icon="bx-cloud-upload" class="" />
-                        <span>Tải ảnh mới</span>
-                      </VBtn>
+                </div>
 
-                      <input
-                        ref="refInputEl"
-                        type="file"
-                        name="file"
-                        accept=".jpeg,.png,.jpg,GIF"
-                        hidden
-                        @input="changeAvatar"
-                      />
-                    </div>
-
-                    <p class="text-body-1 mb-0">
-                      Được phép JPG hoặc PNG. Kích thước tối đa 1MB
-                    </p>
-                  </form>
-                </VCardText>
-              </v-col>
-              <!-- 👉 First Name -->
-              <VCol md="4" cols="12">
-                <VTextField
-                  v-model="accountDataLocal.FullName"
-                  placeholder="Nhập họ và tên"
-                  label="Họ và tên"
-                  class="mb-2"
-                />
-                <VTextField
-                  v-model="accountDataLocal.Email"
-                  label="Email"
-                  placeholder="DTP@gmail.com"
-                  type="email"
-                  class="mb-2"
-                />
-                <VTextField
-                  v-model="accountDataLocal.PhoneNumber"
-                  label="Số điện thoại"
-                  placeholder="Nhập số điện thoại"
-                />
-              </VCol>
-
-              <!-- 👉 Last Name -->
-              <VCol md="4" cols="12">
-                <!-- <v-date-input
-                  v-model="accountDataLocal.Birthday"
-                  label="Ngày sinh"
-                  density="compact"
-                  prepend-icon=""
-                  variant="outlined"
-                  persistent-placeholder
-                  hide-details
-                  :border="true"
-                  :center-affix="true"
-                  :hide-actions="true"
-                  lang="vi"
-                  append-inner-icon="mdi-calendar"
-                ></v-date-input> -->
-                <VTextField
-                  v-model="accountDataLocal.EmployeeCode"
-                  label="Mã nhân viên"
-                  placeholder="Nhập max nhân viên"
-                />
-                <VSelect
-                  v-model="accountDataLocal.TeamID"
-                  label="Nhóm"
-                  :items="specializeLst"
-                  item-value="ValueName"
-                  item-title="ValueName"
-                  placeholder="Chọn nhóm"
-                  class="mb-2 mt-2"
-                  readonly
-                />
-                <VTextField
-                  v-model="accountDataLocal.Role"
-                  label="Mã nhân viên"
-                  placeholder="Nhập max nhân viên"
-                  readonly
-                />
-              </VCol>
-              <VDivider />
-              <!-- 👉 Form Actions -->
-              <VCol cols="12" class="d-flex flex-wrap gap-4">
-                <VBtn color="green" @click="updateUserInfo">Lưu thay đổi</VBtn>
-              </VCol>
-            </VRow>
-          </VForm>
-        </VCardText>
-      </VCard>
-    </VCol>
-
-    <!-- <VCol cols="12">
-      <VCard title="Deactivate Account">
-        <VCardText>
-          <div>
-            <VCheckbox
-              v-model="isAccountDeactivated"
-              label="I confirm my account deactivation"
+                <p class="text-body-1 mb-0">
+                  Được phép JPG hoặc PNG. Kích thước tối đa 1MB
+                </p>
+              </form>
+            </VCardText>
+          </v-col>
+          <!-- 👉 First Name -->
+          <VCol md="4" cols="12">
+            <div class="mb-2">THÔNG TIN CƠ BẢN</div>
+            <VTextField
+              v-model="accountDataLocal.EmployeeCode"
+              label="Mã nhân viên"
+              placeholder="Nhập mã nhân viên"
+              class="mb-2"
             />
-          </div>
+            <VTextField
+              v-model="accountDataLocal.FullName"
+              placeholder="Nhập họ và tên"
+              label="Họ và tên"
+              class="mb-2"
+            />
+            <VTextField
+              v-model="accountDataLocal.Email"
+              label="Email"
+              placeholder="DTP@gmail.com"
+              type="email"
+              class="mb-2"
+            />
+            <VTextField
+              v-model="accountDataLocal.PhoneNumber"
+              label="Số điện thoại"
+              placeholder="Nhập số điện thoại"
+            />
+          </VCol>
 
-          <VBtn :disabled="!isAccountDeactivated" color="red" class="mt-3">
-            Deactivate Account
-          </VBtn>
-        </VCardText>
-      </VCard>
-    </VCol> -->
-  </VRow>
+          <!-- 👉 Last Name -->
+          <VCol md="4" cols="12">
+            <div class="mb-2">NHÓM - CHỨC VỤ</div>
+            <v-chip
+              class="mb-2"
+              color="blue"
+              size="x-large"
+              v-for="(item, index) in accountDataLocal.Data"
+              :key="index"
+              ><v-icon color="green"> mdi-account-multiple </v-icon>
+              {{ item.TeamName }}
+              <v-icon color="green" class="ml-4"> mdi-tag-text </v-icon>
+              {{ item.Role }}
+            </v-chip>
+          </VCol>
+          <VDivider />
+          <!-- 👉 Form Actions -->
+          <VCol cols="12" class="d-flex flex-wrap gap-4">
+            <VBtn color="green" @click="updateUserInfo">Lưu thay đổi</VBtn>
+          </VCol>
+        </VRow>
+      </VForm>
+    </VCardText>
+  </VCard>
 </template>
 <style lang="scss" scoped>
 .default-avatar {

@@ -28,7 +28,7 @@
             <v-btn
               v-bind="props"
               size="small"
-              color="blue"
+              color="green"
               class="mr-1"
               icon="mdi-gesture-double-tap"
               @click="isShowSteps = true"
@@ -47,7 +47,7 @@
             ></v-btn>
           </template>
         </v-tooltip>
-        <v-tooltip text="Lưu thông tin">
+        <!-- <v-tooltip text="Lưu thông tin">
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
@@ -58,7 +58,7 @@
               @click="updateGSPDocument(2)"
             ></v-btn>
           </template>
-        </v-tooltip>
+        </v-tooltip> -->
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn
@@ -113,7 +113,7 @@
                 color="red"
                 rounded="4"
                 block
-                @click="updateGSPDocument(0)"
+                @click="confirmCancelDocument"
               >
                 Hủy hồ sơ
               </v-btn>
@@ -302,12 +302,41 @@
         <v-divider class="my-2"></v-divider>
         <div v-for="(item, index) in processLst" :key="index" class="mx-2 my-2">
           <div class="d-flex">
-            <v-chip class="mr-2">
+            <v-chip
+              class="mr-2"
+              :color="
+                item.Status == 1
+                  ? 'blue'
+                  : item.Status == 4
+                  ? 'green'
+                  : item.Status == 5
+                  ? 'red'
+                  : 'gray'
+              "
+            >
               {{ item.StepOrder }}
             </v-chip>
             {{ item.StepName }}
             <v-spacer></v-spacer>
-            <v-menu>
+            <v-chip
+              >{{
+                item.StepLst.filter((p) => p.Status == 4 || p.Status == 5)
+                  .length
+              }}/{{ item.StepLst.length }}</v-chip
+            >
+            <v-btn
+              rounded="full"
+              color="blue"
+              v-bind="props"
+              icon="mdi-dots-vertical"
+              size="x-small"
+              @click="btShowInfoStep(item)"
+            >
+              <template v-slot:prepend>
+                <v-icon color="blue"></v-icon>
+              </template>
+            </v-btn>
+            <!-- <v-menu>
               <template v-slot:activator="{ props }">
                 <v-btn
                   rounded="full"
@@ -335,7 +364,7 @@
                   </v-btn>
                 </v-list-item>
               </v-list>
-            </v-menu>
+            </v-menu> -->
           </div>
 
           <v-divider class="my-2" color="blue"></v-divider>
@@ -643,7 +672,18 @@
             class="mx-2 my-2"
           >
             <div class="d-flex">
-              <v-chip class="mr-2">
+              <v-chip
+                class="mr-2"
+                :color="
+                  item.Status == 1
+                    ? 'blue'
+                    : item.Status == 4
+                    ? 'green'
+                    : item.Status == 5
+                    ? 'red'
+                    : 'gray'
+                "
+              >
                 {{ item.StepOrder }}
               </v-chip>
               {{ item.StepName }}
@@ -800,6 +840,25 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <v-dialog v-model="isShowCancelDialog" max-width="400px">
+    <v-card>
+      <v-card-title class="d-flex justify-space-between align-center">
+        <span>Xác nhận</span>
+        <v-btn
+          variant="text"
+          size="x-small"
+          icon="mdi-close"
+          color="grey"
+          @click="isShowCancelDialog = false"
+        ></v-btn>
+      </v-card-title>
+      <v-card-text> Bạn có chắc chắn muốn hủy hồ sơ này không? </v-card-text>
+      <v-card-actions>
+        <v-btn @click="isShowCancelDialog = false">Hủy</v-btn>
+        <v-btn color="red" @click="cancelDocument">Xác nhận</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -862,6 +921,7 @@ export default {
       isShowStart: false,
       stepStart: "",
       isShowSteps: false,
+      isShowCancelDialog: false,
     };
   },
   watch: {
@@ -1509,6 +1569,13 @@ export default {
           });
         }
       });
+    },
+    confirmCancelDocument() {
+      this.isShowCancelDialog = true;
+    },
+    cancelDocument() {
+      this.isShowCancelDialog = false;
+      this.updateGSPDocument(0);
     },
   },
   created() {
