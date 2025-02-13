@@ -202,7 +202,9 @@
               left: drawerLeft ? '300px' : '0',
               right: drawerRight ? '300px' : '0',
             }"
-            style="background: #fff"
+            style="
+              background: rgb(var(--v-theme-background-overlay-multiplier));
+            "
           >
             <v-btn
               icon="mdi-link-variant"
@@ -470,10 +472,15 @@ export default {
       if (differenceInMinutes < 60) {
         return `${parseInt(differenceInMinutes)} phút`;
       }
+      const months = Math.floor(differenceInMinutes / (60 * 24 * 30));
+      if (months >= 1) {
+        return `${months} tháng`;
+      }
       const days = Math.floor(differenceInMinutes / (60 * 24));
       if (days >= 1) {
         return `${days} ngày`;
       }
+
       const hours = Math.floor(differenceInMinutes / 60);
       const minutes = differenceInMinutes % 60;
       return `${hours}h${parseInt(minutes)}p`;
@@ -691,6 +698,7 @@ export default {
         this.messageLst = this.markLatestMessages(this.messageLst);
         this.groupInfo.TextContent = message.TextContent;
         this.scrollBottom();
+        document.title = "Bạn có tin nhắn mới - " + this.groupInfo.GroupName;
       }
       if (
         message.SenderID == this.senderID &&

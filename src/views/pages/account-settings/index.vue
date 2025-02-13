@@ -55,6 +55,19 @@
         </v-chip>
         <v-chip color="red" size="small" v-if="item.Status == 0"> Xóa </v-chip>
       </template>
+      <template v-slot:item.TeamName="{ item }">
+        <v-chip
+          size="small"
+          class="mb-1"
+          color="blue"
+          v-for="(item, index) in item.Data"
+          :key="index"
+          ><v-icon color="green"> mdi-account-multiple </v-icon>
+          {{ item.TeamName }}
+          <!-- <v-icon color="green" class="ml-4"> mdi-tag-text </v-icon>
+          {{ item.Role }} -->
+        </v-chip>
+      </template>
       <template v-slot:item.Key="{ item }">
         {{ item.Key }}
         <v-icon color="orange" size="small" @click="btShowUpdate(item)">
@@ -92,25 +105,6 @@
               hide-details=""
             ></v-text-field>
           </v-col>
-          <!-- <v-col cols="12">
-            <v-select
-              label="Nhóm"
-              v-model="updateAccount.TeamID"
-              :items="teamLst"
-              item-value="TeamID"
-              item-title="TeamName"
-            ></v-select>
-          </v-col>
-          <v-col cols="12">
-            <v-select
-              label="Chức vụ"
-              v-model="updateAccount.Role"
-              :items="positionLst"
-              item-value="ValueName"
-              item-title="ValueName"
-              hide-details=""
-            ></v-select>
-          </v-col> -->
           <div style="width: 100%" class="mx-3">
             <span> Nhóm </span>
             <v-btn
@@ -230,9 +224,8 @@ export default {
           title: "Nhóm",
           key: "TeamName",
           sortable: false,
-          align: "center",
+          align: "left",
         },
-        { title: "Chức vụ", key: "Role", sortable: false },
         {
           title: "Trạng thái",
           key: "Status",

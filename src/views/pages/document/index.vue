@@ -42,7 +42,7 @@
           <span>
             <v-text-field
               v-model="searchNote"
-              label="Ghi chú"
+              label="Hồ sơ"
               hide-details
               style="width: 150px !important"
               clearable

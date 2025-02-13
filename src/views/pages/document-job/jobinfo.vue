@@ -205,7 +205,8 @@
             userJob &&
             userJob.FullName &&
             userJob.UserID &&
-            dataJobInfo.Status == 1
+            dataJobInfo.Status == 1 &&
+            userJob.UserID == userName
           "
         >
           <v-row>
@@ -343,7 +344,14 @@
           <div v-if="dataJobInfo.Report" class="px-4">
             <v-row>
               <v-col lg="8" md="8" cols="12">
-                <div class="text-h6">Nội dung báo cáo</div>
+                <div class="text-h6">
+                  Nội dung báo cáo
+                  <v-chip
+                    color="green"
+                    v-if="dataJobInfo.Status == 3 || dataJobInfo.Status == 4"
+                    >Đã báo cáo</v-chip
+                  >
+                </div>
                 <div class="pb-1 text-subtitle-2">
                   <v-icon color="blue" size="small">mdi-account-edit</v-icon>
                   {{ userJob.FullName }}
@@ -435,7 +443,8 @@
             userMana &&
             userMana.FullName &&
             userMana.UserID &&
-            dataJobInfo.Status == 3
+            dataJobInfo.Status == 3 &&
+            userMana.UserID == userName
           "
         >
           <v-row>
@@ -581,7 +590,15 @@
           <div v-if="dataJobInfo.NoteApprove" class="px-4">
             <v-row>
               <v-col lg="8" md="8" cols="12">
-                <div class="text-h6">Nội dung phê duyệt</div>
+                <div class="text-h6">
+                  Nội dung phê duyệt
+                  <v-chip color="green" v-if="dataJobInfo.Status == 4"
+                    >Đã duyệt</v-chip
+                  >
+                  <v-chip color="red" v-if="dataJobInfo.Status == 5"
+                    >Đã từ chối</v-chip
+                  >
+                </div>
                 <div class="pb-1 text-subtitle-2">
                   <v-icon color="red" size="small">mdi-account-edit</v-icon>
                   {{ userMana.FullName }}
@@ -981,6 +998,7 @@ export default {
       isShowAddNew: false,
       stepLst: [],
       isShowSteps: false,
+      userName: getUserName(),
     };
   },
   watch: {
