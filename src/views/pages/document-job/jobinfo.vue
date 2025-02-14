@@ -972,6 +972,8 @@ import {
 } from "@/api/documentFormApi";
 import { exportExcel } from "./function";
 import XLSX from "xlsx";
+import logo from "@/assets/images/logos/dtp-logo.png";
+
 export default {
   components: {
     Editor,
@@ -999,6 +1001,8 @@ export default {
       stepLst: [],
       isShowSteps: false,
       userName: getUserName(),
+      isLoadingFile: false,
+      logo: logo,
     };
   },
   watch: {
@@ -1042,6 +1046,7 @@ export default {
   },
   methods: {
     updateDocumentForm(data) {
+      this.isLoadingFile = true;
       var docForm = {
         DocumentID: this.dataJobInfo.DocumentID,
         IDForm: data.IDForm,
@@ -1093,15 +1098,20 @@ export default {
 
       UpdateDocumentForm({
         DocumentFormInfo: docForm,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          notify({
-            title: "Thành công",
-            text: "Lưu thông tin thành công",
-            type: "success",
-          });
-        }
-      });
+      })
+        .then((res) => {
+          this.isLoadingFile = false;
+          if (res.RespCode == 0) {
+            notify({
+              title: "Thành công",
+              text: "Lưu thông tin thành công",
+              type: "success",
+            });
+          }
+        })
+        .catch(() => {
+          this.isLoadingFile = false;
+        });
     },
     checkNumberTypeOrPhone(str) {
       if (/[^0-9.,+\s]/.test(str)) {

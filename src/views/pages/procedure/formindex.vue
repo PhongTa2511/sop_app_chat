@@ -63,29 +63,31 @@
                       <v-icon>mdi-plus</v-icon>
                     </v-btn>
                   </div>
-                  <v-list-item
-                    v-for="(item, index) in field.Options"
-                    :key="index"
-                  >
-                    <div class="d-flex">
-                      <v-text-field
-                        class="mt-1"
-                        v-model="item.Name"
-                        :label="'Lựa chọn ' + (index + 1)"
-                        variant="underlined"
-                      ></v-text-field>
+                  <div style="height: 250px !important; overflow: auto">
+                    <v-list-item
+                      v-for="(item, index) in field.Options"
+                      :key="index"
+                    >
+                      <div class="d-flex">
+                        <v-text-field
+                          class="mt-1"
+                          v-model="item.Name"
+                          :label="'Lựa chọn ' + (index + 1)"
+                          variant="underlined"
+                        ></v-text-field>
 
-                      <v-btn
-                        icon
-                        variant="tonal"
-                        color="red"
-                        size="x-small"
-                        class="my-2 ml-1"
-                        @click="removeOption(field, index)"
-                        ><v-icon>mdi-delete</v-icon></v-btn
-                      >
-                    </div>
-                  </v-list-item>
+                        <v-btn
+                          icon
+                          variant="tonal"
+                          color="red"
+                          size="x-small"
+                          class="my-2 ml-1"
+                          @click="removeOption(field, index)"
+                          ><v-icon>mdi-delete</v-icon></v-btn
+                        >
+                      </div>
+                    </v-list-item>
+                  </div>
                 </v-list>
               </v-col>
               <v-col cols="1">
@@ -222,29 +224,38 @@
                       <v-icon>mdi-plus</v-icon>
                     </v-btn>
                   </div>
-                  <v-list-item
-                    v-for="(item, index) in field.Options"
-                    :key="index"
-                  >
-                    <div class="d-flex">
-                      <v-text-field
-                        class="mt-1"
-                        v-model="item.Name"
-                        :label="'Lựa chọn ' + (index + 1)"
-                        variant="underlined"
-                      ></v-text-field>
+                  <div style="max-height: 250px !important; overflow: auto">
+                    <v-list-item
+                      v-for="(item, index) in field.Options"
+                      :key="index"
+                    >
+                      <div class="d-flex">
+                        <v-text-field
+                          class="mt-1"
+                          v-model="item.Name"
+                          :label="'Lựa chọn ' + (index + 1)"
+                          variant="underlined"
+                        ></v-text-field>
 
-                      <v-btn
-                        icon
-                        variant="tonal"
-                        color="red"
-                        size="x-small"
-                        class="my-2 ml-1"
-                        @click="removeOption(field, index)"
-                        ><v-icon>mdi-delete</v-icon></v-btn
-                      >
-                    </div>
-                  </v-list-item>
+                        <v-btn
+                          icon
+                          variant="tonal"
+                          color="red"
+                          size="x-small"
+                          class="my-2 ml-1"
+                          @click="removeOption(field, index)"
+                          ><v-icon>mdi-delete</v-icon></v-btn
+                        >
+                      </div>
+                    </v-list-item>
+                  </div>
+                  <v-btn
+                    v-if="field.ShowMore == true"
+                    @click="showAllOptions(field)"
+                    size="small"
+                    variant="text"
+                    >Xem thêm</v-btn
+                  >
                 </v-list>
               </v-col>
               <v-col cols="1">
@@ -439,6 +450,13 @@ export default {
     };
   },
   methods: {
+    showAllOptions(field) {
+      const allOptions = JSON.parse(field.OptionAnswer); // Tải tất cả các lựa chọn
+      const currentLength = field.Options.length; // Độ dài hiện tại của danh sách lựa chọn
+      const newOptions = allOptions.slice(currentLength, currentLength + 30); // Lấy 30 lựa chọn tiếp theo
+      field.Options.push(...newOptions); // Thêm các lựa chọn mới vào danh sách
+      field.ShowMore = newOptions.length < 30 ? false : true; // Nếu không còn lựa chọn nào, ẩn nút "Xem thêm"
+    },
     getDefault() {
       GetDefaultValue({
         Table: "Loại phiếu",
@@ -555,18 +573,29 @@ export default {
       }).then((res) => {
         if (res.RespCode == 0) {
           this.editForm = res.Data;
-          this.editForm.FormLineLst = this.editForm.FormLineLst.map((item) => {
-            if (item.Type == 2) {
-              var options = JSON.parse(item.OptionAnswer);
-              return {
-                ...item,
-                Options: options,
-              };
-            }
-            return {
-              ...item,
-            };
-          });
+          // Kiểm tra độ dài của OptionAnswer
+          const longOptions = this.editForm.FormLineLst.filter(
+            (item) => item.OptionAnswer && item.OptionAnswer.length > 1000
+          );
+
+          if (longOptions.length > 0) {
+            // Chỉ hiển thị một phần dữ liệu cho các lựa chọn dài
+            longOptions.forEach((item) => {
+              item.Options = JSON.parse(item.OptionAnswer).slice(0, 30); // Chỉ lấy 5 lựa chọn đầu tiên
+              item.ShowMore = true; // Thêm thuộc tính để hiển thị nút "Xem thêm"
+            });
+          }
+
+          const shortOptions = this.editForm.FormLineLst.filter(
+            (item) => item.OptionAnswer && item.OptionAnswer.length <= 1000
+          );
+
+          if (shortOptions.length > 0) {
+            shortOptions.forEach((item) => {
+              item.Options = JSON.parse(item.OptionAnswer);
+            });
+          }
+
           this.isShowEditPhase = true;
         }
       });

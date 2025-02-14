@@ -859,6 +859,36 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <v-dialog v-model="isLoadingFile" max-width="320" persistent>
+    <v-list class="py-2" color="primary" elevation="12" rounded="lg">
+      <v-list-item
+        prepend-icon="$vuetify-outline"
+        title="Đang lưu thông tin..."
+      >
+        <template v-slot:prepend>
+          <div class="pe-4">
+            <v-img
+              :aspect-ratio="1"
+              class="bg-white"
+              :src="logo"
+              width="44"
+              cover
+            ></v-img>
+          </div>
+        </template>
+
+        <template v-slot:append>
+          <v-progress-circular
+            color="green"
+            indeterminate="disable-shrink"
+            size="16"
+            width="2"
+          ></v-progress-circular>
+        </template>
+      </v-list-item>
+    </v-list>
+  </v-dialog>
 </template>
 
 <script>
@@ -889,6 +919,8 @@ import {
 } from "@/utils/function";
 import { CreateGroup } from "@/api/messageApi";
 import { GetTeamLstProID, GetTeamLstDocID } from "@/api/teamApi";
+import logo from "@/assets/images/logos/dtp-logo.png";
+
 export default {
   data() {
     return {
@@ -922,6 +954,8 @@ export default {
       stepStart: "",
       isShowSteps: false,
       isShowCancelDialog: false,
+      isLoadingFile: false,
+      logo: logo,
     };
   },
   watch: {
@@ -1468,6 +1502,7 @@ export default {
       this.isShowAddNew = true;
     },
     updateDocumentForm(data) {
+      this.isLoadingFile = true;
       var docForm = {
         DocumentID: this.$route.params.id,
         IDForm: data.IDForm,
@@ -1520,15 +1555,20 @@ export default {
 
       UpdateDocumentForm({
         DocumentFormInfo: docForm,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          notify({
-            title: "Thành công",
-            text: "Lưu thông tin thành công",
-            type: "success",
-          });
-        }
-      });
+      })
+        .then((res) => {
+          this.isLoadingFile = false;
+          if (res.RespCode == 0) {
+            notify({
+              title: "Thành công",
+              text: "Lưu thông tin thành công",
+              type: "success",
+            });
+          }
+        })
+        .catch(() => {
+          this.isLoadingFile = false;
+        });
     },
     openEditDialog(item) {
       this.isShowEdit = true;
