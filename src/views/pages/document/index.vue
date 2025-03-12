@@ -135,7 +135,18 @@
             class="mx-2 my-2"
           >
             <div class="d-flex">
-              <v-chip class="mr-2">
+              <v-chip
+                class="mr-2"
+                :color="
+                  item.Status == 1
+                    ? 'blue'
+                    : item.Status == 4
+                    ? 'green'
+                    : item.Status == 5
+                    ? 'red'
+                    : 'gray'
+                "
+              >
                 {{ item.StepOrder }}
               </v-chip>
               {{ item.StepName }}
@@ -143,9 +154,17 @@
             <v-sheet
               v-for="(job, indjob) in item.StepLst"
               :key="indjob"
-              class="px-1 py-1"
+              class="px-1 py-1 mt-1"
               rounded
-              border="green md"
+              :border="
+                job.Status == 1
+                  ? 'blue md'
+                  : job.Status == 4
+                  ? 'green md'
+                  : job.Status == 5
+                  ? 'red md'
+                  : 'gray md'
+              "
             >
               <div class="text-body-2 position-relative">
                 {{ job.JobName }}

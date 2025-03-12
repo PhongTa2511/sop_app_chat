@@ -148,50 +148,15 @@
       </template>
     </v-data-table-server>
   </v-card>
-  <v-dialog v-model="isShowProcess" width="600">
-    <v-card>
-      <v-card-title>Quá trình thực hiện</v-card-title>
-      <v-card-text>
-        <v-stepper vertical>
-          <v-stepper-step
-            v-for="(item, index) in workInfo"
-            :key="index"
-            :complete="item.Status === 3"
-            :step="index + 1"
-            :editable="false"
-          >
-            <template v-slot:label>{{ item.StepName }}</template>
-            <template v-slot:content>
-              <div v-for="(step, ind) in item.StepLst" :key="ind">
-                <div>{{ step.JobName }}</div>
-                <div v-if="step.Report">
-                  {{ step.ReportName }} - {{ step.Report }}
-                </div>
-                <div v-if="step.NoteApprove">
-                  {{ step.ManagerName }} - {{ step.NoteApprove }}
-                </div>
-              </div>
-            </template>
-          </v-stepper-step>
-        </v-stepper>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
 </template>
 
 <script>
-import {
-  GetGSPDocumentLst,
-  UpdateGSPDocument,
-  CreateGSPDocument,
-} from "@/api/briefApi";
 import { formatDateDisplayDDMMYY, formatDate } from "@/helpers/getTime";
-import { ProcessDocument, GetDocumentJobByEm } from "@/api/documentJobApi";
+import { GetDocumentJobByEm } from "@/api/documentJobApi";
 
 export default {
   data() {
     return {
-      isShowProcess: false,
       loadding: false,
 
       rowspPage: 10,

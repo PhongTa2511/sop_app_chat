@@ -713,14 +713,14 @@
           <v-sheet
             v-for="(job, indjob) in item.StepLst"
             :key="indjob"
-            class="px-1 py-1"
+            class="px-1 py-1 mt-1"
             rounded
             :border="
-              item.Status == 1
+              job.Status == 1
                 ? 'blue md'
-                : item.Status == 4
+                : job.Status == 4
                 ? 'green md'
-                : item.Status == 5
+                : job.Status == 5
                 ? 'red md'
                 : 'gray md'
             "
