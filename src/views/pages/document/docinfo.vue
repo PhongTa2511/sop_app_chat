@@ -169,8 +169,8 @@
             <template v-slot:top="{ item }">
               <div class="mx-auto mt-2">
                 <v-btn size="small" color="blue" rounded="md" @click="btShowAdd"
-                  >Thêm mới</v-btn
-                >
+                  >Thêm mới
+                </v-btn>
 
                 <v-menu>
                   <template v-slot:activator="{ props }">
@@ -221,8 +221,17 @@
                   color="green"
                   rounded="md"
                   @click="updateDocumentForm(tab)"
-                  >Lưu thông tin</v-btn
+                  >Lưu thông tin
+                </v-btn>
+                <v-btn
+                  size="small"
+                  class="ml-2"
+                  color="green"
+                  rounded="md"
+                  @click="btExportExcel1(tab)"
                 >
+                  Xuất Excel
+                </v-btn>
               </div>
             </template>
 
@@ -902,33 +911,34 @@
 <script>
 import {
   GSPGetGSPDocumentInfoByID,
-  UpdateGSPDocument,
   UpdateDocumentAssign,
+  UpdateGSPDocument,
 } from "@/api/briefApi";
-import { formatDateHHDDMM, formatDate } from "@/helpers/getTime";
-import {
-  ProcessDocument,
-  GetDocumentJobByDocID,
-  AddAssignLst,
-  SendMailAddAssignLst,
-  StartDocument,
-} from "@/api/documentJobApi";
 import {
   GetDocumentFormByDocID,
   UpdateDocumentForm,
 } from "@/api/documentFormApi";
-import { exportExcel } from "./function";
-import XLSX from "xlsx";
 import {
-  fetchXlsxContent,
-  fetchDoc,
-  isPreviewSupported,
-  downloadFile,
-} from "@/utils/function";
+  AddAssignLst,
+  GetDocumentJobByDocID,
+  ProcessDocument,
+  SendMailAddAssignLst,
+  StartDocument,
+} from "@/api/documentJobApi";
 import { CreateGroup } from "@/api/messageApi";
-import { GetTeamLstProID, GetTeamLstDocID } from "@/api/teamApi";
+import { GetTeamLstDocID, GetTeamLstProID } from "@/api/teamApi";
 import logo from "@/assets/images/logos/dtp-logo.png";
-
+import { formatDate, formatDateHHDDMM } from "@/helpers/getTime";
+import {
+  downloadFile,
+  fetchDoc,
+  fetchXlsxContent,
+  isPreviewSupported,
+} from "@/utils/function";
+import XLSX from "xlsx";
+import { exportExcel } from "./function";
+import { exportExcel1 } from "./function1";
+// import { exportExcel1 } from "./function1";
 export default {
   data() {
     return {
@@ -1006,6 +1016,12 @@ export default {
     },
   },
   methods: {
+    btExportExcel1(tab, header) {
+      exportExcel1(
+        this.desserts.filter((p) => p.Status > 0),
+        this.headers
+      );
+    },
     getUserLstByTeamID(teamID) {
       if (teamID) {
         var data = this.groupLst.find((p) => p.TeamID == teamID);
