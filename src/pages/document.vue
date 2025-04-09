@@ -2,6 +2,7 @@
 import { useRoute } from "vue-router";
 // import ManagerSystem from "@/views/pages/manager-system/branch.vue";
 import Document from "@/views/pages/document/index.vue";
+import Document2 from "@/views/pages/document/indexQT00003.vue";
 // import Device from "@/views/pages/manager-system/device.vue";
 const route = useRoute();
 const activeTab = ref(route.params.tab);
@@ -18,11 +19,11 @@ const tabs = [
     icon: "mdi-text-box",
     tab: "ho-so",
   },
-  // {
-  //   title: "Máy chấm công",
-  //   icon: "mdi-deskphone",
-  //   tab: "thiet-bi",
-  // },
+  {
+    title: "QT00003 - Tổng hợp",
+    icon: "mdi-file-certificate",
+    tab: "qt00003",
+  },
 ];
 </script>
 
@@ -44,9 +45,9 @@ const tabs = [
       <VWindowItem value="ho-so">
         <Document />
       </VWindowItem>
-      <!-- <VWindowItem value="thiet-bi">
-        <Device />
-      </VWindowItem> -->
+      <VWindowItem value="qt00003">
+        <Document2 />
+      </VWindowItem>
     </VWindow>
   </div>
 </template>

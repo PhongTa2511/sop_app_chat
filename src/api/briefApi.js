@@ -51,3 +51,11 @@ export function UpdateDocumentAssign(data) {
     data,
   });
 }
+
+export function GetDocumentQT00003Lst(data) {
+  return request({
+    url: "GSPDocument/GetDocumentQT00003Lst",
+    method: "post",
+    data,
+  });
+}
