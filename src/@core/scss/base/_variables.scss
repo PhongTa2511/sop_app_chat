@@ -14,7 +14,7 @@
 @forward "@layouts/styles/variables" with (
   // Adjust z-index so vertical nav & overlay stays on top of v-layout in v-main. E.g. Email app
   $layout-vertical-nav-z-index: 1004,
-  $layout-overlay-z-index: 1003,
+  $layout-overlay-z-index: 1003
 );
 @use "@layouts/styles/variables" as *;
 
@@ -41,11 +41,13 @@ $default-layout-with-vertical-nav-navbar-footer-roundness: 10px !default;
 
 // 👉 Vertical nav
 $vertical-nav-background-color-rgb: var(--v-theme-background) !default;
-$vertical-nav-background-color: rgb(#{$vertical-nav-background-color-rgb}) !default;
+$vertical-nav-background-color: rgb(
+  #{$vertical-nav-background-color-rgb}
+) !default;
 
 // ℹ️ This is used to keep consistency between nav items and nav header left & right margin
 // This is used by nav items & nav header
-$vertical-nav-horizontal-spacing: 1rem !default;
+$vertical-nav-horizontal-spacing: 0.5rem !default;
 $vertical-nav-horizontal-padding: 0.75rem !default;
 
 // Vertical nav header height. Mostly we will align it with navbar height;
@@ -101,10 +103,14 @@ $horizontal-nav-items-icon-margin-inline-end: 0.625rem !default;
 
 // ℹ️ We used SCSS variable because we want to allow users to update max height of popper content
 // 120px is combined height of navbar & horizontal nav
-$horizontal-nav-popper-content-max-height: calc((var(--vh, 1vh) * 100) - 120px - 4rem) !default;
+$horizontal-nav-popper-content-max-height: calc(
+  (var(--vh, 1vh) * 100) - 120px - 4rem
+) !default;
 
 // ℹ️ This variable is used for horizontal nav popper content's `margin-top` and "The bridge"'s height. We need to sync both values.
-$horizontal-nav-popper-content-top: calc($horizontal-nav-padding + 0.375rem) !default;
+$horizontal-nav-popper-content-top: calc(
+  $horizontal-nav-padding + 0.375rem
+) !default;
 
 // 👉 Plugins
 
@@ -132,7 +138,7 @@ $font-sizes: map-deep-merge(
     "6xl": 3.75rem,
     "7xl": 4.5rem,
     "8xl": 6rem,
-    "9xl": 8rem
+    "9xl": 8rem,
   ),
   $font-sizes
 );
@@ -153,7 +159,7 @@ $font-line-height: map-deep-merge(
     "6xl": 1,
     "7xl": 1,
     "8xl": 1,
-    "9xl": 1
+    "9xl": 1,
   ),
   $font-line-height
 );
@@ -168,7 +174,7 @@ $gap: map-deep-merge(
     "3": 0.75rem,
     "4": 1rem,
     "5": 1.25rem,
-    "6":1.5rem,
+    "6": 1.5rem,
     "7": 1.75rem,
     "8": 2rem,
     "9": 2.25rem,
@@ -191,7 +197,7 @@ $gap: map-deep-merge(
     "64": 16rem,
     "72": 18rem,
     "80": 20rem,
-    "96": 24rem
+    "96": 24rem,
   ),
   $gap
 );

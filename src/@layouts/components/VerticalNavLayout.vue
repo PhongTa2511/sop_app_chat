@@ -3,6 +3,12 @@ import { useDisplay } from "vuetify";
 import VerticalNav from "@layouts/components/VerticalNav.vue";
 
 export default defineComponent({
+  props: {
+    isNavCollapsed: {
+      type: Boolean,
+      default: false,
+    },
+  },
   setup(props, { slots }) {
     const isOverlayNavActive = ref(false);
     const isLayoutOverlayVisible = ref(false);
@@ -66,6 +72,7 @@ export default defineComponent({
           class: [
             "layout-wrapper layout-nav-type-vertical layout-navbar-static layout-footer-static layout-content-width-fluid",
             mdAndDown.value && "layout-overlay-nav",
+            props.isNavCollapsed && "layout-vertical-nav-collapsed",
             route.meta.layoutWrapperClasses,
           ],
         },
@@ -151,10 +158,22 @@ export default defineComponent({
     }
   }
 
-  &:not(.layout-overlay-nav) .layout-content-wrapper {
+  // &:not(.layout-overlay-nav) .layout-content-wrapper {
+  //   padding-inline-start: variables.$layout-vertical-nav-width;
+  // }
+  &:not(.layout-overlay-nav):not(.layout-vertical-nav-collapsed)
+    .layout-content-wrapper {
     padding-inline-start: variables.$layout-vertical-nav-width;
   }
 
+  &.layout-vertical-nav-collapsed:not(.layout-overlay-nav)
+    .layout-content-wrapper {
+    padding-inline-start: variables.$layout-vertical-nav-collapsed-width;
+  }
+
+  &.layout-overlay-nav .layout-content-wrapper {
+    padding-inline-start: 0 !important;
+  }
   // Adjust right column pl when vertical nav is collapsed
   &.layout-vertical-nav-collapsed .layout-content-wrapper {
     padding-inline-start: variables.$layout-vertical-nav-collapsed-width;

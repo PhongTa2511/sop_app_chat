@@ -37,7 +37,7 @@ const tabs = [
     </VTabs>
     <VDivider />
 
-    <VWindow v-model="activeTab" class="mt-5 disable-tab-transition">
+    <VWindow v-model="activeTab" class="mt-2 disable-tab-transition">
       <!-- Tổ chức -->
       <!-- <VWindowItem value="to-chuc">
         <ManagerSystem />

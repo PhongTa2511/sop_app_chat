@@ -131,10 +131,12 @@ $alert-prepend-icon-font-size: 1.125rem !important;
 
 .v-tabs.v-tabs-pill:not(.v-tabs--stacked) {
   &.v-tabs--density-default {
-    --v-tabs-height: 38px;
+    --v-tabs-height: 38px !important;
   }
 }
-
+.v-tabs--density-default {
+  --v-tabs-height: 36px !important;
+}
 // 👉 VSliderThumb
 .v-slider-thumb__surface {
   border: 3px solid rgb(var(--v-theme-surface));

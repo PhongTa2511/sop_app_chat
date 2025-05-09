@@ -11,13 +11,19 @@ import NavbarThemeSwitcher from "@/layouts/components/NavbarThemeSwitcher.vue";
 import UserProfile from "@/layouts/components/UserProfile.vue";
 
 const vuetifyTheme = useTheme();
+
+// Đóng mở menu sidebar ở desktop
+const isNavCollapsed = ref(false);
+const toggleNavCollapse = () => {
+  isNavCollapsed.value = !isNavCollapsed.value;
+};
 </script>
 
 <template>
-  <VerticalNavLayout>
+  <VerticalNavLayout :is-nav-collapsed="isNavCollapsed">
     <!-- 👉 navbar -->
     <template #navbar="{ toggleVerticalOverlayNavActive }">
-      <div class="d-flex h-100 align-center">
+      <div class="d-flex h-100 align-center pl-3">
         <!-- 👉 Vertical nav toggle in overlay mode -->
         <IconBtn
           class="ms-n3 d-lg-none"
@@ -26,17 +32,12 @@ const vuetifyTheme = useTheme();
           <VIcon icon="bx-menu" />
         </IconBtn>
 
-        <!-- 👉 Search  style="user-select: none"-->
-        <div class="d-flex align-center cursor-pointer">
-          <IconBtn>
-            <VIcon icon="bx-search" />
-          </IconBtn>
-          Search
-          <!-- <span class="d-none d-md-flex align-center text-disabled">
-            <span class="me-3">Search</span>
-            <span class="meta-key">&#8984;K</span>
-          </span> -->
-        </div>
+        <IconBtn
+          class="ms-n3 d-none d-lg-inline-flex"
+          @click="toggleNavCollapse"
+        >
+          <VIcon icon="bx-menu" />
+        </IconBtn>
 
         <VSpacer />
 
@@ -82,7 +83,7 @@ const vuetifyTheme = useTheme();
       />
       <VerticalNavSectionTitle
         :item="{
-          heading: 'Cài đặt chung',
+          heading: 'Cài đặt',
         }"
       />
       <VerticalNavLink
