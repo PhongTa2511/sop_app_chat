@@ -84,7 +84,7 @@
           size="x-small"
           class="mr-1"
           icon
-          @click="isShowCreateDocument = true"
+          @click="btShowCreateDocument(item)"
           color="green"
         >
           <v-icon>mdi-note-plus</v-icon>
@@ -231,6 +231,7 @@ export default {
       searchString: "",
       formFields: [],
       isShowFile: false,
+      rowForm: 0,
     };
   },
   watch: {
@@ -260,7 +261,10 @@ export default {
         return { Name, Value };
       });
     },
-
+    btShowCreateDocument(data) {
+      this.rowForm = data.RowID;
+      this.isShowCreateDocument = true;
+    },
     btPushToDocinfo(data) {
       this.$router.push("/thong-tin/" + data.DocumentID);
     },
@@ -304,6 +308,7 @@ export default {
           TypeDoc: this.createDocument.TypeDoc,
           Note: this.createDocument.Note,
           Data: this.productExcelLst,
+          ComID: this.rowForm,
         },
       }).then((res) => {
         // Updated to use createDocument
