@@ -23,3 +23,19 @@ export function GetDocumentFormByID(data) {
     data,
   });
 }
+
+export function UpdateDocumentFormPublic(data) {
+  return request({
+    url: "GSPDocumentForm/UpdateDocumentFormPublic",
+    method: "post",
+    data,
+  });
+}
+
+export function GetDocumentFormLstPublic(data) {
+  return request({
+    url: "GSPDocumentForm/GetDocumentFormLstPublic",
+    method: "post",
+    data,
+  });
+}

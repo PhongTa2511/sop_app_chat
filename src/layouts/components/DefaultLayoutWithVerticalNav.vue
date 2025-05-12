@@ -73,7 +73,13 @@ const toggleNavCollapse = () => {
           to: '/danh-sach-ho-so',
         }"
       />
-
+      <VerticalNavLink
+        :item="{
+          title: 'Khiếu nại - QA',
+          icon: 'mdi-account-file-text',
+          to: '/danh-sach-khieu-nai',
+        }"
+      />
       <VerticalNavLink
         :item="{
           title: 'Trao đổi',

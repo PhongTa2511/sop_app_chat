@@ -299,7 +299,7 @@ export default {
       } else {
         notify({
           title: "Cảnh báo",
-          message: "Nhập đầy đủ thông tin",
+          text: "Nhập đầy đủ thông tin",
           type: "error",
         });
       }
@@ -351,7 +351,7 @@ export default {
           this.getUserRole(data.UserID);
           notify({
             title: "Xóa quyền",
-            message: "Xóa phân quyền thành công",
+            text: "Xóa phân quyền thành công",
             type: "success",
           });
         }
@@ -413,7 +413,7 @@ export default {
           this.getUserLst();
           notify({
             title: "Tài khoản",
-            message: "Cập nhật tài khoản thành công",
+            text: "Cập nhật tài khoản thành công",
             type: "success",
           });
         }
@@ -441,7 +441,7 @@ export default {
               this.getUserLst();
               notify({
                 title: "Tài khoản",
-                message: "Xóa tài khoản thành công",
+                text: "Xóa tài khoản thành công",
                 type: "success",
               });
             }

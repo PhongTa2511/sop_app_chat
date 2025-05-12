@@ -586,7 +586,7 @@ export default {
         if (res.RespCode === 0) {
           notify({
             title: "Tạo hồ sơ",
-            message: "Hồ sơ đã được tạo thành công",
+            text: "Hồ sơ đã được tạo thành công",
             type: "success",
           });
           this.isShowCreateDocument = false; // Close dialog
@@ -594,7 +594,7 @@ export default {
         } else {
           notify({
             title: "Lỗi",
-            message: res.RespText,
+            text: res.RespText,
             type: "error",
           });
         }
@@ -613,7 +613,7 @@ export default {
           } else {
             notify({
               title: "Error",
-              message: res.RespText,
+              text: res.RespText,
               type: "error",
             });
           }
@@ -621,7 +621,7 @@ export default {
         .catch((error) => {
           notify({
             title: "Error",
-            message: "Failed to fetch procedure list.",
+            text: "Failed to fetch procedure list.",
             type: "error",
           });
           console.error(error);

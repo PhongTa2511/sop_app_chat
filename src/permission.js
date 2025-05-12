@@ -7,7 +7,7 @@ import { getToken } from "@/utils/auth"; // get token from cookie
 
 // NProgress.configure({ showSpinner: false }); // NProgress Configuration
 
-const whiteList = ["/dang-nhap", "/dang-ky"]; // no redirect whitelist
+const whiteList = ["/dang-nhap", "/dang-ky", "/khieu-nai"]; // no redirect whitelist
 
 router.beforeEach(async (to, from, next) => {
   // start progress bar

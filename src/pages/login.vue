@@ -82,18 +82,12 @@ export default {
 
 <template>
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
-    <VCard class="auth-card pa-4 pt-7" max-width="448">
-      <VCardItem class="justify-center">
-        <template #prepend>
-          <div class="d-flex">
-            <img :src="logo" alt="" style="height: 60px" />
-          </div>
-        </template>
+    <VCard class="auth-card px-4 pb-4" max-width="448">
+      <div class="d-flex justify-center">
+        <img :src="logo" alt="" style="height: 180px" />
+      </div>
 
-        <!-- <VCardTitle class="text-h3 font-weight-bold"> DTP </VCardTitle> -->
-      </VCardItem>
-
-      <VCardText class="pt-2">
+      <VCardText class="pt-0">
         <h5 class="text-h5 mb-1">Quản lý quy trình DTP 👋🏻</h5>
         <p class="mb-0">
           Vui lòng đăng nhập vào tài khoản của bạn và bắt đầu trải nghiệm

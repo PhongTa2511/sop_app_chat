@@ -64,6 +64,10 @@ const router = createRouter({
           path: "san-pham",
           component: () => import("@/views/pages/product/index.vue"),
         },
+        {
+          path: "danh-sach-khieu-nai",
+          component: () => import("@/views/pages/complaint/index.vue"),
+        },
         // {
         //   path: "lich-lam-viec",
         //   component: () => import("../pages/calendar.vue"),
@@ -81,6 +85,10 @@ const router = createRouter({
         {
           path: "dang-ky",
           component: () => import("../pages/register.vue"),
+        },
+        {
+          path: "khieu-nai",
+          component: () => import("../pages/complaint.vue"),
         },
         {
           path: "/:pathMatch(.*)*",

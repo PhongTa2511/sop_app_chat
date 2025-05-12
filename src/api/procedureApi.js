@@ -183,6 +183,13 @@ export function GetFormLstByID(data) {
     data,
   });
 }
+export function GetFormByIDPublic(data) {
+  return request({
+    url: "Form/GetFormByIDPublic",
+    method: "post",
+    data,
+  });
+}
 export function GetFormByID(data) {
   return request({
     url: "Form/GetFormByID",
