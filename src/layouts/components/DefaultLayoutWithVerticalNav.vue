@@ -1,7 +1,4 @@
 <script setup>
-import { useTheme } from "vuetify";
-import VerticalNavSectionTitle from "@/@layouts/components/VerticalNavSectionTitle.vue";
-
 import VerticalNavLayout from "@layouts/components/VerticalNavLayout.vue";
 import VerticalNavLink from "@layouts/components/VerticalNavLink.vue";
 
@@ -9,14 +6,31 @@ import VerticalNavLink from "@layouts/components/VerticalNavLink.vue";
 import Footer from "@/layouts/components/Footer.vue";
 import NavbarThemeSwitcher from "@/layouts/components/NavbarThemeSwitcher.vue";
 import UserProfile from "@/layouts/components/UserProfile.vue";
+import { getToken } from "@/utils/auth";
 
-const vuetifyTheme = useTheme();
+// Permission reactive và trạng thái load
+const permission = ref([]);
+const isReady = ref(false); // sẽ true sau khi load permission xong
+
+const hasAccess = (featureKey) =>
+  permission.value.find((p) => p.FeatureKey == featureKey && p.CanAccess == 1);
 
 // Đóng mở menu sidebar ở desktop
 const isNavCollapsed = ref(false);
 const toggleNavCollapse = () => {
   isNavCollapsed.value = !isNavCollapsed.value;
 };
+
+const loadInitialData = async () => {
+  if (!getToken()) return;
+  permission.value = JSON.parse(localStorage.getItem("PermissionsKSVR"));
+
+  isReady.value = true;
+};
+
+onMounted(() => {
+  loadInitialData();
+});
 </script>
 
 <template>
@@ -53,6 +67,7 @@ const toggleNavCollapse = () => {
 
     <template #vertical-nav-content>
       <VerticalNavLink
+        v-if="hasAccess('trang-chu')"
         :item="{
           title: 'Trang chủ',
           icon: 'bx-home',
@@ -60,6 +75,7 @@ const toggleNavCollapse = () => {
         }"
       />
       <VerticalNavLink
+        v-if="hasAccess('danh-sach-cong-viec')"
         :item="{
           title: 'Công việc',
           icon: 'mdi-briefcase-account',
@@ -67,6 +83,7 @@ const toggleNavCollapse = () => {
         }"
       />
       <VerticalNavLink
+        v-if="hasAccess('danh-sach-ho-so')"
         :item="{
           title: 'Hồ sơ',
           icon: 'mdi-list-box',
@@ -74,25 +91,57 @@ const toggleNavCollapse = () => {
         }"
       />
       <VerticalNavLink
+        v-if="hasAccess('danh-sach-san-pham')"
         :item="{
-          title: 'Khiếu nại - QA',
+          title: 'Sản phẩm',
+          icon: 'mdi-pill',
+          to: '/danh-sach-san-pham',
+        }"
+      />
+
+      <VerticalNavLink
+        v-if="hasAccess('tin-nhan')"
+        :item="{
+          title: 'Tin nhắn',
+          icon: 'mdi-message-text',
+          to: '/tin-nhan',
+        }"
+      />
+      <VerticalNavLink
+        v-if="hasAccess('cam-co')"
+        :item="{
+          title: 'Cắm cờ',
+          icon: 'mdi-flag-variant',
+          to: '/cam-co',
+        }"
+      />
+      <VerticalNavLink
+        v-if="hasAccess('cong-viec-phat-sinh')"
+        :item="{
+          title: 'Phát sinh',
+          icon: 'mdi-sitemap-outline',
+          to: '/cong-viec-phat-sinh',
+        }"
+      />
+      <VerticalNavLink
+        v-if="hasAccess('quoc-gia')"
+        :item="{
+          title: 'Quốc gia',
+          icon: 'mdi-earth',
+          to: '/quoc-gia',
+        }"
+      />
+      <VerticalNavLink
+        v-if="hasAccess('danh-sach-khieu-nai')"
+        :item="{
+          title: 'Khiếu nại',
           icon: 'mdi-account-file-text',
           to: '/danh-sach-khieu-nai',
         }"
       />
+
       <VerticalNavLink
-        :item="{
-          title: 'Trao đổi',
-          icon: 'mdi-message-text',
-          to: '/nhan-tin',
-        }"
-      />
-      <VerticalNavSectionTitle
-        :item="{
-          heading: 'Cài đặt',
-        }"
-      />
-      <VerticalNavLink
+        v-if="hasAccess('trang-chu')"
         :item="{
           title: 'Tài khoản',
           icon: 'mdi-account-cog',
@@ -101,6 +150,7 @@ const toggleNavCollapse = () => {
       />
 
       <VerticalNavLink
+        v-if="hasAccess('trang-chu')"
         :item="{
           title: 'Cài đặt',
           icon: 'mdi-cog',

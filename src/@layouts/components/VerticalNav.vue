@@ -1,7 +1,7 @@
 <script setup>
+import logo from "@/assets/images/logos/dtp-logo.png";
 import { PerfectScrollbar } from "vue3-perfect-scrollbar";
 import { useDisplay } from "vuetify";
-import logo from "@/assets/images/logos/dtp-logo.png";
 
 const props = defineProps({
   tag: {
@@ -40,7 +40,7 @@ const handleNavScroll = (evt) => {
 </script>
 
 <template>
-  <Component
+  <div
     :is="props.tag"
     ref="refNav"
     class="layout-vertical-nav"
@@ -52,16 +52,14 @@ const handleNavScroll = (evt) => {
       },
     ]"
   >
-    <!-- 👉 Header -->
     <div class="nav-header">
       <slot name="nav-header">
         <RouterLink
           to="/"
           class="app-logo d-flex align-center gap-x-3 app-title-wrapper"
         >
-          <!-- <div class="d-flex" v-html="logo" /> -->
           <img :src="logo" alt="" style="height: 40px" />
-          <h3 class="leading-normal">Quản lý quy trình</h3>
+          <h4 class="leading-normal">Quản lý quy trình</h4>
         </RouterLink>
       </slot>
     </div>
@@ -83,7 +81,7 @@ const handleNavScroll = (evt) => {
     </slot>
 
     <slot name="after-nav-items" />
-  </Component>
+  </div>
 </template>
 
 <style lang="scss">

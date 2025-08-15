@@ -21,7 +21,7 @@ $divider-gap: 0.75rem;
     }
 
     .nav-items {
-      padding-block-start: 0.25rem;
+      // padding-block-start: 0.25rem;
 
       // ℹ️ Reduce with width of the thumb in vertical nav menu so we can clearly see active indicator
       .ps__thumb-y {
@@ -44,27 +44,29 @@ $divider-gap: 0.75rem;
       column-gap: $divider-gap;
 
       &::before {
-        flex: 0 1 calc(variables.$vertical-nav-horizontal-padding-start - $divider-gap);
-        border-block-end: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+        flex: 0 1
+          calc(variables.$vertical-nav-horizontal-padding-start - $divider-gap);
+        border-block-end: 1px solid
+          rgba(var(--v-border-color), var(--v-border-opacity));
         content: "";
         margin-inline-start: -#{variables.$vertical-nav-horizontal-padding-start};
       }
     }
 
     // Active status indicator
-    .nav-link .router-link-exact-active,
-    .nav-group.active:not(.nav-group .nav-group) > :first-child {
-      &::after {
-        position: absolute;
-        background-color: rgb(var(--v-global-theme-primary));
-        block-size: 2.625rem;
-        border-end-start-radius: 0.375rem;
-        border-start-start-radius: 0.375rem;
-        content: "";
-        inline-size: 0.25rem;
-        inset-inline-end: - variables.$vertical-nav-horizontal-spacing;
-      }
-    }
+    // .nav-link .router-link-exact-active,
+    // .nav-group.active:not(.nav-group .nav-group) > :first-child {
+    //   &::after {
+    //     position: absolute;
+    //     background-color: rgb(var(--v-global-theme-primary));
+    //     block-size: 2.625rem;
+    //     border-end-start-radius: 0.375rem;
+    //     border-start-start-radius: 0.375rem;
+    //     content: "";
+    //     inline-size: 0.25rem;
+    //     inset-inline-end: - variables.$vertical-nav-horizontal-spacing;
+    //   }
+    // }
 
     // 👉 Vertical nav link
     .nav-group {
@@ -86,7 +88,10 @@ $divider-gap: 0.75rem;
           &.nav-group-label {
             svg,
             .nav-item-title {
-              color: rgba(var(--v-theme-on-surface), var(--v-high-emphasis-opacity));
+              color: rgba(
+                var(--v-theme-on-surface),
+                var(--v-high-emphasis-opacity)
+              );
             }
           }
         }

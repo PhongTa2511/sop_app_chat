@@ -1,7 +1,8 @@
 <script setup>
-import AccountSettingsAccount from "@/views/account-settings/AccountSettingsAccount.vue";
-import AccountSettingsList from "@/views/account-settings/index.vue";
+import Confirm from "@/views/flag/confirm.vue";
+import List from "@/views/flag/index.vue";
 import { useRoute } from "vue-router";
+
 const route = useRoute();
 const activeTab = ref(route.params.tab);
 
@@ -9,13 +10,13 @@ const activeTab = ref(route.params.tab);
 const tabs = [
   {
     title: "Danh sách",
-    icon: "fa-users",
-    tab: "list",
+    icon: "mdi-list-box",
+    tab: "danh-sach",
   },
   {
-    title: "Cá nhân",
-    icon: "bx-user",
-    tab: "account",
+    title: "Duyệt cờ xanh",
+    icon: "mdi-flag",
+    tab: "co-xanh",
   },
 ];
 </script>
@@ -31,11 +32,11 @@ const tabs = [
     <VDivider />
 
     <VWindow v-model="activeTab" class="mt-2 disable-tab-transition">
-      <VWindowItem value="list">
-        <AccountSettingsList />
+      <VWindowItem value="danh-sach">
+        <List />
       </VWindowItem>
-      <VWindowItem value="account">
-        <AccountSettingsAccount />
+      <VWindowItem value="co-xanh">
+        <Confirm />
       </VWindowItem>
     </VWindow>
   </div>

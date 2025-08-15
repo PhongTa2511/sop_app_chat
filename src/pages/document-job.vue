@@ -1,8 +1,7 @@
 <script setup>
 import { useRoute } from "vue-router";
-// import ManagerSystem from "@/views/pages/manager-system/branch.vue";
-import Document from "@/views/pages/document-job/index.vue";
-// import Device from "@/views/pages/manager-system/device.vue";
+// import ManagerSystem from "@/views/manager-system/branch.vue";
+import Document from "@/views/document-job/index.vue";
 const route = useRoute();
 const activeTab = ref(route.params.tab);
 

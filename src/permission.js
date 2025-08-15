@@ -3,64 +3,89 @@ import router from "./router";
 // import { Message } from "element-ui";
 // import NProgress from "nprogress"; // progress bar
 // import "nprogress/nprogress.css"; // progress bar style
-import { getToken } from "@/utils/auth"; // get token from cookie
+import { getRole, getToken } from "@/utils/auth"; // get token from cookie
 
 // NProgress.configure({ showSpinner: false }); // NProgress Configuration
 
-const whiteList = ["/dang-nhap", "/dang-ky", "/khieu-nai"]; // no redirect whitelist
+import { GetUserPermisstionByID } from "@/api/user";
+
+export const fetchUserPermissions = async () => {
+  if (!getToken()) return [];
+
+  const resPerm = await GetUserPermisstionByID({});
+  if (resPerm.RespCode === 0) {
+    const role = getRole();
+    if (role == 1000) {
+      resPerm.Data = resPerm.Data.map((p) => {
+        return {
+          ...p,
+          CanAccess: 1,
+        };
+      });
+    }
+    localStorage.setItem("PermissionsKSVR", JSON.stringify(resPerm.Data));
+    return resPerm.Data;
+  }
+
+  return [];
+};
+
+const whiteList = ["/dang-nhap", "/khieu-nai"]; // no redirect whitelist
 
 router.beforeEach(async (to, from, next) => {
-  // start progress bar
-  // NProgress.start();
-
-  // set page title
-  // document.title = getPageTitle(to.meta.title);
-
-  // determine whether the user has logged in
-
   const hasToken = getToken();
 
   if (hasToken) {
     if (to.path === "/dang-nhap") {
-      // if is logged in, redirect to the home page
-      next({ path: "/" });
-      // NProgress.done();
-    } else {
-      next();
-      const hasGetUserInfo = store.getters.name;
-      if (hasGetUserInfo) {
-        next();
-      } else {
-        try {
-          // get user info
-          await store.dispatch("user/getInfo");
-          next();
-        } catch (error) {
-          // remove token and go to login page to re-login
-          await store.dispatch("user/resetToken");
-          // Message.error(error || "Has Error");
-          next(`/dang-nhap?redirect=${to.path}`);
-          NProgress.done();
+      return next({ path: "/" });
+    }
+
+    try {
+      const permissions = await fetchUserPermissions();
+      var permissionActive = [];
+
+      permissionActive = permissions.filter(
+        (p) => p.TableName === "Menu" && p.CanAccess == 1
+      );
+
+      const routeKey = to.path.replace("/", "");
+      const matchedFeature = permissionActive.find(
+        (p) => p.FeatureKey === routeKey
+      );
+
+      if (to.path === "/") {
+        if (permissionActive.length > 0) {
+          return next(`/${permissionActive[0].FeatureKey}`);
+        } else {
+          return next("/404");
         }
       }
+      if (
+        routeKey === "404" ||
+        whiteList.some((path) => to.path.includes(path))
+      ) {
+        return next();
+      }
+      if (!matchedFeature) {
+        return next("/404"); // hoặc đổi sang / không có quyền
+      }
+      if (matchedFeature.CanAccess !== 1) {
+        return next("/404"); // hoặc đổi sang / không có quyền
+      }
+
+      return next();
+    } catch (err) {
+      return next("/");
     }
   } else {
-    /* has no token*/
-
-    if (whiteList.indexOf(to.path) !== -1 || (to.meta && to.meta.role === 1)) {
-      // in the free login whitelist, go directly
-      next();
-    } else {
-      // other pages that do not have permission to access are redirected to the login page.
-      // next();
-
-      next(`/dang-nhap?redirect=${to.path}`);
-      NProgress.done();
+    if (whiteList.some((path) => to.path.includes(path))) {
+      return next();
     }
+
+    return next(`/dang-nhap?redirect=${to.path}`);
   }
 });
 
 router.afterEach(() => {
-  // finish progress bar
   // NProgress.done();
 });

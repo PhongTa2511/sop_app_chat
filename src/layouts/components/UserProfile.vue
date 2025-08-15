@@ -1,24 +1,20 @@
 <script>
-import avatar1 from "@images/avatars/avatar-1.png";
 import {
-  removeToken,
+  getAvatar,
+  getFullName,
+  removeEmail,
   removeFullName,
   removePhoneNumber,
+  removeToken,
   removeUserID,
-  removeEmail,
-  getFullName,
-  getAvatar,
-  getPosition,
-  getSpecialize,
 } from "@/utils/auth";
+import avatar1 from "@images/avatars/avatar-1.png";
 export default {
   data() {
     return {
       avatar1: avatar1,
       fullName: getFullName(),
       avatar: getAvatar(),
-      position: getPosition(),
-      specialize: getSpecialize(),
     };
   },
   methods: {

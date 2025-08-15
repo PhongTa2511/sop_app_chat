@@ -21,8 +21,8 @@ const router = createRouter({
         //   component: () => import("../pages/typography.vue"),
         // },
         {
-          path: "nhan-tin",
-          component: () => import("@/views/pages/chat/index.vue"),
+          path: "tin-nhan",
+          component: () => import("@/views/chat/index.vue"),
         },
         {
           path: "cai-dat",
@@ -30,23 +30,23 @@ const router = createRouter({
         },
         {
           path: "buoc/:id",
-          component: () => import("@/views/pages/procedure/stepindex.vue"),
+          component: () => import("@/views/procedure/stepindex.vue"),
         },
         {
           path: "form2/:id/:stepid/:workid",
-          component: () => import("@/views/pages/procedure/formindex.vue"),
+          component: () => import("@/views/procedure/formindex.vue"),
         },
         {
           path: "form/:id",
-          component: () => import("@/views/pages/procedure/formindex.vue"),
+          component: () => import("@/views/procedure/formindex.vue"),
         },
         {
           path: "cong-viec/:id",
-          component: () => import("@/views/pages/procedure/workindex.vue"),
+          component: () => import("@/views/procedure/workindex.vue"),
         },
         {
           path: "thong-tin-cong-viec/:id",
-          component: () => import("@/views/pages/document-job/jobinfo.vue"),
+          component: () => import("@/views/document-job/jobinfo.vue"),
         },
         {
           path: "danh-sach-ho-so",
@@ -58,15 +58,35 @@ const router = createRouter({
         },
         {
           path: "thong-tin/:id",
-          component: () => import("@/views/pages/document/docinfo.vue"),
+          component: () => import("@/views/document/docinfo.vue"),
         },
         {
           path: "san-pham",
-          component: () => import("@/views/pages/product/index.vue"),
+          component: () => import("@/views/product/index.vue"),
         },
         {
           path: "danh-sach-khieu-nai",
-          component: () => import("@/views/pages/complaint/index.vue"),
+          component: () => import("@/views/complaint/index.vue"),
+        },
+        {
+          path: "danh-sach-san-pham",
+          component: () => import("../pages/product.vue"),
+        },
+        {
+          path: "cam-co",
+          component: () => import("../pages/flag.vue"),
+        },
+        {
+          path: "thong-tin-san-pham/:id",
+          component: () => import("@/views/product/productInfo.vue"),
+        },
+        {
+          path: "cong-viec-phat-sinh",
+          component: () => import("../pages/work-arising.vue"),
+        },
+        {
+          path: "quoc-gia",
+          component: () => import("@/views/country/law.vue"),
         },
         // {
         //   path: "lich-lam-viec",
@@ -82,17 +102,21 @@ const router = createRouter({
           path: "dang-nhap",
           component: () => import("../pages/login.vue"),
         },
-        {
-          path: "dang-ky",
-          component: () => import("../pages/register.vue"),
-        },
+        // {
+        //   path: "dang-ky",
+        //   component: () => import("../pages/register.vue"),
+        // },
         {
           path: "khieu-nai",
           component: () => import("../pages/complaint.vue"),
         },
+        // {
+        //   path: "/:pathMatch(.*)*",
+        //   component: () => import("../pages/404.vue"),
+        // },
         {
-          path: "/:pathMatch(.*)*",
-          component: () => import("../pages/[...all].vue"),
+          path: "/404",
+          component: () => import("@/pages/404.vue"),
         },
       ],
     },

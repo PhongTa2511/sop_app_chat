@@ -1,8 +1,8 @@
 <script setup>
+import Group from "@/views/default/group.vue";
+import Variable from "@/views/default/index.vue";
+import Procedure from "@/views/procedure/index.vue";
 import { useRoute } from "vue-router";
-import Procedure from "@/views/pages/procedure/index.vue";
-import Variable from "@/views/pages/default/index.vue";
-import Group from "@/views/pages/default/group.vue";
 
 const route = useRoute();
 const activeTab = ref(route.params.tab);

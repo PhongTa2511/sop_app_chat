@@ -1,19 +1,17 @@
 <script>
-import AuthProvider from "@/views/pages/authentication/AuthProvider.vue";
-import logo from "@images/logos/dtp-logo.png";
-import { Login, GetUserInfo } from "@/api/user.js";
+import { Login } from "@/api/user.js";
 import {
-  setToken,
+  removeAvatar,
+  setAvatar,
+  setEmail,
+  setEmployCode,
   setFullName,
   setPhoneNumber,
-  setEmployCode,
-  setEmail,
+  setRole,
+  setToken,
   setUserName,
-  setPosition,
-  setSpecialize,
-  setAvatar,
-  removeAvatar,
 } from "@/utils/auth";
+import logo from "@images/logos/dtp-logo.png";
 export default {
   data() {
     return {
@@ -26,9 +24,7 @@ export default {
       isPasswordVisible: false,
     };
   },
-  components: {
-    AuthProvider,
-  },
+
   methods: {
     btLogin() {
       Login({
@@ -41,38 +37,20 @@ export default {
         setPhoneNumber(res.UserInfo.PhoneNumber);
         setEmployCode(res.UserInfo.EmployeeCode);
         setEmail(res.UserInfo.Email);
-        removeAvatar();
-        GetUserInfo({
-          UserInfo: {
-            UserName: this.form.idEmployee,
-            FullName: res.UserInfo.FullName,
-            PhoneNumber: res.UserInfo.PhoneNumber,
-            Email: res.UserInfo.Email,
-            EmployeeCode: res.UserInfo.EmployeeCode,
-          },
-        }).then((resu) => {
-          if (resu.RespCode == 0) {
-            setPosition(resu.UserInfo.Role);
-            setSpecialize(resu.UserInfo.Specialize);
-            if (resu.UserInfo.LinkImage && resu.UserInfo.LinkImage != "") {
-              setAvatar(
-                "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
-                  resu.UserInfo.UserName
-              );
-            }
-            this.$router.push("/");
-            notify({
-              type: "success",
-              title: "Thành công",
-              text: "Đăng nhập thành công",
-            });
-          } else {
-            notify({
-              type: "error",
-              title: "Lỗi",
-              text: resu.RespText,
-            });
-          }
+        setRole(res.UserInfo.Role);
+        if (res.UserInfo.LinkImage && res.UserInfo.LinkImage != "") {
+          setAvatar(
+            "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
+              res.UserInfo.UserName
+          );
+        } else {
+          removeAvatar();
+        }
+        this.$router.push("/");
+        notify({
+          type: "success",
+          title: "Thành công",
+          text: "Đăng nhập thành công",
         });
       });
     },

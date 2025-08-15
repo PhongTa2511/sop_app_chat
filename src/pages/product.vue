@@ -1,28 +1,35 @@
 <script setup>
 import { useRoute } from "vue-router";
 // import ManagerSystem from "@/views/manager-system/branch.vue";
-import Document from "@/views/document/index.vue";
-import Document2 from "@/views/document/indexQT00003.vue";
+import Product from "@/views/product/index.vue";
+import Product2 from "@/views/product/index2.vue";
+import Product3 from "@/views/product/index3.vue";
+
 // import Device from "@/views/manager-system/device.vue";
 const route = useRoute();
 const activeTab = ref(route.params.tab);
-
+const docHS = "QT00005,QT00007,QT00009,QT00010,QT00011";
+const docDesign = "QT00006,QT00012,QT00013,QT00022,QT00023";
+const docMau = "QT00018";
+const docNhan = "QT00021";
+const docChatchuan = "QT00020";
+const docCongviec = "QT00024";
 // tabs
 const tabs = [
-  // {
-  //   title: "Tổ chức",
-  //   icon: "mdi-lan",
-  //   tab: "to-chuc",
-  // },
   {
-    title: "Danh sách hồ sơ",
+    title: "Sản phẩm",
     icon: "mdi-text-box",
     tab: "ho-so",
   },
   {
-    title: "QT00003 - Tổng hợp",
-    icon: "mdi-file-certificate",
-    tab: "qt00003",
+    title: "Nộp cục",
+    icon: "mdi-image",
+    tab: "design",
+  },
+  {
+    title: "Có số",
+    icon: "mdi-table-arrow-right",
+    tab: "mau",
   },
 ];
 </script>
@@ -38,15 +45,14 @@ const tabs = [
     <VDivider />
 
     <VWindow v-model="activeTab" class="mt-2 disable-tab-transition">
-      <!-- Tổ chức -->
-      <!-- <VWindowItem value="to-chuc">
-        <ManagerSystem />
-      </VWindowItem> -->
       <VWindowItem value="ho-so">
-        <Document />
+        <Product />
       </VWindowItem>
-      <VWindowItem value="qt00003">
-        <Document2 />
+      <VWindowItem value="design">
+        <Product2 />
+      </VWindowItem>
+      <VWindowItem value="mau">
+        <Product3 />
       </VWindowItem>
     </VWindow>
   </div>
