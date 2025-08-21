@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title class="text-h6 py-4">
+    <v-card-title class="text-h6 pl-4 pr-2 pb-0">
       <div class="d-flex justify-sm-space-between">
         <div>Danh sách tài khoản</div>
         <div class="d-flex flex-wrap">
@@ -22,7 +22,7 @@
             color="blue"
             @click="btShowCreate"
             icon="mdi-account-plus"
-            style="height: 42px"
+            size="small"
           ></v-btn>
         </div>
       </div>
@@ -35,7 +35,7 @@
       :headers="headers"
       :items="desserts"
       :search="search"
-      height="calc(100vh - 210px)"
+      height="calc(100vh - 270px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
@@ -195,16 +195,14 @@
 </template>
 
 <script>
-import {
-  RegisterAccount,
-  GetUserLstAll,
-  UpdateUserInfo,
-  SetUserRole,
-  DelUserRole,
-  GetUserRole,
-} from "@/api/user";
-import { GetTeamLst } from "@/api/teamApi";
 import { GetDefaultValue } from "@/api/default";
+import { GetTeamLst } from "@/api/teamApi";
+import {
+  DelUserRole,
+  GetUserLstAll,
+  GetUserRole,
+  UpdateUserInfo,
+} from "@/api/user";
 
 export default {
   data() {

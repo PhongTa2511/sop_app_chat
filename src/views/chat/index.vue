@@ -16,7 +16,7 @@
             label="Tìm kiếm"
             hide-details
             single-line
-            class="mx-6 my-2"
+            class="mx-4 my-0"
             v-model="searchGroup"
           ></v-text-field>
           <v-list>
@@ -83,7 +83,7 @@
           ></v-btn>
         </v-app-bar>
 
-        <v-main style="height: calc(100vh - 154px)" class="position-relative">
+        <v-main style="height: calc(100vh - 116px)" class="position-relative">
           <v-list
             ref="chatList"
             class="custome-content"
@@ -318,17 +318,17 @@
 <script>
 // import { sendMessage, onMessage, onMessage2 } from "@/socket";
 import {
-  SendMessageChat,
   GetGroupLstByUserID,
   GetMessageByGoupID,
+  SendMessageChat,
   urlUploadMessageFile,
 } from "@/api/messageApi";
-import { notify } from "@kyvg/vue3-notification";
-import { getUserName } from "@/utils/auth";
-import socket from "@/socket";
-import RightChat from "./components/right-chat.vue";
-import Axios from "axios";
 import { formatDateDisplay } from "@/helpers/getTime";
+import socket from "@/socket";
+import { getUserName } from "@/utils/auth";
+import { notify } from "@kyvg/vue3-notification";
+import Axios from "axios";
+import RightChat from "./components/right-chat.vue";
 
 export default {
   name: "app",

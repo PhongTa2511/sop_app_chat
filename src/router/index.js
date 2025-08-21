@@ -3,7 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: "/", redirect: "/trang-chu" },
+    // { path: "/", redirect: "/trang-chu" },
     {
       path: "/",
       component: () => import("../layouts/default.vue"),
@@ -49,7 +49,7 @@ const router = createRouter({
           component: () => import("@/views/document-job/jobinfo.vue"),
         },
         {
-          path: "danh-sach-ho-so",
+          path: "ho-so",
           component: () => import("../pages/document.vue"),
         },
         {
@@ -81,7 +81,7 @@ const router = createRouter({
           component: () => import("@/views/product/productInfo.vue"),
         },
         {
-          path: "cong-viec-phat-sinh",
+          path: "phat-sinh",
           component: () => import("../pages/work-arising.vue"),
         },
         {

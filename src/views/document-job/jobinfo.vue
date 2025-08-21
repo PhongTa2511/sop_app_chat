@@ -1,5 +1,5 @@
 <template>
-  <v-row>
+  <v-row class="mt-2" style="height: calc(100vh - 112px)">
     <input
       ref="fileInputExcel"
       type="file"
@@ -9,7 +9,7 @@
     />
     <v-col :lg="8" cols="12">
       <v-card class="layout-card">
-        <v-card-title class="text-h6 py-4">
+        <v-card-title class="text-h6 py-2 pl-4 pr-0">
           <div class="d-flex justify-sm-space-between">
             <div>Thông tin công việc</div>
 
@@ -188,7 +188,7 @@
           </v-tabs-window-item>
         </v-tabs-window>
         <v-divider></v-divider>
-        <div class="px-2 py-2 pb-4">
+        <div class="px-2 py-2 pb-2">
           <div class="mt-2 px-2 text-subtitle-2">
             <v-icon color="blue" class="" size="small">mdi-clock</v-icon>
             Bắt đầu: {{ dataJobInfo.TimeStart }}
@@ -686,7 +686,7 @@
         </div>
       </v-card>
     </v-col>
-    <v-col :lg="4" cols="12">
+    <v-col :lg="4" cols="12" class="pl-0">
       <v-card class="py-2 px-4 layout-card">
         <div class="d-flex justify-space-between">
           <div class="text-h6">Quá trình thực hiện</div>
@@ -1652,9 +1652,10 @@ export default {
 <style lang="scss" scoped>
 .layout-card {
   min-height: 250px;
-  max-height: calc(100vh - 150px);
+  max-height: calc(100vh - 86px);
+  height: 100%;
   overflow-y: scroll;
-  margin-bottom: -10px;
+  // margin-bottom: -10px;
   &::-webkit-scrollbar-track-piece {
     background: #ffffff;
   }

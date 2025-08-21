@@ -1,10 +1,11 @@
 <script setup>
 import AccountSettingsAccount from "@/views/account-settings/AccountSettingsAccount.vue";
+import AccountSettingsRole from "@/views/account-settings/AccountSettingsRole.vue";
 import AccountSettingsList from "@/views/account-settings/index.vue";
-import { useRoute } from "vue-router";
-const route = useRoute();
-const activeTab = ref(route.params.tab);
+import { ref } from "vue";
 
+const activeTab = ref("");
+const permission = JSON.parse(localStorage.getItem("PermissionsKSVR"));
 // tabs
 const tabs = [
   {
@@ -17,7 +18,24 @@ const tabs = [
     icon: "bx-user",
     tab: "account",
   },
+  {
+    title: "Phân quyền",
+    icon: "bx-grid-alt",
+    tab: "phan-quyen",
+  },
 ];
+
+const availableTabs = ref([]); // <- Reactive tab list
+
+availableTabs.value = tabs.filter((tab) => {
+  const matched = permission.find((p) => p.FeatureKey === tab.tab);
+  return matched && matched.CanAccess === 1;
+});
+
+// Nếu tab hiện tại không hợp lệ => chuyển về tab đầu tiên
+if (!availableTabs.value.find((t) => t.tab === activeTab.value)) {
+  activeTab.value = availableTabs.value[0]?.tab ?? "";
+}
 </script>
 
 <template>
@@ -36,6 +54,12 @@ const tabs = [
       </VWindowItem>
       <VWindowItem value="account">
         <AccountSettingsAccount />
+      </VWindowItem>
+      <VWindowItem
+        value="phan-quyen"
+        v-if="availableTabs.some((t) => t.tab === 'phan-quyen')"
+      >
+        <AccountSettingsRole />
       </VWindowItem>
     </VWindow>
   </div>

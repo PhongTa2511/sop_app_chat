@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pt-4">
+  <v-card class="pt-2">
     <v-data-table-server
       :items-length="totalLength"
       @update:itemsPerPage="btRow"
@@ -8,7 +8,7 @@
       :headers="headers"
       fixed-header
       :items="fileLst"
-      height="calc(100vh - 210px)"
+      height="calc(100vh - 270px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
@@ -22,7 +22,7 @@
       :loading="loadding"
     >
       <template v-slot:top>
-        <div class="d-flex flex-wrap gap-2 px-3">
+        <div class="d-flex flex-wrap gap-2 px-2">
           <span>
             <v-text-field
               v-model="searchProduct"
@@ -338,7 +338,7 @@
 <script>
 import { GetGSPDocumentLst } from "@/api/briefApi";
 import { ProcessDocument } from "@/api/documentJobApi";
-import { GetProcedureLst, GetProcedureNameInfo } from "@/api/procedureApi";
+import { GetProcedureLst } from "@/api/procedureApi";
 import { formatDateDisplayDDMMYY, formatDateHHDDMM } from "@/helpers/getTime";
 import {
   downloadFile,
@@ -380,7 +380,6 @@ export default {
       ],
       optionStatus: null,
       loadding: false,
-      procedureName: {},
       isShowProcess: false,
       workInfo: {},
       headers: [
@@ -492,15 +491,7 @@ export default {
     editHS(data) {
       router.push("/thong-tin-xuat-khau/" + data.DocumentID);
     },
-    getProcedureNameInfo() {
-      GetProcedureNameInfo({
-        Data: "QT00005",
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.procedureName = res.Data;
-        }
-      });
-    },
+
     getGSPDocumentLst() {
       this.loadding = true;
       const searchParams = {
@@ -554,7 +545,7 @@ export default {
         return { text: "Mới tạo", color: "blue" };
       }
       if (status == 2) {
-        return { text: "Đang làm", color: "success" };
+        return { text: "Đang làm", color: "info" };
       }
       if (status == 3) {
         return { text: "Tạm dừng", color: "more" };

@@ -1,27 +1,29 @@
 <script setup>
 import { useRoute } from "vue-router";
 // import ManagerSystem from "@/views/manager-system/branch.vue";
-import Document from "@/views/document-job/index.vue";
+import JobArising from "@/views/document-job/index-arising.vue";
+import DocumentJobRD from "@/views/document-job/index-rd.vue";
+import DocumentJob from "@/views/document-job/index.vue";
 const route = useRoute();
 const activeTab = ref(route.params.tab);
 
 // tabs
 const tabs = [
-  // {
-  //   title: "Tổ chức",
-  //   icon: "mdi-lan",
-  //   tab: "to-chuc",
-  // },
   {
     title: "Danh sách công việc",
     icon: "mdi-briefcase-account",
     tab: "cong-viec",
   },
-  // {
-  //   title: "Máy chấm công",
-  //   icon: "mdi-deskphone",
-  //   tab: "thiet-bi",
-  // },
+  {
+    title: "Danh sách công việc",
+    icon: "mdi-briefcase-account",
+    tab: "cong-viec-rd",
+  },
+  {
+    title: "Công việc phát sinh",
+    icon: "mdi-lan",
+    tab: "cong-viec-phat-sinh",
+  },
 ];
 </script>
 
@@ -36,16 +38,15 @@ const tabs = [
     <VDivider />
 
     <VWindow v-model="activeTab" class="mt-2 disable-tab-transition">
-      <!-- Tổ chức -->
-      <!-- <VWindowItem value="to-chuc">
-        <ManagerSystem />
-      </VWindowItem> -->
       <VWindowItem value="cong-viec">
-        <Document />
+        <DocumentJob />
       </VWindowItem>
-      <!-- <VWindowItem value="thiet-bi">
-        <Device />
-      </VWindowItem> -->
+      <VWindowItem value="cong-viec-rd">
+        <DocumentJobRD />
+      </VWindowItem>
+      <VWindowItem value="cong-viec-phat-sinh">
+        <JobArising />
+      </VWindowItem>
     </VWindow>
   </div>
 </template>

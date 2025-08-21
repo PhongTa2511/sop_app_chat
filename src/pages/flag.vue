@@ -11,12 +11,12 @@ const tabs = [
   {
     title: "Danh sách",
     icon: "mdi-list-box",
-    tab: "danh-sach",
+    tab: "danh-sach-cam-co",
   },
   {
     title: "Duyệt cờ xanh",
     icon: "mdi-flag",
-    tab: "co-xanh",
+    tab: "duyet-co-xanh",
   },
 ];
 </script>
@@ -32,10 +32,10 @@ const tabs = [
     <VDivider />
 
     <VWindow v-model="activeTab" class="mt-2 disable-tab-transition">
-      <VWindowItem value="danh-sach">
+      <VWindowItem value="danh-sach-cam-co">
         <List />
       </VWindowItem>
-      <VWindowItem value="co-xanh">
+      <VWindowItem value="duyet-co-xanh">
         <Confirm />
       </VWindowItem>
     </VWindow>

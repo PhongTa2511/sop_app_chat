@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pt-4">
+  <v-card class="pt-2">
     <v-data-table-server
       :items-per-page="pageSize"
       :items-length="totalLength"
@@ -8,7 +8,7 @@
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="productLst"
-      height="calc(100vh - 210px)"
+      height="calc(100vh - 270px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
@@ -22,7 +22,7 @@
       fixed-header
     >
       <template v-slot:top>
-        <div class="d-flex flex-wrap gap-2 px-3">
+        <div class="d-flex flex-wrap gap-2 px-2">
           <span>
             <v-autocomplete
               v-model="country"
@@ -129,9 +129,9 @@
 </template>
 
 <script>
-import { GetCompanyGreenLst, GetCountryLstByUserID } from "@/api/company";
-import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
+import { GetCompanyGreenLst, GetCountryLstByUserID } from "@/api/companyApi";
 import { GetDefaultValue } from "@/api/default";
+import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 import InfoCompany from "./components/index-confirm.vue";
 export default {
   components: {

@@ -2,7 +2,7 @@
 import { useRoute } from "vue-router";
 // import ManagerSystem from "@/views/manager-system/branch.vue";
 
-import Document6 from "@/views/document/index6.vue";
+import Document6 from "@/views/document2/index6.vue";
 // import Device from "@/views/manager-system/device.vue";
 const route = useRoute();
 const activeTab = ref(route.params.tab);

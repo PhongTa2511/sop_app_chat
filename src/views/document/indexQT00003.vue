@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pt-4">
+  <v-card class="pt-2">
     <v-data-table-server
       :items-per-page="rowspPage"
       :items-length="totalLength"
@@ -8,7 +8,7 @@
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="fileLst"
-      height="calc(100vh - 210px)"
+      height="calc(100vh - 270px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
@@ -22,7 +22,7 @@
       fixed-header
     >
       <template v-slot:top>
-        <div class="d-flex flex-wrap gap-2 px-3">
+        <div class="d-flex flex-wrap gap-2 px-2">
           <span>
             <v-text-field
               v-model="searchDocumentID"
@@ -32,52 +32,6 @@
               clearable
             ></v-text-field>
           </span>
-          <!-- <span>
-            <v-text-field
-              v-model="searchJobName"
-              label="Công việc"
-              hide-details
-              style="width: 150px !important"
-              clearable
-            ></v-text-field>
-          </span>
-          <span>
-            <v-text-field
-              v-model="searchNote"
-              label="Hồ sơ"
-              hide-details
-              style="width: 150px !important"
-              clearable
-            ></v-text-field>
-          </span>
-          <span>
-            <v-text-field
-              v-model="searchEmployeeName"
-              label="Nhân viên"
-              hide-details
-              style="width: 150px !important"
-              clearable
-            ></v-text-field>
-          </span>
-          <span>
-            <v-select
-              v-model="optionStatus"
-              placeholder="Trạng thái"
-              density="compact"
-              :items="optionStatusLst"
-              item-value="value"
-              item-title="label"
-              chips
-              style="width: 150px !important"
-            ></v-select>
-          </span> -->
-          <!-- <v-btn
-            color="blue"
-            variant="tonal"
-            icon="mdi-playlist-plus"
-            size="small"
-            @click="isShowCreateDocument = true"
-          ></v-btn> -->
           <v-btn
             color="green"
             variant="tonal"
@@ -115,226 +69,6 @@
       </template>
     </v-data-table-server>
   </v-card>
-  <!-- <v-dialog v-model="isShowProcess" width="600">
-    <v-card>
-      <v-card-title class="d-flex justify-space-between align-center">
-        <div class="text-h5 text-medium-emphasis ps-2">Quá trình thực hiện</div>
-
-        <v-btn
-          icon="mdi-close"
-          variant="text"
-          rounded-full
-          size="small"
-          color="gray"
-          @click="isShowProcess = false"
-        ></v-btn>
-      </v-card-title>
-      <v-card-text>
-        <v-card class="layout-card">
-          <div
-            v-for="(item, index) in processLst"
-            :key="index"
-            class="mx-2 my-2"
-          >
-            <div class="d-flex">
-              <v-chip
-                class="mr-2"
-                :color="
-                  item.Status == 1
-                    ? 'blue'
-                    : item.Status == 4
-                    ? 'green'
-                    : item.Status == 5
-                    ? 'red'
-                    : 'gray'
-                "
-              >
-                {{ item.StepOrder }}
-              </v-chip>
-              {{ item.StepName }}
-            </div>
-            <v-sheet
-              v-for="(job, indjob) in item.StepLst"
-              :key="indjob"
-              class="px-1 py-1 mt-1"
-              rounded
-              :border="
-                job.Status == 1
-                  ? 'blue md'
-                  : job.Status == 4
-                  ? 'green md'
-                  : job.Status == 5
-                  ? 'red md'
-                  : 'gray md'
-              "
-            >
-              <div class="text-body-2 position-relative">
-                {{ job.JobName }}
-                <v-icon
-                  v-if="job.Status == 4"
-                  class="position-absolute right-0"
-                  color="green"
-                  size="small"
-                  >mdi-check-circle-outline</v-icon
-                >
-                <v-icon
-                  v-if="job.Status == 5"
-                  class="position-absolute right-0"
-                  color="red"
-                  size="small"
-                  >mdi-close-circle-outline</v-icon
-                >
-              </div>
-              <div v-for="(ass, indass) in job.AssignLst" :key="indass">
-                <div class="text-caption" v-if="ass.UserRole == 'Xử lý'">
-                  <div>
-                    <v-icon color="blue" size="small">mdi-account-edit</v-icon>
-                    {{ ass.FullName }}
-                    <v-icon color="blue" size="small" v-if="job.TimeModifyShow"
-                      >mdi-clock</v-icon
-                    >
-                    {{ job.TimeModifyShow }}
-                  </div>
-                  <div v-html="job.Report"></div>
-                </div>
-                <div class="text-caption" v-if="ass.UserRole == 'Phê duyệt'">
-                  <div>
-                    <v-icon color="red" size="small">mdi-account-check</v-icon>
-                    {{ ass.FullName }}
-                    <v-icon color="red" size="small" v-if="job.TimeApproveShow"
-                      >mdi-clock</v-icon
-                    >
-                    {{ job.TimeApproveShow }}
-                  </div>
-                  <div v-html="job.NoteApprove"></div>
-                </div>
-                <div class="file-lst" v-if="ass.FileLst.length > 0">
-                  <v-menu
-                    location="end"
-                    v-for="(file, indfile) in ass.FileLst"
-                    :key="indfile"
-                  >
-                    <template v-slot:activator="{ props }">
-                      <v-chip color="gray" v-bind="props" class="mr-1">
-                        {{ file.MineFile }}
-                      </v-chip>
-                    </template>
-
-                    <v-list>
-                      <v-list-item v-if="isPreviewSupported(file.MineFile)">
-                        <v-list-item-title>
-                          <v-btn
-                            @click="previewFile(file)"
-                            size="small"
-                            rounded="8"
-                            class="mb-1"
-                          >
-                            <v-icon class="mr-1">mdi-file-eye</v-icon> Xem trước
-                          </v-btn>
-                        </v-list-item-title>
-                      </v-list-item>
-
-                      <v-list-item>
-                        <v-list-item-title>
-                          <v-btn
-                            @click="downloadFile(file)"
-                            size="small"
-                            rounded="8"
-                            color="green"
-                            block
-                            class="mb-1"
-                          >
-                            <v-icon class="mr-1">mdi-file-download</v-icon> Tải
-                            ngay
-                          </v-btn>
-                        </v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </div>
-              </div>
-            </v-sheet>
-            <v-divider class="my-2" color="blue"></v-divider>
-          </div>
-        </v-card>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
-  <v-dialog v-model="isShowConfirm" width="400">
-    <v-card>
-      <v-card-title>Phê duyệt hồ sơ</v-card-title>
-      <v-card-text>
-        <v-select
-          v-model="statusConfirm"
-          :items="optionConfirmLst"
-          item-text="label"
-          item-value="value"
-          label="Trạng thái"
-        ></v-select>
-      </v-card-text>
-      <v-card-actions>
-        <v-btn @click="isShowConfirm = false" text>Hủy</v-btn>
-        <v-btn color="green" @click="confirmBrief">Xác nhận</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-  <v-dialog v-model="isShowCreateDocument" max-width="600">
-    <v-card>
-      <v-card-title>Tạo hồ sơ mới</v-card-title>
-      <v-card-text>
-        <v-select
-          placeholder="Chọn loại quy trình"
-          density="compact"
-          v-model="createDocument.TypeDoc"
-          :items="procedureLst"
-          item-value="ProcedureID"
-          item-title="ProcedureName"
-          chips
-          class="mb-2"
-        ></v-select>
-        <v-textarea
-          v-model="createDocument.Note"
-          label="Mô tả"
-          required
-          :rows="2"
-          class="mb-2"
-        ></v-textarea>
-      </v-card-text>
-      <v-card-actions>
-        <v-btn @click="isShowCreateDocument = false" text>Hủy</v-btn>
-        <v-btn color="green" @click="btCreateDocument">Xác nhận</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-  <v-dialog v-model="isShowFile" persistent width="800">
-    <v-card>
-      <v-card-item>
-        <div v-if="isLoading">Đang tải...</div>
-        <div v-else>
-          <strong>{{ nameFile }}</strong>
-          <div v-if="fileMine == '.pdf'">
-            <iframe
-              :src="
-                'https://docs.google.com/gview?embedded=true&url=' +
-                encodeURIComponent(fileUrl)
-              "
-              width="100%"
-              height="600px"
-            ></iframe>
-          </div>
-          <div v-else>
-            <div
-              v-html="docContent"
-              style="height: calc(100vh - 200px); overflow: auto"
-            ></div>
-          </div>
-        </div>
-      </v-card-item>
-      <v-card-actions>
-        <v-btn @click="isShowFile = false">Đóng</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog> -->
 </template>
 
 <script>
@@ -542,62 +276,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.layout-card {
-  min-height: 250px;
-  max-height: calc(100vh - 150px);
-  overflow-y: scroll;
-  margin-bottom: -10px;
-  margin-top: -20px;
-  &::-webkit-scrollbar-track-piece {
-    background: #ffffff;
-  }
-
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #bec5ce;
-    border-radius: 20px;
-  }
-  .file-lst {
-    display: flex;
-    overflow: scroll;
-    padding: 4px 0;
-    margin-bottom: 4px;
-    &::-webkit-scrollbar-track-piece {
-      background: transparent;
-    }
-
-    &::-webkit-scrollbar {
-      width: 8px;
-      height: 6px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: #bec5ce;
-      border-radius: 20px;
-    }
-    .v-chip {
-      min-width: 60px;
-    }
-  }
-  .file {
-    margin-right: 4px;
-    // margin-bottom: 4px;
-    max-width: 250px !important;
-    min-width: 60px;
-    white-space: normal;
-    position: relative;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 12px;
-    &:hover {
-      background: #f0f0f0;
-    }
-  }
-}
-</style>

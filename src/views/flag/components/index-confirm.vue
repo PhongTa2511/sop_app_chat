@@ -156,7 +156,7 @@
 </template>
 
 <script>
-import { GetCompanyInfoByID, ApproveCompanyGreen } from "@/api/company";
+import { ApproveCompanyGreen, GetCompanyInfoByID } from "@/api/companyApi";
 export default {
   props: {
     companyID: String,

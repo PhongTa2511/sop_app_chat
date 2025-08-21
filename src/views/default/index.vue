@@ -1,8 +1,8 @@
 <template>
   <v-card>
-    <v-card-title class="text-h6 py-4">
+    <v-card-title class="text-h6 pl-4 pr-2 pb-0">
       <div class="d-flex justify-space-between">
-        <div>Danh sách giá trị cài đặt</div>
+        <div>DANH SÁCH GIÁ TRỊ</div>
         <div class="d-flex flex-wrap">
           <span>
             <v-text-field
@@ -23,7 +23,7 @@
             variant="tonal"
             @click="btShowCreate"
             icon="mdi-text-box-plus"
-            style="height: 40px"
+            size="small"
           ></v-btn>
         </div>
       </div>
@@ -36,10 +36,11 @@
       :headers="headers"
       :items="desserts"
       :search="search"
-      height="calc(100vh - 210px)"
+      height="calc(100vh - 270px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
+      fixed-header=""
     >
       <template v-slot:item.Status="{ item }">
         <v-chip color="success" size="small" v-if="item.Status == 1">
@@ -116,8 +117,8 @@
 
 <script>
 import {
-  GetDefaultValue,
   CreateDefaultValue,
+  GetDefaultValue,
   UpdateDefaultValue,
 } from "@/api/default";
 export default {

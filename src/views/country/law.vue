@@ -1,10 +1,10 @@
 <template>
-  <v-card class="pt-4">
+  <v-card class="pt-2">
     <v-data-table
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="productLst"
-      height="calc(100vh - 180px)"
+      height="calc(100vh - 168px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
@@ -19,7 +19,7 @@
       hide-default-footer
     >
       <template v-slot:top>
-        <div class="d-flex flex-wrap gap-2 px-3">
+        <div class="d-flex flex-wrap gap-2 px-2">
           <span>
             <v-autocomplete
               v-model="country"
@@ -214,8 +214,8 @@ import {
   GetCountryLstNumber,
   UpdateCountryLawLst,
 } from "@/api/countryApi";
-import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 import { GetDefaultValue } from "@/api/default";
+import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 export default {
   data() {
     return {
@@ -250,11 +250,12 @@ export default {
       isShowAddLaw: false,
       isShowInfo: false,
       countryLst: [],
-      country: "",
+      country: null,
     };
   },
   watch: {
     country(newVal) {
+      if (!newVal) return;
       this.$router.push({
         path: this.$route.path,
         query: { country: newVal }, // Chuyển đổi searchParams thành đối tượng
@@ -290,7 +291,7 @@ export default {
             this.getCountryLawLst();
           } else {
             this.country =
-              this.countryLst.length > 0 ? this.countryLst[0].Country : "";
+              this.countryLst.length > 0 ? this.countryLst[0].Country : null;
             this.$router.push({
               path: this.$route.path,
               query: { country: this.country }, // Chuyển đổi searchParams thành đối tượng

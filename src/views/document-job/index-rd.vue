@@ -8,7 +8,6 @@
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="jobLst"
-      :search="inputSearch"
       height="calc(100vh - 270px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
@@ -19,7 +18,8 @@
         { value: 100, title: '100' },
         { value: 10000, title: 'All' },
       ]"
-      fixed-header=""
+      fixed-header
+      :loading="loadding"
     >
       <template v-slot:top>
         <div class="d-flex flex-wrap gap-2 px-2">
@@ -57,8 +57,27 @@
                   ></v-text-field>
 
                   <v-text-field
-                    v-model="note"
-                    label="Ghi chú"
+                    v-model="product"
+                    label="Sản phẩm"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+
+                  <v-text-field
+                    v-model="name2"
+                    label="Tên xuất khẩu"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="country"
+                    label="Quốc gia"
                     hide-details
                     style="width: 250px !important"
                     prepend-inner-icon="mdi-magnify"
@@ -90,6 +109,7 @@
               </v-list>
             </v-menu>
           </span>
+
           <v-btn
             color="green"
             variant="tonal"
@@ -100,10 +120,12 @@
         </div>
       </template>
       <template v-slot:item.Status="{ item }">
-        <v-chip :color="getStatus(item.Status).color" size="x-small">
-          {{ getStatus(item.Status).text }}</v-chip
-        >
-        <div style="font-size: 12px">
+        <div>
+          <v-chip size="x-small" :color="getStatus(item.Status).color">
+            {{ getStatus(item.Status).text }}</v-chip
+          >
+        </div>
+        <div style="font-size: 11px">
           {{ item.FullName }}
         </div>
       </template>
@@ -119,7 +141,7 @@
           >mdi-note-edit</v-icon
         >
       </template>
-      <template v-slot:item.Time="{ item }">
+      <template v-slot:item.TimeStartShow="{ item }">
         <div style="color: green">
           {{ item.TimeStartShow }}
         </div>
@@ -130,11 +152,12 @@
       <template v-slot:item.ProcedureName="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.ProcedureName }}
-        </div>
-      </template>
-      <template v-slot:item.StepName="{ item }">
-        <div :class="itemRowBackground(item)">
-          {{ item.StepName }}
+          <v-chip color="green" size="x-small" v-if="item.DaysWorked != 0">{{
+            item.DaysWorked
+          }}</v-chip>
+          <v-chip color="red" size="x-small" v-if="item.DaysRemaining != 0">
+            {{ item.DaysRemaining }}
+          </v-chip>
         </div>
       </template>
       <template v-slot:item.JobName="{ item }">
@@ -142,9 +165,19 @@
           {{ item.JobName }}
         </div>
       </template>
-      <template v-slot:item.Note="{ item }">
+      <template v-slot:item.WarehouseName="{ item }">
         <div :class="itemRowBackground(item)">
-          {{ item.Note }}
+          {{ item.WarehouseName }}
+        </div>
+      </template>
+      <template v-slot:item.Name2="{ item }">
+        <div :class="itemRowBackground(item)">
+          {{ item.Name2 }}
+        </div>
+      </template>
+      <template v-slot:item.Country="{ item }">
+        <div :class="itemRowBackground(item)">
+          {{ item.Country }}
         </div>
       </template>
     </v-data-table-server>
@@ -163,17 +196,6 @@ export default {
       rowspPage: 10,
       pageNumber: 1,
       totalLength: 0,
-      optionStatusLst: [
-        { value: 1, label: "Mới tạo" },
-        { value: 2, label: "Đang xử lý" },
-        { value: 3, label: "Hoàn thành" },
-        { value: 4, label: "Tất cả" },
-      ],
-      optionConfirmLst: [
-        { value: 0, label: "Dừng xử lý" },
-        { value: 2, label: "Đang xử lý" },
-        { value: 3, label: "Hoàn thnh" },
-      ],
 
       headers: [
         {
@@ -183,43 +205,43 @@ export default {
           align: "center",
           width: 80,
         },
-        { title: "Quy trình", key: "ProcedureName", sortable: false },
-        { title: "Bước", key: "StepName", sortable: false },
+        { title: "Hồ sơ", key: "ProcedureName", sortable: false },
         { title: "Công việc", key: "JobName", sortable: false },
-        { title: "Ghi chú", key: "Note", sortable: false },
-
+        { title: "Sản phẩm", key: "WarehouseName", sortable: false },
+        { title: "Tên XK", key: "Name2", sortable: false },
+        { title: "Quốc gia", key: "Country", sortable: false },
         {
           title: "Thời gian",
-          key: "Time",
+          key: "TimeStartShow",
           sortable: false,
           width: 100,
         },
-
-        // { title: "", key: "Action", width: 40, align: "center" },
         { title: "Trạng thái", key: "Status", sortable: false, width: 120 },
       ],
       jobLst: [],
+      proName: "",
+      workName: "",
+      product: "",
+      name2: "",
+      country: "",
+      employeeName: "",
+      statusSearch: "",
       workOver: "Tất cả",
       workOverLst: [
         { value: "Tất cả" },
         { value: "Quá hạn" },
         { value: "Đúng hạn" },
       ],
-      proName: "",
-      workName: "",
-      note: "",
-      employeeName: "",
-      inputSearch: "",
     };
   },
   watch: {
     search() {
       this.getDocumentJobByEm();
     },
-    pageNumber() {
+    pageNumber(newValue) {
       this.getDocumentJobByEm();
     },
-    rowspPage() {
+    rowspPage(newValue) {
       this.getDocumentJobByEm();
     },
   },
@@ -251,7 +273,7 @@ export default {
       }
 
       if (status == 1 || status == 2) {
-        return { text: "Đang làm", color: "blue" };
+        return { text: "Đang làm", color: "info" };
       }
       if (status == 3) {
         return { text: "Đã báo cáo", color: "blue" };
@@ -265,14 +287,18 @@ export default {
       const searchParams = {
         proName: this.proName,
         workName: this.workName,
-        note: this.note,
+        product: this.product,
+        name2: this.name2,
+        country: this.country,
         employeeName: this.employeeName,
+        statusSearch: this.statusSearch,
         workOver: this.workOver,
       };
       this.$router.push({
         path: this.$route.path,
         query: searchParams, // Chuyển đổi searchParams thành đối tượng
       });
+
       GetDocumentJobByEm({
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
@@ -282,9 +308,15 @@ export default {
           "|" +
           (this.workName ?? "") +
           "|" +
-          (this.note ?? "") +
+          (this.product ?? "") +
+          "|" +
+          (this.name2 ?? "") +
+          "|" +
+          (this.country ?? "") +
           "|" +
           (this.employeeName ?? "") +
+          "|" +
+          (this.statusSearch ?? "") +
           "|" +
           (this.workOver ?? ""),
       }).then((res) => {
@@ -302,12 +334,19 @@ export default {
             };
           });
           this.totalLength = res.TotalRows;
+          this.loadding = false;
         }
-        this.loadding = false;
       });
     },
   },
   created() {
+    this.proName = this.$route.query.proName;
+    this.workName = this.$route.query.workName;
+    this.product = this.$route.query.product;
+    this.name2 = this.$route.query.name2;
+    this.country = this.$route.query.country;
+    this.employeeName = this.$route.query.employeeName;
+    this.statusSearch = this.$route.query.statusSearch;
     this.getDocumentJobByEm();
   },
 };

@@ -295,7 +295,7 @@ export default {
       const requestData = {
         PageNumber: this.currentPage,
         RowspPage: this.pageSize,
-        Search: searchString,
+        Search: searchString + "|3",
       };
       GetWareHouseLst(requestData).then((res) => {
         if (res.RespCode == 0) {

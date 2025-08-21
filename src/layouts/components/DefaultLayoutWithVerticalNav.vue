@@ -83,11 +83,11 @@ onMounted(() => {
         }"
       />
       <VerticalNavLink
-        v-if="hasAccess('danh-sach-ho-so')"
+        v-if="hasAccess('ho-so')"
         :item="{
           title: 'Hồ sơ',
           icon: 'mdi-list-box',
-          to: '/danh-sach-ho-so',
+          to: '/ho-so',
         }"
       />
       <VerticalNavLink
@@ -116,11 +116,11 @@ onMounted(() => {
         }"
       />
       <VerticalNavLink
-        v-if="hasAccess('cong-viec-phat-sinh')"
+        v-if="hasAccess('phat-sinh')"
         :item="{
           title: 'Phát sinh',
           icon: 'mdi-sitemap-outline',
-          to: '/cong-viec-phat-sinh',
+          to: '/phat-sinh',
         }"
       />
       <VerticalNavLink

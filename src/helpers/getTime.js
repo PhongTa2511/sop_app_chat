@@ -72,3 +72,10 @@ export function formatDateHHDDMM(date) {
     return date;
   }
 }
+export function formatDateDDMMYY(date) {
+  if (date) {
+    return moment(date).format("DD-MM-YYYY");
+  } else {
+    return date;
+  }
+}

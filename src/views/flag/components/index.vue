@@ -254,7 +254,7 @@ import {
   GetCompanyInfoByID,
   UpdateCompanyGreen,
   UpdateCompanyInfo,
-} from "@/api/company";
+} from "@/api/companyApi";
 import { formatDateDDMMYY } from "@/helpers/getTime";
 import { getUserName } from "@/utils/auth";
 export default {

@@ -127,3 +127,19 @@ export function GetUserPermisstionByID(data) {
     data,
   });
 }
+
+export function GetUserPermisstionLst(data) {
+  return request({
+    url: "User/GetUserPermisstionLst",
+    method: "post",
+    data,
+  });
+}
+
+export function UpdateUserPermisstionLst(data) {
+  return request({
+    url: "User/UpdateUserPermisstionLst",
+    method: "post",
+    data,
+  });
+}

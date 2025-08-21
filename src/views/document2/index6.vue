@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pt-4">
+  <v-card class="pt-2">
     <v-data-table-server
       :items-length="totalLength"
       @update:itemsPerPage="btRow"
@@ -7,7 +7,7 @@
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="fileLst"
-      height="calc(100vh - 210px)"
+      height="calc(100vh - 270px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
@@ -21,34 +21,7 @@
       fixed-header
     >
       <template v-slot:top>
-        <div class="d-flex flex-wrap gap-2 px-3">
-          <!-- <span>
-            <v-text-field
-              v-model="searchProduct"
-              label="Tên sản phẩm"
-              hide-details
-              style="width: 150px !important"
-              clearable
-            ></v-text-field>
-          </span> -->
-          <!-- <span>
-            <v-text-field
-              v-model="searchExporter"
-              label="Tên xuất khẩu"
-              hide-details
-              style="width: 150px !important"
-              clearable
-            ></v-text-field>
-          </span> -->
-          <!-- <span>
-            <v-text-field
-              v-model="searchCountry"
-              label="Nước"
-              hide-details
-              style="width: 150px !important"
-              clearable
-            ></v-text-field>
-          </span> -->
+        <div class="d-flex flex-wrap gap-2 px-2">
           <span>
             <v-text-field
               v-model="searchJob"
@@ -622,7 +595,7 @@ export default {
         return { text: "Mới tạo", color: "blue" };
       }
       if (status == 2) {
-        return { text: "Đang làm", color: "success" };
+        return { text: "Đang làm", color: "info" };
       }
       if (status == 3) {
         return { text: "Tạm dừng", color: "more" };

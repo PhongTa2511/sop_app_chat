@@ -72,14 +72,14 @@
       </v-card>
     </v-dialog>
 
-    <v-card-title>
+    <v-card-title class="pr-2 pl-4 pb-0">
       <div class="d-flex" style="justify-content: space-between">
-        <h6 class="text-h6 py-2">Danh sách quy trình</h6>
+        <h6 class="text-h6">DANH SÁCH QUY TRÌNH</h6>
         <div class="d-flex">
           <v-btn
             color="green"
             icon="mdi-playlist-plus"
-            style="height: 42px"
+            size="small"
             class="mr-1"
             @click="btShowCreateProcedure"
           ></v-btn>
@@ -96,7 +96,7 @@
       :items-length="dataLength"
       @update:itemsPerPage="btRow"
       @update:page="btPage"
-      height="calc(100vh - 170px)"
+      height="calc(100vh - 270px)"
       :loading="loadding"
       :items-per-page="rowspPage"
       :items-per-page-options="[
@@ -104,6 +104,7 @@
         { value: 50, title: '50' },
         { value: 100, title: '100' },
       ]"
+      fixed-header
     >
       <template v-slot:item.Key="{ item }">
         {{ item.Key }}
@@ -143,9 +144,9 @@
 <script>
 import {
   CreateProcedure,
-  UpdateProcedure,
   DelProcedure,
   GetProcedureLst,
+  UpdateProcedure,
 } from "@/api/procedureApi";
 import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 

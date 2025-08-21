@@ -1,5 +1,5 @@
 <template>
-  <v-card class="pt-4">
+  <v-card class="pt-2">
     <v-data-table-server
       :items-per-page="rowspPage"
       :items-length="totalLength"
@@ -8,7 +8,7 @@
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="fileLst"
-      height="calc(100vh - 210px)"
+      height="calc(100vh - 270px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
@@ -18,9 +18,10 @@
         { value: 100, title: '100' },
         { value: 10000, title: 'All' },
       ]"
+      fixed-header
     >
       <template v-slot:top>
-        <div class="d-flex flex-wrap gap-2 px-3">
+        <div class="d-flex flex-wrap gap-2 px-2">
           <span>
             <v-text-field
               v-model="searchDocumentID"
@@ -86,7 +87,7 @@
         </div>
       </template>
       <template v-slot:item.Status="{ item }">
-        <v-chip :color="getStatus(item.Status).color">
+        <v-chip :color="getStatus(item.Status).color" size="small">
           {{ getStatus(item.Status).text }}</v-chip
         >
       </template>
@@ -524,7 +525,7 @@ export default {
         return { text: "Mới tạo", color: "blue" };
       }
       if (status == 2) {
-        return { text: "Đang làm", color: "success" };
+        return { text: "Đang làm", color: "info" };
       }
       if (status == 3) {
         return { text: "Tạm dừng", color: "more" };
@@ -630,62 +631,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.layout-card {
-  min-height: 250px;
-  max-height: calc(100vh - 150px);
-  overflow-y: scroll;
-  margin-bottom: -10px;
-  margin-top: -20px;
-  &::-webkit-scrollbar-track-piece {
-    background: #ffffff;
-  }
-
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #bec5ce;
-    border-radius: 20px;
-  }
-  .file-lst {
-    display: flex;
-    overflow: scroll;
-    padding: 4px 0;
-    margin-bottom: 4px;
-    &::-webkit-scrollbar-track-piece {
-      background: transparent;
-    }
-
-    &::-webkit-scrollbar {
-      width: 8px;
-      height: 6px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: #bec5ce;
-      border-radius: 20px;
-    }
-    .v-chip {
-      min-width: 60px;
-    }
-  }
-  .file {
-    margin-right: 4px;
-    // margin-bottom: 4px;
-    max-width: 250px !important;
-    min-width: 60px;
-    white-space: normal;
-    position: relative;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 12px;
-    &:hover {
-      background: #f0f0f0;
-    }
-  }
-}
-</style>

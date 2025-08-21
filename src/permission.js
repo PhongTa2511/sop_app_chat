@@ -30,10 +30,16 @@ export const fetchUserPermissions = async () => {
   return [];
 };
 
-const whiteList = ["/dang-nhap", "/khieu-nai"]; // no redirect whitelist
+const whiteList = [
+  "/dang-nhap",
+  "/khieu-nai",
+  "/thong-tin/",
+  "/thong-tin-cong-viec/",
+]; // no redirect whitelist
 
 router.beforeEach(async (to, from, next) => {
   const hasToken = getToken();
+  console.log("to", to.path);
 
   if (hasToken) {
     if (to.path === "/dang-nhap") {
