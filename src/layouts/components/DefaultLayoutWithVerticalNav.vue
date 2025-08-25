@@ -23,7 +23,7 @@ const toggleNavCollapse = () => {
 
 const loadInitialData = async () => {
   if (!getToken()) return;
-  permission.value = JSON.parse(localStorage.getItem("PermissionsKSVR"));
+  permission.value = JSON.parse(localStorage.getItem("PermissionsDTP"));
 
   isReady.value = true;
 };
@@ -141,7 +141,7 @@ onMounted(() => {
       />
 
       <VerticalNavLink
-        v-if="hasAccess('trang-chu')"
+        v-if="hasAccess('tai-khoan')"
         :item="{
           title: 'Tài khoản',
           icon: 'mdi-account-cog',
@@ -150,7 +150,7 @@ onMounted(() => {
       />
 
       <VerticalNavLink
-        v-if="hasAccess('trang-chu')"
+        v-if="hasAccess('cai-dat')"
         :item="{
           title: 'Cài đặt',
           icon: 'mdi-cog',

@@ -2,6 +2,7 @@
 import {
   getAvatar,
   getFullName,
+  removeAvatar,
   removeEmail,
   removeFullName,
   removePhoneNumber,
@@ -24,7 +25,9 @@ export default {
       removePhoneNumber();
       removeUserID();
       removeEmail();
-      location.reload();
+      removeAvatar();
+      this.$router.push("/dang-nhap");
+      // location.reload();
     },
   },
 };
@@ -46,7 +49,7 @@ export default {
         <div v-else>R</div>
       </div>
       <!-- SECTION Menu -->
-      <VMenu activator="parent" width="230" location="bottom end" offset="14px">
+      <VMenu activator="parent" width="250" location="bottom end" offset="14px">
         <VList>
           <!-- 👉 User Avatar & Name -->
           <VListItem>
@@ -59,7 +62,7 @@ export default {
                   offset-y="3"
                   color="success"
                 >
-                  <VAvatar variant="text">
+                  <VAvatar variant="text" class="bg-grey-300">
                     <VImg :src="avatar" v-if="avatar" />
                     <div v-else>
                       <div v-if="fullName">{{ fullName[0] }}</div>
@@ -73,9 +76,9 @@ export default {
             <VListItemTitle class="font-weight-semibold">
               {{ fullName }}
             </VListItemTitle>
-            <VListItemSubtitle
+            <!-- <VListItemSubtitle
               >{{ position }} - {{ specialize }}</VListItemSubtitle
-            >
+            > -->
           </VListItem>
           <VDivider class="my-2" />
 

@@ -223,7 +223,7 @@
 </template>
 
 <script>
-import { GetCountryRoleLst, UpdateCountryRole } from "@/api/company";
+import { GetCountryRoleLst, UpdateCountryRole } from "@/api/companyApi";
 import { GetDefaultValue } from "@/api/default";
 import { GetUserLstAll } from "@/api/user";
 export default {

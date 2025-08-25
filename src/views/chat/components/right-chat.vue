@@ -202,11 +202,11 @@
 
 <script>
 import {
-  GetMemberLstByGroupID,
   AddMemberGroup,
   DelMemberGroup,
-  urlUploadImageGroup,
+  GetMemberLstByGroupID,
   UpdateGroup,
+  urlUploadImageGroup,
 } from "@/api/messageApi";
 import Axios from "axios";
 export default {
@@ -314,7 +314,7 @@ export default {
                 text: "Cập nhật ảnh đại diện thành công",
               });
               this.groupInfo.LinkImage =
-                "https://sop.icpc1hn.work/api/File/GetAvatarGroup?GroupID=" +
+                "https://sop.idtp.work/api/File/GetAvatarGroup?GroupID=" +
                 this.groupInfo.GroupID +
                 "&timestamp=" +
                 new Date().getTime();
@@ -339,7 +339,7 @@ export default {
             return {
               ...item,
               Avatar: item.LinkImage
-                ? "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
+                ? "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
                   item.UserID
                 : null,
             };

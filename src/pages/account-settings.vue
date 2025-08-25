@@ -2,26 +2,33 @@
 import AccountSettingsAccount from "@/views/account-settings/AccountSettingsAccount.vue";
 import AccountSettingsRole from "@/views/account-settings/AccountSettingsRole.vue";
 import AccountSettingsList from "@/views/account-settings/index.vue";
+import SetCountry from "@/views/account-settings/setting-country.vue";
+
 import { ref } from "vue";
 
-const activeTab = ref("");
-const permission = JSON.parse(localStorage.getItem("PermissionsKSVR"));
+var activeTab = ref("");
+const permission = JSON.parse(localStorage.getItem("PermissionsDTP"));
 // tabs
 const tabs = [
   {
     title: "Danh sách",
     icon: "fa-users",
-    tab: "list",
+    tab: "danh-sach-tai-khoan",
   },
   {
     title: "Cá nhân",
     icon: "bx-user",
-    tab: "account",
+    tab: "thong-tin-tai-khoan",
   },
   {
     title: "Phân quyền",
     icon: "bx-grid-alt",
     tab: "phan-quyen",
+  },
+  {
+    title: "Phân quyền nước",
+    icon: "mdi-earth",
+    tab: "phan-quyen-nuoc",
   },
 ];
 
@@ -41,7 +48,7 @@ if (!availableTabs.value.find((t) => t.tab === activeTab.value)) {
 <template>
   <div>
     <VTabs v-model="activeTab" show-arrows>
-      <VTab v-for="item in tabs" :key="item.icon" :value="item.tab">
+      <VTab v-for="item in availableTabs" :key="item.icon" :value="item.tab">
         <VIcon size="20" start :icon="item.icon" />
         {{ item.title }}
       </VTab>
@@ -49,10 +56,16 @@ if (!availableTabs.value.find((t) => t.tab === activeTab.value)) {
     <VDivider />
 
     <VWindow v-model="activeTab" class="mt-2 disable-tab-transition">
-      <VWindowItem value="list">
+      <VWindowItem
+        value="danh-sach-tai-khoan"
+        v-if="availableTabs.some((t) => t.tab === 'danh-sach-tai-khoan')"
+      >
         <AccountSettingsList />
       </VWindowItem>
-      <VWindowItem value="account">
+      <VWindowItem
+        value="thong-tin-tai-khoan"
+        v-if="availableTabs.some((t) => t.tab === 'thong-tin-tai-khoan')"
+      >
         <AccountSettingsAccount />
       </VWindowItem>
       <VWindowItem
@@ -60,6 +73,12 @@ if (!availableTabs.value.find((t) => t.tab === activeTab.value)) {
         v-if="availableTabs.some((t) => t.tab === 'phan-quyen')"
       >
         <AccountSettingsRole />
+      </VWindowItem>
+      <VWindowItem
+        value="phan-quyen-nuoc"
+        v-if="availableTabs.some((t) => t.tab === 'phan-quyen-nuoc')"
+      >
+        <SetCountry />
       </VWindowItem>
     </VWindow>
   </div>

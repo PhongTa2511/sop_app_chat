@@ -40,7 +40,7 @@ export default {
         setRole(res.UserInfo.Role);
         if (res.UserInfo.LinkImage && res.UserInfo.LinkImage != "") {
           setAvatar(
-            "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
+            "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
               res.UserInfo.UserName
           );
         } else {

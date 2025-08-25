@@ -52,6 +52,11 @@ export function isPreviewSupported(fileExtension) {
 }
 
 export function downloadFile(file) {
-  const previewUrl = `https://sop.icpc1hn.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`;
+  const previewUrl = `https://sop.idtp.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`;
+  window.open(previewUrl);
+}
+
+export function downloadFileProduct(file) {
+  const previewUrl = `https://sop.idtp.work/api/File/GetProductFile?FileName=${file.LinkFile}`;
   window.open(previewUrl);
 }

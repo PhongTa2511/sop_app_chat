@@ -1,13 +1,6 @@
 <template>
-  <v-row class="mt-2" style="height: calc(100vh - 112px)">
-    <input
-      ref="fileInputExcel"
-      type="file"
-      accept=".xls,.xlsx"
-      @change="handleFileUploadExcel"
-      style="display: none"
-    />
-    <v-col :lg="8" cols="12">
+  <v-row class="mt-2 pr-3" style="height: calc(100vh - 112px)">
+    <v-col :lg="8" cols="12" class="">
       <v-card class="layout-card">
         <v-card-title class="text-h6 py-2 pl-4 pr-0">
           <div class="d-flex justify-sm-space-between">
@@ -686,7 +679,7 @@
         </div>
       </v-card>
     </v-col>
-    <v-col :lg="4" cols="12" class="pl-0">
+    <v-col :lg="4" cols="12" class="px-0">
       <v-card class="py-2 px-4 layout-card">
         <div class="d-flex justify-space-between">
           <div class="text-h6">Quá trình thực hiện</div>
@@ -816,6 +809,13 @@
       </v-card>
     </v-col>
   </v-row>
+  <input
+    ref="fileInputExcel"
+    type="file"
+    accept=".xls,.xlsx"
+    @change="handleFileUploadExcel"
+    style="display: none"
+  />
   <v-dialog v-model="isShowFile" persistent width="800">
     <v-card>
       <v-card-item>
@@ -1232,7 +1232,7 @@ export default {
       this.docContent = "";
       const fileExtension = file.MineFile.toLowerCase();
       this.fileMine = fileExtension;
-      const previewUrl = `https://sop.icpc1hn.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`;
+      const previewUrl = `https://sop.idtp.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`;
       if (fileExtension === ".pdf") {
         this.fileUrl = previewUrl;
         window.open(
@@ -1651,60 +1651,61 @@ export default {
 
 <style lang="scss" scoped>
 .layout-card {
-  min-height: 250px;
-  max-height: calc(100vh - 86px);
-  height: 100%;
-  overflow-y: scroll;
-  // margin-bottom: -10px;
-  &::-webkit-scrollbar-track-piece {
-    background: #ffffff;
-  }
+  //   // min-height: 250px;
+  //   max-height: calc(100vh - 86px);
+  //   height: calc(100vh - 112px);
+  //   overflow-y: scroll;
+  //   // margin-bottom: -10px;
+  //   &::-webkit-scrollbar-track-piece {
+  //     background: transparent;
+  //   }
 
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
+  //   &::-webkit-scrollbar {
+  //     width: 8px;
+  //     height: 8px;
+  //   }
 
-  &::-webkit-scrollbar-thumb {
-    background: #bec5ce;
-    border-radius: 20px;
-  }
-  .file-lst {
-    display: flex;
-    overflow: scroll;
-    padding: 4px 0;
-    margin-bottom: 4px;
-    &::-webkit-scrollbar-track-piece {
-      background: transparent;
-    }
+  //   &::-webkit-scrollbar-thumb {
+  //     background: #bec5ce;
+  //     border-radius: 20px;
+  //   }
+  //   .file-lst {
+  //     display: flex;
+  //     overflow: scroll;
+  //     // padding: 4px 0;
+  //     // margin-bottom: 4px;
+  //     &::-webkit-scrollbar-track-piece {
+  //       background: transparent;
+  //     }
 
-    &::-webkit-scrollbar {
-      width: 8px;
-      height: 6px;
-    }
+  //     &::-webkit-scrollbar {
+  //       width: 8px;
+  //       height: 6px;
+  //     }
 
-    &::-webkit-scrollbar-thumb {
-      background: #bec5ce;
-      border-radius: 20px;
-    }
-    .v-chip {
-      min-width: 60px;
-    }
-  }
-  .file {
-    margin-right: 4px;
-    // margin-bottom: 4px;
-    max-width: 250px !important;
-    min-width: 60px;
-    white-space: normal;
-    position: relative;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 12px;
-    &:hover {
-      background: #f0f0f0;
-    }
-  }
+  //     &::-webkit-scrollbar-thumb {
+  //       background: #bec5ce;
+  //       border-radius: 20px;
+  //     }
+  //     .v-chip {
+  //       min-width: 60px;
+  //     }
+  //   }
+  //   .file {
+  //     margin-right: 4px;
+  //     // margin-bottom: 4px;
+  //     max-width: 250px !important;
+  //     min-width: 60px;
+  //     white-space: normal;
+  //     position: relative;
+  //     cursor: pointer;
+  //     font-weight: 600;
+  //     font-size: 12px;
+  //     &:hover {
+  //       background: #f0f0f0;
+  //     }
+  //   }
+
   .quill {
     height: 200px;
     border: 2px solid rgb(var(--v-theme-grey));

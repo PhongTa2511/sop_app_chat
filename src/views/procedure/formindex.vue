@@ -45,7 +45,7 @@
               v-for="(field, index) in createForm.FormLineLst"
               :key="index"
             >
-              <v-col cols="11">
+              <v-col cols="10">
                 <v-text-field
                   v-model="field.Parameter"
                   :label="'Tên trường thông tin ' + (index + 1)"
@@ -63,7 +63,7 @@
                       <v-icon>mdi-plus</v-icon>
                     </v-btn>
                   </div>
-                  <div style="height: 250px !important; overflow: auto">
+                  <div style="max-height: 250px !important; overflow: auto">
                     <v-list-item
                       v-for="(item, index) in field.Options"
                       :key="index"
@@ -88,6 +88,52 @@
                       </div>
                     </v-list-item>
                   </div>
+                  <v-btn
+                    v-if="field.ShowMore == true"
+                    @click="showAllOptions(field)"
+                    size="small"
+                    variant="text"
+                    >Xem thêm</v-btn
+                  >
+                </v-list>
+                <v-list v-if="field.Type === 3">
+                  <div class="d-flex justify-space-between px-4 mb-2">
+                    <div>Cấu hình lựa chọn</div>
+                    <!-- <v-btn
+                      icon
+                      color="green"
+                      size="x-small"
+                      @click="addOption(field)"
+                      style="margin-top: -4px"
+                    >
+                      <v-icon>mdi-plus</v-icon>
+                    </v-btn> -->
+                  </div>
+                  <v-row>
+                    <v-col>
+                      <v-select
+                        v-model="field.SelectedOption"
+                        :items="optionTypeAuto"
+                        item-title="Name"
+                        item-value="ID"
+                        label="Loại lựa chọn"
+                      ></v-select>
+                    </v-col>
+                    <v-col>
+                      <v-select
+                        v-model="field.SelectedOption"
+                        :items="field.Options"
+                        item-title="Name"
+                        item-value="ID"
+                        label="Chọn một lựa chọn"
+                      ></v-select>
+                      <v-text-field
+                        label="Tên bảng giá trị"
+                        v-model="field.TableName"
+                      >
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
                 </v-list>
               </v-col>
               <v-col cols="1">
@@ -131,7 +177,23 @@
                             <v-icon>mdi-format-list-checks</v-icon>
                           </v-btn>
                         </template>
-                        <span>Lựa chọn</span>
+                        <span>Lựa chọn thủ công</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 3)"
+                            color="green"
+                          >
+                            <v-icon>mdi-format-list-checks</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Lựa chọn có sẵn</span>
                       </v-tooltip>
                     </v-list-item>
                     <v-list-item>
@@ -142,7 +204,86 @@
                             v-bind="props"
                             size="x-small"
                             color="red"
-                            @click="removeField(index)"
+                            @click="removeField2(index)"
+                          >
+                            <v-icon>mdi-delete</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Xóa</span>
+                      </v-tooltip>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-col>
+              <v-col cols="1">
+                <v-menu>
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      variant="text"
+                      color="gray"
+                      icon="mdi-dots-grid"
+                      style="height: 40px; width: 0px"
+                    >
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 1)"
+                          >
+                            <v-icon color="blue">mdi-text-short </v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Nhập text</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 2)"
+                            color="green"
+                          >
+                            <v-icon>mdi-format-list-checks</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Lựa chọn thủ công</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 3)"
+                            color="green"
+                          >
+                            <v-icon>mdi-format-list-checks</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Lựa chọn có sẵn</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            color="red"
+                            @click="removeField2(index)"
                           >
                             <v-icon>mdi-delete</v-icon>
                           </v-btn>
@@ -206,7 +347,7 @@
               </v-btn>
             </div>
             <v-row v-for="(field, index) in editForm.FormLineLst" :key="index">
-              <v-col cols="11">
+              <v-col cols="10">
                 <v-text-field
                   v-model="field.Parameter"
                   :label="'Tên trường thông tin ' + (index + 1)"
@@ -257,6 +398,33 @@
                     >Xem thêm</v-btn
                   >
                 </v-list>
+                <v-list v-if="field.Type === 3">
+                  <v-row>
+                    <v-col>
+                      <v-select
+                        v-model="field.SelectedOption"
+                        :items="optionTypeAuto"
+                        item-title="Name"
+                        item-value="ID"
+                        label="Chọn một lựa chọn"
+                      ></v-select>
+                    </v-col>
+                    <v-col>
+                      <v-select
+                        v-model="field.SelectedOption"
+                        :items="field.Options"
+                        item-title="Name"
+                        item-value="ID"
+                        label="Chọn một lựa chọn"
+                      ></v-select>
+                      <v-text-field
+                        label="Tên bảng giá trị"
+                        v-model="field.TableName"
+                      >
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-list>
               </v-col>
               <v-col cols="1">
                 <v-menu>
@@ -299,7 +467,102 @@
                             <v-icon>mdi-format-list-checks</v-icon>
                           </v-btn>
                         </template>
-                        <span>Lựa chọn</span>
+                        <span>Lựa chọn thủ công</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 3)"
+                            color="green"
+                          >
+                            <v-icon>mdi-format-list-checks</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Lựa chọn có sẵn</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            color="red"
+                            @click="removeField2(index)"
+                          >
+                            <v-icon>mdi-delete</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Xóa</span>
+                      </v-tooltip>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-col>
+              <v-col cols="1">
+                <v-menu>
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      variant="text"
+                      color="gray"
+                      icon="mdi-dots-grid"
+                      style="height: 40px; width: 0px"
+                    >
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 1)"
+                          >
+                            <v-icon color="blue">mdi-text-short </v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Nhập text</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 2)"
+                            color="green"
+                          >
+                            <v-icon>mdi-format-list-checks</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Lựa chọn thủ công</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 3)"
+                            color="green"
+                          >
+                            <v-icon>mdi-format-list-checks</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Lựa chọn có sẵn</span>
                       </v-tooltip>
                     </v-list-item>
                     <v-list-item>
@@ -344,7 +607,7 @@
           <v-btn
             color="green"
             icon="mdi-playlist-plus"
-            style="height: 42px"
+            size="small"
             class="mr-1"
             @click="btShowcreateForm"
           ></v-btn>
@@ -396,15 +659,15 @@
 </template>
 
 <script>
+import { GetDefaultValue } from "@/api/default";
 import {
   CreateForm,
-  UpdateForm,
   DelForm,
-  GetFormLstByID,
   GetFormByID,
+  GetFormLstByID,
   GetProcedureByID,
+  UpdateForm,
 } from "@/api/procedureApi";
-import { GetDefaultValue } from "@/api/default";
 
 // import { CreateStep, GetStepByProcedure } from "@/api/phaseApi";
 export default {

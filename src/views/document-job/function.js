@@ -4,7 +4,7 @@ var token = getToken();
 var username = getUserName();
 
 export function urlUploadFile(data) {
-  return `https://sop.icpc1hn.work/api/File/UploadDocumentFile?UserName=${username}&Token=${token}&RowID=${data}`;
+  return `https://sop.idtp.work/api/File/UploadDocumentFile?UserName=${username}&Token=${token}&RowID=${data}`;
 }
 
 export function formatJson(filterVal, jsonData) {

@@ -23,7 +23,7 @@ export const fetchUserPermissions = async () => {
         };
       });
     }
-    localStorage.setItem("PermissionsKSVR", JSON.stringify(resPerm.Data));
+    localStorage.setItem("PermissionsDTP", JSON.stringify(resPerm.Data));
     return resPerm.Data;
   }
 
@@ -35,6 +35,10 @@ const whiteList = [
   "/khieu-nai",
   "/thong-tin/",
   "/thong-tin-cong-viec/",
+  "/form/",
+  "/form2/",
+  "/buoc/",
+  "/cong-viec/",
 ]; // no redirect whitelist
 
 router.beforeEach(async (to, from, next) => {

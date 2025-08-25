@@ -1,6 +1,6 @@
 <template>
-  <v-card class="py-4">
-    <div class="d-flex justify-space-between mb-4 mx-4" v-if="docInfo.TypeDoc">
+  <v-card class="py-4 pb-0">
+    <div class="d-flex justify-space-between mx-4" v-if="docInfo.TypeDoc">
       <div>
         <div class="text-h5" style="white-space: normal">
           Hồ sơ:
@@ -47,18 +47,6 @@
             ></v-btn>
           </template>
         </v-tooltip>
-        <!-- <v-tooltip text="Lưu thông tin">
-          <template v-slot:activator="{ props }">
-            <v-btn
-              v-bind="props"
-              size="small"
-              color="green"
-              class="mr-1"
-              icon="mdi-file-document-check"
-              @click="updateGSPDocument(2)"
-            ></v-btn>
-          </template>
-        </v-tooltip> -->
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn
@@ -69,11 +57,6 @@
             ></v-btn>
           </template>
           <v-list>
-            <!-- <v-list-item>
-              <v-btn size="small" color="blue" rounded="4" block>
-                Bắt đầu
-              </v-btn>
-            </v-list-item> -->
             <v-list-item>
               <v-btn
                 size="small"
@@ -294,8 +277,8 @@
       </v-tabs-window-item>
     </v-tabs-window>
   </v-card>
-  <v-row class="mt-2">
-    <v-col cols="12" md="6">
+  <v-row class="mt-0">
+    <v-col cols="12" md="6" class="pr-1">
       <v-card class="py-2 px-4 layout-card">
         <div class="d-flex justify-space-between">
           <div class="text-h6">Thông tin các bước</div>
@@ -380,8 +363,8 @@
         </div>
       </v-card>
     </v-col>
-    <v-col cols="12" md="6">
-      <v-card class="py-2 px-4 layout-card">
+    <v-col cols="12" md="6" class="pl-1">
+      <v-card class="py-2 px-2 layout-card">
         <div class="d-flex justify-space-between">
           <div class="text-h6">Các nhóm thực hiện</div>
           <v-tooltip text="Lưu thông tin" v-if="teamLst.length > 0">
@@ -1113,7 +1096,7 @@ export default {
       this.docContent = "";
       const fileExtension = file.MineFile.toLowerCase();
       this.fileMine = fileExtension;
-      const previewUrl = `https://sop.icpc1hn.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`;
+      const previewUrl = `https://sop.idtp.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`;
       if (fileExtension === ".pdf") {
         this.fileUrl = previewUrl;
         window.open(
@@ -1648,24 +1631,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.layout-card {
-  min-height: 250px;
-  max-height: 500px;
-  overflow-y: scroll;
-  &::-webkit-scrollbar-track-piece {
-    background: #ffffff;
-  }
-
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #bec5ce;
-    border-radius: 20px;
-  }
-}
-</style>

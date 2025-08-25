@@ -148,7 +148,7 @@
           <v-btn
             color="green"
             icon="mdi-playlist-plus"
-            style="height: 42px"
+            size="small"
             class="mr-1"
             @click="btShowCreatePhase"
           ></v-btn>
@@ -193,11 +193,11 @@
 
 <script>
 import {
-  GetProcedureByID,
   CreateStep,
-  UpdateStep,
-  GetStepByProcedure,
   DelStep,
+  GetProcedureByID,
+  GetStepByProcedure,
+  UpdateStep,
 } from "@/api/procedureApi";
 // import { CreateStep, GetStepByProcedure } from "@/api/phaseApi";
 export default {

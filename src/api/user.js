@@ -117,7 +117,7 @@ export function GetUserInfo(data) {
 }
 
 export function urlUploadImageAvatar(ID) {
-  return `https://sop.icpc1hn.work/api/File/UploadAvatarUser?UserName=${ID}&Token=${getToken()}`;
+  return `https://sop.idtp.work/api/File/UploadAvatarUser?UserName=${ID}&Token=${getToken()}`;
 }
 
 export function GetUserPermisstionByID(data) {

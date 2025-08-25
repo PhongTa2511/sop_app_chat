@@ -1,62 +1,38 @@
 <script setup>
-import { useRoute } from "vue-router";
-// import ManagerSystem from "@/views/manager-system/branch.vue";
-
 import Document6 from "@/views/document2/index6.vue";
-// import Device from "@/views/manager-system/device.vue";
-const route = useRoute();
-const activeTab = ref(route.params.tab);
-// const docHS = "QT00005,QT00007,QT00009,QT00010,QT00011";
-// const docDesign = "QT00006,QT00012,QT00022";
-// const docDesign2 = "QT00013,QT00023";
-// const docMau = "QT00018";
-// const docNhan = "QT00021";
-// const docChatchuan = "QT00020";
+
+import { ref } from "vue";
+
+const activeTab = ref("");
 const docCongviec = "QT00024";
+const permission = JSON.parse(localStorage.getItem("PermissionsDTP"));
+
 // tabs
 const tabs = [
-  // {
-  //   title: "Hồ sơ",
-  //   icon: "mdi-text-box",
-  //   tab: "ho-so",
-  // },
-  // {
-  //   title: "Nhãn đăng ký",
-  //   icon: "mdi-image",
-  //   tab: "design",
-  // },
-  // {
-  //   title: "Nhãn sản xuất",
-  //   icon: "mdi-tooltip-image",
-  //   tab: "design2",
-  // },
-  // {
-  //   title: "Mẫu xuất khẩu",
-  //   icon: "mdi-table-arrow-right",
-  //   tab: "mau",
-  // },
-  // {
-  //   title: "Nhãn trong nước",
-  //   icon: "mdi-earth-arrow-left",
-  //   tab: "nhan-trong-nuoc",
-  // },
-  // {
-  //   title: "Order chất chuẩn",
-  //   icon: "mdi-order-bool-ascending",
-  //   tab: "chat-chuan",
-  // },
   {
     title: "Công việc phát sinh",
     icon: "mdi-sitemap-outline",
-    tab: "cong-viec",
+    tab: "cong-viec-phat-sinh",
   },
 ];
+
+const availableTabs = ref([]); // <- Reactive tab list
+
+availableTabs.value = tabs.filter((tab) => {
+  const matched = permission.find((p) => p.FeatureKey === tab.tab);
+  return matched && matched.CanAccess === 1;
+});
+
+// Nếu tab hiện tại không hợp lệ => chuyển về tab đầu tiên
+if (!availableTabs.value.find((t) => t.tab === activeTab.value)) {
+  activeTab.value = availableTabs.value[0]?.tab ?? "";
+}
 </script>
 
 <template>
   <div>
     <VTabs v-model="activeTab" show-arrows>
-      <VTab v-for="item in tabs" :key="item.icon" :value="item.tab">
+      <VTab v-for="item in availableTabs" :key="item.icon" :value="item.tab">
         <VIcon size="20" start :icon="item.icon" />
         {{ item.title }}
       </VTab>
@@ -64,7 +40,10 @@ const tabs = [
     <VDivider />
 
     <VWindow v-model="activeTab" class="mt-2 disable-tab-transition">
-      <VWindowItem value="cong-viec">
+      <VWindowItem
+        value="cong-viec-phat-sinh"
+        v-if="availableTabs.some((t) => t.tab === 'cong-viec-phat-sinh')"
+      >
         <Document6 :docID="docCongviec" />
       </VWindowItem>
     </VWindow>

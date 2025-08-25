@@ -27,11 +27,9 @@
   }
 }
 .layout-card {
-  min-height: 250px;
-  max-height: calc(100vh - 150px);
+  max-height: calc(100vh - 86px);
+  height: calc(100vh - 112px);
   overflow-y: scroll;
-  margin-bottom: -10px;
-  margin-top: -20px;
   &::-webkit-scrollbar-track-piece {
     background: transparent;
   }
@@ -80,5 +78,10 @@
     &:hover {
       background: #f0f0f0;
     }
+  }
+  .quill {
+    height: 200px;
+    border: 2px solid rgb(var(--v-theme-grey));
+    border-radius: 8px;
   }
 }

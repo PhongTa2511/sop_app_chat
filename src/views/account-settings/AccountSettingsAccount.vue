@@ -1,13 +1,12 @@
 <script setup>
-import avatar1 from "@images/avatars/avatar-1.png";
+import { GetDefaultValue } from "@/api/default";
 import {
   GetUserInfo,
   UpdateUserInfo,
   urlUploadImageAvatar,
 } from "@/api/user.js";
-import { formatDateUpload } from "@/helpers/getTime";
-import { getUserName, getUserID, setAvatar } from "@/utils/auth";
-import { GetDefaultValue } from "@/api/default";
+import { getUserName, setAvatar } from "@/utils/auth";
+import avatar1 from "@images/avatars/avatar-1.png";
 import Axios from "axios";
 const accountData = {
   avatarImg: avatar1,
@@ -42,8 +41,7 @@ const changeAvatar = (file) => {
           text: "Lưu thông tin chăm sóc thành công",
         });
         accountDataLocal.value.avatarImg =
-          "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
-          userName;
+          "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" + userName;
         setAvatar(accountDataLocal.value.avatarImg);
         location.reload();
       } else {
@@ -68,7 +66,7 @@ const getUserInfo = () => {
     };
     if (res.UserInfo.LinkImage) {
       accountDataLocal.value.avatarImg =
-        "https://sop.icpc1hn.work/api/File/GetAvatarUser?UserName=" +
+        "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
         res.UserInfo.UserName;
     }
   });
