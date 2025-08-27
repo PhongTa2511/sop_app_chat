@@ -91,11 +91,11 @@ onMounted(() => {
         }"
       />
       <VerticalNavLink
-        v-if="hasAccess('danh-sach-san-pham')"
+        v-if="hasAccess('san-pham')"
         :item="{
           title: 'Sản phẩm',
           icon: 'mdi-pill',
-          to: '/danh-sach-san-pham',
+          to: '/san-pham',
         }"
       />
 

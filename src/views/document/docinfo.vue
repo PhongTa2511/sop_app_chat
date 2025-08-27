@@ -259,6 +259,8 @@
                 v-if="line.Type == 1"
                 :label="line.Parameter"
                 v-model="line.TextResult"
+                :class="{ 'blur-text': line.IsPrivate == 1 }"
+                :readonly="line.IsPrivate == 1"
               ></v-text-field>
               <v-autocomplete
                 v-if="line.Type == 2"
@@ -270,7 +272,31 @@
                 chips
                 hide-details
                 multiple
+                :class="{ 'blur-text': line.IsPrivate == 1 }"
+                :readonly="line.IsPrivate == 1"
               ></v-autocomplete>
+              <v-autocomplete
+                v-if="line.Type == 3"
+                v-model="line.TextResult"
+                :label="line.Parameter"
+                :items="line.Options"
+                item-value="value"
+                item-title="text"
+                chips
+                hide-details
+                multiple
+                :class="{ 'blur-text': line.IsPrivate == 1 }"
+                :readonly="line.IsPrivate == 1"
+              ></v-autocomplete>
+              <div v-if="line.Type == 4">
+                <V-DateField
+                  v-model:modelValue="line.TextResult"
+                  :label="line.Parameter"
+                  width="100%"
+                  :className="{ 'blur-text': line.IsPrivate == 1 }"
+                  :readonly="line.IsPrivate == 1"
+                />
+              </div>
             </v-col>
           </v-row>
         </v-card>
@@ -319,7 +345,6 @@
             <v-btn
               rounded="full"
               color="blue"
-              v-bind="props"
               icon="mdi-dots-vertical"
               size="x-small"
               @click="btShowInfoStep(item)"
@@ -328,35 +353,6 @@
                 <v-icon color="blue"></v-icon>
               </template>
             </v-btn>
-            <!-- <v-menu>
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  rounded="full"
-                  color="blue"
-                  v-bind="props"
-                  icon="mdi-dots-vertical"
-                  size="x-small"
-                >
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item>
-                  <v-btn
-                    prepend-icon="mdi-information-box"
-                    size="small"
-                    color="gray"
-                    rounded="4"
-                    block
-                    @click="btShowInfoStep(item)"
-                  >
-                    <template v-slot:prepend>
-                      <v-icon color="blue"></v-icon>
-                    </template>
-                    Thông tin
-                  </v-btn>
-                </v-list-item>
-              </v-list>
-            </v-menu> -->
           </div>
 
           <v-divider class="my-2" color="blue"></v-divider>
@@ -583,7 +579,7 @@
               :label="header.title"
               v-model="newDocument[header.key]"
             ></v-text-field>
-            <v-select
+            <v-autocomplete
               v-if="header.type == 2"
               v-model="newDocument[header.key]"
               :label="header.title"
@@ -594,7 +590,7 @@
               item-title="Name"
               chips
               clearable
-            ></v-select>
+            ></v-autocomplete>
           </v-col>
         </v-row>
       </v-card-text>
@@ -897,6 +893,7 @@ import {
   UpdateDocumentAssign,
   UpdateGSPDocument,
 } from "@/api/briefApi";
+import { GetDefaultValue } from "@/api/default";
 import {
   GetDocumentFormByDocID,
   UpdateDocumentForm,
@@ -909,7 +906,9 @@ import {
   StartDocument,
 } from "@/api/documentJobApi";
 import { CreateGroup } from "@/api/messageApi";
+import { GetWareHouseLst } from "@/api/productApi";
 import { GetTeamLstDocID, GetTeamLstProID } from "@/api/teamApi";
+import { GetUserLstByTeamID } from "@/api/user";
 import logo from "@/assets/images/logos/dtp-logo.png";
 import { formatDate, formatDateHHDDMM } from "@/helpers/getTime";
 import {
@@ -961,6 +960,8 @@ export default {
   },
   watch: {
     tab(value) {
+      console.log(value);
+
       if (value.headers && value.desserts) {
         this.headers = value.headers;
         var lengthMax = 0;
@@ -1187,6 +1188,22 @@ export default {
             type: "error",
           });
         }
+      });
+    },
+    getDefaultValue(table) {
+      GetDefaultValue({
+        Table: table,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          return res.Data.map((item) => {
+            return {
+              ...item,
+              value: item.ValueName,
+              text: item.ValueName,
+            };
+          });
+        }
+        return [];
       });
     },
     getdefault() {
@@ -1425,6 +1442,20 @@ export default {
                   } else {
                     text = check.TextResult;
                   }
+                  if (check.Type == 3) {
+                    if (check.OptionLine == 1) {
+                      //lấy danh sách thành viên trong nhóm
+                      options = this.getUserLstByTeamID(check.OptionText);
+                    }
+                    if (check.OptionLine == 2) {
+                      //lấy danh sách giá trị mặc định theo Tên bảng OptionText
+                      options = this.getDefaultValue(check.OptionText);
+                    }
+                    if (check.OptionLine == 3) {
+                      //lấy danh sách sản phẩm
+                      options = this.getProductLst();
+                    }
+                  }
                   return {
                     ...check,
                     Options: options,
@@ -1450,14 +1481,17 @@ export default {
 
               for (var i = 0; i < item.DNFormLineLst.length; i++) {
                 const line = item.DNFormLineLst[i];
-                item.headers.push({
-                  title: line.Parameter,
-                  sortable: false,
-                  key: "Line" + line.Required,
-                  align: "left",
-                  type: line.Type,
-                  options: line.Type == 2 ? JSON.parse(line.OptionAnswer) : [],
-                });
+                if (line.IsPrivate == 0) {
+                  item.headers.push({
+                    title: line.Parameter,
+                    sortable: false,
+                    key: "Line" + line.Required,
+                    align: "left",
+                    type: line.Type,
+                    options:
+                      line.Type == 2 ? JSON.parse(line.OptionAnswer) : [],
+                  });
+                }
               }
               var len = item.DocumentFormLineLst.filter(
                 (item, index, self) =>
@@ -1468,7 +1502,7 @@ export default {
               item.desserts = [];
               for (var i = 0; i < numlen; i++) {
                 var itemlst = item.DocumentFormLineLst.filter(
-                  (p) => p.IDFormLine == len[i].IDFormLine
+                  (p) => p.IDFormLine == len[i].IDFormLine && p.IsPrivate == 0
                 );
                 var itemde = {};
                 itemlst.forEach((ele, inle) => {
@@ -1491,6 +1525,44 @@ export default {
           if (this.formTabLst.length > 0) {
             this.tab = this.formTabLst[0];
           }
+        }
+      });
+    },
+    getUserLstByTeamID(teamID) {
+      GetUserLstByTeamID({
+        PageNumber: 1,
+        RowspPage: 10000,
+        Search: "",
+        TeamID: teamID,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          return res.Data.map((item) => {
+            return {
+              ...item,
+              value: item.UserName,
+              text: item.FullName,
+            };
+          });
+        }
+        return [];
+      });
+    },
+    getProductLst() {
+      const requestData = {
+        PageNumber: 1,
+        RowspPage: 1000000,
+        Search: "||||",
+      };
+      GetWareHouseLst(requestData).then((res) => {
+        if (res.RespCode == 0) {
+          this.productLst = res.Data.map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+              value: item.WarehouseID,
+              text: item.WarehouseName,
+            };
+          });
         }
       });
     },
@@ -1535,6 +1607,8 @@ export default {
               TextResult: item["Line" + index],
               IDFormLine: ind,
               Status: item.Status,
+              OptionLine: item.OptionLine,
+              OptionText: item.OptionText,
             };
             docFormLine.push(line);
           }
@@ -1631,3 +1705,12 @@ export default {
   },
 };
 </script>
+
+<style>
+.blur-text input {
+  filter: blur(5px);
+}
+.blur-text .v-chip {
+  filter: blur(5px); /* làm mờ luôn chip */
+}
+</style>

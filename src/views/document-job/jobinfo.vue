@@ -163,6 +163,8 @@
                     v-if="line.Type == 1"
                     :label="line.Parameter"
                     v-model="line.TextResult"
+                    :class="{ 'blur-text': line.IsPrivate == 1 }"
+                    :readonly="line.IsPrivate == 1"
                   ></v-text-field>
                   <v-autocomplete
                     v-if="line.Type == 2"
@@ -174,7 +176,31 @@
                     chips
                     hide-details
                     multiple
+                    :class="{ 'blur-text': line.IsPrivate == 1 }"
+                    :readonly="line.IsPrivate == 1"
                   ></v-autocomplete>
+                  <v-autocomplete
+                    v-if="line.Type == 3"
+                    v-model="line.TextResult"
+                    :label="line.Parameter"
+                    :items="line.Options"
+                    item-value="value"
+                    item-title="text"
+                    chips
+                    hide-details
+                    multiple
+                    :class="{ 'blur-text': line.IsPrivate == 1 }"
+                    :readonly="line.IsPrivate == 1"
+                  ></v-autocomplete>
+                  <div v-if="line.Type == 4">
+                    <V-DateField
+                      v-model:modelValue="line.TextResult"
+                      :label="line.Parameter"
+                      width="100%"
+                      :className="{ 'blur-text': line.IsPrivate == 1 }"
+                      :readonly="line.IsPrivate == 1"
+                    />
+                  </div>
                 </v-col>
               </v-row>
             </v-card>
@@ -874,6 +900,24 @@
               chips
               clearable
             ></v-select>
+            <v-autocomplete
+              v-if="header.type == 3"
+              v-model="editDocument[header.key]"
+              :label="header.title"
+              :items="header.options"
+              item-value="value"
+              item-title="text"
+              chips
+              hide-details
+              multiple
+            ></v-autocomplete>
+            <div v-if="header.type == 4">
+              <V-DateField
+                v-model:modelValue="editDocument[header.key]"
+                :label="header.title"
+                width="100%"
+              />
+            </div>
           </v-col>
         </v-row>
       </v-card-text>
@@ -958,11 +1002,14 @@ import Editor from "@tinymce/tinymce-vue";
 import Axios from "axios";
 import { urlUploadFile } from "./function";
 
+import { GetDefaultValue } from "@/api/default";
 import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi";
 import {
   GetDocumentFormByDocID,
   UpdateDocumentForm,
 } from "@/api/documentFormApi";
+import { GetWareHouseLst } from "@/api/productApi";
+import { GetUserLstByTeamID } from "@/api/user";
 import logo from "@/assets/images/logos/dtp-logo.png";
 import {
   downloadFile,
@@ -1564,6 +1611,20 @@ export default {
                   } else {
                     text = check.TextResult;
                   }
+                  if (check.Type == 3) {
+                    if (check.OptionLine == 1) {
+                      //lấy danh sách thành viên trong nhóm
+                      options = this.getUserLstByTeamID(check.OptionText);
+                    }
+                    if (check.OptionLine == 2) {
+                      //lấy danh sách giá trị mặc định theo Tên bảng OptionText
+                      options = this.getDefaultValue(check.OptionText);
+                    }
+                    if (check.OptionLine == 3) {
+                      //lấy danh sách sản phẩm
+                      options = this.getProductLst();
+                    }
+                  }
                   return {
                     ...check,
                     Options: options,
@@ -1630,6 +1691,60 @@ export default {
           if (this.formTabLst.length > 0) {
             this.tab = this.formTabLst[0];
           }
+        }
+      });
+    },
+    getDefaultValue(table) {
+      GetDefaultValue({
+        Table: table,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          return res.Data.map((item) => {
+            return {
+              ...item,
+              value: item.ValueName,
+              text: item.ValueName,
+            };
+          });
+        }
+        return [];
+      });
+    },
+    getUserLstByTeamID(teamID) {
+      GetUserLstByTeamID({
+        PageNumber: 1,
+        RowspPage: 10000,
+        Search: "",
+        TeamID: teamID,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          return res.Data.map((item) => {
+            return {
+              ...item,
+              value: item.UserName,
+              text: item.FullName,
+            };
+          });
+        }
+        return [];
+      });
+    },
+    getProductLst() {
+      const requestData = {
+        PageNumber: 1,
+        RowspPage: 1000000,
+        Search: "||||",
+      };
+      GetWareHouseLst(requestData).then((res) => {
+        if (res.RespCode == 0) {
+          this.productLst = res.Data.map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+              value: item.WarehouseID,
+              text: item.WarehouseName,
+            };
+          });
         }
       });
     },

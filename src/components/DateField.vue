@@ -8,30 +8,31 @@
     <template #activator="{ props: on }">
       <VTextField
         v-bind="on"
-        readonly=""
+        :readonly="readonly"
         :label="props.label"
         :model-value="dateStr"
         :rules="rules"
         append-inner-icon="mdi-calendar"
         :density="props.density"
-        @click="menu = true"
-        @click:append-inner="menu = true"
+        @click="menu = !readonly"
+        @click:append-inner="menu = !readonly"
         :style="'width:' + props.width"
         :disabled="disabled"
+        :class="className"
       />
     </template>
 
-    <VDatePicker2 v-model="selectedDate" expanded mode="date" locale="vi" />
+    <VDatePicker2 v-model="selectedDate" mode="date" locale="vi" />
   </VMenu>
 </template>
 
 <script setup>
 import { useDate } from "@/utils/date";
-import { computed } from "vue";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 const props = defineProps({
   modelValue: {
     type: Date,
+    default: null,
   },
   rules: {
     type: Array,
@@ -50,6 +51,14 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     default: false,
+  },
+  readonly: {
+    type: Boolean,
+    default: false,
+  },
+  className: {
+    type: Object,
+    default: {},
   },
 });
 
@@ -78,7 +87,7 @@ watch(selectedDate, (newValue, oldValue) => {
 
 const dateStr = computed(() => {
   if (props.modelValue) {
-    return date.formatDate(props.modelValue, "DD/MM/yyyy");
+    return date.formatDate(new Date(props.modelValue), "DD/MM/yyyy");
   }
 
   return null;

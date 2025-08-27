@@ -60,16 +60,16 @@ const router = createRouter({
           path: "thong-tin/:id",
           component: () => import("@/views/document/docinfo.vue"),
         },
-        {
-          path: "san-pham",
-          component: () => import("@/views/product/index.vue"),
-        },
+        // {
+        //   path: "san-pham",
+        //   component: () => import("@/views/product/index.vue"),
+        // },
         {
           path: "danh-sach-khieu-nai",
           component: () => import("@/views/complaint/index.vue"),
         },
         {
-          path: "danh-sach-san-pham",
+          path: "san-pham",
           component: () => import("../pages/product.vue"),
         },
         {

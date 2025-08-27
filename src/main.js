@@ -1,6 +1,8 @@
 /* eslint-disable import/order */
 import "@/@iconify/icons-bundle";
 import App from "@/App.vue";
+import DateField from "@/components/DateField.vue";
+
 import "@/permission";
 import vuetify from "@/plugins/vuetify";
 import { loadFonts } from "@/plugins/webfontloader";
@@ -12,11 +14,15 @@ import "@styles/styles.scss";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.bubble.css";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
+import { DatePicker } from "v-calendar";
+import "v-calendar/style.css";
 import { createApp } from "vue";
 import "./socket";
 loadFonts();
 // Create vue app
 const app = createApp(App);
+app.component("VDatePicker2", DatePicker);
+app.component("VDateField", DateField);
 
 // Use plugins
 app.use(vuetify);
