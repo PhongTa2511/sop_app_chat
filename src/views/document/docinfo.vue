@@ -960,8 +960,6 @@ export default {
   },
   watch: {
     tab(value) {
-      console.log(value);
-
       if (value.headers && value.desserts) {
         this.headers = value.headers;
         var lengthMax = 0;
@@ -1190,21 +1188,20 @@ export default {
         }
       });
     },
-    getDefaultValue(table) {
-      GetDefaultValue({
+    async getDefaultValue(table) {
+      const res = await GetDefaultValue({
         Table: table,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          return res.Data.map((item) => {
-            return {
-              ...item,
-              value: item.ValueName,
-              text: item.ValueName,
-            };
-          });
-        }
-        return [];
       });
+
+      if (res.RespCode == 0) {
+        return res.Data.map((item) => ({
+          ...item,
+          value: item.ValueName,
+          text: item.ValueName,
+        }));
+      }
+
+      return [];
     },
     getdefault() {
       GetTeamLstProID({
@@ -1416,155 +1413,167 @@ export default {
         }
       });
     },
-    getDocumentFormByDocID() {
-      GetDocumentFormByDocID({
+    async getDocumentFormByDocID() {
+      const res = await GetDocumentFormByDocID({
         DocumentID: this.$route.params.id,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.formTabLst = res.DocumentFormLst.map((item) => {
-            if (item.TypeForm == 1) {
-              item.DocumentFormLineLst = item.DNFormLineLst.map((ele) => {
-                var options = [];
-                if (ele.OptionAnswer) {
-                  options = JSON.parse(ele.OptionAnswer);
-                }
-
-                var check = item.DocumentFormLineLst.find(
-                  (p) => p.Required == ele.Required
-                );
-                if (check) {
-                  var text = "";
-                  if (check.Type == 2) {
-                    text =
-                      check.TextResult && check.TextResult != ""
-                        ? check.TextResult.split(" | ")
-                        : [];
-                  } else {
-                    text = check.TextResult;
-                  }
-                  if (check.Type == 3) {
-                    if (check.OptionLine == 1) {
-                      //lấy danh sách thành viên trong nhóm
-                      options = this.getUserLstByTeamID(check.OptionText);
-                    }
-                    if (check.OptionLine == 2) {
-                      //lấy danh sách giá trị mặc định theo Tên bảng OptionText
-                      options = this.getDefaultValue(check.OptionText);
-                    }
-                    if (check.OptionLine == 3) {
-                      //lấy danh sách sản phẩm
-                      options = this.getProductLst();
-                    }
-                  }
-                  return {
-                    ...check,
-                    Options: options,
-                    TextResult: text,
-                  };
-                } else {
-                  return {
-                    ...ele,
-                    Options: options,
-                  };
-                }
-              });
-            }
-            if (item.TypeForm == 2) {
-              item.headers = [
-                {
-                  title: "STT",
-                  sortable: false,
-                  key: "Key",
-                  align: "center",
-                },
-              ];
-
-              for (var i = 0; i < item.DNFormLineLst.length; i++) {
-                const line = item.DNFormLineLst[i];
-                if (line.IsPrivate == 0) {
-                  item.headers.push({
-                    title: line.Parameter,
-                    sortable: false,
-                    key: "Line" + line.Required,
-                    align: "left",
-                    type: line.Type,
-                    options:
-                      line.Type == 2 ? JSON.parse(line.OptionAnswer) : [],
-                  });
-                }
-              }
-              var len = item.DocumentFormLineLst.filter(
-                (item, index, self) =>
-                  index ===
-                  self.findIndex((obj) => obj.IDFormLine === item.IDFormLine)
-              );
-              var numlen = len.length;
-              item.desserts = [];
-              for (var i = 0; i < numlen; i++) {
-                var itemlst = item.DocumentFormLineLst.filter(
-                  (p) => p.IDFormLine == len[i].IDFormLine && p.IsPrivate == 0
-                );
-                var itemde = {};
-                itemlst.forEach((ele, inle) => {
-                  itemde["Line" + (inle + 1)] = ele.TextResult;
-                });
-                item.desserts.push(itemde);
-              }
-              item.desserts = item.desserts.map((item, index) => {
-                return {
-                  ...item,
-                  Key: index + 1,
-                  Status: 1,
-                };
-              });
-            }
-            return {
-              ...item,
-            };
-          });
-          if (this.formTabLst.length > 0) {
-            this.tab = this.formTabLst[0];
-          }
-        }
       });
+
+      if (res.RespCode == 0) {
+        this.formTabLst = [];
+
+        for (const item of res.DocumentFormLst) {
+          if (item.TypeForm == 1) {
+            const newLines = [];
+
+            // duyệt qua DNFormLineLst (cấu hình form gốc)
+            for (const ele of item.DNFormLineLst) {
+              let options = [];
+
+              if (ele.OptionAnswer) {
+                options = JSON.parse(ele.OptionAnswer);
+              }
+
+              // tìm bản ghi đã lưu trong DocumentFormLineLst
+              const check = item.DocumentFormLineLst.find(
+                (p) => p.Required == ele.Required
+              );
+
+              if (check) {
+                // ưu tiên lấy từ DocumentFormLineLst
+                let text = "";
+                if (check.Type == 2) {
+                  text =
+                    check.TextResult && check.TextResult !== ""
+                      ? check.TextResult.split(" | ")
+                      : [];
+                } else {
+                  text = check.TextResult;
+                }
+
+                if (check.Type == 3) {
+                  if (check.OptionLine == 1) {
+                    options = await this.getUserLstByTeamID(check.OptionText);
+                  }
+                  if (check.OptionLine == 2) {
+                    options = await this.getDefaultValue(check.OptionText);
+                  }
+                  if (check.OptionLine == 3) {
+                    options = await this.getProductLst();
+                  }
+                }
+
+                newLines.push({
+                  ...check,
+                  Options: options,
+                  TextResult: text,
+                });
+              } else {
+                // nếu DocumentFormLineLst không có thì fallback DNFormLineLst
+                if (ele.Type == 3) {
+                  if (ele.OptionLine == 1) {
+                    options = await this.getUserLstByTeamID(ele.OptionText);
+                  }
+                  if (ele.OptionLine == 2) {
+                    options = await this.getDefaultValue(ele.OptionText);
+                  }
+                  if (ele.OptionLine == 3) {
+                    options = await this.getProductLst();
+                  }
+                }
+
+                newLines.push({
+                  ...ele,
+                  Options: options,
+                });
+              }
+            }
+
+            item.DocumentFormLineLst = newLines;
+          }
+
+          // giữ nguyên xử lý TypeForm == 2 (table)
+          if (item.TypeForm == 2) {
+            item.headers = [
+              { title: "STT", sortable: false, key: "Key", align: "center" },
+            ];
+
+            for (const line of item.DNFormLineLst) {
+              if (line.IsPrivate == 0) {
+                item.headers.push({
+                  title: line.Parameter,
+                  sortable: false,
+                  key: "Line" + line.Required,
+                  align: "left",
+                  type: line.Type,
+                  options: line.Type == 2 ? JSON.parse(line.OptionAnswer) : [],
+                });
+              }
+            }
+
+            const len = item.DocumentFormLineLst.filter(
+              (obj, index, self) =>
+                index === self.findIndex((o) => o.IDFormLine === obj.IDFormLine)
+            );
+
+            item.desserts = len.map((l, i) => {
+              const itemlst = item.DocumentFormLineLst.filter(
+                (p) => p.IDFormLine == l.IDFormLine && p.IsPrivate == 0
+              );
+
+              const itemde = {};
+              itemlst.forEach((ele, inle) => {
+                itemde["Line" + (inle + 1)] = ele.TextResult;
+              });
+
+              return { ...itemde, Key: i + 1, Status: 1 };
+            });
+          }
+
+          this.formTabLst.push(item);
+        }
+
+        if (this.formTabLst.length > 0) {
+          this.tab = this.formTabLst[0];
+        }
+      }
     },
-    getUserLstByTeamID(teamID) {
-      GetUserLstByTeamID({
+    async getUserLstByTeamID(teamID) {
+      const res = await GetUserLstByTeamID({
         PageNumber: 1,
         RowspPage: 10000,
         Search: "",
         TeamID: teamID,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          return res.Data.map((item) => {
-            return {
-              ...item,
-              value: item.UserName,
-              text: item.FullName,
-            };
-          });
-        }
-        return [];
       });
+
+      if (res.RespCode == 0) {
+        return res.Data.map((item) => ({
+          ...item,
+          value: item.UserName,
+          text: item.FullName,
+        }));
+      }
+      return [];
     },
-    getProductLst() {
+    async getProductLst() {
       const requestData = {
         PageNumber: 1,
         RowspPage: 1000000,
         Search: "||||",
       };
-      GetWareHouseLst(requestData).then((res) => {
-        if (res.RespCode == 0) {
-          this.productLst = res.Data.map((item, index) => {
-            return {
-              ...item,
-              Key: index + 1,
-              value: item.WarehouseID,
-              text: item.WarehouseName,
-            };
-          });
-        }
-      });
+
+      const res = await GetWareHouseLst(requestData);
+
+      if (res.RespCode == 0) {
+        this.productLst = res.Data.map((item, index) => ({
+          ...item,
+          Key: index + 1,
+          value: item.WarehouseID,
+          text: item.WarehouseName,
+        }));
+        return this.productLst;
+      }
+
+      return [];
     },
     addNewDocument() {
       this.isShowAddNew = false;

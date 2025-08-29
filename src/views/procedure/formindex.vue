@@ -623,10 +623,6 @@ export default {
       GetTeamLst({ RowspPage: 10000, PageNumber: 1 }).then((res) => {
         if (res.RespCode == 0) {
           this.teamLst = res.Data;
-          field.Options = res.Data.map((item) => ({
-            ID: item.TeamID,
-            Name: item.TeamName,
-          }));
         }
       });
     },
@@ -764,6 +760,8 @@ export default {
         IDForm: item.IDForm,
       }).then((res) => {
         if (res.RespCode == 0) {
+          console.log("chạy vào đây");
+
           this.editForm = res.Data;
           // Kiểm tra độ dài của OptionAnswer
           const longOptions = this.editForm.FormLineLst.filter(
@@ -773,8 +771,14 @@ export default {
           if (longOptions.length > 0) {
             // Chỉ hiển thị một phần dữ liệu cho các lựa chọn dài
             longOptions.forEach((item) => {
-              item.Options = JSON.parse(item.OptionAnswer).slice(0, 30); // Chỉ lấy 5 lựa chọn đầu tiên
-              item.ShowMore = true; // Thêm thuộc tính để hiển thị nút "Xem thêm"
+              console.log(item);
+
+              if (item.Type == 2) {
+                item.Options = JSON.parse(item.OptionAnswer).slice(0, 30); // Chỉ lấy 5 lựa chọn đầu tiên
+                item.ShowMore = true;
+              }
+
+              // Thêm thuộc tính để hiển thị nút "Xem thêm"
             });
           }
 
@@ -787,7 +791,16 @@ export default {
               item.Options = JSON.parse(item.OptionAnswer);
             });
           }
-
+          this.getTeamLst();
+          this.editForm.FormLineLst = this.editForm.FormLineLst.map((item) => {
+            return {
+              ...item,
+              OptionText:
+                item.Type == 3 && item.OptionLine == 1
+                  ? parseInt(item.OptionText)
+                  : item.OptionText,
+            };
+          });
           this.isShowEditPhase = true;
         }
       });
