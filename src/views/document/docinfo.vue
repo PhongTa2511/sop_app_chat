@@ -1194,7 +1194,7 @@ export default {
       });
 
       if (res.RespCode == 0) {
-        return res.Data.map((item) => ({
+        return res.DefaultValueLst.map((item) => ({
           ...item,
           value: item.ValueName,
           text: item.ValueName,

@@ -96,7 +96,7 @@
       :items-length="dataLength"
       @update:itemsPerPage="btRow"
       @update:page="btPage"
-      height="calc(100vh - 270px)"
+      height="calc(100vh - 250px)"
       :loading="loadding"
       :items-per-page="rowspPage"
       :items-per-page-options="[
@@ -171,6 +171,12 @@ export default {
         {
           title: "Thời gian tạo",
           key: "TimeCreate",
+          sortable: false,
+          align: "center",
+        },
+        {
+          title: "Người tạo",
+          key: "CreateName",
           sortable: false,
           align: "center",
         },
