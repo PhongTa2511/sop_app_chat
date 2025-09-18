@@ -478,7 +478,7 @@
               ></v-select>
               <v-autocomplete
                 v-model="item.UserJob.UserID"
-                :items="getUserLstByTeamID(item.UserJob.ComID)"
+                :items="getUserLstByTeamID(item.UserJob?.ComID) || []"
                 placeholder="Người xử lý"
                 item-value="UserName"
                 item-title="FullName"
@@ -548,7 +548,7 @@
               class="mr-1"
               >Gán người xử lý</v-btn
             >
-            <v-btn
+            <!-- <v-btn
               variant="outlined"
               rounded="8"
               size="small"
@@ -556,7 +556,7 @@
               color="green"
               class="ml-1"
               >Gửi mail thực hiện</v-btn
-            >
+            > -->
           </div>
         </v-form>
       </v-card-text>
@@ -908,7 +908,6 @@ import {
 import { CreateGroup } from "@/api/messageApi";
 import { GetWareHouseLst } from "@/api/productApi";
 import { GetTeamLstDocID, GetTeamLstProID } from "@/api/teamApi";
-import { GetUserLstByTeamID } from "@/api/user";
 import logo from "@/assets/images/logos/dtp-logo.png";
 import { formatDate, formatDateHHDDMM } from "@/helpers/getTime";
 import {
@@ -1007,7 +1006,7 @@ export default {
     getUserLstByTeamID(teamID) {
       if (teamID) {
         var data = this.groupLst.find((p) => p.TeamID == teamID);
-        if (data) {
+        if (data && Array.isArray(data.UserLst)) {
           return this.groupLst.find((p) => p.TeamID == teamID).UserLst;
         }
       }
@@ -1243,11 +1242,11 @@ export default {
             }
             var userMana = null;
             var b = item.UserAssignLst.find((p) => p.UserRole == "Phê duyệt");
-            if (b) {
+            if (b && b.ComID != 0) {
               userMana = b;
             }
             var b = item.AssignLst.find((p) => p.UserRole == "Phê duyệt");
-            if (b) {
+            if (b && b.ComID != 0) {
               userMana = b;
             }
             return {
@@ -1317,7 +1316,11 @@ export default {
     },
     btAddUserInWork(data) {
       var asi = [];
-      if (data.UserJob.UserID && data.UserJob.ComID && data.UserJob.QuotaTime) {
+      if (
+        data.UserJob.ComID &&
+        data.UserJob.ComID != 0 &&
+        data.UserJob.QuotaTime
+      ) {
         asi.push({
           ...data.UserJob,
           UserRole: "Xử lý",
@@ -1325,17 +1328,13 @@ export default {
       } else {
         notify({
           title: "Nhắc nhờ",
-          text: "Vui lòng nhập thông tin người xử lý",
+          text: "Vui lòng nhập thông tin nhóm",
           type: "warn",
         });
         return;
       }
-      if (data.UserMana.UserID) {
-        if (
-          data.UserMana.UserID &&
-          data.UserMana.ComID &&
-          data.UserMana.QuotaTime
-        ) {
+      if (data.UserMana.ComID && data.UserMana.ComID != 0) {
+        if (data.UserMana.QuotaTime) {
           asi.push({
             ...data.UserMana,
             UserRole: "Phê duyệt",
@@ -1349,6 +1348,7 @@ export default {
           return;
         }
       }
+
       AddAssignLst({
         DocumentID: data.DocumentID,
         StepID: data.StepID,
@@ -1446,13 +1446,18 @@ export default {
                     check.TextResult && check.TextResult !== ""
                       ? check.TextResult.split(" | ")
                       : [];
+                } else if (check.Type == 4) {
+                  text =
+                    check.TextResult && check.TextResult !== ""
+                      ? new Date(check.TextResult)
+                      : null;
                 } else {
                   text = check.TextResult;
                 }
 
                 if (check.Type == 3) {
                   if (check.OptionLine == 1) {
-                    options = await this.getUserLstByTeamID(check.OptionText);
+                    options = await this.getUserLstByTeamID2(check.OptionText);
                   }
                   if (check.OptionLine == 2) {
                     options = await this.getDefaultValue(check.OptionText);
@@ -1471,7 +1476,7 @@ export default {
                 // nếu DocumentFormLineLst không có thì fallback DNFormLineLst
                 if (ele.Type == 3) {
                   if (ele.OptionLine == 1) {
-                    options = await this.getUserLstByTeamID(ele.OptionText);
+                    options = await this.getUserLstByTeamID2(ele.OptionText);
                   }
                   if (ele.OptionLine == 2) {
                     options = await this.getDefaultValue(ele.OptionText);
@@ -1537,7 +1542,7 @@ export default {
         }
       }
     },
-    async getUserLstByTeamID(teamID) {
+    async getUserLstByTeamID2(teamID) {
       const res = await GetUserLstByTeamID({
         PageNumber: 1,
         RowspPage: 10000,

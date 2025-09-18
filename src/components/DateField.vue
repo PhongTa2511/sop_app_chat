@@ -63,7 +63,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["update:modelValue", "change"]);
-const selectRef = ref(null);
 const date = useDate();
 const menu = ref(null);
 

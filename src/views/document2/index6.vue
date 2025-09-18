@@ -1,6 +1,59 @@
 <template>
-  <v-card class="pt-2">
-    <v-data-table-server
+  <v-card class="py-2">
+    <div class="d-flex flex-wrap gap-2 px-2">
+      <span>
+        <v-text-field
+          v-model="searchJob"
+          label="Tìm kiếm"
+          hide-details
+          style="width: 250px !important"
+          clearable
+        ></v-text-field>
+      </span>
+
+      <span>
+        <v-menu :close-on-content-click="false">
+          <template v-slot:activator="{ props }">
+            <v-btn color="blue" size="small" icon=" mdi-filter" v-bind="props">
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item>
+              <v-select
+                class="pt-2"
+                v-model="sortDeadline"
+                label="Lọc"
+                density="compact"
+                :items="sortDeadlineLst"
+                item-value="value"
+                item-title="label"
+                clearable
+                min-width="150px"
+              ></v-select>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </span>
+      <v-btn
+        color="green"
+        variant="tonal"
+        icon="mdi-reload"
+        size="small"
+        @click="getGSPDocumentLst"
+      ></v-btn>
+      <v-btn
+        color="green"
+        variant="tonal"
+        icon="mdi-plus"
+        size="small"
+        @click="btShowAddNew"
+      >
+      </v-btn>
+    </div>
+    <v-row>
+      <v-col> </v-col>
+    </v-row>
+    <!-- <v-data-table-server
       :items-length="totalLength"
       @update:itemsPerPage="btRow"
       @update:page="btPage"
@@ -139,153 +192,9 @@
           >mdi-note-edit</v-icon
         >
       </template>
-    </v-data-table-server>
+    </v-data-table-server> -->
   </v-card>
-  <v-dialog v-model="isShowProcess" width="600">
-    <v-card>
-      <v-card-title class="d-flex justify-space-between align-center">
-        <div class="text-h5 text-medium-emphasis ps-2">Quá trình thực hiện</div>
 
-        <v-btn
-          icon="mdi-close"
-          variant="text"
-          rounded-full
-          size="small"
-          color="gray"
-          @click="isShowProcess = false"
-        ></v-btn>
-      </v-card-title>
-      <v-card-text>
-        <v-card class="layout-card">
-          <div
-            v-for="(item, index) in processLst"
-            :key="index"
-            class="mx-2 my-2"
-          >
-            <div class="d-flex">
-              <v-chip
-                class="mr-2"
-                :color="
-                  item.Status == 1
-                    ? 'blue'
-                    : item.Status == 4
-                    ? 'green'
-                    : item.Status == 5
-                    ? 'red'
-                    : 'gray'
-                "
-              >
-                {{ item.StepOrder }}
-              </v-chip>
-              {{ item.StepName }}
-            </div>
-            <v-sheet
-              v-for="(job, indjob) in item.StepLst"
-              :key="indjob"
-              class="px-1 py-1"
-              rounded
-              :border="
-                job.Status == 3
-                  ? 'blue md'
-                  : job.Status == 4
-                  ? 'green md'
-                  : job.Status == 5
-                  ? 'red md'
-                  : 'gray md'
-              "
-            >
-              <div class="text-body-2 position-relative">
-                {{ job.JobName }}
-                <v-icon
-                  v-if="job.Status == 4"
-                  class="position-absolute right-0"
-                  color="green"
-                  size="small"
-                  >mdi-check-circle-outline</v-icon
-                >
-                <v-icon
-                  v-if="job.Status == 5"
-                  class="position-absolute right-0"
-                  color="red"
-                  size="small"
-                  >mdi-close-circle-outline</v-icon
-                >
-              </div>
-
-              <div class="text-caption">
-                <div v-if="job.ReportName">
-                  <v-icon color="blue" size="small">mdi-account-edit</v-icon>
-                  {{ job.ReportName }}
-                  <v-icon color="blue" size="small" v-if="job.TimeModify"
-                    >mdi-clock</v-icon
-                  >
-                  {{ job.TimeModifyShow }}
-                </div>
-                <div v-if="job.Report" v-html="job.Report"></div>
-              </div>
-
-              <div class="text-caption">
-                <div v-if="job.ManagerName">
-                  <v-icon color="red" size="small">mdi-account-check</v-icon>
-                  {{ job.ManagerName }}
-                  <v-icon color="red" size="small" v-if="job.TimeApproveShow"
-                    >mdi-clock</v-icon
-                  >
-                  {{ job.TimeApproveShow }}
-                </div>
-                <div v-if="job.NoteApprove" v-html="job.NoteApprove"></div>
-              </div>
-              <div class="file-lst" v-if="job.FileLst.length > 0">
-                <v-menu
-                  location="end"
-                  v-for="(file, indfile) in job.FileLst"
-                  :key="indfile"
-                >
-                  <template v-slot:activator="{ props }">
-                    <v-chip color="gray" v-bind="props" class="mr-1">
-                      {{ file.MineFile }}
-                    </v-chip>
-                  </template>
-
-                  <v-list>
-                    <v-list-item v-if="isPreviewSupported(file.MineFile)">
-                      <v-list-item-title>
-                        <v-btn
-                          @click="previewFile(file)"
-                          size="small"
-                          rounded="8"
-                          class="mb-1"
-                        >
-                          <v-icon class="mr-1">mdi-file-eye</v-icon> Xem trước
-                        </v-btn>
-                      </v-list-item-title>
-                    </v-list-item>
-
-                    <v-list-item>
-                      <v-list-item-title>
-                        <v-btn
-                          @click="downloadFile(file)"
-                          size="small"
-                          rounded="8"
-                          color="green"
-                          block
-                          class="mb-1"
-                        >
-                          <v-icon class="mr-1">mdi-file-download</v-icon> Tải
-                          ngay
-                        </v-btn>
-                      </v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </div>
-            </v-sheet>
-            <v-divider class="my-2" color="blue"></v-divider>
-          </div>
-        </v-card>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
   <v-dialog v-model="isShowFile" persistent width="800">
     <v-card>
       <v-card-item>

@@ -462,7 +462,7 @@
             userMana &&
             userMana.FullName &&
             userMana.UserID &&
-            dataJobInfo.Status == 3 &&
+            (dataJobInfo.Status == 3 || dataJobInfo.Status == 1) &&
             userMana.UserID == userName
           "
         >
