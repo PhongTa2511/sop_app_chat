@@ -4,7 +4,7 @@ import Document6 from "@/views/document2/index6.vue";
 import { ref } from "vue";
 
 const activeTab = ref("");
-const docCongviec = "QT00024";
+const docCongviec = "QT04039";
 const permission = JSON.parse(localStorage.getItem("PermissionsDTP"));
 
 // tabs

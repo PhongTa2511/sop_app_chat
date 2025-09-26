@@ -29,3 +29,10 @@ export function GetDocumentFile(data) {
     data,
   });
 }
+export function GetStepFileByMine(data) {
+  return request({
+    url: "DocumentFile/GetStepFileByMine",
+    method: "post",
+    data,
+  });
+}
