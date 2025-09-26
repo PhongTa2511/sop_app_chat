@@ -130,7 +130,10 @@
 
           <v-card-actions>
             <div>
-              <v-tooltip location="top">
+              <v-tooltip
+                location="top"
+                v-if="item.Status == 1 || item.Status == 2"
+              >
                 <template v-slot:activator="{ props }">
                   <v-btn
                     v-bind="props"
@@ -162,7 +165,10 @@
                 <span>Bắt đầu ngay</span>
               </v-tooltip>
 
-              <v-tooltip location="top">
+              <v-tooltip
+                location="top"
+                v-if="item.Status == 1 || item.Status == 2"
+              >
                 <template v-slot:activator="{ props }">
                   <v-btn
                     v-bind="props"
@@ -594,7 +600,7 @@ export default {
             type: "success",
           });
           this.getStepArisingLstByDoc();
-          this.isShowAddNew = false;
+          this.confirmDialog.show = false;
         } else {
           notify({
             title: "Lỗi",
