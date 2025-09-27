@@ -192,6 +192,10 @@ export default {
     rowspPage() {
       this.getTeamLst();
     },
+    search() {
+      this.pageNumber = 1;
+      this.getTeamLst();
+    },
   },
   methods: {
     btShowCreate() {
