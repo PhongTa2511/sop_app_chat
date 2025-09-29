@@ -402,7 +402,6 @@
           item-title="FullName"
           item-value="UserName"
           clearable
-          multiple
           hide-details
         ></v-autocomplete>
       </v-card-text>
@@ -460,11 +459,9 @@
         <div v-if="showFile.files.length">
           <v-list>
             <v-list-item v-for="(file, idx) in showFile.files" :key="idx">
-              <v-list-item-content>
-                <v-list-item-title>
-                  <a :href="file.Url" target="_blank">{{ file.Name }}</a>
-                </v-list-item-title>
-              </v-list-item-content>
+              <v-list-item-title>
+                <a :href="file.Url" target="_blank">{{ file.Name }}</a>
+              </v-list-item-title>
             </v-list-item>
           </v-list>
         </div>
@@ -761,17 +758,15 @@ export default {
           (p) => String(p.TeamID) === String(this.selectedTeam)
         );
         var userLst = team.UserLst || [];
-        for (let index = 0; index < this.selectedUser.length; index++) {
-          const element = this.selectedUser[index];
-          var userInfo = userLst.find((p) => p.UserName == element);
-          this.stepInfo.UserManaLst.push({
-            FullName: userInfo.FullName,
-            QuotaTime: this.quotaTime,
-            UserID: userInfo.UserName,
-            UserRole: "Phê duyệt",
-            ComID: this.selectedTeam,
-          });
-        }
+
+        var userInfo = userLst.find((p) => p.UserName == this.selectedUser);
+        this.stepInfo.UserManaLst.push({
+          FullName: userInfo.FullName,
+          QuotaTime: this.quotaTime,
+          UserID: userInfo.UserName,
+          UserRole: "Phê duyệt",
+          ComID: this.selectedTeam,
+        });
 
         this.selectedUser = null;
         this.selectedTeam = null;
