@@ -30,7 +30,6 @@
         <v-text-field
           v-model="productInfo.WarehouseName"
           label="Tên sản phẩm"
-          readonly
           variant="outlined"
           hide-details
           density="compact"
@@ -43,7 +42,6 @@
           variant="outlined"
           hide-details
           density="compact"
-          readonly
         ></v-text-field>
         <v-tooltip text="Xem law">
           <template v-slot:activator="{ props }">
@@ -403,20 +401,20 @@
 </template>
 
 <script>
-import { GetWareHouseByID, UpdateWareHouse } from "@/api/productApi";
-import { GetProcedureLst } from "@/api/procedureApi";
+import { CreateGSPDocument, GetGSPDocumentByStoreID } from "@/api/briefApi";
 import { GetDefaultValue } from "@/api/default";
-import { GetGSPDocumentByStoreID, CreateGSPDocument } from "@/api/briefApi";
-import { formatDateDisplayDDMMYY, formatDate } from "@/helpers/getTime";
-import { urlUploadFile } from "./function";
-import { GetDocumentFile, DelDocumentFile } from "@/api/documentFileApi";
-import Axios from "axios";
+import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi";
+import { GetProcedureLst } from "@/api/procedureApi";
+import { GetWareHouseByID, UpdateWareHouse } from "@/api/productApi";
+import { formatDate, formatDateDisplayDDMMYY } from "@/helpers/getTime";
 import {
-  fetchXlsxContent,
-  fetchDoc,
-  isPreviewSupported,
   downloadFileProduct,
+  fetchDoc,
+  fetchXlsxContent,
+  isPreviewSupported,
 } from "@/utils/function";
+import Axios from "axios";
+import { urlUploadFile } from "./function";
 export default {
   data() {
     return {

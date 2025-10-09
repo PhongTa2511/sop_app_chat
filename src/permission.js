@@ -59,8 +59,8 @@ router.beforeEach(async (to, from, next) => {
       );
 
       const routeKey = to.path.replace("/", "");
-      const matchedFeature = permissionActive.find(
-        (p) => p.FeatureKey === routeKey
+      const matchedFeature = permissionActive.find((p) =>
+        routeKey.includes(p.FeatureKey)
       );
 
       if (to.path === "/") {

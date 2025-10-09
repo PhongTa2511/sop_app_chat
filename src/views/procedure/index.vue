@@ -77,6 +77,13 @@
         <h6 class="text-h6">DANH SÁCH QUY TRÌNH</h6>
         <div class="d-flex">
           <v-btn
+            color="blue"
+            icon="mdi-file-document-multiple"
+            size="small"
+            class="mr-1"
+            @click="btShowCopyProcedure"
+          ></v-btn>
+          <v-btn
             color="green"
             icon="mdi-playlist-plus"
             size="small"
@@ -139,10 +146,31 @@
       </template>
     </v-data-table-server>
   </v-card>
+  <v-dialog v-model="isShowCopyProcedure" max-width="500px" persistent>
+    <v-card>
+      <v-card-title>Nhân bản quy trình</v-card-title>
+      <v-card-text>
+        <v-select
+          v-model="selectedProcedureToCopy"
+          :items="desserts"
+          item-title="ProcedureName"
+          item-value="ProcedureID"
+          label="Chọn quy trình để nhân bản"
+          placeholder="Chọn quy trình"
+        ></v-select>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn @click="isShowCopyProcedure = false">Hủy</v-btn>
+        <v-btn color="green" @click="btCopyProcedure">Nhân bản</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 import {
+  CopyProcedure,
   CreateProcedure,
   DelProcedure,
   GetProcedureLst,
@@ -194,6 +222,8 @@ export default {
       procedureLst: [],
       isShowConfirmDelete: false,
       procedureToDelete: null,
+      isShowCopyProcedure: false,
+      selectedProcedureToCopy: null,
     };
   },
   watch: {
@@ -205,6 +235,47 @@ export default {
     },
   },
   methods: {
+    btCopyProcedure() {
+      if (this.selectedProcedureToCopy) {
+        CopyProcedure({
+          Data: this.selectedProcedureToCopy,
+        })
+          .then((res) => {
+            if (res.RespCode == 0) {
+              this.isShowCopyProcedure = false;
+              this.getProcedure();
+              notify({
+                title: "Thành công",
+                text: "Nhân bản quy trình thành công",
+                type: "success",
+              });
+            } else {
+              notify({
+                title: "Lỗi",
+                text: res.RespText || "Không thể nhân bản quy trình",
+                type: "error",
+              });
+            }
+          })
+          .catch((error) => {
+            notify({
+              title: "Lỗi",
+              text: "Có lỗi xảy ra khi nhân bản quy trình",
+              type: "error",
+            });
+          });
+      } else {
+        notify({
+          title: "Nhắc nhở",
+          text: "Vui lòng chọn quy trình để nhân bản",
+          type: "warning",
+        });
+      }
+    },
+    btShowCopyProcedure() {
+      this.isShowCopyProcedure = true;
+      this.selectedProcedureToCopy = null;
+    },
     btPage(data) {
       this.pageNumber = data;
     },

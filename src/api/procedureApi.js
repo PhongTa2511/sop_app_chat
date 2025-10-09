@@ -42,6 +42,13 @@ export function UpdateProcedureNameInfo(data) {
     data,
   });
 }
+export function CopyProcedure(data) {
+  return request({
+    url: "Procedure/CopyProcedure",
+    method: "post",
+    data,
+  });
+}
 
 export function CreateStep(data) {
   return request({
