@@ -1,0 +1,910 @@
+<template>
+  <v-card>
+    <v-dialog v-model="isShowcreateForm" max-width="650px">
+      <v-card>
+        <v-card-title>Thiết kế phiếu nhập thông tin</v-card-title>
+        <v-card-text>
+          <v-form v-model="valid" ref="form">
+            <v-text-field
+              v-model="createForm.ProcedureName"
+              label="Quy trình xử lý"
+              :disabled="true"
+              class="mb-2"
+            ></v-text-field>
+            <v-row>
+              <v-col lg="9">
+                <v-text-field
+                  v-model="createForm.NameForm"
+                  label="Tên phiếu nhập"
+                  class="mb-2"
+                ></v-text-field>
+              </v-col>
+              <v-col lg="3">
+                <v-select
+                  v-model="createForm.TypeForm"
+                  :items="typeFormLst"
+                  item-title="ValueName"
+                  item-value="ValueName2"
+                  label="Loại"
+                ></v-select>
+              </v-col>
+            </v-row>
+            <v-textarea
+              v-model="createForm.Description"
+              label="Mô tả"
+              rows="2"
+              class="mb-2"
+            ></v-textarea>
+            <div class="d-flex justify-space-between">
+              <span>Thêm các trường thông tin</span>
+              <v-btn icon color="green" size="x-small" @click="addField">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </div>
+            <v-row
+              v-for="(field, index) in createForm.FormLineLst"
+              :key="index"
+            >
+              <v-col cols="10" class="pr-0">
+                <v-text-field
+                  v-model="field.Parameter"
+                  :label="'Tên trường thông tin ' + (index + 1)"
+                  :append-inner-icon="field.Type == 4 ? 'mdi-calendar' : ''"
+                ></v-text-field>
+                <v-list v-if="field.Type === 2">
+                  <div class="d-flex justify-space-between px-4">
+                    <div>Thêm các lựa chọn</div>
+                    <v-btn
+                      icon
+                      color="green"
+                      size="x-small"
+                      @click="addOption(field)"
+                      style="margin-top: -4px"
+                    >
+                      <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                  </div>
+                  <div style="max-height: 250px !important; overflow: auto">
+                    <v-list-item
+                      v-for="(item, index) in field.Options"
+                      :key="index"
+                    >
+                      <div class="d-flex">
+                        <v-text-field
+                          class="mt-1"
+                          v-model="item.Name"
+                          :label="'Lựa chọn ' + (index + 1)"
+                          variant="underlined"
+                        ></v-text-field>
+
+                        <v-btn
+                          icon
+                          variant="tonal"
+                          color="red"
+                          size="x-small"
+                          class="my-2 ml-1"
+                          @click="removeOption(field, index)"
+                          ><v-icon>mdi-delete</v-icon></v-btn
+                        >
+                      </div>
+                    </v-list-item>
+                  </div>
+                  <v-btn
+                    v-if="field.ShowMore == true"
+                    @click="showAllOptions(field)"
+                    size="small"
+                    variant="text"
+                    >Xem thêm</v-btn
+                  >
+                </v-list>
+                <v-list v-if="field.Type === 3" style="min-height: 100px">
+                  <div class="px-2 pb-2">Cấu hình lựa chọn</div>
+
+                  <v-row class="p-0" style="width: 100%">
+                    <v-col>
+                      <v-select
+                        v-model="field.OptionLine"
+                        :items="optionTypeAuto"
+                        item-title="ValueName"
+                        item-value="ValueName2"
+                        label="Loại lựa chọn"
+                        @update:modelValue="onOptionLineChange(field, $event)"
+                      ></v-select>
+                    </v-col>
+                    <v-col>
+                      <v-select
+                        v-if="field.OptionLine == 1"
+                        v-model="field.OptionText"
+                        :items="teamLst"
+                        item-title="TeamName"
+                        item-value="TeamID"
+                        label="Lựa chọn nhóm tài khoản"
+                      ></v-select>
+                      <v-text-field
+                        v-if="field.OptionLine == 2"
+                        label="Tên bảng giá trị"
+                        v-model="field.OptionText"
+                      >
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-list>
+              </v-col>
+              <v-col cols="2">
+                <v-btn
+                  :icon="field.IsPrivate == 0 ? 'mdi-eye' : 'mdi-eye-off'"
+                  variant="tonal"
+                  :color="field.IsPrivate == 0 ? 'green' : 'error'"
+                  size="small"
+                  class="text-center"
+                  @click="field.IsPrivate = field.IsPrivate == 0 ? 1 : 0"
+                >
+                </v-btn>
+
+                <v-menu>
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      variant="text"
+                      color="gray"
+                      icon="mdi-dots-grid"
+                      size="small"
+                    >
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 1)"
+                          >
+                            <v-icon color="blue">mdi-text-short </v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Nhập text</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 2)"
+                            color="green"
+                          >
+                            <v-icon>mdi-format-list-checks</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Lựa chọn thủ công</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 3)"
+                            color="warning"
+                          >
+                            <v-icon>mdi-format-list-checks</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Lựa chọn có sẵn</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 4)"
+                            color="purple"
+                          >
+                            <v-icon>mdi-calendar</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Định dạng ngày</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            color="red"
+                            @click="removeField2(index)"
+                          >
+                            <v-icon>mdi-delete</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Xóa</span>
+                      </v-tooltip>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn size="small" rounded="sm" @click="isShowcreateForm = false"
+            >Cancel</v-btn
+          >
+          <v-btn color="green" size="small" rounded="sm" @click="btcreateForm"
+            >Xác nhận</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="isShowEditPhase" max-width="800px">
+      <v-card>
+        <v-card-title>Thiết kế phiếu nhập thông tin</v-card-title>
+        <v-card-text>
+          <v-form v-model="valid" ref="form">
+            <v-text-field
+              v-model="editForm.ProcedureName"
+              label="Quy trình xử lý"
+              :disabled="true"
+              class="mb-2"
+            ></v-text-field>
+            <v-row>
+              <v-col lg="9">
+                <v-text-field
+                  v-model="editForm.NameForm"
+                  label="Tên phiếu nhập"
+                  class="mb-2"
+                ></v-text-field>
+              </v-col>
+              <v-col lg="3">
+                <v-select
+                  v-model="editForm.TypeForm"
+                  :items="typeFormLst"
+                  item-title="ValueName"
+                  item-value="ValueName2"
+                  label="Loại"
+                ></v-select>
+              </v-col>
+            </v-row>
+            <v-textarea
+              v-model="editForm.Description"
+              label="Mô tả"
+              rows="2"
+              class="mb-2"
+            ></v-textarea>
+            <div class="d-flex justify-space-between">
+              <span>Thêm các trường thông tin</span>
+              <v-btn icon color="green" size="x-small" @click="addField2">
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+            </div>
+            <v-row v-for="(field, index) in editForm.FormLineLst" :key="index">
+              <v-col cols="10">
+                <v-text-field
+                  v-model="field.Parameter"
+                  :label="'Tên trường thông tin ' + (index + 1)"
+                  :append-inner-icon="field.Type == 4 ? 'mdi-calendar' : ''"
+                ></v-text-field>
+                <v-list v-if="field.Type === 2">
+                  <div class="d-flex justify-space-between px-4">
+                    <div>Thêm các lựa chọn</div>
+                    <v-btn
+                      icon
+                      color="green"
+                      size="x-small"
+                      @click="addOption(field)"
+                      style="margin-top: -4px"
+                    >
+                      <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                  </div>
+                  <div style="max-height: 250px !important; overflow: auto">
+                    <v-list-item
+                      v-for="(item, index) in field.Options"
+                      :key="index"
+                    >
+                      <div class="d-flex">
+                        <v-text-field
+                          class="mt-1"
+                          v-model="item.Name"
+                          :label="'Lựa chọn ' + (index + 1)"
+                          variant="underlined"
+                        ></v-text-field>
+
+                        <v-btn
+                          icon
+                          variant="tonal"
+                          color="red"
+                          size="x-small"
+                          class="my-2 ml-1"
+                          @click="removeOption(field, index)"
+                          ><v-icon>mdi-delete</v-icon></v-btn
+                        >
+                      </div>
+                    </v-list-item>
+                  </div>
+                  <v-btn
+                    v-if="field.ShowMore == true"
+                    @click="showAllOptions(field)"
+                    size="small"
+                    variant="text"
+                    >Xem thêm</v-btn
+                  >
+                </v-list>
+                <v-list v-if="field.Type === 3" style="min-height: 100px">
+                  <div class="px-2 pb-2">Cấu hình lựa chọn</div>
+
+                  <v-row class="p-0" style="width: 100%">
+                    <v-col>
+                      <v-select
+                        v-model="field.OptionLine"
+                        :items="optionTypeAuto"
+                        item-title="ValueName"
+                        item-value="ValueName2"
+                        label="Loại lựa chọn"
+                        @update:modelValue="onOptionLineChange(field, $event)"
+                      ></v-select>
+                    </v-col>
+                    <v-col>
+                      <v-select
+                        v-if="field.OptionLine == 1"
+                        v-model="field.OptionText"
+                        :items="teamLst"
+                        item-title="TeamName"
+                        item-value="TeamID"
+                        label="Lựa chọn nhóm tài khoản"
+                      ></v-select>
+                      <v-text-field
+                        v-if="field.OptionLine == 2"
+                        label="Tên bảng giá trị"
+                        v-model="field.OptionText"
+                      >
+                      </v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-list>
+              </v-col>
+              <v-col cols="2">
+                <v-btn
+                  :icon="field.IsPrivate == 0 ? 'mdi-eye' : 'mdi-eye-off'"
+                  variant="tonal"
+                  :color="field.IsPrivate == 0 ? 'green' : 'error'"
+                  size="small"
+                  class="text-center"
+                  @click="field.IsPrivate = field.IsPrivate == 0 ? 1 : 0"
+                >
+                </v-btn>
+
+                <v-menu>
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      variant="text"
+                      color="gray"
+                      icon="mdi-dots-grid"
+                      size="small"
+                    >
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 1)"
+                          >
+                            <v-icon color="blue">mdi-text-short </v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Nhập text</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 2)"
+                            color="green"
+                          >
+                            <v-icon>mdi-format-list-checks</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Lựa chọn thủ công</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 3)"
+                            color="warning"
+                          >
+                            <v-icon>mdi-format-list-checks</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Lựa chọn có sẵn</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            @click="setFieldType(field, 4)"
+                            color="purple"
+                          >
+                            <v-icon>mdi-calendar</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Định dạng ngày</span>
+                      </v-tooltip>
+                    </v-list-item>
+                    <v-list-item>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props }">
+                          <v-btn
+                            icon
+                            v-bind="props"
+                            size="x-small"
+                            color="red"
+                            @click="removeField2(index)"
+                          >
+                            <v-icon>mdi-delete</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Xóa</span>
+                      </v-tooltip>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-col>
+            </v-row>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn @click="isShowEditPhase = false">Cancel</v-btn>
+          <v-btn color="green" @click="btEditForm">Xác nhận</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-data-table-server
+      :headers="headers"
+      :items="formLst"
+      height="calc(100vh - 270px)"
+      fixed-header=""
+      :items-length="totalLength"
+      @update:itemsPerPage="btRow"
+      @update:page="btPage"
+      items-per-page-text="Số dòng 1 trang"
+      sort-asc-icon="mdi-menu-up"
+      sort-desc-icon="mdi-menu-down"
+    >
+      <template v-slot:top="{ item }">
+        <div class="d-flex py-3 px-2" style="justify-content: space-between">
+          <div class="px-2 text-h6">Danh sách form</div>
+
+          <div class="d-flex">
+            <v-btn
+              color="blue"
+              icon="mdi-playlist-plus"
+              size="small"
+              class="mr-1"
+              @click="btShowcreateForm"
+            ></v-btn>
+            <v-btn
+              color="green"
+              icon="mdi-reload"
+              size="small"
+              @click="getFormLst()"
+            ></v-btn>
+          </div>
+        </div>
+      </template>
+      <template v-slot:item.Key="{ item }">
+        {{ item.Key }}
+        <v-icon color="orange" @click="btShowEditPhase(item)"
+          >mdi-square-edit-outline</v-icon
+        >
+        <v-icon color="red" class="me-2" @click="btShowDel(item)"
+          >mdi-trash-can
+        </v-icon>
+      </template>
+      <template v-slot:item.action="{ item }">
+        <v-icon color="green" @click="btPushToWork(item)"
+          >mdi-format-list-numbered</v-icon
+        >
+      </template>
+      <template v-slot:item.Status="{ item }">
+        <v-chip color="green" v-if="item.Status == 1">Hoạt động</v-chip>
+      </template>
+      <template v-slot:item.TypeForm="{ item }">
+        <v-chip color="gray" v-if="item.TypeForm == 0">Chưa chọn</v-chip>
+        <v-chip color="blue" v-if="item.TypeForm == 1">Phiếu</v-chip>
+        <v-chip color="green" v-if="item.TypeForm == 2">Excel</v-chip>
+      </template>
+    </v-data-table-server>
+  </v-card>
+  <v-dialog v-model="isShowDel" width="400">
+    <v-card>
+      <v-toolbar class="pl-1" color="red" title="Xóa form" center></v-toolbar>
+      <v-card-text>
+        <div class="text-h5 pt-4">Có chắc bạn muốn xóa form này không?</div>
+      </v-card-text>
+      <v-card-actions class="justify-end">
+        <v-btn color="blue" variant="text" @click="isShowDel = false"
+          >Đóng</v-btn
+        >
+        <v-btn color="red" variant="text" @click="btDelForm()">Xóa</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+
+<script>
+import { GetDefaultValue } from "@/api/default";
+import {
+  CreateForm,
+  DelForm,
+  GetFormByID,
+  GetFormLst,
+  GetFormLstByID,
+  UpdateForm,
+} from "@/api/procedureApi";
+import { GetTeamLst } from "@/api/teamApi";
+
+// import { CreateStep, GetStepByProcedure } from "@/api/phaseApi";
+export default {
+  data() {
+    return {
+      input: "",
+      typeFormLst: [],
+      procedureInfo: {},
+      createForm: {
+        Status: 1,
+        TypeForm: 1,
+        FormLineLst: [{ Parameter: "", Type: 1, IsPrivate: 0 }],
+      },
+      isShowcreateForm: false,
+      isShowDel: false,
+      valid: false,
+      headers: [
+        {
+          title: "STT",
+          key: "Key",
+          align: "center",
+          width: 120,
+          sortable: false,
+        },
+        // { title: "Action", key: "action", align: "center", sortable: false },
+        { title: "Mã", key: "IDForm" },
+        { title: "Tên phiếu", key: "NameForm" },
+        { title: "Loại", key: "TypeForm" },
+        { title: "Bước", key: "StepName" },
+        { title: "Công việc", key: "WorkName" },
+        { title: "Trạng thái", key: "Status" },
+      ],
+      isShowEditPhase: false,
+      validEdit: false,
+      editForm: {
+        StepName: "",
+        Description: "",
+        TypeForm: 1,
+        // Add other FormLineLst as necessary
+      },
+      itemDel: {},
+      formLst: [],
+      optionTypeAuto: [],
+      teamLst: [],
+      pageNumber: 1,
+      rowspPage: 10,
+      search: "",
+      totalLength: 0,
+    };
+  },
+  watch: {
+    pageNumber() {
+      this.getFormLst();
+    },
+    rowspPage() {
+      this.getFormLst();
+    },
+    search() {
+      this.getFormLst();
+    },
+  },
+  methods: {
+    btPage(data) {
+      this.pageNumber = data;
+    },
+    btRow(data) {
+      this.rowspPage = data;
+    },
+    getFormLst() {
+      GetFormLst({
+        PageNumber: this.pageNumber,
+        RowspPage: this.rowspPage,
+        Search: this.search,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.formLst = res.Data;
+          this.totalLength = res.TotalRows;
+        }
+      });
+    },
+    onOptionLineChange(field, value) {
+      if (value == 1) {
+        this.getTeamLst();
+      }
+    },
+    getTeamLst() {
+      GetTeamLst({ RowspPage: 10000, PageNumber: 1 }).then((res) => {
+        if (res.RespCode == 0) {
+          this.teamLst = res.Data;
+        }
+      });
+    },
+    showAllOptions(field) {
+      const allOptions = JSON.parse(field.OptionAnswer); // Tải tất cả các lựa chọn
+      const currentLength = field.Options.length; // Độ dài hiện tại của danh sách lựa chọn
+      const newOptions = allOptions.slice(currentLength, currentLength + 30); // Lấy 30 lựa chọn tiếp theo
+      field.Options.push(...newOptions); // Thêm các lựa chọn mới vào danh sách
+      field.ShowMore = newOptions.length < 30 ? false : true; // Nếu không còn lựa chọn nào, ẩn nút "Xem thêm"
+    },
+    getDefault() {
+      GetDefaultValue({
+        Table: "Loại phiếu",
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.typeFormLst = res.DefaultValueLst.map((item) => {
+            return {
+              ...item,
+              ValueName2: parseInt(item.ValueName2),
+            };
+          });
+        }
+      });
+      GetDefaultValue({
+        Table: "Loại dòng trong phiếu",
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.optionTypeAuto = res.DefaultValueLst.map((item) => {
+            return {
+              ...item,
+              ValueName2: parseInt(item.ValueName2),
+            };
+          });
+        }
+      });
+    },
+    btShowDel(data) {
+      this.itemDel = data;
+      this.isShowDel = true;
+    },
+    btDelForm() {
+      DelForm({
+        FormID: this.itemDel.IDForm,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.isShowDel = false;
+          this.getFormLstByID();
+          notify({
+            type: "success",
+            title: "Thành công",
+            text: "Xóa thành thành công",
+          });
+        } else {
+          notify({
+            type: "error",
+            title: "Lỗi",
+            text: res.RespText,
+          });
+        }
+      });
+    },
+
+    btcreateForm() {
+      if (this.createForm.NameForm && this.createForm.TypeForm) {
+        CreateForm({
+          FormHeaderInfo: {
+            ...this.createForm,
+            FormLineLst: this.createForm.FormLineLst.map((item, index) => {
+              return {
+                ...item,
+                Required: index + 1,
+                OptionAnswer: JSON.stringify(item.Options),
+              };
+            }),
+          },
+        }).then((res) => {
+          if (res.RespCode == 0) {
+            this.getFormLstByID();
+            this.isShowcreateForm = false;
+            this.createForm = {
+              Status: 1,
+              StepOrder: 1,
+              FormLineLst: [{ Parameter: "", Type: 1 }],
+            };
+            notify({
+              title: "Thành công",
+              text: "Thêm Bước thành công",
+              type: "success",
+            });
+          }
+        });
+      } else {
+        notify({
+          title: "Lỗi",
+          text: "Chưa nhập đầy đủ thông tin",
+          type: "error",
+        });
+      }
+    },
+    btShowcreateForm() {
+      this.isShowcreateForm = true;
+    },
+    btPushToWork(data) {
+      this.$router.push("/cong-viec/" + data.StepID);
+    },
+    getFormLstByID() {
+      GetFormLstByID({
+        ProcedureID: this.$route.params.id,
+        StepID: this.$route.params.stepid,
+        WorkID: this.$route.params.workid,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.formLst = res.Data.map((item, index) => {
+            return {
+              ...item,
+              Key: index + 1,
+            };
+          });
+        }
+      });
+    },
+    btShowEditPhase(item) {
+      GetFormByID({
+        IDForm: item.IDForm,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          this.editForm = res.Data;
+          // Kiểm tra độ dài của OptionAnswer
+          const longOptions = this.editForm.FormLineLst.filter(
+            (item) => item.OptionAnswer && item.OptionAnswer.length > 1000
+          );
+
+          if (longOptions.length > 0) {
+            // Chỉ hiển thị một phần dữ liệu cho các lựa chọn dài
+            longOptions.forEach((item) => {
+              console.log(item);
+
+              if (item.Type == 2) {
+                item.Options = JSON.parse(item.OptionAnswer).slice(0, 30); // Chỉ lấy 5 lựa chọn đầu tiên
+                item.ShowMore = true;
+              }
+
+              // Thêm thuộc tính để hiển thị nút "Xem thêm"
+            });
+          }
+
+          const shortOptions = this.editForm.FormLineLst.filter(
+            (item) => item.OptionAnswer && item.OptionAnswer.length <= 1000
+          );
+
+          if (shortOptions.length > 0) {
+            shortOptions.forEach((item) => {
+              item.Options = JSON.parse(item.OptionAnswer);
+            });
+          }
+          this.getTeamLst();
+          this.editForm.FormLineLst = this.editForm.FormLineLst.map((item) => {
+            return {
+              ...item,
+              OptionText:
+                item.Type == 3 && item.OptionLine == 1
+                  ? parseInt(item.OptionText)
+                  : item.OptionText,
+            };
+          });
+          this.isShowEditPhase = true;
+        }
+      });
+    },
+    btEditForm() {
+      if (this.editForm.IDForm) {
+        UpdateForm({
+          FormHeaderInfo: {
+            ...this.editForm,
+            FormLineLst: this.editForm.FormLineLst.map((item, index) => {
+              return {
+                ...item,
+                Required: index + 1,
+                OptionAnswer: JSON.stringify(item.Options),
+              };
+            }),
+          },
+        }).then((res) => {
+          if (res.RespCode == 0) {
+            this.getFormLstByID(); // Refresh the phase list after successful update
+            this.isShowEditPhase = false; // Close the edit dialog
+            notify({
+              title: "Thành công",
+              text: "Cập nhật Bước thành công",
+              type: "success",
+            });
+          } else {
+            notify({
+              title: "Lỗi",
+              text: "Cập nhật Bước thất bại",
+              type: "error",
+            });
+          }
+        });
+      } else {
+        notify({
+          title: "Lỗi",
+          text: "Vui lòng điền đầy đủ thông tin",
+          type: "error",
+        });
+      }
+    },
+    addField() {
+      this.createForm.FormLineLst.push({
+        Parameter: "",
+        Type: 1,
+        IsPrivate: 0,
+      }); // Add a new field
+    },
+    removeField(index) {
+      this.createForm.FormLineLst.splice(index, 1); // Remove the field at the specified index
+    },
+    addField2() {
+      this.editForm.FormLineLst.push({ Parameter: "", Type: 1, IsPrivate: 0 }); // Add a new field
+    },
+    removeField2(index) {
+      this.editForm.FormLineLst.splice(index, 1); // Remove the field at the specified index
+    },
+    setFieldType(field, type) {
+      field.Type = type;
+      field.Options = [{ Name: "" }];
+    },
+    addOption(field) {
+      field.Options.push({ Name: "" }); // Thêm một lựa chọn mới
+    },
+    removeOption(field, index) {
+      field.Options.splice(index, 1); // Xóa lựa chọn tại chỉ số đã cho
+    },
+  },
+  created() {
+    this.getFormLst();
+    this.getDefault();
+  },
+};
+</script>
+
+<style lang="scss" scoped></style>

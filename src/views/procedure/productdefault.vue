@@ -24,75 +24,25 @@
       <template v-slot:top>
         <div class="d-flex flex-wrap gap-1 px-2">
           <span>
-            <v-menu :close-on-content-click="false">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  color="blue"
-                  size="small"
-                  icon=" mdi-filter"
-                  v-bind="props"
-                >
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item>
-                  <v-text-field
-                    v-model="product"
-                    label="Sản phẩm"
-                    hide-details
-                    style="width: 250px !important"
-                    prepend-inner-icon="mdi-magnify"
-                    clearable
-                    class="pt-2"
-                  ></v-text-field>
-
-                  <v-text-field
-                    v-model="name2"
-                    label="Tên xuất khẩu"
-                    hide-details
-                    style="width: 250px !important"
-                    prepend-inner-icon="mdi-magnify"
-                    clearable
-                    class="pt-2"
-                  ></v-text-field>
-
-                  <v-text-field
-                    v-model="country"
-                    label="Nước xk"
-                    hide-details
-                    style="width: 250px !important"
-                    prepend-inner-icon="mdi-magnify"
-                    clearable
-                    class="pt-2"
-                  ></v-text-field>
-
-                  <v-text-field
-                    v-model="area"
-                    label="Khu vực"
-                    hide-details
-                    style="width: 250px !important"
-                    prepend-inner-icon="mdi-magnify"
-                    clearable
-                    class="pt-2"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="storeType"
-                    label="Phân loại"
-                    hide-details
-                    style="width: 250px !important"
-                    prepend-inner-icon="mdi-magnify"
-                    clearable
-                    class="pt-2"
-                  ></v-text-field>
-
-                  <v-btn block class="rounded mt-2" @click="getProductLst"
-                    >Tìm kiếm</v-btn
-                  >
-                </v-list-item>
-              </v-list>
-            </v-menu>
+            <v-text-field
+              v-model="product"
+              label="Sản phẩm"
+              hide-details
+              style="width: 250px !important"
+              prepend-inner-icon="mdi-magnify"
+              clearable
+            ></v-text-field>
           </span>
-
+          <span>
+            <v-text-field
+              v-model="name2"
+              label="Brand"
+              hide-details
+              style="width: 250px !important"
+              prepend-inner-icon="mdi-magnify"
+              clearable
+            ></v-text-field>
+          </span>
           <v-btn
             color="green"
             variant="tonal"
@@ -100,13 +50,13 @@
             size="small"
             @click="getProductLst"
           ></v-btn>
-          <!-- <v-btn
+          <v-btn
             color="blue"
             variant="tonal"
             icon="mdi-plus"
             size="small"
             @click="openCreateProductDialog"
-          ></v-btn> -->
+          ></v-btn>
         </div>
       </template>
 
@@ -199,10 +149,8 @@ export default {
         },
         { title: "Mã", key: "WarehouseID", sortable: false },
         { title: "Sản phẩm", key: "WarehouseName", sortable: false },
-        { title: "Tên xuất khẩu", key: "Name2", sortable: false },
-        { title: "Nước xk", key: "Country", sortable: false },
-        { title: "Khu vực", key: "Area", sortable: false, width: 120 },
-        { title: "Phân loại", key: "StoreType", sortable: false },
+        { title: "Brand", key: "Branch", sortable: false },
+        { title: "Thời gian tạo", key: "TimeCreate", sortable: false },
 
         {
           title: "Người tạo",
@@ -295,7 +243,7 @@ export default {
       const requestData = {
         PageNumber: this.currentPage,
         RowspPage: this.pageSize,
-        Search: searchString + "|4",
+        Search: searchString + "|",
       };
       GetWareHouseLst(requestData).then((res) => {
         if (res.RespCode == 0) {

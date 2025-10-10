@@ -128,54 +128,62 @@
         <v-card-title>
           <span class="headline">Tạo sản phẩm mới</span>
         </v-card-title>
-        <v-card-text>
-          <v-autocomplete
-            v-model="newProduct.WarehouseName"
-            label="Tên trong nước"
-            placeholder="Chọn tên trong nước"
-            density="compact"
-            :items="productDefaultLst"
-            item-value="ValueName"
-            item-title="ValueName"
-            class="mb-2"
-            hide-details
-          ></v-autocomplete>
-          <v-text-field
-            v-model="newProduct.Name2"
-            label="Tên xuất khẩu"
-            class="mb-2"
-          ></v-text-field>
-          <v-autocomplete
-            v-model="newProduct.Country"
-            label="Nước xk"
-            placeholder="Chọn nước xk"
-            density="compact"
-            :items="areaLst"
-            item-value="ValueName"
-            item-title="ValueName"
-            class="mb-2"
-            hide-details
-          ></v-autocomplete>
-          <v-text-field
-            v-model="newProduct.Area"
-            label="Khu vực"
-            placeholder="Nhập khu vực"
-            class="mb-2"
-          ></v-text-field>
-          <v-select
-            v-model="newProduct.StoreType"
-            label="Phân loại"
-            placeholder="Chọn loại"
-            density="compact"
-            :items="typeStorageLst"
-            item-value="ValueName"
-            item-title="ValueName"
-          ></v-select>
+        <v-card-text class="py-2">
+          <v-row>
+            <v-col
+              cols="12"
+              v-for="(line, indexline) in newProduct.FormLineLst"
+              :key="indexline"
+            >
+              <v-text-field
+                v-if="line.Type == 1"
+                :label="line.Parameter"
+                v-model="line.TextResult"
+                :class="{ 'blur-text': line.IsPrivate == 1 }"
+                :readonly="line.IsPrivate == 1"
+              ></v-text-field>
+              <v-autocomplete
+                v-if="line.Type == 2"
+                v-model="line.TextResult"
+                :label="line.Parameter"
+                :items="line.Options"
+                item-value="Name"
+                item-title="Name"
+                chips
+                hide-details
+                multiple
+                :class="{ 'blur-text': line.IsPrivate == 1 }"
+                :readonly="line.IsPrivate == 1"
+              ></v-autocomplete>
+              <v-autocomplete
+                v-if="line.Type == 3"
+                v-model="line.TextResult"
+                :label="line.Parameter"
+                :items="line.Options"
+                item-value="value"
+                item-title="text"
+                chips
+                hide-details
+                multiple
+                :class="{ 'blur-text': line.IsPrivate == 1 }"
+                :readonly="line.IsPrivate == 1"
+              ></v-autocomplete>
+              <div v-if="line.Type == 4">
+                <V-DateField
+                  v-model:modelValue="line.TextResult"
+                  :label="line.Parameter"
+                  width="100%"
+                  :className="{ 'blur-text': line.IsPrivate == 1 }"
+                  :readonly="line.IsPrivate == 1"
+                />
+              </div>
+            </v-col>
+          </v-row>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="grey" @click="isCreateProductDialog = false">Hủy</v-btn>
-          <v-btn color="green" @click="createProduct">Xác nhận</v-btn>
+          <v-btn color="green" @click="updateDocumentForm">Xác nhận</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -184,6 +192,7 @@
 
 <script>
 import { GetDefaultValue } from "@/api/default";
+import { GetFormByID } from "@/api/procedureApi";
 import { CreateWareHouse, GetWareHouseLst } from "@/api/productApi";
 import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 export default {
@@ -225,6 +234,7 @@ export default {
       productDefaultLst: [],
       isCreateProductDialog: false,
       newProduct: {},
+      idCreateProduct: "",
     };
   },
   watch: {
@@ -328,9 +338,66 @@ export default {
           this.productDefaultLst = res.DefaultValueLst;
         }
       });
+      GetDefaultValue({ Table: "Tạo sản phẩm" }).then((res) => {
+        if (res.RespCode == 0) {
+          this.idCreateProduct = res.DefaultValueLst[0]?.ValueName || "";
+        }
+      });
     },
     openCreateProductDialog() {
-      this.isCreateProductDialog = true;
+      GetFormByID({ IDForm: this.idCreateProduct }).then((res) => {
+        if (res.RespCode == 0) {
+          this.newProduct = res.Data;
+          this.isCreateProductDialog = true;
+        }
+      });
+    },
+    updateDocumentForm(data) {
+      this.isLoadingFile = true;
+      var docForm = {
+        DocumentID: this.$route.params.id,
+        IDForm: data.IDForm,
+        ProcedureID: this.docInfo.TypeDoc,
+        NameForm: data.NameForm,
+        Description: data.Description,
+        TypeForm: data.TypeForm,
+      };
+
+      if (data.TypeForm == 1) {
+        docForm.DocumentFormLineLst = data.DocumentFormLineLst.map((item) => {
+          if (item.Type == 2) {
+            var textAnswer =
+              item.TextResult && item.TextResult != ""
+                ? item.TextResult.join(" | ")
+                : "";
+            return {
+              ...item,
+              TextResult: textAnswer,
+            };
+          } else {
+            return {
+              ...item,
+            };
+          }
+        });
+      }
+
+      UpdateDocumentForm({
+        DocumentFormInfo: docForm,
+      })
+        .then((res) => {
+          this.isLoadingFile = false;
+          if (res.RespCode == 0) {
+            notify({
+              title: "Thành công",
+              text: "Lưu thông tin thành công",
+              type: "success",
+            });
+          }
+        })
+        .catch(() => {
+          this.isLoadingFile = false;
+        });
     },
   },
   created() {

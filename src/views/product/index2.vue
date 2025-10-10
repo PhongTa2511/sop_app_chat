@@ -100,13 +100,13 @@
             size="small"
             @click="getProductLst"
           ></v-btn>
-          <v-btn
+          <!-- <v-btn
             color="blue"
             variant="tonal"
             icon="mdi-plus"
             size="small"
             @click="openCreateProductDialog"
-          ></v-btn>
+          ></v-btn> -->
         </div>
       </template>
 

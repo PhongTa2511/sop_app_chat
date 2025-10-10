@@ -8,7 +8,7 @@
             <v-text-field
               v-model="search"
               label="Tìm kiếm"
-              class="mx-2"
+              class="mx-1"
               variant="outlined"
               hide-details
               density="compact"
@@ -22,7 +22,15 @@
             color="blue"
             variant="tonal"
             @click="btShowCreate"
-            icon="mdi-text-box-plus"
+            icon="mdi-plus"
+            size="small"
+            class="mr-1"
+          ></v-btn>
+          <v-btn
+            color="green"
+            variant="tonal"
+            @click="getDefaultValue"
+            icon="mdi-reload"
             size="small"
           ></v-btn>
         </div>
@@ -43,24 +51,33 @@
       fixed-header=""
     >
       <template v-slot:item.Status="{ item }">
-        <v-chip color="success" size="small" v-if="item.Status == 1">
+        <v-chip color="green" size="x-small" v-if="item.Status == 1">
           Đang dùng
         </v-chip>
-        <v-chip color="red" size="small" v-if="item.Status == 0"> Xóa </v-chip>
       </template>
       <template v-slot:item.Action="{ item }">
-        <v-icon color="red" size="small" @click="btShowDel(item)">
-          mdi-delete
-        </v-icon>
+        <v-btn
+          color="orange"
+          size="x-small"
+          icon="mdi-pencil"
+          @click="btShowEdit(item)"
+          class="mr-1"
+        ></v-btn>
+        <v-btn
+          color="red"
+          size="x-small"
+          icon="mdi-delete"
+          @click="btShowDel(item)"
+        ></v-btn>
       </template>
     </v-data-table>
   </v-card>
   <v-dialog v-model="isShowCreate" persistent width="400">
     <v-card>
       <v-card-title>
-        <h6 class="text-h6 px-3 py-2">Thêm giá trị mới</h6>
+        <h6 class="text-h6">Giá trị mặc định</h6>
       </v-card-title>
-      <v-card-text>
+      <v-card-text class="py-2">
         <v-row>
           <v-col cols="12">
             <v-text-field
@@ -94,7 +111,10 @@
         >
           Đóng
         </v-btn>
-        <v-btn @click="createDefaultValue"> Xác nhận </v-btn>
+        <v-btn v-if="!isChecked" @click="createDefaultValue"> Xác nhận </v-btn>
+        <v-btn v-else @click="updateDefaultValue(defaultInfo, 1)">
+          Xác nhận
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -108,7 +128,9 @@
         <v-btn color="blue" variant="text" @click="isShowDel = false"
           >Đóng</v-btn
         >
-        <v-btn variant="text" @click="updateDefaultValue()">Xóa</v-btn>
+        <v-btn variant="text" @click="updateDefaultValue(itemDel, 0)"
+          >Xóa</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -140,18 +162,25 @@ export default {
         { title: "Giá trị", key: "ValueName", sortable: false },
         { title: "Giá trị 2", key: "ValueName2", sortable: false },
         { title: "Trạng thái", key: "Status", sortable: false, width: 100 },
-        { title: "", key: "Action", width: 80 },
+        { title: "", key: "Action", width: 100 },
       ],
       desserts: [],
       pageNumber: 1,
       rowspPage: 10,
       itemDel: {},
       totalLength: 0,
+      isChecked: false,
     };
   },
 
   methods: {
+    btShowEdit(data) {
+      this.defaultInfo = { ...data };
+      this.isShowCreate = true;
+      this.isChecked = true;
+    },
     btShowCreate() {
+      this.isChecked = false;
       this.isShowCreate = true;
     },
     btPage(data) {
@@ -164,20 +193,20 @@ export default {
       this.itemDel = { ...data };
       this.isShowDel = true;
     },
-    updateDefaultValue() {
+    updateDefaultValue(item, status) {
       UpdateDefaultValue({
         DefaultValueInfo: {
-          ...this.itemDel,
-          Status: 0,
+          ...item,
+          Status: status,
         },
       }).then((res) => {
         if (res.RespCode == 0) {
           this.isShowDel = false;
           this.getDefaultValue();
+          this.isShowCreate = false;
           notify({
             type: "success",
             title: "Thành công",
-            text: "Cập nhật địa bàn mới thành công",
           });
         }
       });
@@ -192,7 +221,6 @@ export default {
           notify({
             type: "success",
             title: "Thành công",
-            text: "Tạo giá trị mới thành công",
           });
         }
       });
