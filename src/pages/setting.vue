@@ -3,7 +3,6 @@ import Group from "@/views/default/group.vue";
 import Variable from "@/views/default/index.vue";
 import FormLst from "@/views/procedure/formlst.vue";
 import Procedure from "@/views/procedure/index.vue";
-import ProductDefault from "@/views/procedure/productdefault.vue";
 import { ref } from "vue";
 
 const activeTab = ref("");
@@ -30,11 +29,6 @@ const tabs = [
     title: "Danh sách form",
     icon: "mdi-form-select",
     tab: "danh-sach-form",
-  },
-  {
-    title: "Khởi tạo sản phẩm",
-    icon: "mdi-pill",
-    tab: "khoi-tao-san-pham",
   },
 ];
 
@@ -85,12 +79,6 @@ if (!availableTabs.value.find((t) => t.tab === activeTab.value)) {
         v-if="availableTabs.some((t) => t.tab === 'danh-sach-form')"
       >
         <FormLst />
-      </VWindowItem>
-      <VWindowItem
-        value="khoi-tao-san-pham"
-        v-if="availableTabs.some((t) => t.tab === 'khoi-tao-san-pham')"
-      >
-        <ProductDefault />
       </VWindowItem>
     </VWindow>
   </div>

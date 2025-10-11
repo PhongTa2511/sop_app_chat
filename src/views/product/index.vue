@@ -151,7 +151,6 @@
                 item-title="Name"
                 chips
                 hide-details
-                multiple
                 :class="{ 'blur-text': line.IsPrivate == 1 }"
                 :readonly="line.IsPrivate == 1"
               ></v-autocomplete>
@@ -164,7 +163,6 @@
                 item-title="text"
                 chips
                 hide-details
-                multiple
                 :class="{ 'blur-text': line.IsPrivate == 1 }"
                 :readonly="line.IsPrivate == 1"
               ></v-autocomplete>
@@ -251,6 +249,21 @@ export default {
     },
   },
   methods: {
+    async getDefaultValue(table) {
+      const res = await GetDefaultValue({
+        Table: table,
+      });
+
+      if (res.RespCode == 0) {
+        return res.DefaultValueLst.map((item) => ({
+          ...item,
+          value: item.ValueName,
+          text: item.ValueName,
+        }));
+      }
+
+      return [];
+    },
     btShowInfo(data) {
       this.$router.push("/thong-tin-san-pham/" + data.WarehouseID);
     },
@@ -322,42 +335,66 @@ export default {
         this.loadding = false;
       });
     },
-    getDefaultValue() {
-      GetDefaultValue({
-        Table: "Khu vực",
-      }).then((res) => {
-        this.areaLst = res.DefaultValueLst;
-      });
-      GetDefaultValue({ Table: "Phân loại đối tượng" }).then((res) => {
-        if (res.RespCode == 0) {
-          this.typeStorageLst = res.DefaultValueLst;
-        }
-      });
-      GetDefaultValue({ Table: "Sản phẩm" }).then((res) => {
-        if (res.RespCode == 0) {
-          this.productDefaultLst = res.DefaultValueLst;
-        }
-      });
+    getDefaultValue2() {
       GetDefaultValue({ Table: "Tạo sản phẩm" }).then((res) => {
         if (res.RespCode == 0) {
           this.idCreateProduct = res.DefaultValueLst[0]?.ValueName || "";
         }
       });
     },
-    openCreateProductDialog() {
-      GetFormByID({ IDForm: this.idCreateProduct }).then((res) => {
-        if (res.RespCode == 0) {
-          this.newProduct = res.Data;
-          this.isCreateProductDialog = true;
+    async openCreateProductDialog() {
+      const res = await GetFormByID({ IDForm: this.idCreateProduct });
+      if (res.RespCode == 0) {
+        this.newProduct = res.Data;
+        if (this.newProduct.TypeForm == 1) {
+          const newLines = [];
+          for (const ele of this.newProduct.FormLineLst) {
+            let options = [];
+
+            if (ele.OptionAnswer) {
+              options = JSON.parse(ele.OptionAnswer);
+            }
+
+            if (ele.Type == 3) {
+              if (ele.OptionLine == 1) {
+                options = await this.getUserLstByTeamID2(ele.OptionText);
+              }
+              if (ele.OptionLine == 2) {
+                options = await this.getDefaultValue(ele.OptionText);
+              }
+            }
+
+            newLines.push({
+              ...ele,
+              Options: options,
+            });
+          }
+          this.newProduct.FormLineLst = newLines;
         }
+        this.isCreateProductDialog = true;
+      }
+    },
+    async getUserLstByTeamID2(teamID) {
+      const res = await GetUserLstByTeamID({
+        PageNumber: 1,
+        RowspPage: 10000,
+        Search: "",
+        TeamID: teamID,
       });
+
+      if (res.RespCode == 0) {
+        return res.Data.map((item) => ({
+          ...item,
+          value: item.UserName,
+          text: item.FullName,
+        }));
+      }
+      return [];
     },
     updateDocumentForm(data) {
       this.isLoadingFile = true;
       var docForm = {
-        DocumentID: this.$route.params.id,
         IDForm: data.IDForm,
-        ProcedureID: this.docInfo.TypeDoc,
         NameForm: data.NameForm,
         Description: data.Description,
         TypeForm: data.TypeForm,
@@ -402,7 +439,7 @@ export default {
   },
   created() {
     this.getProductLst();
-    this.getDefaultValue();
+    this.getDefaultValue2();
   },
 };
 </script>
