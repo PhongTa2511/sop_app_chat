@@ -8,54 +8,23 @@ export function GetProductLst(data) {
   });
 }
 
-export function CreateWareHouse(data) {
+export function CreateProduct(data) {
   return request({
-    url: "WareHouse/CreateWareHouse",
+    url: "Product/CreateProduct",
     method: "post",
     data,
   });
 }
-export function UpdateWareHouse(data) {
+export function UpdateProduct(data) {
   return request({
-    url: "WareHouse/UpdateWareHouse",
+    url: "Product/UpdateProduct",
     method: "post",
     data,
   });
 }
-export function DelWareHouse(data) {
+export function DelProduct(data) {
   return request({
-    url: "WareHouse/DelWareHouse",
-    method: "post",
-    data,
-  });
-}
-export function GetWareHouseLst(data) {
-  return request({
-    url: "WareHouse/GetWareHouseLst",
-    method: "post",
-    data,
-  });
-}
-
-export function GetWareHouseByCompany(data) {
-  return request({
-    url: "WareHouse/GetWareHouseByCompany",
-    method: "post",
-    data,
-  });
-}
-
-export function GetWareHouseByID(data) {
-  return request({
-    url: "WareHouse/GetWareHouseByID",
-    method: "post",
-    data,
-  });
-}
-
-export function GetWarehouseJobByID(data) {
-  return request({
-    url: "GSPWarehouseJob/GetWarehouseJobByID",
+    url: "Product/DelProduct",
     method: "post",
     data,
   });

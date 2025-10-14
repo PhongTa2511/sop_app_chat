@@ -122,69 +122,12 @@
         >
       </template>
     </v-data-table-server>
-
-    <v-dialog v-model="isCreateProductDialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span class="headline">Tạo sản phẩm mới</span>
-        </v-card-title>
-        <v-card-text>
-          <v-autocomplete
-            v-model="newProduct.WarehouseName"
-            label="Tên trong nước"
-            placeholder="Chọn tên trong nước"
-            density="compact"
-            :items="productDefaultLst"
-            item-value="ValueName"
-            item-title="ValueName"
-            class="mb-2"
-            hide-details
-          ></v-autocomplete>
-          <v-text-field
-            v-model="newProduct.Name2"
-            label="Tên xuất khẩu"
-            class="mb-2"
-          ></v-text-field>
-          <v-autocomplete
-            v-model="newProduct.Country"
-            label="Nước xk"
-            placeholder="Chọn nước xk"
-            density="compact"
-            :items="areaLst"
-            item-value="ValueName"
-            item-title="ValueName"
-            class="mb-2"
-            hide-details
-          ></v-autocomplete>
-          <v-text-field
-            v-model="newProduct.Area"
-            label="Khu vực"
-            placeholder="Nhập khu vực"
-            class="mb-2"
-          ></v-text-field>
-          <v-select
-            v-model="newProduct.StoreType"
-            label="Phân loại"
-            placeholder="Chọn loại"
-            density="compact"
-            :items="typeStorageLst"
-            item-value="ValueName"
-            item-title="ValueName"
-          ></v-select>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="grey" @click="isCreateProductDialog = false">Hủy</v-btn>
-          <v-btn color="green" @click="createProduct">Xác nhận</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </v-card>
 </template>
 
 <script>
 import { GetDefaultValue } from "@/api/default";
-import { CreateWareHouse, GetWareHouseLst } from "@/api/productApi";
+import { GetProductLst } from "@/api/productApi";
 import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 export default {
   data() {
@@ -197,9 +140,9 @@ export default {
           align: "center",
           width: 80,
         },
-        { title: "Mã", key: "WarehouseID", sortable: false },
-        { title: "Sản phẩm", key: "WarehouseName", sortable: false },
-        { title: "Tên xuất khẩu", key: "Name2", sortable: false },
+        { title: "Mã", key: "ProductID", sortable: false },
+        { title: "Sản phẩm", key: "ProductName", sortable: false },
+        { title: "Tên xuất khẩu", key: "ProductExport", sortable: false },
         { title: "Nước xk", key: "Country", sortable: false },
         { title: "Khu vực", key: "Area", sortable: false, width: 120 },
         { title: "Phân loại", key: "StoreType", sortable: false },
@@ -244,39 +187,7 @@ export default {
     btShowInfo(data) {
       this.$router.push("/thong-tin-san-pham/" + data.WarehouseID);
     },
-    createProduct() {
-      CreateWareHouse({
-        WarehouseInfo: {
-          ...this.newProduct,
-        },
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          notify({
-            title: "Thành công",
-            type: "success",
-          });
-          this.newProduct = {};
-          this.isCreateProductDialog = false;
-          this.getProductLst();
-        }
-        if (res.RespCode == 2) {
-          notify({
-            title: "Nhắc nhở",
-            text: res.RespText,
-            type: "warn",
-            duration: 5000,
-          });
-          // this.isShowContinue = true;
-          this.newProduct.IsContinue = 1;
-        } else {
-          notify({
-            title: "Thất bại",
-            text: res.RespText,
-            type: "error",
-          });
-        }
-      });
-    },
+
     btPage(data) {
       this.currentPage = data;
     },
@@ -297,7 +208,7 @@ export default {
         RowspPage: this.pageSize,
         Search: searchString + "|4",
       };
-      GetWareHouseLst(requestData).then((res) => {
+      GetProductLst(requestData).then((res) => {
         if (res.RespCode == 0) {
           this.productLst = res.Data.map((item, index) => {
             var num = this.pageSize * (this.currentPage - 1);

@@ -24,6 +24,14 @@ export function GetDocumentFormByID(data) {
   });
 }
 
+export function GetDocumentFormByProductID(data) {
+  return request({
+    url: "GSPDocumentForm/GetDocumentFormByProductID",
+    method: "post",
+    data,
+  });
+}
+
 export function UpdateDocumentFormPublic(data) {
   return request({
     url: "GSPDocumentForm/UpdateDocumentFormPublic",

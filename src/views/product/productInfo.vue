@@ -1,13 +1,14 @@
 <template>
-  <v-card class="py-4">
-    <div
-      class="d-flex justify-space-between mb-4 mx-4"
-      v-if="productInfo.WarehouseName"
-    >
+  <v-card class="py-4" v-if="productInfo">
+    <div class="d-flex justify-space-between mx-4" v-if="productInfo">
       <div>
         <div class="text-h5" style="white-space: normal">
           Sản phẩm:
-          {{ productInfo.WarehouseName }}
+          {{
+            productInfo.DocumentFormLineLst.find(
+              (p) => p.Parameter == "Tên sản phẩm"
+            )?.TextResult || ""
+          }}
         </div>
       </div>
       <div>
@@ -15,149 +16,69 @@
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
-              size="small"
+              size="x-small"
               color="green"
-              class="mr-2"
               icon="mdi-content-save-outline"
-              @click="btUpdateStorage"
+              @click="updateDocumentForm(productInfo)"
             ></v-btn>
           </template>
         </v-tooltip>
       </div>
     </div>
-    <v-row class="px-4">
-      <v-col cols="4">
-        <v-text-field
-          v-model="productInfo.WarehouseName"
-          label="Tên sản phẩm"
-          variant="outlined"
-          hide-details
-          density="compact"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="4" class="d-flex align-center">
-        <v-text-field
-          v-model="productInfo.Country"
-          label="Quốc gia"
-          variant="outlined"
-          hide-details
-          density="compact"
-        ></v-text-field>
-        <v-tooltip text="Xem law">
-          <template v-slot:activator="{ props }">
-            <v-btn
-              v-bind="props"
-              size="small"
-              class="ml-1"
-              icon="mdi-file-certificate"
-              @click="btShowPushLaw"
-            ></v-btn>
-          </template>
-        </v-tooltip>
-      </v-col>
-
-      <v-col cols="4">
-        <v-text-field
-          v-model="productInfo.Name2"
-          label="Tên xuất khẩu"
-          variant="outlined"
-          hide-details
-          density="compact"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="4">
-        <v-text-field
-          v-model="productInfo.Area"
-          label="Khu vực"
-          variant="outlined"
-          hide-details
-          density="compact"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="4">
-        <v-text-field
-          v-model="productInfo.StoreType"
-          label="Phân loại"
-          variant="outlined"
-          hide-details
-          density="compact"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="4">
-        <v-text-field
-          v-model="productInfo.AddrLv1"
-          label="Quy cách"
-          variant="outlined"
-          hide-details
-          density="compact"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="4">
-        <v-text-field
-          v-model="productInfo.Session"
-          label="Quy định giấy tờ pháp lý"
-          variant="outlined"
-          hide-details
-          density="compact"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="4">
-        <v-text-field
-          v-model="productInfo.CertNumber"
-          label="Thông tin MAH"
-          variant="outlined"
-          hide-details
-          density="compact"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="4">
-        <v-select
-          v-model="productInfo.TypeGSP"
-          label="Loại sản phẩm"
-          placeholder="Loại sản phẩm"
-          density="compact"
-          :items="typeLst"
-          item-value="ValueName"
-          item-title="ValueName"
-        ></v-select>
-      </v-col>
-      <v-col cols="4">
-        <v-select
-          v-model="productInfo.AddrLv2"
-          label="Loại hoàn thiện"
-          placeholder="Loại hoàn thiện"
-          density="compact"
-          :items="typeSuccessLst"
-          item-value="ValueName"
-          item-title="ValueName"
-        ></v-select>
-      </v-col>
-      <v-col cols="4">
-        <v-select
-          v-model="productInfo.Status"
-          label="Trạng thái"
-          placeholder="Trạng thái"
-          density="compact"
-          :items="productStatusLst"
-          item-value="ValueName2"
-          item-title="ValueName"
-        ></v-select>
-      </v-col>
-      <v-col cols="4">
-        <VDateField
-          v-model:modelValue="productInfo.CertDate"
-          width="100%"
-          label="Ngày cấp giấy phép"
-        />
-      </v-col>
-      <v-col cols="4">
-        <VDateField
-          v-model:modelValue="productInfo.AddrLv3"
-          width="100%"
-          label="Ngày hết hạn"
-        />
-      </v-col>
-    </v-row>
+    <v-card flat v-if="productInfo.TypeForm == 1">
+      <v-row class="px-4 py-4">
+        <v-col
+          lg="4"
+          md="6"
+          cols="12"
+          v-for="(line, indexline) in productInfo.DocumentFormLineLst"
+          :key="indexline"
+        >
+          <v-text-field
+            v-if="line.Type == 1"
+            :label="line.Parameter"
+            v-model="line.TextResult"
+            :class="{ 'blur-text': line.IsPrivate == 1 }"
+            :readonly="line.IsPrivate == 1"
+          ></v-text-field>
+          <v-autocomplete
+            v-if="line.Type == 2"
+            v-model="line.TextResult"
+            :label="line.Parameter"
+            :items="line.Options"
+            item-value="Name"
+            item-title="Name"
+            chips
+            hide-details
+            multiple
+            :class="{ 'blur-text': line.IsPrivate == 1 }"
+            :readonly="line.IsPrivate == 1"
+          ></v-autocomplete>
+          <v-autocomplete
+            v-if="line.Type == 3"
+            v-model="line.TextResult"
+            :label="line.Parameter"
+            :items="line.Options"
+            item-value="value"
+            item-title="text"
+            chips
+            hide-details
+            multiple
+            :class="{ 'blur-text': line.IsPrivate == 1 }"
+            :readonly="line.IsPrivate == 1"
+          ></v-autocomplete>
+          <div v-if="line.Type == 4">
+            <V-DateField
+              v-model:modelValue="line.TextResult"
+              :label="line.Parameter"
+              width="100%"
+              :className="{ 'blur-text': line.IsPrivate == 1 }"
+              :readonly="line.IsPrivate == 1"
+            />
+          </div>
+        </v-col>
+      </v-row>
+    </v-card>
   </v-card>
   <v-row class="mt-2">
     <v-col cols="12" md="6">
@@ -404,8 +325,8 @@
 import { CreateGSPDocument, GetGSPDocumentByStoreID } from "@/api/briefApi";
 import { GetDefaultValue } from "@/api/default";
 import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi";
+import { GetDocumentFormByProductID } from "@/api/documentFormApi";
 import { GetProcedureLst } from "@/api/procedureApi";
-import { GetWareHouseByID, UpdateWareHouse } from "@/api/productApi";
 import { formatDate, formatDateDisplayDDMMYY } from "@/helpers/getTime";
 import {
   downloadFileProduct,
@@ -637,30 +558,14 @@ export default {
         return { text: "Khách check", color: "orange" };
       }
     },
-    btUpdateStorage() {
-      UpdateWareHouse({
-        WarehouseInfo: {
-          ...this.productInfo,
-          CertDate: formatDate(this.productInfo.CertDate),
-          AddrLv3: formatDate(this.productInfo.AddrLv3),
-          Status: this.productInfo.Status,
-        },
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          notify({
-            title: "Thành công",
-            type: "success",
-          });
-        }
-      });
-    },
-    getWareHouseByID() {
-      GetWareHouseByID({
-        WarehouseID: this.$route.params.id,
+    btUpdateStorage() {},
+    getDocumentFormByID() {
+      GetDocumentFormByProductID({
+        FormID: this.$route.params.id,
       }).then((res) => {
         if (res.RespCode == 0) {
           this.productInfo = {
-            ...res.Data,
+            ...res.DocumentFormInfo,
           };
           this.getGSPDocumentByStoreID(this.productInfo.WarehouseID);
         }
@@ -695,7 +600,7 @@ export default {
     },
   },
   created() {
-    this.getWareHouseByID();
+    this.getDocumentFormByID();
     this.getProcedureLst();
     this.getDefaultValue();
     this.getDocumentFile();
