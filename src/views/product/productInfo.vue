@@ -1,6 +1,9 @@
 <template>
   <v-card class="py-4" v-if="productInfo">
-    <div class="d-flex justify-space-between mx-4" v-if="productInfo">
+    <div
+      class="d-flex justify-space-between mx-4"
+      v-if="productInfo.DocumentFormLineLst"
+    >
       <div>
         <div class="text-h5" style="white-space: normal">
           Sản phẩm:
@@ -117,7 +120,7 @@
               <span style="color: red">{{ item.DateExpired }} </span>
             </template>
             <template v-slot:title>
-              {{ item.DocName + " - " + item.Conclusion }}
+              {{ item.DocName + " - " + item.DocumentID }}
             </template>
             <template v-slot:prepend>
               <v-btn
@@ -255,15 +258,15 @@
     </v-col>
   </v-row>
 
-  <v-dialog v-model="isShowAddNew" max-width="600px">
+  <v-dialog v-model="isShowAddNew" max-width="500px">
     <v-card>
       <v-card-title>
-        <span class="text-h5">Thêm mới thông tin</span>
+        <h5 class="text-h6 pt-2">Thêm mới thông tin</h5>
       </v-card-title>
-      <v-card-text>
+      <v-card-text class="pt-0 pb-2">
         <v-text-field
           label="Tên sản phẩm"
-          v-model="newDocument.WarehouseName"
+          v-model="newDocument.ProductName"
           class="mb-2"
         ></v-text-field>
 
@@ -294,11 +297,14 @@
         ></v-text-field>
       </v-card-text>
       <v-card-actions>
-        <v-btn @click="isShowAddNew = false">Hủy</v-btn>
-        <v-btn color="green" @click="btCreateGSPDocument">Lưu</v-btn>
+        <v-btn size="small" @click="isShowAddNew = false">Hủy</v-btn>
+        <v-btn size="small" color="green" @click="btCreateGSPDocument"
+          >Lưu</v-btn
+        >
       </v-card-actions>
     </v-card>
   </v-dialog>
+
   <v-dialog v-model="isShowFile" persistent width="800">
     <v-card>
       <v-card-item>
@@ -322,7 +328,7 @@
 </template>
 
 <script>
-import { CreateGSPDocument, GetGSPDocumentByStoreID } from "@/api/briefApi";
+import { CreateGSPDocument, GetDocumentByProID } from "@/api/briefApi";
 import { GetDefaultValue } from "@/api/default";
 import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi";
 import { GetDocumentFormByProductID } from "@/api/documentFormApi";
@@ -513,15 +519,17 @@ export default {
     btShowAddNew() {
       this.isShowAddNew = true;
       this.newDocument = {
-        WarehouseName: this.productInfo.WarehouseName,
-        WarehouseID: this.productInfo.WarehouseID,
+        ProductName: this.productInfo.DocumentFormLineLst.find(
+          (p) => p.Parameter == "Tên sản phẩm"
+        )?.TextResult,
+        ProductID: this.$route.params.id,
         DateRecept: new Date(),
       };
     },
     btCreateGSPDocument() {
       CreateGSPDocument({
         DocumentInfo: {
-          WarehouseID: this.newDocument.WarehouseID,
+          ProductID: this.$route.params.id,
           TypeDoc: this.newDocument.TypeDoc,
           DateRecept: formatDate(this.newDocument.DateRecept),
           Note: this.newDocument.Note,
@@ -530,7 +538,7 @@ export default {
         if (res.RespCode == 0) {
           this.isShowAddNew = false;
           this.newDocument = {};
-          this.getGSPDocumentByStoreID(this.productInfo.WarehouseID);
+          this.getDocumentByProID(this.productInfo.ProductID);
           notify({
             title: "Thành công",
             type: "success",
@@ -538,25 +546,33 @@ export default {
         }
       });
     },
-    getStatus(status) {
-      if (status == 0) {
-        return { text: "Hủy", color: "error" };
-      }
-      if (status == 1) {
-        return { text: "Mới tạo", color: "more" };
-      }
-      if (status == 2) {
-        return { text: "Đang làm", color: "success" };
-      }
-      if (status == 3) {
-        return { text: "Tạm dừng", color: "more" };
-      }
-      if (status == 4) {
-        return { text: "Hoàn thành", color: "green" };
-      }
-      if (status == 6) {
-        return { text: "Khách check", color: "orange" };
-      }
+    updateDocumentForm(data) {
+      UpdateDocumentForm({
+        DocumentFormInfo: {
+          ...data,
+          DocumentFormLineLst: data.DocumentFormLineLst.map((item) => ({
+            ...item,
+            TextResult:
+              item.Type == 4
+                ? formatDate(item.TextResult)
+                : item.TextResult || "",
+          })),
+        },
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            title: "Thành công",
+            text: "Cập nhật thành công",
+            type: "success",
+          });
+        } else {
+          notify({
+            title: "Lỗi",
+            text: res.RespText,
+            type: "error",
+          });
+        }
+      });
     },
     btUpdateStorage() {},
     getDocumentFormByID() {
@@ -567,16 +583,16 @@ export default {
           this.productInfo = {
             ...res.DocumentFormInfo,
           };
-          this.getGSPDocumentByStoreID(this.productInfo.WarehouseID);
+          this.getDocumentByProID(this.$route.params.id);
         }
       });
     },
-    getGSPDocumentByStoreID(data) {
-      GetGSPDocumentByStoreID({
-        WarehouseID: data,
+    getDocumentByProID(data) {
+      GetDocumentByProID({
+        ProductID: data,
       }).then((res) => {
         if (res.RespCode == 0) {
-          this.documentLst = res.DocumentLst.filter((p) => p.Status > 0).map(
+          this.documentLst = res.Data.filter((p) => p.Status > 0).map(
             (item, index) => {
               return {
                 ...item,

@@ -889,7 +889,7 @@
 
 <script>
 import {
-  GSPGetGSPDocumentInfoByID,
+  GetDocumentInfoByID,
   UpdateDocumentAssign,
   UpdateGSPDocument,
 } from "@/api/briefApi";
@@ -906,8 +906,9 @@ import {
   StartDocument,
 } from "@/api/documentJobApi";
 import { CreateGroup } from "@/api/messageApi";
-import { GetWareHouseLst } from "@/api/productApi";
+import { GetProductLst } from "@/api/productApi";
 import { GetTeamLstDocID, GetTeamLstProID } from "@/api/teamApi";
+import { GetUserLstByTeamID } from "@/api/user";
 import logo from "@/assets/images/logos/dtp-logo.png";
 import { formatDate, formatDateHHDDMM } from "@/helpers/getTime";
 import {
@@ -958,7 +959,121 @@ export default {
     };
   },
   watch: {
-    tab(value) {
+    async tab(value) {
+      console.log("value", value);
+
+      var item = value;
+
+      if (item.TypeForm == 1) {
+        const newLines = [];
+
+        // duyệt qua DNFormLineLst (cấu hình form gốc)
+        for (const ele of item.DNFormLineLst) {
+          let options = [];
+
+          if (ele.OptionAnswer) {
+            options = JSON.parse(ele.OptionAnswer);
+          }
+
+          // tìm bản ghi đã lưu trong DocumentFormLineLst
+          const check = item.DocumentFormLineLst.find(
+            (p) => p.Required == ele.Required
+          );
+
+          if (check) {
+            // ưu tiên lấy từ DocumentFormLineLst
+            let text = "";
+            if (check.Type == 2) {
+              text =
+                check.TextResult && check.TextResult !== ""
+                  ? check.TextResult.split(" | ")
+                  : [];
+            } else if (check.Type == 4) {
+              text =
+                check.TextResult && check.TextResult !== ""
+                  ? new Date(check.TextResult)
+                  : null;
+            } else {
+              text = check.TextResult;
+            }
+
+            if (check.Type == 3) {
+              if (check.OptionLine == 1) {
+                options = await this.getUserLstByTeamID2(check.OptionText);
+              }
+              if (check.OptionLine == 2) {
+                options = await this.getDefaultValue(check.OptionText);
+              }
+              if (check.OptionLine == 3) {
+                options = await this.getProductLst();
+              }
+            }
+
+            newLines.push({
+              ...check,
+              Options: options,
+              TextResult: text,
+            });
+          } else {
+            // nếu DocumentFormLineLst không có thì fallback DNFormLineLst
+            if (ele.Type == 3) {
+              if (ele.OptionLine == 1) {
+                options = await this.getUserLstByTeamID2(ele.OptionText);
+              }
+              if (ele.OptionLine == 2) {
+                options = await this.getDefaultValue(ele.OptionText);
+              }
+              if (ele.OptionLine == 3) {
+                options = await this.getProductLst();
+              }
+            }
+
+            newLines.push({
+              ...ele,
+              Options: options,
+            });
+          }
+        }
+
+        item.DocumentFormLineLst = newLines;
+      }
+      // giữ nguyên xử lý TypeForm == 2 (table)
+      if (item.TypeForm == 2) {
+        item.headers = [
+          { title: "STT", sortable: false, key: "Key", align: "center" },
+        ];
+
+        for (const line of item.DNFormLineLst) {
+          if (line.IsPrivate == 0) {
+            item.headers.push({
+              title: line.Parameter,
+              sortable: false,
+              key: "Line" + line.Required,
+              align: "left",
+              type: line.Type,
+              options: line.Type == 2 ? JSON.parse(line.OptionAnswer) : [],
+            });
+          }
+        }
+
+        const len = item.DocumentFormLineLst.filter(
+          (obj, index, self) =>
+            index === self.findIndex((o) => o.IDFormLine === obj.IDFormLine)
+        );
+
+        item.desserts = len.map((l, i) => {
+          const itemlst = item.DocumentFormLineLst.filter(
+            (p) => p.IDFormLine == l.IDFormLine && p.IsPrivate == 0
+          );
+
+          const itemde = {};
+          itemlst.forEach((ele, inle) => {
+            itemde["Line" + (inle + 1)] = ele.TextResult;
+          });
+
+          return { ...itemde, Key: i + 1, Status: 1 };
+        });
+      }
       if (value.headers && value.desserts) {
         this.headers = value.headers;
         var lengthMax = 0;
@@ -1304,13 +1419,14 @@ export default {
       });
     },
     getDocumentInfoByID() {
-      GSPGetGSPDocumentInfoByID({
+      GetDocumentInfoByID({
         DocumentID: this.$route.params.id,
       }).then((res) => {
         if (res.RespCode == 0) {
           this.docInfo = res.Data;
           this.processDocument();
           this.getdefault();
+          this.getDocumentFormByDocID();
         }
       });
     },
@@ -1419,123 +1535,123 @@ export default {
       });
 
       if (res.RespCode == 0) {
-        this.formTabLst = [];
+        this.formTabLst = res.DocumentFormLst;
+        console.log("res", res.DocumentFormLst);
 
-        for (const item of res.DocumentFormLst) {
-          if (item.TypeForm == 1) {
-            const newLines = [];
+        // for (const item of res.DocumentFormLst) {
+        //   if (item.TypeForm == 1) {
+        //     const newLines = [];
 
-            // duyệt qua DNFormLineLst (cấu hình form gốc)
-            for (const ele of item.DNFormLineLst) {
-              let options = [];
+        //     // duyệt qua DNFormLineLst (cấu hình form gốc)
+        //     for (const ele of item.DNFormLineLst) {
+        //       let options = [];
 
-              if (ele.OptionAnswer) {
-                options = JSON.parse(ele.OptionAnswer);
-              }
+        //       if (ele.OptionAnswer) {
+        //         options = JSON.parse(ele.OptionAnswer);
+        //       }
 
-              // tìm bản ghi đã lưu trong DocumentFormLineLst
-              const check = item.DocumentFormLineLst.find(
-                (p) => p.Required == ele.Required
-              );
+        //       // tìm bản ghi đã lưu trong DocumentFormLineLst
+        //       const check = item.DocumentFormLineLst.find(
+        //         (p) => p.Required == ele.Required
+        //       );
 
-              if (check) {
-                // ưu tiên lấy từ DocumentFormLineLst
-                let text = "";
-                if (check.Type == 2) {
-                  text =
-                    check.TextResult && check.TextResult !== ""
-                      ? check.TextResult.split(" | ")
-                      : [];
-                } else if (check.Type == 4) {
-                  text =
-                    check.TextResult && check.TextResult !== ""
-                      ? new Date(check.TextResult)
-                      : null;
-                } else {
-                  text = check.TextResult;
-                }
+        //       if (check) {
+        //         // ưu tiên lấy từ DocumentFormLineLst
+        //         let text = "";
+        //         if (check.Type == 2) {
+        //           text =
+        //             check.TextResult && check.TextResult !== ""
+        //               ? check.TextResult.split(" | ")
+        //               : [];
+        //         } else if (check.Type == 4) {
+        //           text =
+        //             check.TextResult && check.TextResult !== ""
+        //               ? new Date(check.TextResult)
+        //               : null;
+        //         } else {
+        //           text = check.TextResult;
+        //         }
 
-                if (check.Type == 3) {
-                  if (check.OptionLine == 1) {
-                    options = await this.getUserLstByTeamID2(check.OptionText);
-                  }
-                  if (check.OptionLine == 2) {
-                    options = await this.getDefaultValue(check.OptionText);
-                  }
-                  if (check.OptionLine == 3) {
-                    options = await this.getProductLst();
-                  }
-                }
+        //         if (check.Type == 3) {
+        //           if (check.OptionLine == 1) {
+        //             options = await this.getUserLstByTeamID2(check.OptionText);
+        //           }
+        //           if (check.OptionLine == 2) {
+        //             options = await this.getDefaultValue(check.OptionText);
+        //           }
+        //           if (check.OptionLine == 3) {
+        //             options = await this.getProductLst();
+        //           }
+        //         }
 
-                newLines.push({
-                  ...check,
-                  Options: options,
-                  TextResult: text,
-                });
-              } else {
-                // nếu DocumentFormLineLst không có thì fallback DNFormLineLst
-                if (ele.Type == 3) {
-                  if (ele.OptionLine == 1) {
-                    options = await this.getUserLstByTeamID2(ele.OptionText);
-                  }
-                  if (ele.OptionLine == 2) {
-                    options = await this.getDefaultValue(ele.OptionText);
-                  }
-                  if (ele.OptionLine == 3) {
-                    options = await this.getProductLst();
-                  }
-                }
+        //         newLines.push({
+        //           ...check,
+        //           Options: options,
+        //           TextResult: text,
+        //         });
+        //       } else {
+        //         // nếu DocumentFormLineLst không có thì fallback DNFormLineLst
+        //         if (ele.Type == 3) {
+        //           if (ele.OptionLine == 1) {
+        //             options = await this.getUserLstByTeamID2(ele.OptionText);
+        //           }
+        //           if (ele.OptionLine == 2) {
+        //             options = await this.getDefaultValue(ele.OptionText);
+        //           }
+        //           if (ele.OptionLine == 3) {
+        //             options = await this.getProductLst();
+        //           }
+        //         }
 
-                newLines.push({
-                  ...ele,
-                  Options: options,
-                });
-              }
-            }
+        //         newLines.push({
+        //           ...ele,
+        //           Options: options,
+        //         });
+        //       }
+        //     }
 
-            item.DocumentFormLineLst = newLines;
-          }
+        //     item.DocumentFormLineLst = newLines;
+        //   }
+        //   // giữ nguyên xử lý TypeForm == 2 (table)
+        //   if (item.TypeForm == 2) {
+        //     item.headers = [
+        //       { title: "STT", sortable: false, key: "Key", align: "center" },
+        //     ];
 
-          // giữ nguyên xử lý TypeForm == 2 (table)
-          if (item.TypeForm == 2) {
-            item.headers = [
-              { title: "STT", sortable: false, key: "Key", align: "center" },
-            ];
+        //     for (const line of item.DNFormLineLst) {
+        //       if (line.IsPrivate == 0) {
+        //         item.headers.push({
+        //           title: line.Parameter,
+        //           sortable: false,
+        //           key: "Line" + line.Required,
+        //           align: "left",
+        //           type: line.Type,
+        //           options: line.Type == 2 ? JSON.parse(line.OptionAnswer) : [],
+        //         });
+        //       }
+        //     }
 
-            for (const line of item.DNFormLineLst) {
-              if (line.IsPrivate == 0) {
-                item.headers.push({
-                  title: line.Parameter,
-                  sortable: false,
-                  key: "Line" + line.Required,
-                  align: "left",
-                  type: line.Type,
-                  options: line.Type == 2 ? JSON.parse(line.OptionAnswer) : [],
-                });
-              }
-            }
+        //     const len = item.DocumentFormLineLst.filter(
+        //       (obj, index, self) =>
+        //         index === self.findIndex((o) => o.IDFormLine === obj.IDFormLine)
+        //     );
 
-            const len = item.DocumentFormLineLst.filter(
-              (obj, index, self) =>
-                index === self.findIndex((o) => o.IDFormLine === obj.IDFormLine)
-            );
+        //     item.desserts = len.map((l, i) => {
+        //       const itemlst = item.DocumentFormLineLst.filter(
+        //         (p) => p.IDFormLine == l.IDFormLine && p.IsPrivate == 0
+        //       );
 
-            item.desserts = len.map((l, i) => {
-              const itemlst = item.DocumentFormLineLst.filter(
-                (p) => p.IDFormLine == l.IDFormLine && p.IsPrivate == 0
-              );
+        //       const itemde = {};
+        //       itemlst.forEach((ele, inle) => {
+        //         itemde["Line" + (inle + 1)] = ele.TextResult;
+        //       });
 
-              const itemde = {};
-              itemlst.forEach((ele, inle) => {
-                itemde["Line" + (inle + 1)] = ele.TextResult;
-              });
+        //       return { ...itemde, Key: i + 1, Status: 1 };
+        //     });
+        //   }
 
-              return { ...itemde, Key: i + 1, Status: 1 };
-            });
-          }
-
-          this.formTabLst.push(item);
-        }
+        //   this.formTabLst.push(item);
+        // }
 
         if (this.formTabLst.length > 0) {
           this.tab = this.formTabLst[0];
@@ -1566,7 +1682,7 @@ export default {
         Search: "||||",
       };
 
-      const res = await GetWareHouseLst(requestData);
+      const res = await GetProductLst(requestData);
 
       if (res.RespCode == 0) {
         this.productLst = res.Data.map((item, index) => ({
@@ -1715,7 +1831,6 @@ export default {
   },
   created() {
     this.getDocumentInfoByID();
-    this.getDocumentFormByDocID();
   },
 };
 </script>

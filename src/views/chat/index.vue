@@ -65,12 +65,29 @@
           <v-spacer></v-spacer>
 
           <template v-if="$vuetify.display.mdAndUp">
-            <v-btn
-              icon="mdi-magnify"
-              variant="text"
-              color="blue"
-              @click="openSearchDialog"
-            ></v-btn>
+            <v-tooltip text="Gọi video">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-camera"
+                  variant="text"
+                  color="blue"
+                  @click="isCalling = true"
+                ></v-btn>
+              </template>
+            </v-tooltip>
+
+            <v-tooltip text="Tìm kiếm tin nhắn">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  icon="mdi-magnify"
+                  variant="text"
+                  color="blue"
+                  @click="openSearchDialog"
+                ></v-btn>
+              </template>
+            </v-tooltip>
 
             <!-- <v-btn icon="mdi-filter" variant="text" color="blue"></v-btn> -->
           </template>
@@ -314,7 +331,14 @@
       </v-card>
     </v-dialog>
   </div>
+  <VideoCall
+    v-if="isCalling"
+    :targetUserId="friendId"
+    :currentUserId="currentUserId"
+    @closeCall="btCloseCall"
+  />
 </template>
+
 <script>
 // import { sendMessage, onMessage, onMessage2 } from "@/socket";
 import {
@@ -329,14 +353,19 @@ import { getUserName } from "@/utils/auth";
 import { notify } from "@kyvg/vue3-notification";
 import Axios from "axios";
 import RightChat from "./components/right-chat.vue";
+import VideoCall from "./components/VideoCall.vue";
 
 export default {
   name: "app",
   components: {
     RightChat,
+    VideoCall,
   },
   data() {
     return {
+      currentUserId: "0397613784",
+      friendId: "0342764514",
+      isCalling: false,
       drawerLeft: true,
       drawerRight: true,
       groupInfo: null,
@@ -398,6 +427,9 @@ export default {
     },
   },
   methods: {
+    btCloseCall() {
+      this.isCalling = false;
+    },
     btDownloadFile(data) {
       window.open(data.LinkFile, "_blank");
     },

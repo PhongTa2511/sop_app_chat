@@ -1008,7 +1008,7 @@ import {
   GetDocumentFormByDocID,
   UpdateDocumentForm,
 } from "@/api/documentFormApi";
-import { GetWareHouseLst } from "@/api/productApi";
+import { GetProductLst } from "@/api/productApi";
 import { GetUserLstByTeamID } from "@/api/user";
 import logo from "@/assets/images/logos/dtp-logo.png";
 import {
@@ -1731,7 +1731,7 @@ export default {
         Search: "||||",
       };
 
-      const res = await GetWareHouseLst(requestData);
+      const res = await GetProductLst(requestData);
 
       if (res.RespCode == 0) {
         this.productLst = res.Data.map((item, index) => ({

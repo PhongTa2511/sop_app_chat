@@ -29,17 +29,17 @@ export function GetGSPDocumentLst(data) {
     data,
   });
 }
-export function GSPGetGSPDocumentInfoByID(data) {
+export function GetDocumentInfoByID(data) {
   return request({
-    url: "GSPDocument/GSPGetGSPDocumentInfoByID",
+    url: "GSPDocument/GetDocumentInfoByID",
     method: "post",
     data,
   });
 }
 
-export function GetGSPDocumentByStoreID(data) {
+export function GetDocumentByProID(data) {
   return request({
-    url: "GSPDocument/GetGSPDocumentByStoreID",
+    url: "GSPDocument/GetDocumentByProID",
     method: "post",
     data,
   });
