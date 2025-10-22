@@ -67,6 +67,10 @@
           >mdi-note-edit</v-icon
         >
       </template>
+      <template v-slot:item.DocumentID="{ item }">
+        {{ item.DocumentID }}
+        <div style="color: rgb(var(--v-theme-primary))">{{ item.MaRD }}</div>
+      </template>
     </v-data-table-server>
   </v-card>
 </template>
@@ -112,13 +116,13 @@ export default {
           title: "Nồng độ, hàm lượng",
           key: "NongDoHamLuong",
           sortable: false,
-          minWidth: 200,
+          minWidth: 280,
         },
         {
           title: "Quy cách đóng gói",
           key: "QuyCachDongGoi",
           sortable: false,
-          minWidth: 280,
+          minWidth: 340,
         },
         {
           title: "TCCL",
@@ -209,25 +213,8 @@ export default {
           key: "NhanToaHoSoDaCapNhatTT01",
           sortable: false,
         },
-        {
-          title: "Bản TC nộp đi",
-          key: "BanTieuChuanNopDiTrongHSBS",
-          sortable: false,
-          minWidth: 120,
-        },
+
         // { title: "Hạn dùng cho XK", key: "HanDungChoXK", sortable: false },
-        {
-          title: "Gia hạn hay chưa",
-          key: "DaCoGiaHanHayChua",
-          sortable: false,
-          minWidth: 100,
-        },
-        {
-          title: "SĐK gia hạn",
-          key: "SDKGiaHan",
-          sortable: false,
-          minWidth: 120,
-        },
       ],
     };
   },
