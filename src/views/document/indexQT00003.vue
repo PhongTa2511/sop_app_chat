@@ -214,7 +214,27 @@ export default {
           sortable: false,
         },
 
-        // { title: "Hạn dùng cho XK", key: "HanDungChoXK", sortable: false },
+        { title: "Đợt Cấp", key: "DotCap", sortable: false },
+        {
+          title: "Hạn dùng cho XK",
+          key: "HanDungChoXK",
+          sortable: false,
+          minWidth: 120,
+        },
+        {
+          title: "Tiêu chuẩn được duyệt",
+          key: "TieuChuanDuocDuyet",
+          sortable: false,
+          minWidth: 120,
+        },
+        { title: "Ghi chú", key: "GhiChu", sortable: false, minWidth: 120 },
+        {
+          title: "Phân Loại TTBYT",
+          key: "PhanLoaiTTBYT",
+          sortable: false,
+          minWidth: 120,
+          align: "center",
+        },
       ],
     };
   },
