@@ -547,16 +547,34 @@ export default {
       });
     },
     updateDocumentForm(data) {
+      var dataLine = data.DocumentFormLineLst.map((item) => ({
+        ...item,
+        TextResult:
+          item.Type == 4 ? formatDate(item.TextResult) : item.TextResult || "",
+      }));
+
+      // ------------------------------------------------------------------
+      // 🔥 CHECK BẮT BUỘC: Nếu IsValue == 1 thì TextResult phải có giá trị
+      // ------------------------------------------------------------------
+      let invalid = dataLine.some((line) => {
+        return (
+          line.IsValue == 1 &&
+          (!line.TextResult || line.TextResult.trim() === "")
+        );
+      });
+
+      if (invalid) {
+        notify({
+          title: "Thiếu dữ liệu",
+          text: "Các trường bắt buộc chưa nhập đầy đủ",
+          type: "error",
+        });
+        return; // ⛔ Không gọi API
+      }
       UpdateDocumentForm({
         DocumentFormInfo: {
           ...data,
-          DocumentFormLineLst: data.DocumentFormLineLst.map((item) => ({
-            ...item,
-            TextResult:
-              item.Type == 4
-                ? formatDate(item.TextResult)
-                : item.TextResult || "",
-          })),
+          DocumentFormLineLst: dataLine,
         },
       }).then((res) => {
         if (res.RespCode == 0) {

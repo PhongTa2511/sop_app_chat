@@ -1151,7 +1151,32 @@ export default {
           }
         });
       }
+      // ------------------------------------------------------------------
+      // 🔥 CHECK BẮT BUỘC: Nếu IsValue == 1 thì TextResult phải có giá trị
+      // ------------------------------------------------------------------
+      let invalid = docForm.DocumentFormLineLst.some((line) => {
+        const value = line.TextResult;
 
+        // ép về string để trim an toàn
+        const safeValue =
+          value === null || value === undefined ? "" : String(value).trim();
+
+        return line.IsValue == 1 && safeValue === "";
+      });
+
+      if (invalid) {
+        this.isLoadingFile = false;
+        notify({
+          title: "Thiếu dữ liệu",
+          text: "Các trường bắt buộc chưa nhập đầy đủ",
+          type: "error",
+        });
+        return; // ⛔ Không gọi API
+      }
+
+      // ------------------------------------------------------------------
+      // Gọi API cập nhật
+      // ------------------------------------------------------------------
       UpdateDocumentForm({
         DocumentFormInfo: docForm,
       })

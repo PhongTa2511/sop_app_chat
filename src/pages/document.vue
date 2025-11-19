@@ -13,12 +13,12 @@ import { ref } from "vue";
 const activeTab = ref("");
 const permission = JSON.parse(localStorage.getItem("PermissionsDTP"));
 
-const docHS = "QT00005,QT00007,QT00009,QT00010,QT00011";
-const docDesign = "QT00006,QT00012,QT00022";
-const docDesign2 = "QT00013,QT00023";
-const docMau = "QT00018";
-const docNhan = "QT00021";
-const docChatchuan = "QT00020";
+const docHS = "QT03036,QT03038";
+const docDesign = "QT04043";
+const docDesign2 = "QT04051";
+const docMau = "QT05050";
+const docNhan = "QT03037";
+const docChatchuan = "QT04045";
 // tabs
 const tabs = [
   {

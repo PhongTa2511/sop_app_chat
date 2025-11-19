@@ -902,7 +902,6 @@ import {
   AddAssignLst,
   GetDocumentJobByDocID,
   ProcessDocument,
-  SendMailAddAssignLst,
   StartDocument,
 } from "@/api/documentJobApi";
 import { CreateGroup } from "@/api/messageApi";
@@ -1464,7 +1463,9 @@ export default {
           return;
         }
       }
+      console.log(asi);
 
+      return;
       AddAssignLst({
         DocumentID: data.DocumentID,
         StepID: data.StepID,
@@ -1480,55 +1481,55 @@ export default {
         }
       });
     },
-    btSendMailAddUserInWork(data) {
-      var asi = [];
-      if (data.UserJob.UserID && data.UserJob.ComID && data.UserJob.QuotaTime) {
-        asi.push({
-          ...data.UserJob,
-          UserRole: "Xử lý",
-        });
-      } else {
-        notify({
-          title: "Nhắc nhờ",
-          text: "Vui lòng nhập thông tin người xử lý",
-          type: "warn",
-        });
-        return;
-      }
-      if (data.UserMana.UserID) {
-        if (
-          data.UserMana.UserID &&
-          data.UserMana.ComID &&
-          data.UserMana.QuotaTime
-        ) {
-          asi.push({
-            ...data.UserMana,
-            UserRole: "Phê duyệt",
-          });
-        } else {
-          notify({
-            title: "Nhắc nhờ",
-            text: "Vui lòng nhập thông tin người phê duyệt",
-            type: "warn",
-          });
-          return;
-        }
-      }
-      SendMailAddAssignLst({
-        DocumentID: data.DocumentID,
-        StepID: data.StepID,
-        WorkID: data.WorkID,
-        AssignLst: asi,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          notify({
-            title: "Thành công",
-            text: "Gán nhân sự thành công",
-            type: "success",
-          });
-        }
-      });
-    },
+    // btSendMailAddUserInWork(data) {
+    //   var asi = [];
+    //   if (data.UserJob.UserID && data.UserJob.ComID && data.UserJob.QuotaTime) {
+    //     asi.push({
+    //       ...data.UserJob,
+    //       UserRole: "Xử lý",
+    //     });
+    //   } else {
+    //     notify({
+    //       title: "Nhắc nhờ",
+    //       text: "Vui lòng nhập thông tin người xử lý",
+    //       type: "warn",
+    //     });
+    //     return;
+    //   }
+    //   if (data.UserMana.UserID) {
+    //     if (
+    //       data.UserMana.UserID &&
+    //       data.UserMana.ComID &&
+    //       data.UserMana.QuotaTime
+    //     ) {
+    //       asi.push({
+    //         ...data.UserMana,
+    //         UserRole: "Phê duyệt",
+    //       });
+    //     } else {
+    //       notify({
+    //         title: "Nhắc nhờ",
+    //         text: "Vui lòng nhập thông tin người phê duyệt",
+    //         type: "warn",
+    //       });
+    //       return;
+    //     }
+    //   }
+    //   SendMailAddAssignLst({
+    //     DocumentID: data.DocumentID,
+    //     StepID: data.StepID,
+    //     WorkID: data.WorkID,
+    //     AssignLst: asi,
+    //   }).then((res) => {
+    //     if (res.RespCode == 0) {
+    //       notify({
+    //         title: "Thành công",
+    //         text: "Gán nhân sự thành công",
+    //         type: "success",
+    //       });
+    //     }
+    //   });
+    // },
     async getDocumentFormByDocID() {
       const res = await GetDocumentFormByDocID({
         DocumentID: this.$route.params.id,
@@ -1739,6 +1740,7 @@ export default {
               Status: item.Status,
               OptionLine: item.OptionLine,
               OptionText: item.OptionText,
+              IsValue: item.IsValue,
             };
             docFormLine.push(line);
           }
@@ -1778,8 +1780,32 @@ export default {
           }
         });
       }
-      // console.log("Sau", data.DocumentFormLineLst);
-      // return;
+      // ------------------------------------------------------------------
+      // 🔥 CHECK BẮT BUỘC: Nếu IsValue == 1 thì TextResult phải có giá trị
+      // ------------------------------------------------------------------
+      let invalid = docForm.DocumentFormLineLst.some((line) => {
+        const value = line.TextResult;
+
+        // ép về string để trim an toàn
+        const safeValue =
+          value === null || value === undefined ? "" : String(value).trim();
+
+        return line.IsValue == 1 && safeValue === "";
+      });
+
+      if (invalid) {
+        this.isLoadingFile = false;
+        notify({
+          title: "Thiếu dữ liệu",
+          text: "Các trường bắt buộc chưa nhập đầy đủ",
+          type: "error",
+        });
+        return; // ⛔ Không gọi API
+      }
+
+      // ------------------------------------------------------------------
+      // Gọi API cập nhật
+      // ------------------------------------------------------------------
       UpdateDocumentForm({
         DocumentFormInfo: docForm,
       })

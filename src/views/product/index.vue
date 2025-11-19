@@ -300,51 +300,73 @@ export default {
     btShowInfo(data) {
       this.$router.push("/thong-tin-san-pham/" + data.ProductID);
     },
-    createProduct() {
-      CreateProduct({
-        Data: {
+    async createProduct() {
+      try {
+        // 1️⃣ Lấy giá trị "Quốc gia"
+        const country = this.newProduct.FormLineLst.find(
+          (p) => p.Parameter === "Quốc gia"
+        )?.TextResult;
+
+        // 2️⃣ Gọi GetDefaultValue và chờ kết quả
+        const resDefault = await GetDefaultValue({
+          Table: `${country}|Khu vực`,
+        });
+
+        // 3️⃣ Nếu có data thì gán vào "Khu vực"
+        if (
+          resDefault.RespCode === 0 &&
+          resDefault.DefaultValueLst.length > 0
+        ) {
+          const areaField = this.newProduct.FormLineLst.find(
+            (p) => p.Parameter === "Khu vực"
+          );
+          if (areaField) {
+            areaField.TextResult = resDefault.DefaultValueLst[0].ValueName2;
+          }
+        }
+
+        // 4️⃣ Chuẩn bị Data cho CreateProduct
+        const productData = {
+          ...this.newProduct,
           ProductName: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter == "Tên sản phẩm"
+            (p) => p.Parameter === "Tên sản phẩm"
           )?.TextResult,
           ProductExport: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter == "Tên xuất khẩu"
+            (p) => p.Parameter === "Tên xuất khẩu"
           )?.TextResult,
-          Country: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter == "Quốc gia"
-          )?.TextResult,
+          Country: country,
           StoreType: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter == "Phân loại"
+            (p) => p.Parameter === "Phân loại"
           )?.TextResult,
-        },
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          notify({
-            title: "Thành công",
-            type: "success",
-          });
-          // this.newProduct = {};
-          // this.isCreateProductDialog = false;
-          // this.getProductLst();
+          Area: this.newProduct.FormLineLst.find(
+            (p) => p.Parameter === "Khu vực"
+          )?.TextResult,
+        };
+
+        // 5️⃣ Chờ CreateProduct hoàn thành
+        const res = await CreateProduct({ Data: productData });
+
+        // 6️⃣ Xử lý kết quả
+        if (res.RespCode === 0) {
+          notify({ title: "Thành công", type: "success" });
+
           this.newProduct.ReferenceID = res.Data;
           this.updateDocumentForm(this.newProduct);
-        } else if (res.RespCode == 2) {
-          notify({
-            title: "Nhắc nhở",
-
-            text: res.RespText,
-            type: "warn",
-            duration: 5000,
-          });
-          // this.isShowContinue = true;
+          this.newProduct.IsContinue = null;
+          this.getProductLst();
+        } else if (res.RespCode === 2) {
           this.newProduct.IsContinue = 1;
         } else {
-          notify({
-            title: "Thất bại",
-            text: res.RespText,
-            type: "error",
-          });
+          notify({ title: "Thất bại", text: res.RespText, type: "error" });
         }
-      });
+      } catch (err) {
+        console.error(err);
+        notify({
+          title: "Lỗi",
+          text: "Không thể tạo sản phẩm",
+          type: "error",
+        });
+      }
     },
     delProduct(data) {
       DelProduct({
@@ -484,7 +506,32 @@ export default {
           }
         });
       }
+      // ------------------------------------------------------------------
+      // 🔥 CHECK BẮT BUỘC: Nếu IsValue == 1 thì TextResult phải có giá trị
+      // ------------------------------------------------------------------
+      // let invalid = docForm.DocumentFormLineLst.some((line) => {
+      //   const value = line.TextResult;
 
+      //   // ép về string để trim an toàn
+      //   const safeValue =
+      //     value === null || value === undefined ? "" : String(value).trim();
+
+      //   return line.IsValue == 1 && safeValue === "";
+      // });
+
+      // if (invalid) {
+      //   this.isLoadingFile = false;
+      //   notify({
+      //     title: "Thiếu dữ liệu",
+      //     text: "Các trường bắt buộc chưa nhập đầy đủ",
+      //     type: "error",
+      //   });
+      //   return; // ⛔ Không gọi API
+      // }
+
+      // ------------------------------------------------------------------
+      // Gọi API cập nhật
+      // ------------------------------------------------------------------
       UpdateDocumentForm({
         DocumentFormInfo: docForm,
       })

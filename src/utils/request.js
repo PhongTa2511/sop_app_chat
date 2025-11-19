@@ -65,6 +65,14 @@ service.interceptors.response.use(
         removeEmployCode();
         store.dispatch("user/resetToken").then(() => {});
         location.reload();
+      } else if (res.RespCode == 2) {
+        notification.notify({
+          type: "warn",
+          title: "Nhắc nhở",
+          text: res.RespText,
+          duration: 5000,
+        });
+        return res;
       } else {
         notification.notify({
           type: "error",

@@ -152,9 +152,11 @@
           >mdi-progress-check</v-icon
         >
       </template>
-      <template v-slot:item.DocumentID="{ item }">
-        <div>{{ item.WarehouseName }}</div>
-        <div style="font-size: 12px">{{ item.DocumentID }}</div>
+      <template v-slot:item.ProductName="{ item }">
+        <div>{{ item.ProductName }}</div>
+        <div style="font-size: 12px; color: rgb(var(--v-theme-primary))">
+          {{ item.DocumentID }}
+        </div>
       </template>
       <template v-slot:item.Key="{ item }">
         {{ item.Key }}
@@ -390,15 +392,10 @@ export default {
           align: "center",
           width: 80,
         },
-        { title: "Tên sản phẩm", key: "DocumentID", sortable: false },
-        { title: "Tên xuất khẩu", key: "Name2", sortable: false },
+        { title: "Tên sản phẩm", key: "ProductName", sortable: false },
+        { title: "Tên xuất khẩu", key: "ProductExport", sortable: false },
         { title: "Nước XK", key: "Country", sortable: false },
-        {
-          title: "Khách",
-          key: "CusName",
-          sortable: false,
-          width: 100,
-        },
+
         {
           title: "Deadline",
           key: "DateExpiredShow",
@@ -406,7 +403,7 @@ export default {
           width: 116,
           align: "center",
         },
-        { title: "Phân loại hồ sơ", key: "Conclusion", sortable: false },
+        { title: "Phân loại hồ sơ", key: "ProductType", sortable: false },
         { title: "", key: "Action", width: 40, align: "center" },
         { title: "Trạng thái", key: "Status", sortable: false, width: 100 },
       ],
