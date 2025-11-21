@@ -490,14 +490,24 @@ export default {
 
       if (data.TypeForm == 1) {
         docForm.DocumentFormLineLst = data.FormLineLst.map((item) => {
-          if (item.Type == 2) {
-            var textAnswer =
-              item.TextResult && item.TextResult != ""
-                ? item.TextResult.join(" | ")
-                : "";
+          if (item.Type == 2 || item.Type == 3) {
+            let textArr = [];
+
+            if (Array.isArray(item.TextResult)) {
+              textArr = item.TextResult;
+            } else if (
+              typeof item.TextResult === "string" &&
+              item.TextResult !== ""
+            ) {
+              try {
+                textArr = JSON.parse(item.TextResult);
+              } catch (e) {
+                textArr = item.TextResult.split(",");
+              }
+            }
             return {
               ...item,
-              TextResult: textAnswer,
+              TextResult: textArr.join(" | "),
             };
           } else {
             return {

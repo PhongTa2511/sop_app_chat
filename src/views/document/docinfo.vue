@@ -1463,9 +1463,7 @@ export default {
           return;
         }
       }
-      console.log(asi);
 
-      return;
       AddAssignLst({
         DocumentID: data.DocumentID,
         StepID: data.StepID,

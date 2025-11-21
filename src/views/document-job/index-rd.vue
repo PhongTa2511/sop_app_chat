@@ -8,7 +8,7 @@
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="jobLst"
-      height="calc(100vh - 270px)"
+      height="calc(100vh - 250px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
@@ -207,8 +207,9 @@ export default {
         },
         { title: "Hồ sơ", key: "ProcedureName", sortable: false },
         { title: "Công việc", key: "JobName", sortable: false },
-        { title: "Sản phẩm", key: "WarehouseName", sortable: false },
-        { title: "Tên XK", key: "Name2", sortable: false },
+        { title: "Sản phẩm", key: "ProductName", sortable: false },
+        { title: "Tên XK", key: "ProductExport", sortable: false },
+        { title: "Loại", key: "ProductType", sortable: false },
         { title: "Quốc gia", key: "Country", sortable: false },
         {
           title: "Thời gian",
@@ -225,7 +226,6 @@ export default {
       name2: "",
       country: "",
       employeeName: "",
-      statusSearch: "",
       workOver: "Tất cả",
       workOverLst: [
         { value: "Tất cả" },
@@ -291,7 +291,6 @@ export default {
         name2: this.name2,
         country: this.country,
         employeeName: this.employeeName,
-        statusSearch: this.statusSearch,
         workOver: this.workOver,
       };
       this.$router.push({
@@ -307,18 +306,16 @@ export default {
           (this.proName ?? "") +
           "|" +
           (this.workName ?? "") +
+          "||" +
+          (this.employeeName ?? "") +
+          "|" +
+          (this.workOver ?? "") +
           "|" +
           (this.product ?? "") +
           "|" +
           (this.name2 ?? "") +
           "|" +
-          (this.country ?? "") +
-          "|" +
-          (this.employeeName ?? "") +
-          "|" +
-          (this.statusSearch ?? "") +
-          "|" +
-          (this.workOver ?? ""),
+          (this.country ?? ""),
       }).then((res) => {
         if (res.RespCode == 0) {
           this.jobLst = res.DocumentJobLst.map((item, index) => {
@@ -346,7 +343,6 @@ export default {
     this.name2 = this.$route.query.name2;
     this.country = this.$route.query.country;
     this.employeeName = this.$route.query.employeeName;
-    this.statusSearch = this.$route.query.statusSearch;
     this.getDocumentJobByEm();
   },
 };
