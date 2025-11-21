@@ -15,7 +15,7 @@ const tabs = [
     tab: "cong-viec",
   },
   {
-    title: "Danh sách công việc",
+    title: "Công việc RD",
     icon: "mdi-briefcase-account",
     tab: "cong-viec-rd",
   },
