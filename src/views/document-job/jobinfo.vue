@@ -1129,14 +1129,17 @@ export default {
             let textArr = [];
 
             if (Array.isArray(item.TextResult)) {
+              // trường hợp TextResult là mảng thật
               textArr = item.TextResult;
             } else if (
               typeof item.TextResult === "string" &&
               item.TextResult !== ""
             ) {
               try {
+                // parse string -> array
                 textArr = JSON.parse(item.TextResult);
               } catch (e) {
+                // fallback: tách theo dấu phẩy nếu JSON sai format
                 textArr = item.TextResult.split(",");
               }
             }
@@ -1144,10 +1147,13 @@ export default {
               ...item,
               TextResult: textArr.join(" | "),
             };
-          } else {
+          } else if (item.Type == 4) {
             return {
               ...item,
+              TextResult: item.TextResult ? formatDate(item.TextResult) : null,
             };
+          } else {
+            return { ...item };
           }
         });
       }

@@ -446,7 +446,7 @@ export default {
       this.docContent = "";
       const fileExtension = file.MineFile.toLowerCase();
       this.fileMine = fileExtension;
-      const previewUrl = `https://rd.icpc1hn.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`;
+      const previewUrl = `https://sop.idtp.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`;
       console.log(previewUrl);
 
       // Check for supported file types
@@ -477,7 +477,7 @@ export default {
 
     btShowOpenFile(data) {
       var linkPDF =
-        "https://rd.icpc1hn.work/api/File/GetDocumentFile?FileName=" +
+        "https://sop.idtp.work/api/File/GetDocumentFile?FileName=" +
         data.LinkFile;
       window.open(linkPDF, "_blank");
     },
@@ -501,12 +501,15 @@ export default {
         query: searchParams, // Chuyển đổi searchParams thành đối tượng
       });
       const searchString = [
+        "",
+        "",
+        "",
+        this.searchResponsible,
+        this.optionStatus,
         this.searchProduct,
         this.searchExporter,
         this.searchCountry,
         this.searchCustomer,
-        this.searchResponsible,
-        this.optionStatus,
         this.sortDeadline,
       ].join("|");
 

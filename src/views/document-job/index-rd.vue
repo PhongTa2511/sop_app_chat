@@ -132,14 +132,20 @@
 
       <template v-slot:item.Key="{ item }">
         {{ item.Key }}
-        <v-icon
+
+        <v-btn
+          icon="mdi-note-edit"
           color="orange"
-          class="me-2"
-          size="small"
-          style="cursor: pointer"
+          size="x-small"
+          class="mr-1"
           @click="btPushToDocinfo(item)"
-          >mdi-note-edit</v-icon
-        >
+        ></v-btn>
+        <v-btn
+          icon="mdi-delete"
+          color="red"
+          size="x-small"
+          @click="btDeleteJob(item)"
+        ></v-btn>
       </template>
       <template v-slot:item.TimeStartShow="{ item }">
         <div style="color: green">
@@ -181,17 +187,48 @@
         </div>
       </template>
     </v-data-table-server>
+
+    <!-- Delete Confirmation Dialog -->
+    <v-dialog v-model="deleteDialog" max-width="400">
+      <v-card>
+        <v-card-title class="text-h5">Xác nhận xóa công việc</v-card-title>
+        <v-card-text class="py-0">
+          <p>Bạn có chắc chắn muốn xóa công việc này không?</p>
+          <p v-if="selectedJobToDelete" class="font-weight-bold">
+            {{ selectedJobToDelete.ProcedureName }} -
+            {{ selectedJobToDelete.JobName }}
+          </p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="grey" variant="text" @click="deleteDialog = false">
+            Hủy
+          </v-btn>
+          <v-btn
+            color="red"
+            variant="tonal"
+            @click="confirmDelete"
+            :loading="deleteLoading"
+          >
+            Xóa
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-card>
 </template>
 
 <script>
-import { GetDocumentJobByEm } from "@/api/documentJobApi";
+import { CancelDocumentJob, GetDocumentJobByEm } from "@/api/documentJobApi";
 import { formatDate, formatDateDisplayDDMMYY } from "@/helpers/getTime";
 
 export default {
   data() {
     return {
       loadding: false,
+      deleteDialog: false,
+      deleteLoading: false,
+      selectedJobToDelete: null,
 
       rowspPage: 10,
       pageNumber: 1,
@@ -203,7 +240,7 @@ export default {
           sortable: false,
           key: "Key",
           align: "center",
-          width: 80,
+          width: 120,
         },
         { title: "Hồ sơ", key: "ProcedureName", sortable: false },
         { title: "Công việc", key: "JobName", sortable: false },
@@ -260,6 +297,37 @@ export default {
     },
     btPushToDocinfo(data) {
       this.$router.push("/thong-tin-cong-viec/" + data.RowID);
+    },
+    btDeleteJob(item) {
+      this.selectedJobToDelete = item;
+      this.deleteDialog = true;
+    },
+    confirmDelete() {
+      this.deleteLoading = true;
+      CancelDocumentJob({
+        RowID: this.selectedJobToDelete.RowID,
+      })
+        .then((res) => {
+          if (res.RespCode == 0) {
+            this.$notification("Xóa công việc thành công", {
+              type: "success",
+            });
+            this.deleteDialog = false;
+            this.getDocumentJobByEm();
+          } else {
+            this.$notification(res.RespMessage, {
+              type: "error",
+            });
+          }
+        })
+        .catch((err) => {
+          this.$notification("Xóa công việc thất bại", {
+            type: "error",
+          });
+        })
+        .finally(() => {
+          this.deleteLoading = false;
+        });
     },
     btPage(data) {
       this.pageNumber = data;

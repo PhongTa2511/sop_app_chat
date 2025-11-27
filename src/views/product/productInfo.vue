@@ -331,8 +331,13 @@
 import { CreateGSPDocument, GetDocumentByProID } from "@/api/briefApi";
 import { GetDefaultValue } from "@/api/default";
 import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi";
-import { GetDocumentFormByProductID } from "@/api/documentFormApi";
+import {
+  GetDocumentFormByProductID,
+  UpdateDocumentForm,
+} from "@/api/documentFormApi";
 import { GetProcedureLst } from "@/api/procedureApi";
+import { GetProductLst } from "@/api/productApi";
+import { GetUserLstByTeamID } from "@/api/user";
 import { formatDate, formatDateDisplayDDMMYY } from "@/helpers/getTime";
 import {
   downloadFileProduct,
@@ -406,7 +411,7 @@ export default {
       this.docContent = "";
       const fileExtension = file.MineFile.toLowerCase();
       this.fileMine = fileExtension;
-      const previewUrl = `https://rd.icpc1hn.work/api/File/GetProductFile?FileName=${file.LinkFile}`;
+      const previewUrl = `https://sop.idtp.work/api/File/GetProductFile?FileName=${file.LinkFile}`;
       if (fileExtension === ".pdf") {
         this.fileUrl = previewUrl;
         window.open(
@@ -460,7 +465,7 @@ export default {
     },
     getDocumentFile() {
       GetDocumentFile({
-        ProcedureID: this.$route.params.id,
+        ProductID: this.$route.params.id,
       }).then((res) => {
         if (res.RespCode == 0) {
           this.fileLst = res.Data;
@@ -547,11 +552,38 @@ export default {
       });
     },
     updateDocumentForm(data) {
-      var dataLine = data.DocumentFormLineLst.map((item) => ({
-        ...item,
-        TextResult:
-          item.Type == 4 ? formatDate(item.TextResult) : item.TextResult || "",
-      }));
+      var dataLine = data.DocumentFormLineLst.map((item) => {
+        if (item.Type == 2 || item.Type == 3) {
+          let textArr = [];
+
+          if (Array.isArray(item.TextResult)) {
+            // trường hợp TextResult là mảng thật
+            textArr = item.TextResult;
+          } else if (
+            typeof item.TextResult === "string" &&
+            item.TextResult !== ""
+          ) {
+            try {
+              // parse string -> array
+              textArr = JSON.parse(item.TextResult);
+            } catch (e) {
+              // fallback: tách theo dấu phẩy nếu JSON sai format
+              textArr = item.TextResult.split(",");
+            }
+          }
+          return {
+            ...item,
+            TextResult: textArr.join(" | "),
+          };
+        } else if (item.Type == 4) {
+          return {
+            ...item,
+            TextResult: item.TextResult ? formatDate(item.TextResult) : null,
+          };
+        } else {
+          return { ...item };
+        }
+      });
 
       // ------------------------------------------------------------------
       // 🔥 CHECK BẮT BUỘC: Nếu IsValue == 1 thì TextResult phải có giá trị
@@ -592,18 +624,99 @@ export default {
         }
       });
     },
-    btUpdateStorage() {},
     getDocumentFormByID() {
       GetDocumentFormByProductID({
         FormID: this.$route.params.id,
-      }).then((res) => {
+      }).then(async (res) => {
         if (res.RespCode == 0) {
+          var item = res.DocumentFormInfo;
+
+          if (item.TypeForm == 1) {
+            const newLines = [];
+            for (const ele of item.DocumentFormLineLst) {
+              let options = [];
+              if (ele.OptionAnswer) {
+                options = JSON.parse(ele.OptionAnswer);
+              }
+
+              if (ele.Type == 3) {
+                if (ele.OptionLine == 1) {
+                  options = await this.getUserLstByTeamID2(ele.OptionText);
+                }
+                if (ele.OptionLine == 2) {
+                  options = await this.getDefaultValue2(ele.OptionText);
+                }
+                if (ele.OptionLine == 3) {
+                  options = await this.getProductLst();
+                }
+              }
+              newLines.push({
+                ...ele,
+                Options: options,
+              });
+            }
+
+            item.DocumentFormLineLst = newLines;
+          }
           this.productInfo = {
-            ...res.DocumentFormInfo,
+            ...item,
           };
           this.getDocumentByProID(this.$route.params.id);
         }
       });
+    },
+    async getDefaultValue2(table) {
+      const res = await GetDefaultValue({
+        Table: table,
+      });
+
+      if (res.RespCode == 0) {
+        return res.DefaultValueLst.map((item) => ({
+          ...item,
+          value: item.ValueName,
+          text: item.ValueName,
+        }));
+      }
+
+      return [];
+    },
+    async getUserLstByTeamID2(teamID) {
+      const res = await GetUserLstByTeamID({
+        PageNumber: 1,
+        RowspPage: 10000,
+        Search: "",
+        TeamID: teamID,
+      });
+
+      if (res.RespCode == 0) {
+        return res.Data.map((item) => ({
+          ...item,
+          value: item.UserName,
+          text: item.FullName,
+        }));
+      }
+      return [];
+    },
+    async getProductLst() {
+      const requestData = {
+        PageNumber: 1,
+        RowspPage: 1000000,
+        Search: "||||",
+      };
+
+      const res = await GetProductLst(requestData);
+
+      if (res.RespCode == 0) {
+        this.productLst = res.Data.map((item, index) => ({
+          ...item,
+          Key: index + 1,
+          value: item.WarehouseID,
+          text: item.WarehouseName,
+        }));
+        return this.productLst;
+      }
+
+      return [];
     },
     getDocumentByProID(data) {
       GetDocumentByProID({
