@@ -309,19 +309,22 @@ export default {
       })
         .then((res) => {
           if (res.RespCode == 0) {
-            this.$notification("Xóa công việc thành công", {
+            notify({
+              title: "Thành công",
               type: "success",
             });
             this.deleteDialog = false;
             this.getDocumentJobByEm();
           } else {
-            this.$notification(res.RespMessage, {
+            notify({
+              title: res.RespText || "Đã xảy ra lỗi",
               type: "error",
             });
           }
         })
         .catch((err) => {
-          this.$notification("Xóa công việc thất bại", {
+          notify({
+            title: err.message || "Đã xảy ra lỗi",
             type: "error",
           });
         })
