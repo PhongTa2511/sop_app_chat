@@ -131,6 +131,9 @@
         <div :class="itemRowBackground(item)">
           {{ item.ProcedureName }}
         </div>
+        <div style="font-size: 12px">
+          <span style="color: blue">{{ item.DocumentID }}</span>
+        </div>
       </template>
       <template v-slot:item.StepName="{ item }">
         <div :class="itemRowBackground(item)">
@@ -140,6 +143,9 @@
       <template v-slot:item.JobName="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.JobName }}
+        </div>
+        <div style="font-size: 12px">
+          <span style="color: blue">{{ item.RowID }}</span>
         </div>
       </template>
       <template v-slot:item.Note="{ item }">

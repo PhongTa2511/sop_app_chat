@@ -165,10 +165,16 @@
             {{ item.DaysRemaining }}
           </v-chip>
         </div>
+        <div style="font-size: 12px">
+          <span style="color: blue">{{ item.DocumentID }}</span>
+        </div>
       </template>
       <template v-slot:item.JobName="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.JobName }}
+        </div>
+        <div style="font-size: 12px">
+          <span style="color: blue">{{ item.RowID }}</span>
         </div>
       </template>
       <template v-slot:item.WarehouseName="{ item }">

@@ -1417,40 +1417,63 @@ export default {
       });
     },
     btAddUserInWork(data) {
-      var asi = [];
-      if (
-        data.UserJob.ComID &&
-        data.UserJob.ComID != 0 &&
-        data.UserJob.QuotaTime
-      ) {
-        asi.push({
-          ...data.UserJob,
-          UserRole: "Xử lý",
-        });
-      } else {
+      const asi = [];
+      const hasJob = data.UserJob && data.UserJob.UserID; // có chọn người xử lý?
+      const hasMana = data.UserMana && data.UserMana.UserID; // có chọn người phê duyệt?
+
+      // 1️⃣ Không chọn ai cả → báo lỗi
+      if (!hasJob && !hasMana) {
         notify({
-          title: "Nhắc nhờ",
-          text: "Vui lòng nhập thông tin nhóm",
+          title: "Nhắc nhở",
+          text: "Vui lòng chọn người xử lý hoặc người phê duyệt",
           type: "warn",
         });
         return;
       }
-      if (data.UserMana.ComID && data.UserMana.ComID != 0) {
-        if (data.UserMana.QuotaTime) {
-          asi.push({
-            ...data.UserMana,
-            UserRole: "Phê duyệt",
-          });
-        } else {
+
+      // 2️⃣ Validate người xử lý (nếu có)
+      if (hasJob) {
+        if (
+          !data.UserJob.ComID ||
+          data.UserJob.ComID == 0 ||
+          !data.UserJob.QuotaTime
+        ) {
           notify({
-            title: "Nhắc nhờ",
-            text: "Vui lòng nhập thông tin người phê duyệt",
+            title: "Nhắc nhở",
+            text: "Người xử lý: Vui lòng chọn nhóm và hạn xử lý",
             type: "warn",
           });
           return;
         }
+
+        asi.push({
+          ...data.UserJob,
+          UserRole: "Xử lý",
+        });
       }
 
+      // 3️⃣ Validate người phê duyệt (nếu có)
+      if (hasMana) {
+        if (
+          !data.UserMana.ComID ||
+          data.UserMana.ComID == 0 ||
+          !data.UserMana.QuotaTime
+        ) {
+          notify({
+            title: "Nhắc nhở",
+            text: "Người phê duyệt: Vui lòng chọn nhóm và hạn xử lý",
+            type: "warn",
+          });
+          return;
+        }
+
+        asi.push({
+          ...data.UserMana,
+          UserRole: "Phê duyệt",
+        });
+      }
+
+      // 4️⃣ Submit
       AddAssignLst({
         DocumentID: data.DocumentID,
         StepID: data.StepID,
@@ -1466,6 +1489,7 @@ export default {
         }
       });
     },
+
     // btSendMailAddUserInWork(data) {
     //   var asi = [];
     //   if (data.UserJob.UserID && data.UserJob.ComID && data.UserJob.QuotaTime) {

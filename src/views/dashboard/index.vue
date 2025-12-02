@@ -320,7 +320,7 @@ export default {
       dashInfoSample: {},
       dashInfoInCountry: {},
       dashInfoOrder: {},
-      year: 2024,
+      year: 2025,
       options: [2024, 2025],
       employee: "",
       employeeInfo: {},
