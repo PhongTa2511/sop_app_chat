@@ -211,10 +211,10 @@
             <v-sheet
               v-for="(job, indjob) in item.StepLst"
               :key="indjob"
-              class="px-1 py-1"
+              class="px-1 py-1 mt-1"
               rounded
               :border="
-                job.Status == 3
+                job.Status == 1
                   ? 'blue md'
                   : job.Status == 4
                   ? 'green md'
@@ -240,73 +240,73 @@
                   >mdi-close-circle-outline</v-icon
                 >
               </div>
-
-              <div class="text-caption">
-                <div v-if="job.ReportName">
-                  <v-icon color="blue" size="small">mdi-account-edit</v-icon>
-                  {{ job.ReportName }}
-                  <v-icon color="blue" size="small" v-if="job.TimeModify"
-                    >mdi-clock</v-icon
-                  >
-                  {{ job.TimeModifyShow }}
+              <div v-for="(ass, indass) in job.AssignLst" :key="indass">
+                <div class="text-caption" v-if="ass.UserRole == 'Xử lý'">
+                  <div>
+                    <v-icon color="blue" size="small">mdi-account-edit</v-icon>
+                    {{ ass.FullName }}
+                    <v-icon color="blue" size="small" v-if="job.TimeModifyShow"
+                      >mdi-clock</v-icon
+                    >
+                    {{ job.TimeModifyShow }}
+                  </div>
+                  <div v-html="job.Report"></div>
                 </div>
-                <div v-if="job.Report" v-html="job.Report"></div>
-              </div>
-
-              <div class="text-caption">
-                <div v-if="job.ManagerName">
-                  <v-icon color="red" size="small">mdi-account-check</v-icon>
-                  {{ job.ManagerName }}
-                  <v-icon color="red" size="small" v-if="job.TimeApproveShow"
-                    >mdi-clock</v-icon
-                  >
-                  {{ job.TimeApproveShow }}
+                <div class="text-caption" v-if="ass.UserRole == 'Phê duyệt'">
+                  <div>
+                    <v-icon color="red" size="small">mdi-account-check</v-icon>
+                    {{ ass.FullName }}
+                    <v-icon color="red" size="small" v-if="job.TimeApproveShow"
+                      >mdi-clock</v-icon
+                    >
+                    {{ job.TimeApproveShow }}
+                  </div>
+                  <div v-html="job.NoteApprove"></div>
                 </div>
-                <div v-if="job.NoteApprove" v-html="job.NoteApprove"></div>
-              </div>
-              <div class="file-lst" v-if="job.FileLst.length > 0">
-                <v-menu
-                  location="end"
-                  v-for="(file, indfile) in job.FileLst"
-                  :key="indfile"
-                >
-                  <template v-slot:activator="{ props }">
-                    <v-chip color="gray" v-bind="props" class="mr-1">
-                      {{ file.MineFile }}
-                    </v-chip>
-                  </template>
+                <div class="file-lst" v-if="ass.FileLst.length > 0">
+                  <v-menu
+                    location="end"
+                    v-for="(file, indfile) in ass.FileLst"
+                    :key="indfile"
+                  >
+                    <template v-slot:activator="{ props }">
+                      <v-chip color="gray" v-bind="props" class="mr-1">
+                        {{ file.MineFile }}
+                      </v-chip>
+                    </template>
 
-                  <v-list>
-                    <v-list-item v-if="isPreviewSupported(file.MineFile)">
-                      <v-list-item-title>
-                        <v-btn
-                          @click="previewFile(file)"
-                          size="small"
-                          rounded="8"
-                          class="mb-1"
-                        >
-                          <v-icon class="mr-1">mdi-file-eye</v-icon> Xem trước
-                        </v-btn>
-                      </v-list-item-title>
-                    </v-list-item>
+                    <v-list>
+                      <v-list-item v-if="isPreviewSupported(file.MineFile)">
+                        <v-list-item-title>
+                          <v-btn
+                            @click="previewFile(file)"
+                            size="small"
+                            rounded="8"
+                            class="mb-1"
+                          >
+                            <v-icon class="mr-1">mdi-file-eye</v-icon> Xem trước
+                          </v-btn>
+                        </v-list-item-title>
+                      </v-list-item>
 
-                    <v-list-item>
-                      <v-list-item-title>
-                        <v-btn
-                          @click="downloadFile(file)"
-                          size="small"
-                          rounded="8"
-                          color="green"
-                          block
-                          class="mb-1"
-                        >
-                          <v-icon class="mr-1">mdi-file-download</v-icon> Tải
-                          ngay
-                        </v-btn>
-                      </v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
+                      <v-list-item>
+                        <v-list-item-title>
+                          <v-btn
+                            @click="downloadFile(file)"
+                            size="small"
+                            rounded="8"
+                            color="green"
+                            block
+                            class="mb-1"
+                          >
+                            <v-icon class="mr-1">mdi-file-download</v-icon> Tải
+                            ngay
+                          </v-btn>
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </div>
               </div>
             </v-sheet>
             <v-divider class="my-2" color="blue"></v-divider>
