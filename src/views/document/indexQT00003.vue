@@ -8,7 +8,7 @@
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="fileLst"
-      height="calc(100vh - 270px)"
+      height="calc(100vh - 250px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
@@ -24,13 +24,94 @@
       <template v-slot:top>
         <div class="d-flex flex-wrap gap-2 px-2">
           <span>
-            <v-text-field
-              v-model="searchDocumentID"
-              label="Mã hồ sơ"
-              hide-details
-              style="width: 250px !important"
-              clearable
-            ></v-text-field>
+            <v-menu :close-on-content-click="false">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  color="blue"
+                  size="small"
+                  icon=" mdi-filter"
+                  v-bind="props"
+                >
+                </v-btn>
+              </template>
+              <v-list>
+                <v-list-item>
+                  <v-text-field
+                    v-model="product"
+                    label="Tên sản phẩm"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+
+                  <v-text-field
+                    v-model="type"
+                    label="Phân loại"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+
+                  <v-text-field
+                    v-model="dosage"
+                    label="Dạng bào chế"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+
+                  <v-text-field
+                    v-model="ingredient"
+                    label="Hoạt chất"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="numberRegister"
+                    label="Số đăng ký"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="employeeNCV"
+                    label="NCV phụ trách"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="employeeDKT"
+                    label="ĐKT phụ trách"
+                    hide-details
+                    style="width: 250px !important"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    class="pt-2"
+                  ></v-text-field>
+
+                  <v-btn
+                    block
+                    class="rounded mt-2"
+                    @click="getDocumentQT00003Lst"
+                    >Tìm kiếm</v-btn
+                  >
+                </v-list-item>
+              </v-list>
+            </v-menu>
           </span>
           <v-btn
             color="green"
@@ -77,6 +158,7 @@
 
 <script>
 import { GetDocumentQT00003Lst } from "@/api/briefApi";
+import { formatDateDDMMYY } from "@/helpers/getTime";
 
 export default {
   data() {
@@ -236,6 +318,13 @@ export default {
           align: "center",
         },
       ],
+      employeeDKT: "",
+      employeeNCV: "",
+      numberRegister: "",
+      ingredient: "",
+      dosage: "",
+      type: "",
+      product: "",
     };
   },
   watch: {
@@ -264,13 +353,31 @@ export default {
       GetDocumentQT00003Lst({
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
-        Search: this.searchDocumentID,
+        Search:
+          this.product +
+          "|" +
+          this.type +
+          "|" +
+          this.dosage +
+          "|" +
+          this.ingredient +
+          "|" +
+          this.numberRegister +
+          "|" +
+          this.employeeNCV +
+          "|" +
+          this.employeeDKT,
       }).then((res) => {
         this.fileLst = res.Data.map((item, index) => {
           var num = (this.pageNumber - 1) * this.rowspPage;
           return {
             ...item,
             Key: index + 1 + num,
+            NgayCapSoDangKy: formatDateDDMMYY(item.NgayCapSoDangKy),
+            NgayHetHanSoDangKyHienTai:
+              item.NgayHetHanSoDangKyHienTai == "Vô thời hạn"
+                ? item.NgayHetHanSoDangKyHienTai
+                : formatDateDDMMYY(item.NgayHetHanSoDangKyHienTai),
           };
         });
         this.totalLength = res.TotalRows;
