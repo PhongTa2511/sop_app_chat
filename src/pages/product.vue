@@ -3,6 +3,7 @@
 import Product from "@/views/product/index.vue";
 import Product2 from "@/views/product/index2.vue";
 import Product3 from "@/views/product/index3.vue";
+import ProductVietNam from "@/views/product/indexvietnam.vue";
 
 import { ref } from "vue";
 
@@ -12,9 +13,14 @@ const permission = JSON.parse(localStorage.getItem("PermissionsDTP"));
 // tabs
 const tabs = [
   {
-    title: "Sản phẩm",
+    title: "Sản phẩm XK",
     icon: "mdi-text-box",
     tab: "tat-ca-san-pham",
+  },
+  {
+    title: "Sản phẩm trong nước",
+    icon: "mdi-earth",
+    tab: "san-pham-trong-nuoc",
   },
   {
     title: "Nộp cục",
@@ -57,6 +63,12 @@ if (!availableTabs.value.find((t) => t.tab === activeTab.value)) {
         v-if="availableTabs.some((t) => t.tab === 'tat-ca-san-pham')"
       >
         <Product />
+      </VWindowItem>
+      <VWindowItem
+        value="san-pham-trong-nuoc"
+        v-if="availableTabs.some((t) => t.tab === 'san-pham-trong-nuoc')"
+      >
+        <ProductVietNam />
       </VWindowItem>
       <VWindowItem
         value="nop-cuc"
