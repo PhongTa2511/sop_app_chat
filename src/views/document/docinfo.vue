@@ -297,6 +297,64 @@
                   :readonly="line.IsPrivate == 1"
                 />
               </div>
+              <div v-if="line.Type == 5">
+                <div class="d-flex align-center">
+                  <v-btn
+                    v-if="line.TextResult"
+                    class="mr-2 cursor-pointer"
+                    color="primary"
+                    @click="btShowImage(line.OptionText)"
+                    icon="mdi-eye"
+                    size="small"
+                  >
+                  </v-btn>
+
+                  <v-file-input
+                    :clearable="false"
+                    single-line
+                    :model-value="line"
+                    accept="image/png, image/jpeg, image/bmp"
+                    :label="line.Parameter"
+                    prepend-icon=""
+                    append-inner-icon="mdi-image"
+                    @update:model-value="
+                      (file) => handleFileUploadForm(file, line)
+                    "
+                  >
+                    <template v-slot:selection="{}">
+                      {{ line.DateResult ?? line.Parameter }}
+                    </template>
+                  </v-file-input>
+                </div>
+              </div>
+              <div v-if="line.Type == 6">
+                <div class="d-flex align-center">
+                  <v-btn
+                    v-if="line.TextResult"
+                    class="mr-2 cursor-pointer"
+                    color="primary"
+                    @click="btDownloadFile(line.OptionText)"
+                    icon="mdi-download"
+                    size="small"
+                  >
+                  </v-btn>
+                  <v-file-input
+                    :clearable="false"
+                    :single-line="true"
+                    :model-value="line"
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.zip"
+                    :label="line.Parameter"
+                    prepend-icon=""
+                    append-inner-icon="mdi-file"
+                    @update:model-value="
+                      (file) => handleFileUploadForm(file, line)
+                    "
+                    ><template v-slot:selection="{}">
+                      {{ line.DateResult ?? line.Parameter }}
+                    </template>
+                  </v-file-input>
+                </div>
+              </div>
             </v-col>
           </v-row>
         </v-card>
@@ -885,6 +943,21 @@
       </v-list-item>
     </v-list>
   </v-dialog>
+  <v-dialog v-model="isPreview" max-width="600">
+    <v-card>
+      <v-card-title>Hình ảnh đã upload</v-card-title>
+      <v-card-text class="text-center">
+        <v-img :src="previewImage" max-height="400" contain />
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer />
+        <v-btn color="green" text @click="btDownloadFile(previewFile)"
+          >Tải ảnh</v-btn
+        >
+        <v-btn text @click="isPreview = false">Đóng</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -920,6 +993,9 @@ import XLSX from "xlsx";
 import { exportExcel } from "./function";
 import { exportExcel1 } from "./function1";
 // import { exportExcel1 } from "./function1";
+import Axios from "axios";
+import { urlUploadFileFormLine } from "./function";
+
 export default {
   data() {
     return {
@@ -955,6 +1031,8 @@ export default {
       isShowCancelDialog: false,
       isLoadingFile: false,
       logo: logo,
+      isPreview: false,
+      previewImage: "",
     };
   },
   watch: {
@@ -964,7 +1042,7 @@ export default {
         const newLines = [];
         for (const ele of item.DNFormLineLst) {
           let options = [];
-          if (ele.OptionAnswer) {
+          if (ele.OptionAnswer && [1, 2, 3, 4].includes(ele.Type)) {
             options = JSON.parse(ele.OptionAnswer);
           }
           const check = item.DocumentFormLineLst.find(
@@ -1098,6 +1176,43 @@ export default {
     },
   },
   methods: {
+    btDownloadFile(url) {
+      if (!url) return;
+      window.open(url, "_blank", "noopener,noreferrer");
+    },
+    btShowImage(link) {
+      this.previewImage = link;
+      this.isPreview = true;
+    },
+    handleFileUploadForm(file, line) {
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      Axios.post(
+        urlUploadFileFormLine(line.IDForm, this.docInfo.DocumentID),
+        formData
+      ).then((res) => {
+        if (res.data.RespCode === 0) {
+          line.TextResult = res.data.FileID;
+          line.OptionText = res.data.LinkFile;
+          line.DateResult = res.data.FileName;
+
+          notify({
+            title: "File",
+            text: "Thêm file hồ sơ thành công",
+            type: "success",
+          });
+        } else {
+          notify({
+            title: "File",
+            text: res.data.RespText,
+            type: "error",
+          });
+        }
+      });
+    },
     btExportExcel1(tab, header) {
       exportExcel1(
         this.desserts.filter((p) => p.Status > 0),
@@ -1607,6 +1722,7 @@ export default {
     updateDocumentForm(data) {
       this.isLoadingFile = true;
       var docForm = {
+        ...data,
         DocumentID: this.$route.params.id,
         IDForm: data.IDForm,
         ProcedureID: this.docInfo.TypeDoc,

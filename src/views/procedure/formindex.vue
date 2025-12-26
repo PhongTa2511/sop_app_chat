@@ -52,9 +52,30 @@
               >
                 <div style="flex: 1">
                   <v-text-field
+                    v-if="[1, 2, 3].includes(field.Type)"
                     v-model="field.Parameter"
                     :label="'Tên trường thông tin ' + (index + 1)"
-                    :append-inner-icon="field.Type == 4 ? 'mdi-calendar' : ''"
+                    class="mb-2"
+                  ></v-text-field>
+                  <v-text-field
+                    v-if="field.Type == 4"
+                    v-model="field.Parameter"
+                    :label="'Tên trường thông tin ' + (index + 1)"
+                    append-inner-icon="mdi-calendar"
+                    class="mb-2"
+                  ></v-text-field>
+                  <v-text-field
+                    v-if="field.Type == 5"
+                    v-model="field.Parameter"
+                    :label="'Tên trường thông tin ' + (index + 1)"
+                    append-inner-icon="mdi-image"
+                    class="mb-2"
+                  ></v-text-field>
+                  <v-text-field
+                    v-if="field.Type == 6"
+                    v-model="field.Parameter"
+                    :label="'Tên trường thông tin ' + (index + 1)"
+                    append-inner-icon="mdi-file"
                     class="mb-2"
                   ></v-text-field>
                   <v-list v-if="field.Type === 2" class="pt-0">
@@ -193,8 +214,8 @@
                       >
                       </v-btn>
                     </template>
-                    <v-list>
-                      <v-list-item>
+                    <v-card class="pa-2">
+                      <div>
                         <v-tooltip location="top">
                           <template v-slot:activator="{ props }">
                             <v-btn
@@ -202,14 +223,13 @@
                               v-bind="props"
                               size="x-small"
                               @click="setFieldType(field, 1)"
+                              class="mr-2 mb-2"
                             >
                               <v-icon color="blue">mdi-text-short </v-icon>
                             </v-btn>
                           </template>
                           <span>Nhập text</span>
                         </v-tooltip>
-                      </v-list-item>
-                      <v-list-item>
                         <v-tooltip location="top">
                           <template v-slot:activator="{ props }">
                             <v-btn
@@ -218,14 +238,13 @@
                               size="x-small"
                               @click="setFieldType(field, 2)"
                               color="green"
+                              class="mr-2 mb-2"
                             >
                               <v-icon>mdi-format-list-checks</v-icon>
                             </v-btn>
                           </template>
                           <span>Lựa chọn thủ công</span>
                         </v-tooltip>
-                      </v-list-item>
-                      <v-list-item>
                         <v-tooltip location="top">
                           <template v-slot:activator="{ props }">
                             <v-btn
@@ -234,30 +253,13 @@
                               size="x-small"
                               @click="setFieldType(field, 3)"
                               color="warning"
+                              class="mr-2 mb-2"
                             >
                               <v-icon>mdi-format-list-checks</v-icon>
                             </v-btn>
                           </template>
                           <span>Lựa chọn có sẵn</span>
                         </v-tooltip>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-tooltip location="top">
-                          <template v-slot:activator="{ props }">
-                            <v-btn
-                              icon
-                              v-bind="props"
-                              size="x-small"
-                              @click="setFieldType(field, 4)"
-                              color="purple"
-                            >
-                              <v-icon>mdi-calendar</v-icon>
-                            </v-btn>
-                          </template>
-                          <span>Định dạng ngày</span>
-                        </v-tooltip>
-                      </v-list-item>
-                      <v-list-item>
                         <v-tooltip location="top">
                           <template v-slot:activator="{ props }">
                             <v-btn
@@ -266,14 +268,62 @@
                               size="x-small"
                               color="red"
                               @click="removeField2(index)"
+                              class="mb-2"
                             >
                               <v-icon>mdi-delete</v-icon>
                             </v-btn>
                           </template>
                           <span>Xóa</span>
                         </v-tooltip>
-                      </v-list-item>
-                    </v-list>
+                      </div>
+                      <div>
+                        <v-tooltip location="top">
+                          <template v-slot:activator="{ props }">
+                            <v-btn
+                              icon
+                              v-bind="props"
+                              size="x-small"
+                              @click="setFieldType(field, 4)"
+                              color="purple"
+                              class="mr-2"
+                            >
+                              <v-icon>mdi-calendar</v-icon>
+                            </v-btn>
+                          </template>
+                          <span>Định dạng ngày</span>
+                        </v-tooltip>
+                        <v-tooltip location="top">
+                          <template v-slot:activator="{ props }">
+                            <v-btn
+                              icon
+                              v-bind="props"
+                              size="x-small"
+                              @click="setFieldType(field, 5)"
+                              color="success"
+                              class="mr-2"
+                            >
+                              <v-icon>mdi-image</v-icon>
+                            </v-btn>
+                          </template>
+                          <span>Hình ảnh</span>
+                        </v-tooltip>
+                        <v-tooltip location="top">
+                          <template v-slot:activator="{ props }">
+                            <v-btn
+                              icon
+                              v-bind="props"
+                              size="x-small"
+                              @click="setFieldType(field, 6)"
+                              color="green"
+                              class="mr-2"
+                            >
+                              <v-icon>mdi-file</v-icon>
+                            </v-btn>
+                          </template>
+                          <span>File đính kèm</span>
+                        </v-tooltip>
+                      </div>
+                    </v-card>
                   </v-menu>
                 </div>
               </div>
@@ -344,9 +394,30 @@
               >
                 <div style="flex: 1">
                   <v-text-field
+                    v-if="[1, 2, 3].includes(field.Type)"
                     v-model="field.Parameter"
                     :label="'Tên trường thông tin ' + (index + 1)"
-                    :append-inner-icon="field.Type == 4 ? 'mdi-calendar' : ''"
+                    class="mb-2"
+                  ></v-text-field>
+                  <v-text-field
+                    v-if="field.Type == 4"
+                    v-model="field.Parameter"
+                    :label="'Tên trường thông tin ' + (index + 1)"
+                    append-inner-icon="mdi-calendar"
+                    class="mb-2"
+                  ></v-text-field>
+                  <v-text-field
+                    v-if="field.Type == 5"
+                    v-model="field.Parameter"
+                    :label="'Tên trường thông tin ' + (index + 1)"
+                    append-inner-icon="mdi-image"
+                    class="mb-2"
+                  ></v-text-field>
+                  <v-text-field
+                    v-if="field.Type == 6"
+                    v-model="field.Parameter"
+                    :label="'Tên trường thông tin ' + (index + 1)"
+                    append-inner-icon="mdi-file"
                     class="mb-2"
                   ></v-text-field>
                   <v-list v-if="field.Type === 2" class="pt-0">
@@ -395,7 +466,11 @@
                       >Xem thêm</v-btn
                     >
                   </v-list>
-                  <v-list v-if="field.Type === 3" style="min-height: 100px">
+                  <v-list
+                    v-if="field.Type === 3"
+                    class="pt-0"
+                    style="min-height: 100px"
+                  >
                     <div class="px-2 pb-2">Cấu hình lựa chọn</div>
 
                     <v-row class="p-0" style="width: 100%">
@@ -480,8 +555,8 @@
                       >
                       </v-btn>
                     </template>
-                    <v-list>
-                      <v-list-item>
+                    <v-card class="pa-2">
+                      <div>
                         <v-tooltip location="top">
                           <template v-slot:activator="{ props }">
                             <v-btn
@@ -489,14 +564,13 @@
                               v-bind="props"
                               size="x-small"
                               @click="setFieldType(field, 1)"
+                              class="mr-2 mb-2"
                             >
                               <v-icon color="blue">mdi-text-short </v-icon>
                             </v-btn>
                           </template>
                           <span>Nhập text</span>
                         </v-tooltip>
-                      </v-list-item>
-                      <v-list-item>
                         <v-tooltip location="top">
                           <template v-slot:activator="{ props }">
                             <v-btn
@@ -505,14 +579,13 @@
                               size="x-small"
                               @click="setFieldType(field, 2)"
                               color="green"
+                              class="mr-2 mb-2"
                             >
                               <v-icon>mdi-format-list-checks</v-icon>
                             </v-btn>
                           </template>
                           <span>Lựa chọn thủ công</span>
                         </v-tooltip>
-                      </v-list-item>
-                      <v-list-item>
                         <v-tooltip location="top">
                           <template v-slot:activator="{ props }">
                             <v-btn
@@ -521,30 +594,13 @@
                               size="x-small"
                               @click="setFieldType(field, 3)"
                               color="warning"
+                              class="mr-2 mb-2"
                             >
                               <v-icon>mdi-format-list-checks</v-icon>
                             </v-btn>
                           </template>
                           <span>Lựa chọn có sẵn</span>
                         </v-tooltip>
-                      </v-list-item>
-                      <v-list-item>
-                        <v-tooltip location="top">
-                          <template v-slot:activator="{ props }">
-                            <v-btn
-                              icon
-                              v-bind="props"
-                              size="x-small"
-                              @click="setFieldType(field, 4)"
-                              color="purple"
-                            >
-                              <v-icon>mdi-calendar</v-icon>
-                            </v-btn>
-                          </template>
-                          <span>Định dạng ngày</span>
-                        </v-tooltip>
-                      </v-list-item>
-                      <v-list-item>
                         <v-tooltip location="top">
                           <template v-slot:activator="{ props }">
                             <v-btn
@@ -553,14 +609,62 @@
                               size="x-small"
                               color="red"
                               @click="removeField2(index)"
+                              class="mb-2"
                             >
                               <v-icon>mdi-delete</v-icon>
                             </v-btn>
                           </template>
                           <span>Xóa</span>
                         </v-tooltip>
-                      </v-list-item>
-                    </v-list>
+                      </div>
+                      <div>
+                        <v-tooltip location="top">
+                          <template v-slot:activator="{ props }">
+                            <v-btn
+                              icon
+                              v-bind="props"
+                              size="x-small"
+                              @click="setFieldType(field, 4)"
+                              color="purple"
+                              class="mr-2"
+                            >
+                              <v-icon>mdi-calendar</v-icon>
+                            </v-btn>
+                          </template>
+                          <span>Định dạng ngày</span>
+                        </v-tooltip>
+                        <v-tooltip location="top">
+                          <template v-slot:activator="{ props }">
+                            <v-btn
+                              icon
+                              v-bind="props"
+                              size="x-small"
+                              @click="setFieldType(field, 5)"
+                              color="success"
+                              class="mr-2"
+                            >
+                              <v-icon>mdi-image</v-icon>
+                            </v-btn>
+                          </template>
+                          <span>Hình ảnh</span>
+                        </v-tooltip>
+                        <v-tooltip location="top">
+                          <template v-slot:activator="{ props }">
+                            <v-btn
+                              icon
+                              v-bind="props"
+                              size="x-small"
+                              @click="setFieldType(field, 6)"
+                              color="green"
+                              class="mr-2"
+                            >
+                              <v-icon>mdi-file</v-icon>
+                            </v-btn>
+                          </template>
+                          <span>File đính kèm</span>
+                        </v-tooltip>
+                      </div>
+                    </v-card>
                   </v-menu>
                 </div>
               </div>

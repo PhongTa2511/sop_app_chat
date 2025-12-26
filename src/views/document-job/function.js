@@ -3,6 +3,10 @@ import { getToken, getUserName } from "@/utils/auth";
 var token = getToken();
 var username = getUserName();
 
+export function urlUploadFileFormLine(idForm, documentid) {
+  return `https://sop.idtp.work/api/File/UploadDocumentFormLine?UserName=${username}&Token=${token}&idForm=${idForm}&documentid=${documentid}`;
+}
+
 export function urlUploadFile(data) {
   return `https://sop.idtp.work/api/File/UploadDocumentFile?UserName=${username}&Token=${token}&RowID=${data}`;
 }

@@ -499,6 +499,11 @@ export default {
         this.searchNote,
         this.searchEmployeeName,
         this.optionStatus,
+        "",
+        "",
+        "",
+        "",
+        "",
       ].join("|");
       GetGSPDocumentLst({
         PageNumber: this.pageNumber,
