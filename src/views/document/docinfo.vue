@@ -151,70 +151,106 @@
           >
             <template v-slot:top="{ item }">
               <div class="mx-auto mt-2">
-                <v-btn size="small" color="blue" rounded="md" @click="btShowAdd"
-                  >Thêm mới
-                </v-btn>
-
-                <v-menu>
+                <v-tooltip text="Thêm mới từng dòng">
                   <template v-slot:activator="{ props }">
                     <v-btn
-                      size="small"
-                      color="green"
-                      rounded="md"
-                      class="mx-2"
                       v-bind="props"
-                      >Thêm Excel</v-btn
-                    >
+                      color="blue"
+                      class="mr-1"
+                      size="small"
+                      icon="mdi-playlist-plus"
+                      @click="btShowAdd"
+                    ></v-btn>
                   </template>
+                </v-tooltip>
+                <v-menu>
+                  <template #activator="{ props: menuProps }">
+                    <v-tooltip text="Thêm bằng file excel">
+                      <template #activator="{ props: tooltipProps }">
+                        <v-btn
+                          v-bind="{ ...menuProps, ...tooltipProps }"
+                          size="small"
+                          color="green"
+                          class="mr-1"
+                          icon="mdi-table-large-plus"
+                        />
+                      </template>
+                    </v-tooltip>
+                  </template>
+
                   <v-list>
                     <v-list-item>
                       <v-btn
                         prepend-icon="mdi-microsoft-excel"
                         size="small"
-                        color="gray"
+                        color="grey"
                         rounded="4"
                         block
                         @click="btExportExcel"
                       >
-                        <template v-slot:prepend>
-                          <v-icon color="blue"></v-icon>
+                        <template #prepend>
+                          <v-icon color="blue" />
                         </template>
                         Excel Mẫu
                       </v-btn>
                     </v-list-item>
+
                     <v-list-item>
                       <v-btn
                         prepend-icon="mdi-microsoft-excel"
                         size="small"
-                        color="gray"
+                        color="grey"
                         rounded="4"
                         block
                         @click="triggerFileInputClick"
                       >
-                        <template v-slot:prepend>
-                          <v-icon color="green"></v-icon>
+                        <template #prepend>
+                          <v-icon color="green" />
                         </template>
                         Thêm Excel
                       </v-btn>
                     </v-list-item>
                   </v-list>
                 </v-menu>
-                <v-btn
-                  size="small"
-                  color="green"
-                  rounded="md"
-                  @click="updateDocumentForm(tab)"
-                  >Lưu thông tin
-                </v-btn>
-                <v-btn
-                  size="small"
-                  class="ml-2"
-                  color="green"
-                  rounded="md"
-                  @click="btExportExcel1(tab)"
+                <v-tooltip text="Xuất excel">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      size="small"
+                      color="red"
+                      class="mr-1"
+                      icon="mdi-table-arrow-right"
+                      @click="btExportExcel1(tab)"
+                    ></v-btn>
+                  </template>
+                </v-tooltip>
+                <v-tooltip
+                  text="Bảng kê nguyên phụ liệu"
+                  v-if="tab.IDForm == 'F005083'"
                 >
-                  Xuất Excel
-                </v-btn>
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      size="small"
+                      color="purple"
+                      class="mr-1"
+                      icon="mdi-database-outline"
+                      @click="isShowMaterial = true"
+                    ></v-btn>
+                  </template>
+                </v-tooltip>
+                <v-tooltip text="Lưu thông tin">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      color="green"
+                      class="mr-1"
+                      size="small"
+                      icon="mdi-content-save-check"
+                      @click="updateDocumentForm(tab)"
+                    ></v-btn>
+                  </template>
+                </v-tooltip>
               </div>
             </template>
 
@@ -631,6 +667,7 @@
             v-for="(header, index) in headers.filter((p) => p.title != 'STT')"
             :key="index"
             cols="12"
+            class="pb-0"
           >
             <v-text-field
               v-if="header.type == 1"
@@ -648,7 +685,68 @@
               item-title="Name"
               chips
               clearable
+              hide-details=""
             ></v-autocomplete>
+
+            <V-DateField
+              v-if="header.type == 4"
+              v-model:modelValue="newDocument[header.key]"
+              :label="header.title"
+              width="100%"
+              :className="{ 'blur-text': line.IsPrivate == 1 }"
+            />
+
+            <div class="d-flex align-center" v-if="header.type == 5">
+              <v-btn
+                v-if="newDocument[header.key]"
+                class="mr-2 cursor-pointer"
+                color="primary"
+                @click="btShowImage('')"
+                icon="mdi-eye"
+                size="small"
+              >
+              </v-btn>
+
+              <v-file-input
+                :clearable="false"
+                single-line
+                :model-value="line"
+                accept="image/png, image/jpeg, image/bmp"
+                :label="header.title"
+                prepend-icon=""
+                append-inner-icon="mdi-image"
+                @update:model-value="(file) => handleFileUploadForm(file, line)"
+              >
+                <template v-slot:selection="{}">
+                  {{ header.DateResult ?? header.title }}
+                </template>
+              </v-file-input>
+            </div>
+
+            <div class="d-flex align-center" v-if="header.type == 6">
+              <v-btn
+                v-if="newDocument[header.key]"
+                class="mr-2 cursor-pointer"
+                color="primary"
+                @click="btDownloadFile('')"
+                icon="mdi-download"
+                size="small"
+              >
+              </v-btn>
+              <v-file-input
+                :clearable="false"
+                :single-line="true"
+                :model-value="line"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.zip"
+                :label="header.title"
+                prepend-icon=""
+                append-inner-icon="mdi-file"
+                @update:model-value="(file) => handleFileUploadForm(file, tab)"
+                ><template v-slot:selection="{}">
+                  {{ header.DateResult ?? header.title }}
+                </template>
+              </v-file-input>
+            </div>
           </v-col>
         </v-row>
       </v-card-text>
@@ -913,7 +1011,6 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
-
   <v-dialog v-model="isLoadingFile" max-width="320" persistent>
     <v-list class="py-2" color="primary" elevation="12" rounded="lg">
       <v-list-item
@@ -951,10 +1048,233 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="green" text @click="btDownloadFile(previewFile)"
+        <v-btn color="green" text @click="btDownloadFile(previewImage)"
           >Tải ảnh</v-btn
         >
         <v-btn text @click="isPreview = false">Đóng</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <v-dialog v-model="isShowMaterial" width="1000">
+    <v-card>
+      <v-card-title class="d-flex">
+        <span> Phân ra nguyên phụ liệu </span>
+        <v-spacer />
+      </v-card-title>
+      <v-card-text class="py-0">
+        <div class="d-flex">
+          <v-text-field
+            v-model="searchParams.ProductID"
+            label="Mã Sản Phẩm"
+            class="mr-2"
+            prepend-inner-icon="mdi-package-variant"
+          ></v-text-field>
+          <v-btn
+            icon="mdi-magnify"
+            size="small"
+            @click="fetchInitialMaterials"
+            :loading="loading"
+          ></v-btn>
+          <v-btn
+            @click="fetchInitialMaterials"
+            :loading="loading"
+            prepend-icon="mdi-refresh"
+            rounded="sm"
+            color="green"
+            class="ml-2"
+          >
+            Lấy DS Gốc
+          </v-btn>
+        </div>
+        <v-data-table
+          :headers="materialheaders"
+          :items="materials"
+          :loading="loading"
+          hover
+          class="elevation-0"
+          no-data-text="Không có dữ liệu nguyên phụ liệu"
+          :items-per-page="15"
+          height="calc(100vh - 320px)"
+          fixed-header=""
+          fixed-footer=""
+        >
+          <template v-slot:item.ProductName="{ item }">
+            <div class="text-subtitle-2 font-weight-medium">
+              {{ item.ProductName }}
+            </div>
+            <div class="caption grey--text font-italic">
+              <v-chip
+                size="small"
+                rounded="sm"
+                class="font-mono font-weight-bold"
+                :color="item.isExpanded ? '' : 'green'"
+              >
+                {{ item.ProductID.trim() }}
+              </v-chip>
+              ĐVT: {{ item.UnitOfMeasure.trim() }}
+            </div>
+          </template>
+
+          <!-- Định mức (Inline Edit) -->
+          <template v-slot:item.Quantity="{ item }">
+            <div
+              v-if="editingField !== item.ProductID.trim() + '_qty'"
+              @click="startEdit(item, 'qty')"
+              class="editable-cell justify-end font-mono"
+            >
+              {{ formatNumber(item.Quantity) }}
+            </div>
+            <v-text-field
+              v-else
+              v-model.number="item.Quantity"
+              dense
+              hide-details
+              type="number"
+              class="inline-edit-input"
+              autofocus
+              @blur="stopEdit(item)"
+              @keyup.enter="stopEdit(item)"
+              width="100px"
+            ></v-text-field>
+          </template>
+
+          <!-- Giá tiền (Inline Edit) -->
+          <template v-slot:item.UnitPrice="{ item }">
+            <div
+              v-if="editingField !== item.ProductID.trim() + '_price'"
+              @click="startEdit(item, 'price')"
+              class="editable-cell justify-end font-mono"
+            >
+              {{ formatNumber(item.UnitPrice) }}
+            </div>
+            <v-text-field
+              v-else
+              v-model.number="item.UnitPrice"
+              dense
+              hide-details
+              type="number"
+              class="inline-edit-input"
+              autofocus
+              @blur="stopEdit(item)"
+              @keyup.enter="stopEdit(item)"
+              width="100px"
+            ></v-text-field>
+          </template>
+
+          <!-- Đơn vị tiền (Dropdown Edit) -->
+          <template v-slot:item.UnitMoney="{ item }">
+            <div
+              v-if="editingField !== item.ProductID.trim() + '_money'"
+              @click="startEdit(item, 'money')"
+              class="editable-cell justify-center"
+            >
+              <v-chip x-small :color="getMoneyColor(item.UnitMoney)">{{
+                item.UnitMoney || "VND"
+              }}</v-chip>
+            </div>
+            <v-select
+              v-else
+              v-model="item.UnitMoney"
+              :items="['VND', 'USD', 'EUR']"
+              dense
+              hide-details
+              class="inline-edit-input"
+              autofocus
+              @update:modelValue="updateExchange(item)"
+              width="100px"
+            ></v-select>
+          </template>
+
+          <!-- Tỉ giá (Tự động hoặc Nhập tay) -->
+          <template v-slot:item.Exchange="{ item }">
+            <div
+              @click="startEdit(item, 'ex')"
+              class="editable-cell justify-end font-mono"
+            >
+              {{ formatNumber(item.Exchange) }}
+            </div>
+          </template>
+
+          <!-- Trị giá (Read Only) -->
+          <template v-slot:item.Total="{ item }">
+            <div
+              class="font-weight-black primary--text font-mono text-right pr-2"
+            >
+              {{ formatNumber(item.Total) }}
+            </div>
+          </template>
+
+          <!-- Custom Row: Thao tác -->
+          <template v-slot:item.actions="{ item }">
+            <v-menu location="start">
+              <!-- Nút mở menu -->
+              <template #activator="{ props }">
+                <v-btn v-bind="props" icon="mdi-dots-vertical" size="x-small" />
+              </template>
+
+              <!-- Danh sách action -->
+              <v-list density="compact">
+                <v-list-item
+                  @click="expandMaterial(item)"
+                  :disabled="expandingId === item.ProductID.trim()"
+                >
+                  <template #prepend>
+                    <v-icon color="primary">mdi-plus-circle</v-icon>
+                  </template>
+                  <v-list-item-title>Phân rã thành phần</v-list-item-title>
+
+                  <template #append>
+                    <v-progress-circular
+                      v-if="expandingId === item.ProductID.trim()"
+                      size="16"
+                      indeterminate
+                    />
+                  </template>
+                </v-list-item>
+
+                <v-divider />
+
+                <v-list-item @click="deleteItem(item)">
+                  <template #prepend>
+                    <v-icon color="red">mdi-delete</v-icon>
+                  </template>
+                  <v-list-item-title class="text-red">
+                    Xóa thành phần
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
+        </v-data-table>
+        <div class="mt-2 grey--text">
+          <v-icon small color="grey" class="mr-1 mb-1"
+            >mdi-information-outline</v-icon
+          >
+          Các dòng màu xám là kết quả của việc phân rã từ một mã nguyên liệu
+          khác.
+        </div>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn @click="isShowMaterial = false">Đóng</v-btn>
+        <v-btn color="green" @click="btApplyMaterial(materials)"
+          >Xác nhận</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <!-- Delete Confirmation -->
+  <v-dialog v-model="deleteDialog" max-width="350px">
+    <v-card>
+      <v-card-title class="headline text-center red lighten-5 red--text">
+        Xác nhận xóa
+      </v-card-title>
+      <v-card-text class="text-center pt-4">
+        Bạn có chắc chắn muốn xóa nguyên liệu này khỏi bảng kê không?
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="grey " @click="deleteDialog = false">Không</v-btn>
+        <v-btn color="red" @click="confirmDelete">Xóa ngay</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -1033,6 +1353,44 @@ export default {
       logo: logo,
       isPreview: false,
       previewImage: "",
+      isShowMaterial: false,
+      searchParams: {
+        ProductID: "",
+        Quantity: 1,
+        UnitOfMeasure: "ONG",
+        ShowBTP: 1,
+      },
+      materialheaders: [
+        // { title: "Mã NL", key: "ProductID", width: "80px" },
+        { title: "Nguyên Phụ Liệu", key: "ProductName" },
+        { title: "Định mức", key: "Quantity", align: "end" },
+        // { title: "Đơn vị", key: "UnitOfMeasure", align: "end" },
+        { title: "Giá tiền", key: "UnitPrice", align: "end" },
+        { title: "ĐV tiền", key: "UnitMoney", align: "end" },
+        { title: "Đơn giá", key: "Exchange", align: "end" },
+        { title: "Trị giá", key: "Total", align: "end" },
+        { title: "Thao tác", key: "actions", sortable: false, align: "center" },
+      ],
+      materials: [],
+      loading: false,
+      error: null,
+      expandingId: null,
+      // Edit & Delete State
+      editDialog: false,
+      deleteDialog: false,
+      editedItem: {
+        ProductID: "",
+        ProductName: "",
+        Quantity: 0,
+      },
+      editedIndex: -1,
+      itemToDelete: null,
+      rates: {
+        USD: 1,
+        EUR: 27120,
+        VND: 25450,
+      },
+      editingField: null,
     };
   },
   watch: {
@@ -1053,7 +1411,7 @@ export default {
             if (check.Type == 2 || check.Type == 3) {
               text =
                 check.TextResult && check.TextResult !== ""
-                  ? check.TextResult.split(" | ")
+                  ? check.TextResult?.split(" | ")
                   : [];
             } else if (check.Type == 4) {
               text =
@@ -1175,7 +1533,208 @@ export default {
       }
     },
   },
+  mounted() {
+    this.fetchExchangeRates();
+  },
   methods: {
+    btApplyMaterial(data) {
+      if (!data || !Array.isArray(data)) {
+        console.error("Invalid data passed to btApplyMaterial:", data);
+        return;
+      }
+      this.desserts = data.map((item, index) => {
+        return {
+          Key: index + 1,
+          ["Line" + 1]: item.ProductName,
+          ["Line" + 2]: item.ProductID,
+          ["Line" + 3]: null,
+          ["Line" + 4]: item.UnitOfMeasure,
+          ["Line" + 5]: item.Quantity,
+          ["Line" + 6]: item.UnitPrice,
+          ["Line" + 7]: item.UnitMoney,
+          ["Line" + 8]: item.Exchange,
+          ["Line" + 9]: null,
+          ["Line" + 10]: this.formatNumber(item.Total),
+          ["Line" + 11]: null,
+          ["Line" + 12]: null,
+          ["Line" + 13]: null,
+          ["Line" + 14]: null,
+          ["Line" + 15]: null,
+          Status: 1,
+        };
+      });
+      this.isShowMaterial = false;
+    },
+    async fetchExchangeRates() {
+      try {
+        // Lấy tỷ giá từ API công khai
+        const response = await Axios.get(
+          "https://api.exchangerate-api.com/v4/latest/USD"
+        );
+        if (response.data && response.data.rates.VND) {
+          const usdToVnd = response.data.rates.VND;
+          const usdToEur = response.data.rates.EUR;
+          this.rates.VND = usdToVnd;
+          this.rates.EUR = usdToEur;
+          this.rates.USD = 1;
+        }
+      } catch (e) {
+        console.warn("Không thể lấy tỷ giá tự động, dùng mặc định");
+      }
+    },
+    async callApi(id, qty, unit) {
+      const url =
+        "https://icpc1hn.work/APIHDDT/KHReport/GetRawMaterialByProduct";
+      const payload = {
+        UserName: "api-kh",
+        Token: "8e565ea5-95b1-482f-a78b-bec0c34b7156",
+        ProductLst: [
+          {
+            ProductID: id.trim(),
+            ProductID2: "",
+            Quantity: Number(qty),
+            UnitOfMeasure: unit.trim(),
+          },
+        ],
+        ShowBTP: this.searchParams.ShowBTP,
+      };
+      try {
+        const response = await Axios.post(url, payload);
+        return response.data;
+      } catch (err) {
+        // Xử lý lỗi Axios chuyên sâu
+        let msg = "Lỗi kết nối server.";
+        if (err.response) {
+          msg = `Server phản hồi lỗi: ${err.response.status}`;
+        } else if (err.request) {
+          msg = "Không nhận được phản hồi từ server.";
+        }
+        throw new Error(msg);
+      }
+    },
+
+    async fetchInitialMaterials() {
+      this.loading = true;
+      this.error = null;
+      try {
+        const data = await this.callApi(
+          this.searchParams.ProductID,
+          this.searchParams.Quantity,
+          this.searchParams.UnitOfMeasure
+        );
+        this.materials = (data.ProductLst || []).map((m) =>
+          this.processItem(m)
+        );
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+    processItem(item, isChild = false) {
+      const unitMoney = item.UnitMoney || "USD";
+      return {
+        ...item,
+        ProductID: item.ProductID.trim(),
+        UnitPrice: item.UnitPrice || 0,
+        UnitMoney: unitMoney,
+        ExchangeRate: this.rates[unitMoney] || 1,
+        isExpanded: isChild,
+      };
+    },
+    getMoneyColor(unit) {
+      if (unit === "USD") return "blue";
+      if (unit === "EUR") return "green";
+      return "grey";
+    },
+
+    startEdit(item, field) {
+      // Đảm bảo ProductID là duy nhất để tránh nhảy ô input
+      this.editingField = item.ProductID.trim() + "_" + field;
+    },
+
+    stopEdit(item) {
+      if (!item || typeof item !== "object") {
+        console.error("Invalid item passed to stopEdit:", item);
+        return;
+      }
+      item.Exchange = (item.ExchangeRate ?? 0) * (item.UnitPrice ?? 0);
+      console.log("Quantity:", item.Quantity, "Exchange:", item.Exchange);
+      item.Total = (Number(item.Quantity) || 0) * (Number(item.Exchange) || 0);
+      this.editingField = null;
+    },
+    updateExchange(item) {
+      if (!item) {
+        console.error("Invalid item passed to updateExchange:", item);
+        return;
+      }
+
+      const newRate = this.rates[item.UnitMoney] || 1;
+      item.ExchangeRate = newRate;
+      this.stopEdit(item); // Pass the item here
+    },
+
+    async expandMaterial(parentItem) {
+      const pId = parentItem.ProductID.trim();
+      const parentQuantity = parentItem.Quantity;
+      this.expandingId = pId;
+
+      try {
+        const reqQty =
+          parentItem.TotalQuantity ||
+          parentItem.Quantity * this.searchParams.Quantity;
+        const data = await this.callApi(pId, reqQty, parentItem.UnitOfMeasure);
+        const newItems = data.ProductLst || [];
+        if (newItems.length === 0) {
+          this.error = `Mã ${pId} không có cấu trúc con để phân rã.`;
+          return;
+        }
+        const map = new Map();
+        this.materials.forEach((m) => {
+          if (m.ProductID.trim() !== pId) map.set(m.ProductID.trim(), m);
+        });
+
+        newItems.forEach((newItem) => {
+          const id = newItem.ProductID.trim();
+          const processed = this.processItem(newItem, true);
+          processed.Quantity = newItem.Quantity * parentQuantity;
+
+          if (map.has(id)) {
+            const existing = map.get(id);
+            existing.Quantity += processed.Quantity;
+          } else {
+            map.set(id, processed);
+          }
+        });
+
+        this.materials = Array.from(map.values());
+      } catch (err) {
+        console.error(err);
+      } finally {
+        this.expandingId = null;
+      }
+    },
+
+    deleteItem(item) {
+      this.itemToDelete = item;
+      this.deleteDialog = true;
+    },
+
+    confirmDelete() {
+      const index = this.materials.indexOf(this.itemToDelete);
+      if (index > -1) {
+        this.materials.splice(index, 1);
+      }
+      this.deleteDialog = false;
+      this.itemToDelete = null;
+    },
+    formatNumber(num) {
+      if (num === null || num === undefined || isNaN(num)) return "0";
+      return new Intl.NumberFormat("vi-VN", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 6,
+      }).format(num);
+    },
     btDownloadFile(url) {
       if (!url) return;
       window.open(url, "_blank", "noopener,noreferrer");
@@ -1605,55 +2164,6 @@ export default {
       });
     },
 
-    // btSendMailAddUserInWork(data) {
-    //   var asi = [];
-    //   if (data.UserJob.UserID && data.UserJob.ComID && data.UserJob.QuotaTime) {
-    //     asi.push({
-    //       ...data.UserJob,
-    //       UserRole: "Xử lý",
-    //     });
-    //   } else {
-    //     notify({
-    //       title: "Nhắc nhờ",
-    //       text: "Vui lòng nhập thông tin người xử lý",
-    //       type: "warn",
-    //     });
-    //     return;
-    //   }
-    //   if (data.UserMana.UserID) {
-    //     if (
-    //       data.UserMana.UserID &&
-    //       data.UserMana.ComID &&
-    //       data.UserMana.QuotaTime
-    //     ) {
-    //       asi.push({
-    //         ...data.UserMana,
-    //         UserRole: "Phê duyệt",
-    //       });
-    //     } else {
-    //       notify({
-    //         title: "Nhắc nhờ",
-    //         text: "Vui lòng nhập thông tin người phê duyệt",
-    //         type: "warn",
-    //       });
-    //       return;
-    //     }
-    //   }
-    //   SendMailAddAssignLst({
-    //     DocumentID: data.DocumentID,
-    //     StepID: data.StepID,
-    //     WorkID: data.WorkID,
-    //     AssignLst: asi,
-    //   }).then((res) => {
-    //     if (res.RespCode == 0) {
-    //       notify({
-    //         title: "Thành công",
-    //         text: "Gán nhân sự thành công",
-    //         type: "success",
-    //       });
-    //     }
-    //   });
-    // },
     async getDocumentFormByDocID() {
       const res = await GetDocumentFormByDocID({
         DocumentID: this.$route.params.id,
@@ -1708,6 +2218,8 @@ export default {
     addNewDocument() {
       this.isShowAddNew = false;
       this.desserts.push(this.newDocument);
+      console.log("new document", this.newDocument);
+
       this.desserts = this.desserts.map((item, index) => {
         return {
           ...item,
@@ -1894,5 +2406,8 @@ export default {
 }
 .blur-text .v-chip {
   filter: blur(5px); /* làm mờ luôn chip */
+}
+.row-expanded {
+  background-color: #f1f8ff !important;
 }
 </style>
