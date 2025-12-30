@@ -252,6 +252,30 @@
                   </template>
                 </v-tooltip>
               </div>
+              F
+            </template>
+            <template
+              v-for="hea in headers.filter((h) => h.type == 5 || h.type == 6)"
+              :key="hea.key"
+              v-slot:[`item.${hea.key}`]="{ item }"
+            >
+              <v-icon
+                v-if="hea.type === 5 && item[hea.key]"
+                color="green"
+                size="x-small"
+                icon="mdi-eye"
+                @click="btShowImage(JSON.parse(item[hea.key]).LinkFile)"
+              >
+              </v-icon>
+
+              <v-btn
+                v-else-if="hea.type === 6 && item[hea.key]"
+                color="blue"
+                size="x-small"
+                icon="mdi-download"
+                @click="btDownloadFile(JSON.parse(item[hea.key]).LinkFile)"
+              >
+              </v-btn>
             </template>
 
             <template v-slot:item.Key="{ item }">
@@ -275,11 +299,7 @@
         </v-card>
         <v-card flat v-if="tab.TypeForm == 1">
           <div class="d-flex justify-center mt-2">
-            <v-btn
-              rounded="4"
-              color="green"
-              size="small"
-              @click="updateDocumentForm(tab)"
+            <v-btn rounded="4" color="green" size="small" @click="tab;"
               >Lưu thông tin</v-btn
             >
           </div>
@@ -693,7 +713,6 @@
               v-model:modelValue="newDocument[header.key]"
               :label="header.title"
               width="100%"
-              :className="{ 'blur-text': line.IsPrivate == 1 }"
             />
 
             <div class="d-flex align-center" v-if="header.type == 5">
@@ -701,7 +720,9 @@
                 v-if="newDocument[header.key]"
                 class="mr-2 cursor-pointer"
                 color="primary"
-                @click="btShowImage('')"
+                @click="
+                  btShowImage(JSON.parse(newDocument[header.key]).LinkFile)
+                "
                 icon="mdi-eye"
                 size="small"
               >
@@ -710,15 +731,21 @@
               <v-file-input
                 :clearable="false"
                 single-line
-                :model-value="line"
+                :model-value="tab"
                 accept="image/png, image/jpeg, image/bmp"
                 :label="header.title"
                 prepend-icon=""
                 append-inner-icon="mdi-image"
-                @update:model-value="(file) => handleFileUploadForm(file, line)"
+                @update:model-value="
+                  (file) => handleFileUploadForm2(file, tab, header.key)
+                "
               >
                 <template v-slot:selection="{}">
-                  {{ header.DateResult ?? header.title }}
+                  {{
+                    newDocument[header.key]
+                      ? JSON.parse(newDocument[header.key]).FileName
+                      : header.title
+                  }}
                 </template>
               </v-file-input>
             </div>
@@ -728,7 +755,9 @@
                 v-if="newDocument[header.key]"
                 class="mr-2 cursor-pointer"
                 color="primary"
-                @click="btDownloadFile('')"
+                @click="
+                  btDownloadFile(JSON.parse(newDocument[header.key]).LinkFile)
+                "
                 icon="mdi-download"
                 size="small"
               >
@@ -736,14 +765,20 @@
               <v-file-input
                 :clearable="false"
                 :single-line="true"
-                :model-value="line"
+                :model-value="tab"
                 accept=".pdf,.doc,.docx,.xls,.xlsx,.zip"
                 :label="header.title"
                 prepend-icon=""
                 append-inner-icon="mdi-file"
-                @update:model-value="(file) => handleFileUploadForm(file, tab)"
+                @update:model-value="
+                  (file) => handleFileUploadForm2(file, tab, header.key)
+                "
                 ><template v-slot:selection="{}">
-                  {{ header.DateResult ?? header.title }}
+                  {{
+                    newDocument[header.key]
+                      ? JSON.parse(newDocument[header.key]).FileName
+                      : header.title
+                  }}
                 </template>
               </v-file-input>
             </div>
@@ -767,6 +802,7 @@
             v-for="(header, index) in headers.filter((p) => p.title != 'STT')"
             :key="index"
             cols="12"
+            class="pb-0"
           >
             <v-text-field
               v-if="header.type == 1"
@@ -785,6 +821,80 @@
               chips
               clearable
             ></v-select>
+            <V-DateField
+              v-if="header.type == 4"
+              v-model:modelValue="editDocument[header.key]"
+              :label="header.title"
+              width="100%"
+            />
+
+            <div class="d-flex align-center" v-if="header.type == 5">
+              <v-btn
+                v-if="editDocument[header.key]"
+                class="mr-2 cursor-pointer"
+                color="primary"
+                @click="
+                  btShowImage(JSON.parse(editDocument[header.key]).LinkFile)
+                "
+                icon="mdi-eye"
+                size="small"
+              >
+              </v-btn>
+
+              <v-file-input
+                :clearable="false"
+                single-line
+                :model-value="tab"
+                accept="image/png, image/jpeg, image/bmp"
+                :label="header.title"
+                prepend-icon=""
+                append-inner-icon="mdi-image"
+                @update:model-value="
+                  (file) => handleFileUploadForm2(file, tab, header.key)
+                "
+              >
+                <template v-slot:selection="{}">
+                  {{
+                    editDocument[header.key]
+                      ? JSON.parse(editDocument[header.key]).FileName
+                      : header.title
+                  }}
+                </template>
+              </v-file-input>
+            </div>
+
+            <div class="d-flex align-center" v-if="header.type == 6">
+              <v-btn
+                v-if="editDocument[header.key]"
+                class="mr-2 cursor-pointer"
+                color="primary"
+                @click="
+                  btDownloadFile(JSON.parse(editDocument[header.key]).LinkFile)
+                "
+                icon="mdi-download"
+                size="small"
+              >
+              </v-btn>
+              <v-file-input
+                :clearable="false"
+                :single-line="true"
+                :model-value="tab"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.zip"
+                :label="header.title"
+                prepend-icon=""
+                append-inner-icon="mdi-file"
+                @update:model-value="
+                  (file) => handleFileUploadForm2(file, tab, header.key)
+                "
+                ><template v-slot:selection="{}">
+                  {{
+                    editDocument[header.key]
+                      ? JSON.parse(editDocument[header.key]).FileName
+                      : header.title
+                  }}
+                </template>
+              </v-file-input>
+            </div>
           </v-col>
         </v-row>
       </v-card-text>
@@ -1490,7 +1600,17 @@ export default {
 
           const itemde = {};
           itemlst.forEach((ele, inle) => {
-            itemde["Line" + (inle + 1)] = ele.TextResult;
+            if (ele.Type == 6 || ele.Type == 5) {
+              itemde["Line" + (inle + 1)] = ele.TextResult
+                ? JSON.stringify({
+                    FileID: ele.TextResult,
+                    LinkFile: ele.OptionText,
+                    FileName: ele.DateResult,
+                  })
+                : "";
+            } else {
+              itemde["Line" + (inle + 1)] = ele.TextResult;
+            }
           });
 
           return { ...itemde, Key: i + 1, Status: 1 };
@@ -1658,8 +1778,7 @@ export default {
         console.error("Invalid item passed to stopEdit:", item);
         return;
       }
-      item.Exchange = (item.ExchangeRate ?? 0) * (item.UnitPrice ?? 0);
-      console.log("Quantity:", item.Quantity, "Exchange:", item.Exchange);
+      item.Exchange = (item.UnitPrice ?? 0) / (item.ExchangeRate ?? 0);
       item.Total = (Number(item.Quantity) || 0) * (Number(item.Exchange) || 0);
       this.editingField = null;
     },
@@ -1736,12 +1855,49 @@ export default {
       }).format(num);
     },
     btDownloadFile(url) {
+      console.log("url", url);
+
       if (!url) return;
       window.open(url, "_blank", "noopener,noreferrer");
     },
     btShowImage(link) {
       this.previewImage = link;
       this.isPreview = true;
+    },
+    handleFileUploadForm2(file, line, headerKey) {
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      Axios.post(
+        urlUploadFileFormLine(line.IDForm, this.docInfo.DocumentID),
+        formData
+      ).then((res) => {
+        if (res.data.RespCode === 0) {
+          var fileinfo = {
+            FileID: res.data.FileID,
+            LinkFile: res.data.LinkFile,
+            FileName: res.data.FileName,
+          };
+          this.newDocument[headerKey] = JSON.stringify(fileinfo);
+          this.editDocument[headerKey] = JSON.stringify(fileinfo);
+
+          console.log(this.newDocument);
+
+          notify({
+            title: "File",
+            text: "Thêm file hồ sơ thành công",
+            type: "success",
+          });
+        } else {
+          notify({
+            title: "File",
+            text: res.data.RespText,
+            type: "error",
+          });
+        }
+      });
     },
     handleFileUploadForm(file, line) {
       if (!file) return;
@@ -2170,7 +2326,11 @@ export default {
       });
 
       if (res.RespCode == 0) {
-        this.formTabLst = res.DocumentFormLst;
+        this.formTabLst = res.DocumentFormLst.map((item) => {
+          return {
+            ...item,
+          };
+        });
 
         if (this.formTabLst.length > 0) {
           this.tab = this.formTabLst[0];
@@ -2216,9 +2376,10 @@ export default {
       return [];
     },
     addNewDocument() {
+      console.log("new document", this.newDocument);
+
       this.isShowAddNew = false;
       this.desserts.push(this.newDocument);
-      console.log("new document", this.newDocument);
 
       this.desserts = this.desserts.map((item, index) => {
         return {
@@ -2244,26 +2405,53 @@ export default {
       };
       var docFormLine = [];
       if (data.TypeForm == 2) {
-        this.desserts.forEach((item, ind) => {
+        var data = this.desserts.filter((p) => p.Status != 0);
+        data.forEach((item, ind) => {
+          console.log("header", this.headers);
+
           var len = this.headers.filter((p) => p.title != "STT").length;
           for (let index = 1; index <= len; index++) {
-            var line = {
-              DocumentID: this.$route.params.id,
-              IDForm: data.IDForm,
-              StepID: data.StepID,
-              WorkID: data.WorkID,
-              Parameter: item.title,
-              Type: item.type,
-              OptionAnswer: JSON.stringify(item.options),
-              Required: index,
-              TextResult: item["Line" + index],
-              IDFormLine: ind,
-              Status: item.Status,
-              OptionLine: item.OptionLine,
-              OptionText: item.OptionText,
-              IsValue: item.IsValue,
-            };
-            docFormLine.push(line);
+            if (
+              this.headers[index].type == 5 ||
+              this.headers[index].type == 6
+            ) {
+              var line = {
+                DocumentID: this.$route.params.id,
+                IDForm: data.IDForm,
+                StepID: data.StepID,
+                WorkID: data.WorkID,
+                Parameter: item.title,
+                Type: this.headers[index].type,
+                OptionAnswer: JSON.stringify(item.options),
+                Required: index,
+                TextResult: JSON.parse(item["Line" + index]).FileID,
+                IDFormLine: ind,
+                Status: item.Status,
+                OptionLine: item.OptionLine,
+                OptionText: JSON.parse(item["Line" + index]).LinkFile,
+                DateResult: JSON.parse(item["Line" + index]).FileName,
+                IsValue: item.IsValue,
+              };
+              docFormLine.push(line);
+            } else {
+              var line = {
+                DocumentID: this.$route.params.id,
+                IDForm: data.IDForm,
+                StepID: data.StepID,
+                WorkID: data.WorkID,
+                Parameter: item.title,
+                Type: this.headers[index].type,
+                OptionAnswer: JSON.stringify(item.options),
+                Required: index,
+                TextResult: item["Line" + index],
+                IDFormLine: ind,
+                Status: item.Status,
+                OptionLine: item.OptionLine,
+                OptionText: item.OptionText,
+                IsValue: item.IsValue,
+              };
+              docFormLine.push(line);
+            }
           }
         });
         docForm.DocumentFormLineLst = docFormLine;

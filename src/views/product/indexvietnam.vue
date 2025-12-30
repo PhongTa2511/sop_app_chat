@@ -75,7 +75,7 @@
                     class="pt-2"
                   ></v-text-field>
 
-                  <v-btn block class="rounded mt-2" @click="getProductLst"
+                  <v-btn block class="rounded mt-2" @click="getProductLst2"
                     >Tìm kiếm</v-btn
                   >
                 </v-list-item>
@@ -88,7 +88,7 @@
             variant="tonal"
             icon="mdi-reload"
             size="small"
-            @click="getProductLst"
+            @click="getProductLst2"
           ></v-btn>
           <!-- <v-btn
             color="blue"
@@ -100,8 +100,50 @@
         </div>
       </template>
 
-      <template v-slot:item.Key="{ item }">
-        {{ item.Key }}
+      <template v-slot:item.ProductID="{ item }">
+        <div>
+          {{ item.Key }}.
+          <strong>
+            {{ item.ProductName }}
+          </strong>
+        </div>
+        <div>
+          <v-chip size="x-small" color="primary">{{ item.ProductID }}</v-chip>
+          <v-chip size="x-small" color="green">{{ item.StoreType }}</v-chip>
+        </div>
+        <div>
+          {{ item.DangBaoChe }}
+        </div>
+      </template>
+      <template v-slot:item.TieuChuanChatLuong="{ item }">
+        <div>
+          <strong>
+            {{ item.TieuChuanChatLuong }}
+          </strong>
+          <v-chip size="x-small" color="red" v-if="item.HanDung">
+            {{ item.HanDung }}
+          </v-chip>
+        </div>
+      </template>
+      <template v-slot:item.ProductExport="{ item }">
+        <div>
+          {{ item.ProductExport }}
+        </div>
+        <div style="color: green">
+          {{ formatDateDisplayDDMMYY(item.NgayCapSoDangKy) }}
+        </div>
+        <div style="color: red">
+          {{
+            item.NgayHetHanSoDangKyHienTai.includes("T00:00:00")
+              ? formatDateDisplayDDMMYY(item.NgayHetHanSoDangKyHienTai)
+              : item.NgayHetHanSoDangKyHienTai
+          }}
+        </div>
+        <div v-if="item.DotCap">
+          <v-chip size="x-small" color="orange"
+            >Đợt cấp: {{ item.DotCap }}</v-chip
+          >
+        </div>
       </template>
       <template v-slot:item.Action="{ item }">
         <div class="flex">
@@ -128,31 +170,25 @@
 
 <script>
 import { GetDefaultValue } from "@/api/default";
-import { GetProductLst } from "@/api/productApi";
+import { GetProductLst2 } from "@/api/productApi";
 import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 export default {
   data() {
     return {
       headers: [
-        {
-          title: "STT",
-          sortable: false,
-          key: "Key",
-          align: "center",
-          width: 80,
-        },
-        { title: "Mã", key: "ProductID", sortable: false },
-        { title: "Sản phẩm", key: "ProductName", sortable: false },
+        { title: "Mã", key: "ProductID", sortable: false, width: 180 },
         { title: "Số đăng ký", key: "ProductExport", sortable: false },
-        { title: "Nước xk", key: "Country", sortable: false },
-        { title: "Khu vực", key: "Area", sortable: false },
-        { title: "Phân loại", key: "StoreType", sortable: false },
+        { title: "Hoạt chất", key: "HoatChat", sortable: false },
 
         {
-          title: "Người tạo",
-          key: "CreateID",
+          title: "Nồng độ, hàm lượng",
+          key: "NongDoHamLuong",
           sortable: false,
         },
+
+        { title: "Quy cách", key: "QuyCachDongGoi", sortable: false },
+        { title: "TCCL", key: "TieuChuanChatLuong", sortable: false },
+
         {
           title: "",
           key: "Action",
@@ -179,10 +215,10 @@ export default {
   },
   watch: {
     pageSize(value) {
-      this.getProductLst();
+      this.getProductLst2();
     },
     currentPage(value) {
-      this.getProductLst();
+      this.getProductLst2();
     },
     "newProduct.Country"(value) {
       this.newProduct.Area = this.areaLst.find(
@@ -201,7 +237,8 @@ export default {
     btRow(data) {
       this.pageSize = data;
     },
-    getProductLst() {
+    formatDateDisplayDDMMYY,
+    getProductLst2() {
       this.loadding = true;
       const searchString = [
         this.product,
@@ -215,7 +252,7 @@ export default {
         RowspPage: this.pageSize,
         Search: searchString,
       };
-      GetProductLst(requestData).then((res) => {
+      GetProductLst2(requestData).then((res) => {
         if (res.RespCode == 0) {
           this.productLst = res.Data.map((item, index) => {
             var num = this.pageSize * (this.currentPage - 1);
@@ -252,7 +289,7 @@ export default {
     },
   },
   created() {
-    this.getProductLst();
+    this.getProductLst2();
     this.getDefaultValue();
   },
 };
