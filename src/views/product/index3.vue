@@ -185,7 +185,7 @@ export default {
   },
   methods: {
     btShowInfo(data) {
-      this.$router.push("/thong-tin-san-pham/" + data.WarehouseID);
+      this.$router.push("/thong-tin-san-pham/" + data.ProductID);
     },
 
     btPage(data) {

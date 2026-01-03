@@ -252,7 +252,6 @@
                   </template>
                 </v-tooltip>
               </div>
-              F
             </template>
             <template
               v-for="hea in headers.filter((h) => h.type == 5 || h.type == 6)"
@@ -2424,12 +2423,18 @@ export default {
                 Type: this.headers[index].type,
                 OptionAnswer: JSON.stringify(item.options),
                 Required: index,
-                TextResult: JSON.parse(item["Line" + index]).FileID,
+                TextResult: item["Line" + index]
+                  ? JSON.parse(item["Line" + index]).FileID
+                  : "",
                 IDFormLine: ind,
                 Status: item.Status,
                 OptionLine: item.OptionLine,
-                OptionText: JSON.parse(item["Line" + index]).LinkFile,
-                DateResult: JSON.parse(item["Line" + index]).FileName,
+                OptionText: item["Line" + index]
+                  ? JSON.parse(item["Line" + index]).LinkFile
+                  : "",
+                DateResult: item["Line" + index]
+                  ? JSON.parse(item["Line" + index]).FileName
+                  : "",
                 IsValue: item.IsValue,
               };
               docFormLine.push(line);
