@@ -298,7 +298,11 @@
         </v-card>
         <v-card flat v-if="tab.TypeForm == 1">
           <div class="d-flex justify-center mt-2">
-            <v-btn rounded="4" color="green" size="small" @click="tab;"
+            <v-btn
+              rounded="4"
+              color="green"
+              size="small"
+              @click="updateDocumentForm(tab)"
               >Lưu thông tin</v-btn
             >
           </div>
