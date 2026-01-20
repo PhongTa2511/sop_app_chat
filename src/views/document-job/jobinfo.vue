@@ -793,10 +793,10 @@
                   item.Status == 1
                     ? 'blue'
                     : item.Status == 4
-                    ? 'green'
-                    : item.Status == 5
-                    ? 'red'
-                    : 'gray'
+                      ? 'green'
+                      : item.Status == 5
+                        ? 'red'
+                        : 'gray'
                 "
               >
                 {{ item.StepOrder }}
@@ -812,10 +812,10 @@
                 job.Status == 1
                   ? 'blue md'
                   : job.Status == 4
-                  ? 'green md'
-                  : job.Status == 5
-                  ? 'red md'
-                  : 'gray md'
+                    ? 'green md'
+                    : job.Status == 5
+                      ? 'red md'
+                      : 'gray md'
               "
             >
               <div class="text-body-2 position-relative">
@@ -1200,7 +1200,7 @@ export default {
 
       Axios.post(
         urlUploadFileFormLine(line.IDForm, this.docInfo.DocumentID),
-        formData
+        formData,
       ).then((res) => {
         if (res.data.RespCode === 0) {
           line.TextResult = res.data.FileID;
@@ -1426,7 +1426,7 @@ export default {
     updateDocument() {
       this.isShowEdit = false;
       const index = this.desserts.findIndex(
-        (p) => p.Key === this.editDocument.Key
+        (p) => p.Key === this.editDocument.Key,
       );
       if (index !== -1) {
         this.desserts[index] = { ...this.editDocument };
@@ -1455,7 +1455,7 @@ export default {
       if (fileExtension === ".pdf") {
         this.fileUrl = previewUrl;
         window.open(
-          "https://docs.google.com/gview?embedded=true&url=" + previewUrl
+          "https://docs.google.com/gview?embedded=true&url=" + previewUrl,
         );
       } else if (fileExtension === ".docx") {
         this.fileUrl = previewUrl;
@@ -1477,10 +1477,10 @@ export default {
       }).then((res) => {
         if (res.RespCode == 0) {
           this.userJob.FileLst = this.userJob.FileLst.filter(
-            (p) => p.RowID != file.RowID
+            (p) => p.RowID != file.RowID,
           );
           this.userMana.FileLst = this.userMana.FileLst.filter(
-            (p) => p.RowID != file.RowID
+            (p) => p.RowID != file.RowID,
           );
           notify({
             title: "Thành công",
@@ -1526,7 +1526,7 @@ export default {
           if (res.data.RespCode == 0) {
             this.getDocumentFile(
               this.dataJobInfo.DocumentID,
-              this.userJob.UserID
+              this.userJob.UserID,
             );
 
             notify({
@@ -1554,7 +1554,7 @@ export default {
           if (res.data.RespCode == 0) {
             this.getDocumentFile2(
               this.dataJobInfo.DocumentID,
-              this.userMana.UserID
+              this.userMana.UserID,
             );
 
             notify({
@@ -1599,10 +1599,10 @@ export default {
         if (res.RespCode == 0) {
           this.dataJobInfo = res.Data;
           this.userJob = this.dataJobInfo.AssignLst.find(
-            (p) => p.UserRole == "Xử lý"
+            (p) => p.UserRole == "Xử lý",
           );
           this.userMana = this.dataJobInfo.AssignLst.find(
-            (p) => p.UserRole == "Phê duyệt"
+            (p) => p.UserRole == "Phê duyệt",
           );
           this.processDocument(this.dataJobInfo.DocumentID);
           this.getDocumentFormByDocID(this.dataJobInfo.DocumentID);
@@ -1675,12 +1675,12 @@ export default {
     openStepDialog(status) {
       var proStepLst = this.processLst.filter(
         (item, index, self) =>
-          index === self.findIndex((el) => el.StepID === item.StepID)
+          index === self.findIndex((el) => el.StepID === item.StepID),
       );
       if (status == 4) {
         this.stepLst = proStepLst
           .filter(
-            (p) => parseInt(p.StepOrder) > parseInt(this.dataJobInfo.StepOrder)
+            (p) => parseInt(p.StepOrder) > parseInt(this.dataJobInfo.StepOrder),
           )
           .map((item, index) => {
             return {
@@ -1706,7 +1706,7 @@ export default {
           return {
             ...item,
             Key: index + 1,
-            Checked: false,
+            Checked: index == 0 ? true : false,
           };
         });
         if (this.dataJobInfo.StepBack && this.dataJobInfo.StepBack != "") {
@@ -1723,7 +1723,7 @@ export default {
       if (status == 0) {
         this.stepLst = proStepLst
           .filter(
-            (p) => parseInt(p.StepOrder) > parseInt(this.dataJobInfo.StepOrder)
+            (p) => parseInt(p.StepOrder) > parseInt(this.dataJobInfo.StepOrder),
           )
           .map((item, index) => {
             return {
@@ -1777,7 +1777,7 @@ export default {
 
               // tìm bản ghi đã lưu trong DocumentFormLineLst
               const check = item.DocumentFormLineLst.find(
-                (p) => p.Required == ele.Required
+                (p) => p.Required == ele.Required,
               );
 
               if (check) {
@@ -1854,12 +1854,13 @@ export default {
 
             const len = item.DocumentFormLineLst.filter(
               (obj, index, self) =>
-                index === self.findIndex((o) => o.IDFormLine === obj.IDFormLine)
+                index ===
+                self.findIndex((o) => o.IDFormLine === obj.IDFormLine),
             );
 
             item.desserts = len.map((l, i) => {
               const itemlst = item.DocumentFormLineLst.filter(
-                (p) => p.IDFormLine == l.IDFormLine && p.IsPrivate == 0
+                (p) => p.IDFormLine == l.IDFormLine && p.IsPrivate == 0,
               );
 
               const itemde = {};
