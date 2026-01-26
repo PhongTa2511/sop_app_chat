@@ -198,10 +198,10 @@
                   item.Status == 1
                     ? 'blue'
                     : item.Status == 4
-                    ? 'green'
-                    : item.Status == 5
-                    ? 'red'
-                    : 'gray'
+                      ? 'green'
+                      : item.Status == 5
+                        ? 'red'
+                        : 'gray'
                 "
               >
                 {{ item.StepOrder }}
@@ -217,10 +217,10 @@
                 job.Status == 1
                   ? 'blue md'
                   : job.Status == 4
-                  ? 'green md'
-                  : job.Status == 5
-                  ? 'red md'
-                  : 'gray md'
+                    ? 'green md'
+                    : job.Status == 5
+                      ? 'red md'
+                      : 'gray md'
               "
             >
               <div class="text-body-2 position-relative">
@@ -270,9 +270,19 @@
                     :key="indfile"
                   >
                     <template v-slot:activator="{ props }">
-                      <v-chip color="gray" v-bind="props" class="mr-1">
-                        {{ file.MineFile }}
-                      </v-chip>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props: tooltipProps }">
+                          <v-chip
+                            color="gray"
+                            class="mr-1"
+                            v-bind="{ ...props, ...tooltipProps }"
+                          >
+                            {{ file.MineFile }}
+                          </v-chip>
+                        </template>
+
+                        <span>{{ file.NameFile }}</span>
+                      </v-tooltip>
                     </template>
 
                     <v-list>
@@ -454,7 +464,7 @@ export default {
         this.fileUrl = previewUrl;
         // this.isShowFile = true;
         window.open(
-          "https://docs.google.com/gview?embedded=true&url=" + previewUrl
+          "https://docs.google.com/gview?embedded=true&url=" + previewUrl,
         );
         // this.docContent = `<iframe :src="${this.fileUrl}" width="100%" height="600px"></iframe>`;
       } else if (fileExtension === ".docx") {
@@ -597,11 +607,11 @@ export default {
                   TimeApproveShow: formatDateHHDDMM(job.TimeApprove),
                   Report: this.addStyleToAllImages(
                     job.Report,
-                    "width: calc(100%);"
+                    "width: calc(100%);",
                   ),
                   NoteApprove: this.addStyleToAllImages(
                     job.NoteApprove,
-                    "width: calc(100%);"
+                    "width: calc(100%);",
                   ),
                 };
               });
@@ -635,7 +645,7 @@ export default {
             /style\s*=\s*["']([^"']*)["']/i,
             (styleMatch, existingStyles) => {
               return `style="${existingStyles}; ${styleString}"`;
-            }
+            },
           );
         } else {
           return `<img${attr} style="${styleString}">`;

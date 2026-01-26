@@ -865,9 +865,19 @@
                     :key="indfile"
                   >
                     <template v-slot:activator="{ props }">
-                      <v-chip color="gray" v-bind="props" class="mr-1">
-                        {{ file.MineFile }}
-                      </v-chip>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props: tooltipProps }">
+                          <v-chip
+                            color="gray"
+                            class="mr-1"
+                            v-bind="{ ...props, ...tooltipProps }"
+                          >
+                            {{ file.MineFile }}
+                          </v-chip>
+                        </template>
+
+                        <span>{{ file.NameFile }}</span>
+                      </v-tooltip>
                     </template>
 
                     <v-list>

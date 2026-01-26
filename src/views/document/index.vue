@@ -142,10 +142,10 @@
                   item.Status == 1
                     ? 'blue'
                     : item.Status == 4
-                    ? 'green'
-                    : item.Status == 5
-                    ? 'red'
-                    : 'gray'
+                      ? 'green'
+                      : item.Status == 5
+                        ? 'red'
+                        : 'gray'
                 "
               >
                 {{ item.StepOrder }}
@@ -161,10 +161,10 @@
                 job.Status == 1
                   ? 'blue md'
                   : job.Status == 4
-                  ? 'green md'
-                  : job.Status == 5
-                  ? 'red md'
-                  : 'gray md'
+                    ? 'green md'
+                    : job.Status == 5
+                      ? 'red md'
+                      : 'gray md'
               "
             >
               <div class="text-body-2 position-relative">
@@ -214,9 +214,19 @@
                     :key="indfile"
                   >
                     <template v-slot:activator="{ props }">
-                      <v-chip color="gray" v-bind="props" class="mr-1">
-                        {{ file.MineFile }}
-                      </v-chip>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props: tooltipProps }">
+                          <v-chip
+                            color="gray"
+                            class="mr-1"
+                            v-bind="{ ...props, ...tooltipProps }"
+                          >
+                            {{ file.MineFile }}
+                          </v-chip>
+                        </template>
+
+                        <span>{{ file.NameFile }}</span>
+                      </v-tooltip>
                     </template>
 
                     <v-list>
@@ -451,7 +461,7 @@ export default {
       if (fileExtension === ".pdf") {
         this.fileUrl = previewUrl;
         window.open(
-          "https://docs.google.com/gview?embedded=true&url=" + previewUrl
+          "https://docs.google.com/gview?embedded=true&url=" + previewUrl,
         );
       } else if (fileExtension === ".docx") {
         this.fileUrl = previewUrl;

@@ -443,10 +443,10 @@
                 item.Status == 1
                   ? 'blue'
                   : item.Status == 4
-                  ? 'green'
-                  : item.Status == 5
-                  ? 'red'
-                  : 'gray'
+                    ? 'green'
+                    : item.Status == 5
+                      ? 'red'
+                      : 'gray'
               "
             >
               {{ item.StepOrder }}
@@ -935,10 +935,10 @@
                   item.Status == 1
                     ? 'blue'
                     : item.Status == 4
-                    ? 'green'
-                    : item.Status == 5
-                    ? 'red'
-                    : 'gray'
+                      ? 'green'
+                      : item.Status == 5
+                        ? 'red'
+                        : 'gray'
                 "
               >
                 {{ item.StepOrder }}
@@ -954,10 +954,10 @@
                 job.Status == 1
                   ? 'blue md'
                   : job.Status == 4
-                  ? 'green md'
-                  : job.Status == 5
-                  ? 'red md'
-                  : 'gray md'
+                    ? 'green md'
+                    : job.Status == 5
+                      ? 'red md'
+                      : 'gray md'
               "
             >
               <div class="text-body-2 position-relative">
@@ -1007,9 +1007,19 @@
                     :key="indfile"
                   >
                     <template v-slot:activator="{ props }">
-                      <v-chip color="gray" v-bind="props" class="mr-1">
-                        {{ file.MineFile }}
-                      </v-chip>
+                      <v-tooltip location="top">
+                        <template v-slot:activator="{ props: tooltipProps }">
+                          <v-chip
+                            color="gray"
+                            class="mr-1"
+                            v-bind="{ ...props, ...tooltipProps }"
+                          >
+                            {{ file.MineFile }}
+                          </v-chip>
+                        </template>
+
+                        <span>{{ file.NameFile }}</span>
+                      </v-tooltip>
                     </template>
 
                     <v-list>
@@ -1517,7 +1527,7 @@ export default {
             options = JSON.parse(ele.OptionAnswer);
           }
           const check = item.DocumentFormLineLst.find(
-            (p) => p.Required == ele.Required
+            (p) => p.Required == ele.Required,
           );
           if (check) {
             let text = "";
@@ -1593,12 +1603,12 @@ export default {
 
         const len = item.DocumentFormLineLst.filter(
           (obj, index, self) =>
-            index === self.findIndex((o) => o.IDFormLine === obj.IDFormLine)
+            index === self.findIndex((o) => o.IDFormLine === obj.IDFormLine),
         );
 
         item.desserts = len.map((l, i) => {
           const itemlst = item.DocumentFormLineLst.filter(
-            (p) => p.IDFormLine == l.IDFormLine && p.IsPrivate == 0
+            (p) => p.IDFormLine == l.IDFormLine && p.IsPrivate == 0,
           );
 
           const itemde = {};
@@ -1692,7 +1702,7 @@ export default {
       try {
         // Lấy tỷ giá từ API công khai
         const response = await Axios.get(
-          "https://api.exchangerate-api.com/v4/latest/USD"
+          "https://api.exchangerate-api.com/v4/latest/USD",
         );
         if (response.data && response.data.rates.VND) {
           const usdToVnd = response.data.rates.VND;
@@ -1743,10 +1753,10 @@ export default {
         const data = await this.callApi(
           this.searchParams.ProductID,
           this.searchParams.Quantity,
-          this.searchParams.UnitOfMeasure
+          this.searchParams.UnitOfMeasure,
         );
         this.materials = (data.ProductLst || []).map((m) =>
-          this.processItem(m)
+          this.processItem(m),
         );
       } catch (err) {
         this.error = err.message;
@@ -1875,7 +1885,7 @@ export default {
 
       Axios.post(
         urlUploadFileFormLine(line.IDForm, this.docInfo.DocumentID),
-        formData
+        formData,
       ).then((res) => {
         if (res.data.RespCode === 0) {
           var fileinfo = {
@@ -1910,7 +1920,7 @@ export default {
 
       Axios.post(
         urlUploadFileFormLine(line.IDForm, this.docInfo.DocumentID),
-        formData
+        formData,
       ).then((res) => {
         if (res.data.RespCode === 0) {
           line.TextResult = res.data.FileID;
@@ -1934,7 +1944,7 @@ export default {
     btExportExcel1(tab, header) {
       exportExcel1(
         this.desserts.filter((p) => p.Status > 0),
-        this.headers
+        this.headers,
       );
     },
     getUserLstByTeamID(teamID) {
@@ -2032,7 +2042,7 @@ export default {
       if (fileExtension === ".pdf") {
         this.fileUrl = previewUrl;
         window.open(
-          "https://docs.google.com/gview?embedded=true&url=" + previewUrl
+          "https://docs.google.com/gview?embedded=true&url=" + previewUrl,
         );
       } else if (fileExtension === ".docx") {
         this.fileUrl = previewUrl;
@@ -2550,7 +2560,7 @@ export default {
     updateDocument() {
       this.isShowEdit = false;
       const index = this.desserts.findIndex(
-        (p) => p.Key === this.editDocument.Key
+        (p) => p.Key === this.editDocument.Key,
       );
       if (index !== -1) {
         this.desserts[index] = { ...this.editDocument };
