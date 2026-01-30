@@ -251,7 +251,7 @@ import {
   GetProcedureLst,
   UpdateProcedure,
 } from "@/api/procedureApi";
-import { GetTeamLstUserID } from "@/api/teamApi";
+import { GetTeamLst } from "@/api/teamApi";
 import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 
 export default {
@@ -307,8 +307,8 @@ export default {
     },
   },
   methods: {
-    getTeamLstUserID() {
-      GetTeamLstUserID({}).then((res) => {
+    getTeamLst() {
+      GetTeamLst({}).then((res) => {
         if (res.RespCode == 0) {
           this.teamlst = res.Data;
         }
@@ -486,7 +486,7 @@ export default {
   },
   created() {
     this.getProcedure();
-    this.getTeamLstUserID();
+    this.getTeamLst();
   },
 };
 </script>
