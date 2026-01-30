@@ -36,3 +36,11 @@ export function UpdateTeamInfo(data) {
     data,
   });
 }
+
+export function GetTeamLstUserID(data) {
+  return request({
+    url: "Team/GetTeamLstUserID",
+    method: "post",
+    data,
+  });
+}

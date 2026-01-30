@@ -4,7 +4,7 @@
       <v-card>
         <v-card-title>Tạo quy trình mới</v-card-title>
         <v-card-text>
-          <v-form v-model="valid" ref="form">
+          <v-form ref="form">
             <v-text-field
               v-model="createProcedure.ProcedureName"
               label="Tên quy trình(*)"
@@ -18,6 +18,16 @@
               placeholder="Nhập mô tả quy trình"
               :rows="2"
             ></v-textarea>
+            <v-select
+              class="mt-2"
+              v-model="createProcedure.TeamLst"
+              :items="teamlst"
+              item-title="TeamName"
+              item-value="TeamID"
+              label="Chọn nhóm liên quan"
+              placeholder="Chọn quy trình"
+              multiple=""
+            ></v-select>
           </v-form>
         </v-card-text>
         <v-card-actions>
@@ -46,6 +56,16 @@
               placeholder="Nhập mô tả quy trình"
               :rows="2"
             ></v-textarea>
+            <v-select
+              class="mt-2"
+              v-model="createProcedure.TeamLst"
+              :items="teamlst"
+              item-title="TeamName"
+              item-value="TeamID"
+              label="Chọn nhóm liên quan"
+              placeholder="Chọn quy trình"
+              multiple=""
+            ></v-select>
             <!-- <v-radio-group v-model="createProcedure.Status">
               <v-radio label="Đang hoạt động" :value="1"></v-radio>
               <v-radio label="Dừng hoạt động" :value="0"></v-radio>
@@ -114,35 +134,90 @@
       fixed-header
     >
       <template v-slot:item.Key="{ item }">
-        {{ item.Key }}
-        <v-icon color="red" class="me-2" @click="btShowDel(item)"
-          >mdi-trash-can
-        </v-icon>
-        <v-icon color="orange" class="me-2" @click="btShowEditProcedure(item)"
-          >mdi-square-edit-outline
-        </v-icon>
+        <div class="d-flex">
+          <div class="mr-2">
+            {{ item.Key }}
+          </div>
+          <div>
+            <!-- Xóa -->
+            <v-tooltip text="Xóa" location="top">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  color="red"
+                  class="mr-1 mb-1"
+                  @click="btShowDel(item)"
+                  icon="mdi-trash-can"
+                  size="x-small"
+                />
+              </template>
+            </v-tooltip>
+
+            <!-- Sửa -->
+            <v-tooltip text="Sửa quy trình" location="top">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  color="orange"
+                  class="mr-1 mb-1"
+                  @click="btShowEditProcedure(item)"
+                  icon="mdi-square-edit-outline"
+                  size="x-small"
+                />
+              </template>
+            </v-tooltip>
+
+            <!-- Danh sách phase -->
+            <v-tooltip text="Danh sách Bước" location="top">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  color="green"
+                  size="x-small"
+                  class="mr-1 mb-1"
+                  @click="btShowLstPhase(item)"
+                  icon="mdi-format-list-numbered"
+                />
+              </template>
+            </v-tooltip>
+
+            <!-- Danh sách Form -->
+            <v-tooltip text="Danh sách Form" location="top">
+              <template #activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  color="blue"
+                  size="x-small"
+                  class="mr-1 mb-1"
+                  @click="btShowLstForm(item)"
+                  icon="mdi-form-select"
+                />
+              </template>
+            </v-tooltip>
+          </div>
+        </div>
       </template>
       <template v-slot:item.Status="{ item }">
         <v-chip color="blue" v-if="item.Status == 1"> Mới tạo </v-chip>
         <v-chip color="orange" v-if="item.Status == 2"> Chỉnh sửa </v-chip>
       </template>
-      <template v-slot:item.Step="{ item }">
-        <v-icon
-          color="green"
-          size="small"
-          class="me-2"
-          @click="btShowLstPhase(item)"
-          >mdi-format-list-numbered
-        </v-icon>
+      <template v-slot:item.CreateName="{ item }">
+        <div>{{ item.CreateName }}</div>
+        <v-chip color="green" size="x-small">{{ item.TimeCreate }}</v-chip>
       </template>
-      <template v-slot:item.Form="{ item }">
-        <v-icon
+      <template v-slot:item.ProcedureID="{ item }">
+        <div>{{ item.ProcedureName }}</div>
+        <v-chip color="green" size="x-small">{{ item.ProcedureID }}</v-chip>
+      </template>
+      <template v-slot:item.TeamLst="{ item }">
+        <v-chip
+          size="x-small"
           color="blue"
-          size="small"
-          class="me-2"
-          @click="btShowLstForm(item)"
-          >mdi-form-select
-        </v-icon>
+          v-for="tem in item.Data"
+          :key="tem.TeamID"
+        >
+          {{ tem.TeamName }}
+        </v-chip>
       </template>
     </v-data-table-server>
   </v-card>
@@ -176,32 +251,28 @@ import {
   GetProcedureLst,
   UpdateProcedure,
 } from "@/api/procedureApi";
+import { GetTeamLstUserID } from "@/api/teamApi";
 import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 
 export default {
   data() {
     return {
       headers: [
-        { title: "STT", sortable: false, key: "Key", width: 120 },
-        { title: "Bước", key: "Step", sortable: false },
-        { title: "Form", key: "Form", sortable: false },
-        { title: "Mã quy trình", key: "ProcedureID", sortable: false },
-        {
-          title: "Tên quy trình",
-          key: "ProcedureName",
-          sortable: false,
-        },
+        { title: "STT", sortable: false, key: "Key", width: 130 },
+
+        { title: "Quy trình", key: "ProcedureID", sortable: false },
+
         {
           title: "Mô tả",
           key: "Description",
           sortable: false,
         },
         {
-          title: "Thời gian tạo",
-          key: "TimeCreate",
+          title: "Nhóm",
+          key: "TeamLst",
           sortable: false,
-          align: "center",
         },
+
         {
           title: "Người tạo",
           key: "CreateName",
@@ -224,6 +295,7 @@ export default {
       procedureToDelete: null,
       isShowCopyProcedure: false,
       selectedProcedureToCopy: null,
+      teamlst: [],
     };
   },
   watch: {
@@ -235,6 +307,13 @@ export default {
     },
   },
   methods: {
+    getTeamLstUserID() {
+      GetTeamLstUserID({}).then((res) => {
+        if (res.RespCode == 0) {
+          this.teamlst = res.Data;
+        }
+      });
+    },
     btCopyProcedure() {
       if (this.selectedProcedureToCopy) {
         CopyProcedure({
@@ -295,12 +374,16 @@ export default {
       this.createProcedure = {};
     },
     btCreateProcedure() {
+      console.log("Anhthanhf", this.createProcedure.TeamLst?.join(","));
+
+      // return;
       if (this.createProcedure.ProcedureName) {
         CreateProcedure({
           ProcedureInfo: {
             ProcedureName: this.createProcedure.ProcedureName,
             Description: this.createProcedure.Description,
           },
+          TeamLst: this.createProcedure.TeamLst.join(","),
         }).then((res) => {
           if (res.RespCode == 0) {
             this.isShowCreate = false;
@@ -334,6 +417,7 @@ export default {
             Description: this.createProcedure.Description,
             Status: 1,
           },
+          TeamLst: this.createProcedure.TeamLst?.join(","),
         }).then((res) => {
           if (res.RespCode == 0) {
             this.isShowUpdate = false;
@@ -390,8 +474,9 @@ export default {
                 ...item,
                 Key: index + 1 + num,
                 TimeCreate: formatDateDisplayDDMMYY(item.TimeCreate),
+                TeamLst: item.Data.map((item) => item.TeamID),
               };
-            }
+            },
           );
           this.dataLength = res.TotalRows;
           this.loadding = false;
@@ -401,6 +486,7 @@ export default {
   },
   created() {
     this.getProcedure();
+    this.getTeamLstUserID();
   },
 };
 </script>
