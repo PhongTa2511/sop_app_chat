@@ -308,7 +308,7 @@ export default {
   },
   methods: {
     getTeamLst() {
-      GetTeamLst({}).then((res) => {
+      GetTeamLst({ RowspPage: 10000, PageNumber: 1 }).then((res) => {
         if (res.RespCode == 0) {
           this.teamlst = res.Data;
         }
