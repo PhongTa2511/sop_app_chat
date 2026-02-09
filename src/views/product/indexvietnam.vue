@@ -74,7 +74,14 @@
                     clearable
                     class="pt-2"
                   ></v-text-field>
-
+                  <v-select
+                    label="Trạng thái"
+                    v-model="statusProduct"
+                    :items="statusLst"
+                    item-value="value"
+                    item-title="text"
+                    class="mt-2"
+                  ></v-select>
                   <v-btn block class="rounded mt-2" @click="getProductLst2"
                     >Tìm kiếm</v-btn
                   >
@@ -206,11 +213,21 @@ export default {
       country: "",
       area: "",
       storeType: "",
-      areaLst: [],
+      statusLst: [
+        {
+          text: "Active",
+          value: 100,
+        },
+        {
+          text: "Stop",
+          value: 0,
+        },
+      ],
       typeStorageLst: [],
       productDefaultLst: [],
       isCreateProductDialog: false,
       newProduct: {},
+      statusProduct: 100,
     };
   },
   watch: {
@@ -219,11 +236,6 @@ export default {
     },
     currentPage(value) {
       this.getProductLst2();
-    },
-    "newProduct.Country"(value) {
-      this.newProduct.Area = this.areaLst.find(
-        (p) => p.ValueName == value
-      ).ValueName2;
     },
   },
   methods: {
@@ -246,6 +258,7 @@ export default {
         "Việt Nam",
         this.area,
         this.storeType,
+        this.statusProduct,
       ].join("|");
       const requestData = {
         PageNumber: this.currentPage,
@@ -268,11 +281,11 @@ export default {
       });
     },
     getDefaultValue() {
-      GetDefaultValue({
-        Table: "Khu vực",
-      }).then((res) => {
-        this.areaLst = res.DefaultValueLst;
-      });
+      // GetDefaultValue({
+      //   Table: "Khu vực",
+      // }).then((res) => {
+      //   this.areaLst = res.DefaultValueLst;
+      // });
       GetDefaultValue({ Table: "Phân loại đối tượng" }).then((res) => {
         if (res.RespCode == 0) {
           this.typeStorageLst = res.DefaultValueLst;

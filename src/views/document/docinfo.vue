@@ -657,7 +657,7 @@
           </v-row>
           <div class="d-flex justify-center my-4">
             <v-btn
-              variant="outlined"
+              variant="tonal"
               rounded="8"
               size="small"
               @click="btAddUserInWork(item)"
@@ -665,15 +665,15 @@
               class="mr-1"
               >Gán người xử lý</v-btn
             >
-            <!-- <v-btn
-              variant="outlined"
+            <v-btn
+              variant="tonal"
               rounded="8"
               size="small"
-              @click="btSendMailAddUserInWork(item)"
+              @click="btAddUserInWork2(item)"
               color="green"
               class="ml-1"
-              >Gửi mail thực hiện</v-btn
-            > -->
+              >Bắt đầu công việc</v-btn
+            >
           </div>
         </v-form>
       </v-card-text>
@@ -1419,6 +1419,7 @@ import {
   GetDocumentJobByDocID,
   ProcessDocument,
   StartDocument,
+  StartJob,
 } from "@/api/documentJobApi";
 import { CreateGroup } from "@/api/messageApi";
 import { GetProductLst } from "@/api/productApi";
@@ -2332,7 +2333,79 @@ export default {
         }
       });
     },
+    btAddUserInWork2(data) {
+      const asi = [];
+      const hasJob = data.UserJob && data.UserJob.UserID; // có chọn người xử lý?
+      const hasMana = data.UserMana && data.UserMana.UserID; // có chọn người phê duyệt?
 
+      // 1️⃣ Không chọn ai cả → báo lỗi
+      if (!hasJob && !hasMana) {
+        notify({
+          title: "Nhắc nhở",
+          text: "Vui lòng chọn người xử lý hoặc người phê duyệt",
+          type: "warn",
+        });
+        return;
+      }
+
+      // 2️⃣ Validate người xử lý (nếu có)
+      if (hasJob) {
+        if (
+          !data.UserJob.ComID ||
+          data.UserJob.ComID == 0 ||
+          !data.UserJob.QuotaTime
+        ) {
+          notify({
+            title: "Nhắc nhở",
+            text: "Người xử lý: Vui lòng chọn nhóm và hạn xử lý",
+            type: "warn",
+          });
+          return;
+        }
+
+        asi.push({
+          ...data.UserJob,
+          UserRole: "Xử lý",
+        });
+      }
+
+      // 3️⃣ Validate người phê duyệt (nếu có)
+      if (hasMana) {
+        if (
+          !data.UserMana.ComID ||
+          data.UserMana.ComID == 0 ||
+          !data.UserMana.QuotaTime
+        ) {
+          notify({
+            title: "Nhắc nhở",
+            text: "Người phê duyệt: Vui lòng chọn nhóm và hạn xử lý",
+            type: "warn",
+          });
+          return;
+        }
+
+        asi.push({
+          ...data.UserMana,
+          UserRole: "Phê duyệt",
+        });
+      }
+
+      // 4️⃣ Submit
+      StartJob({
+        DocumentID: data.DocumentID,
+        StepID: data.StepID,
+        WorkID: data.WorkID,
+        AssignLst: asi,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            title: "Thành công",
+            text: "Gán nhân sự thành công",
+            type: "success",
+          });
+        }
+      });
+    },
     async getDocumentFormByDocID() {
       const res = await GetDocumentFormByDocID({
         DocumentID: this.$route.params.id,

@@ -94,3 +94,10 @@ export function StartDocument(data) {
     data,
   });
 }
+export function StartJob(data) {
+  return request({
+    url: "GSPDocumentJob/StartJob",
+    method: "post",
+    data,
+  });
+}
