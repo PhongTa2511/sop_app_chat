@@ -7,7 +7,7 @@
         class="border-sm"
         :key="updateAvatar"
       >
-        <v-img alt="John" :src="groupInfo.LinkImage" v-if="groupInfo.Avatar">
+        <v-img alt="John" :src="groupInfo.Avatar" v-if="groupInfo.Avatar">
         </v-img>
         <v-img v-else>
           <v-icon color="blue" class="my-6"> mdi-account-multiple </v-icon>
@@ -21,33 +21,7 @@
       accept="image/*"
       @change="handleFileUpload"
     />
-    <!-- <v-menu transition="scale-transition" color="blue">
-      <template v-slot:activator="{ props }">
-        <v-btn
-          icon="mdi-dots-grid"
-          size="small"
-          color="grey-800"
-          variant="text"
-          class="position-absolute top-0 right-0"
-          v-bind="props"
-        ></v-btn>
-      </template>
 
-      <v-list>
-        <v-list-item link @click="$refs.fileInput.click()">
-          <template v-slot:prepend>
-            <v-icon size="small" icon="mdi-image"></v-icon>
-          </template>
-          <v-list-item-title>Ảnh đại diện</v-list-item-title>
-        </v-list-item>
-        <v-list-item link>
-          <template v-slot:prepend>
-            <v-icon size="small" icon="mdi-square-edit-outline"></v-icon>
-          </template>
-          <v-list-item-title>Đổi tên nhóm</v-list-item-title>
-        </v-list-item>
-      </v-list>
-    </v-menu> -->
     <div class="text-center font-weight-bold text-h6">
       {{ groupInfo.GroupName ? groupInfo.GroupName : groupInfo.DocumentID }}
     </div>
@@ -206,9 +180,7 @@ import {
   DelMemberGroup,
   GetMemberLstByGroupID,
   UpdateGroup,
-  urlUploadImageGroup,
 } from "@/api/messageApi";
-import Axios from "axios";
 export default {
   props: {
     groupInfo: Object,
@@ -299,37 +271,75 @@ export default {
     };
   },
   methods: {
-    handleFileUpload(file) {
-      const { files } = file.target;
-      if (files && files.length) {
-        const params = new FormData();
-        params.append("file", files[0]);
+    handleFileUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
 
-        Axios.post(urlUploadImageGroup(this.groupInfo.GroupID), params).then(
-          (res) => {
-            if (res.data.RespCode == 0) {
-              notify({
-                type: "success",
-                title: "Thành công",
-                text: "Cập nhật ảnh đại diện thành công",
-              });
-              this.groupInfo.LinkImage =
-                "https://sop.idtp.work/api/File/GetAvatarGroup?GroupID=" +
-                this.groupInfo.GroupID +
-                "&timestamp=" +
-                new Date().getTime();
-              this.updateAvatar++;
-            } else {
-              notify({
-                title: "Lỗi",
-                text: res.data.RespText,
-                type: "error",
-              });
-            }
-          }
-        );
+      if (!file.type.startsWith("image/")) {
+        notify({
+          type: "error",
+          title: "Lỗi",
+          text: "File không phải hình ảnh",
+        });
+        return;
       }
+
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        const img = new Image();
+        img.src = reader.result;
+
+        img.onload = async () => {
+          // 🔹 Giới hạn kích thước (avatar không cần to)
+          const MAX_WIDTH = 300;
+          const MAX_HEIGHT = 300;
+
+          let { width, height } = img;
+
+          if (width > MAX_WIDTH || height > MAX_HEIGHT) {
+            const scale = Math.min(MAX_WIDTH / width, MAX_HEIGHT / height);
+            width = width * scale;
+            height = height * scale;
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // 🔹 NÉN ẢNH (0.6–0.7 là rất ổn cho avatar)
+          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.6);
+
+          // 🔹 Gán avatar đã nén
+          this.groupInfo.Avatar = compressedBase64;
+
+          // 🔹 Call API
+          const res = await UpdateGroup({ Data: { ...this.groupInfo } });
+
+          if (res.RespCode === 0) {
+            notify({
+              type: "success",
+              title: "Thành công",
+              text: "Ảnh đã được nén và cập nhật",
+            });
+          } else {
+            notify({
+              type: "error",
+              title: "Lỗi",
+              text: res.RespText || res.error,
+            });
+          }
+
+          this.renameGroupDialog = false;
+        };
+      };
+
+      reader.readAsDataURL(file);
     },
+
     getMemberLstByGroupID() {
       GetMemberLstByGroupID({
         GroupID: this.groupInfo.GroupID,
@@ -357,6 +367,7 @@ export default {
       }
       if (line.text == "Đổi tên nhóm") {
         this.renameGroupDialog = true;
+        this.newGroupName = this.groupInfo.GroupName;
       }
       if (line.text == "Chỉnh sửa biệt danh") {
         this.isEditing = true;

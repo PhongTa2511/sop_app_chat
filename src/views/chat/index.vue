@@ -10,6 +10,16 @@
     <v-card>
       <v-layout>
         <v-navigation-drawer v-model="drawerLeft" :width="300" class="py-4">
+          <div
+            class="mx-4 text-lg d-flex justify-space-between align-center mb-2"
+          >
+            <div class="text-lg">Đoạn chat</div>
+            <v-btn
+              icon="mdi-square-edit-outline"
+              size="x-small"
+              @click="openCreateGroupDialog"
+            ></v-btn>
+          </div>
           <v-text-field
             append-inner-icon="mdi-magnify"
             density="compact"
@@ -38,15 +48,28 @@
                     folder.GroupID == groupInfo.GroupID ? 'blue' : 'secondary'
                   "
                 >
-                  <v-img v-if="folder.Avatar" :src="folder.LinkImage"></v-img>
+                  <v-img v-if="folder.Avatar" :src="folder.Avatar"></v-img>
                   <v-icon v-else>mdi-account-supervisor</v-icon>
                 </v-avatar>
               </template>
               <template v-slot:subtitle>
-                {{ folder.TextContent ?? "Hãy bắt đầu cuộc trò chuyện" }}
+                {{ folder.LastMessage ?? "Hãy bắt đầu cuộc trò chuyện" }}
               </template>
               <template v-slot:append v-if="folder.TimeCreate">
-                <div class="text-subtitle-2">{{ folder.TimeShow }}</div>
+                <v-badge
+                  v-if="folder.UnreadCount > 0"
+                  location="top right"
+                  color="primary"
+                  dot
+                  :offset-y="-10"
+                >
+                  <div class="text-xs text-grey-800">
+                    {{ folder.TimeShow }}
+                  </div>
+                </v-badge>
+                <div v-else class="text-xs text-grey-800">
+                  {{ folder.TimeShow }}
+                </div>
               </template>
             </v-list-item>
           </v-list>
@@ -65,7 +88,7 @@
           <v-spacer></v-spacer>
 
           <template v-if="$vuetify.display.mdAndUp">
-            <v-tooltip text="Gọi video">
+            <!-- <v-tooltip text="Gọi video">
               <template v-slot:activator="{ props }">
                 <v-btn
                   v-bind="props"
@@ -75,7 +98,7 @@
                   @click="isCalling = true"
                 ></v-btn>
               </template>
-            </v-tooltip>
+            </v-tooltip> -->
 
             <v-tooltip text="Tìm kiếm tin nhắn">
               <template v-slot:activator="{ props }">
@@ -120,7 +143,7 @@
             >
               <template v-slot:prepend v-if="!mes.IsMine">
                 <v-avatar size="small" v-if="mes.isLatest" color="secondary">
-                  <v-img v-if="mes.LinkImage" :src="mes.Avatar"></v-img>
+                  <v-img v-if="mes.Avatar" :src="mes.Avatar"></v-img>
                   <v-icon v-else size="x-small">mdi-account</v-icon>
                 </v-avatar>
                 <v-avatar size="small" v-else></v-avatar>
@@ -128,7 +151,7 @@
 
               <template v-slot:append v-else>
                 <v-avatar size="small" color="blue" v-if="mes.isLatest">
-                  <v-img v-if="mes.LinkImage" :src="mes.Avatar"></v-img>
+                  <v-img v-if="mes.Avatar" :src="mes.Avatar"></v-img>
                   <v-icon v-else size="x-small">mdi-account</v-icon>
                 </v-avatar>
                 <v-avatar size="small" v-else></v-avatar>
@@ -311,7 +334,7 @@
             >
               <template v-slot:prepend>
                 <v-avatar size="small" color="secondary">
-                  <v-img v-if="message.LinkImage" :src="message.Avatar"></v-img>
+                  <v-img v-if="message.Avatar" :src="message.Avatar"></v-img>
                   <v-icon v-else size="x-small">mdi-account</v-icon>
                 </v-avatar>
               </template>
@@ -330,6 +353,60 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="showCreateGroupDialog" max-width="450px">
+      <v-card class="rounded-lg">
+        <v-card-title class="text-h6 font-weight-bold text-center"
+          >Tạo nhóm mới</v-card-title
+        >
+        <v-card-text>
+          <v-row class="mx-2">
+            <v-col cols="12">
+              <v-text-field
+                v-model="newGroupName"
+                label="Tên nhóm"
+                outlined
+                dense
+                placeholder="Nhập tên nhóm..."
+                prepend-inner-icon="mdi-account-group"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12">
+              <v-select
+                v-model="selectedUsers"
+                :items="allUsers"
+                item-text="name"
+                item-value="id"
+                label="Chọn thành viên"
+                multiple
+                outlined
+                dense
+                chips
+                small-chips
+                placeholder="Chọn thành viên..."
+                prepend-inner-icon="mdi-account-multiple"
+              ></v-select>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions class="d-flex justify-end pt-2">
+          <v-btn
+            variant="tonal"
+            color="grey"
+            size="small"
+            @click="showCreateGroupDialog = false"
+            >Hủy</v-btn
+          >
+          <v-btn
+            variant="tonal"
+            size="small"
+            color="primary"
+            @click="createNewChatGroup"
+            >Tạo</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
   <VideoCall
     v-if="isCalling"
@@ -344,7 +421,7 @@
 import {
   GetGroupLstByUserID,
   GetMessageByGoupID,
-  SendMessageChat,
+  SendMessage,
   urlUploadMessageFile,
 } from "@/api/messageApi";
 import { formatDateDisplay } from "@/helpers/getTime";
@@ -415,15 +492,28 @@ export default {
       showSearchDialog: false,
       searchResults: [],
       searchQuery: "",
+      showCreateGroupDialog: false,
+      newGroupName: "",
+      selectedUsers: [],
+      allUsers: [
+        { id: 1, name: "User 1" },
+        { id: 2, name: "User 2" },
+        { id: 3, name: "User 3" },
+      ],
     };
   },
   watch: {
     groupInfo() {
       this.getMessageByGoupID();
-      socket.emit("joinGroup", this.groupInfo.GroupID);
+      socket.emit("join:group", {
+        GroupID: this.groupInfo.GroupID,
+      });
     },
     searchGroup() {
       this.getGroupLstByUserID();
+    },
+    messageLst(newValue) {
+      console.log("123", newValue);
     },
   },
   methods: {
@@ -448,14 +538,13 @@ export default {
           IsMine: true,
           SizeFile: sizeFile,
         };
-        SendMessageChat({
+        SendMessage({
           Data: req,
         }).then((res) => {
           if (res.RespCode == 0) {
             Axios.post(urlUploadMessageFile(res.Data.MessageID), params).then(
               (resfile) => {
                 if (resfile.data.RespCode == 0) {
-                  socket.emit("sendMessage", res.Data);
                 } else {
                   notify({
                     title: "Lỗi",
@@ -463,7 +552,7 @@ export default {
                     type: "error",
                   });
                 }
-              }
+              },
             );
           }
         });
@@ -482,9 +571,6 @@ export default {
             return {
               ...item,
               TimeShow: this.calculateTimeDifference(item.TimeCreate),
-              LinkImage:
-                "https://sop.idtp.work/api/File/GetAvatarGroup?GroupID=" +
-                item.GroupID,
             };
           });
           if (this.groupLst.length > 0) {
@@ -527,7 +613,7 @@ export default {
           IsAttachment: 0,
           IsMine: true,
         };
-        SendMessageChat({
+        SendMessage({
           Data: req,
         }).then((res) => {
           if (res.RespCode == 0) {
@@ -656,6 +742,7 @@ export default {
           });
           this.messageLst = [...dataAll, ...this.messageLst]; // Prepend new messages
           this.messageLst = this.markLatestMessages(this.messageLst);
+
           this.currentPage += 1; // Update current page
         }
         this.loadingMore = false; // Reset loading state
@@ -695,69 +782,61 @@ export default {
         event.preventDefault();
       }
     },
+    openCreateGroupDialog() {
+      this.showCreateGroupDialog = true;
+    },
+    createNewChatGroup() {
+      if (!this.newGroupName.trim()) {
+        notify({ title: "Lỗi", text: "Vui lòng nhập tên nhóm", type: "error" });
+        return;
+      }
+
+      const newGroup = {
+        GroupID: Date.now(),
+        GroupName: this.newGroupName,
+        TextContent: "",
+        LastMessage: "Hãy bắt đầu cuộc trò chuyện",
+        TimeCreate: new Date().toISOString(),
+        UnreadCount: 0,
+        Avatar: null,
+        Members: this.selectedUsers,
+      };
+
+      this.groupLst.unshift(newGroup);
+      this.groupInfo = newGroup;
+      this.showCreateGroupDialog = false;
+      this.newGroupName = "";
+      this.selectedUsers = [];
+    },
   },
   created() {
+    socket.emit("join:user", {
+      UserID: this.senderID,
+    });
     this.getGroupLstByUserID();
-    socket.on("receiveMessage", (message) => {
+    socket.on("new_message", (message) => {
+      if (message.GroupID !== this.groupInfo.GroupID) return;
+
       const fullName = message.FullName ?? "noname";
-      const nameParts = fullName.split(" ");
-      const lastName =
-        nameParts[nameParts.length - 1] == ""
-          ? nameParts[nameParts.length - 2]
-          : nameParts[nameParts.length - 1];
-      if (
-        message.SenderID != this.senderID &&
-        message.GroupID == this.groupInfo.GroupID
-      ) {
-        this.messageLst.push({
-          ...message,
-          IsMine: false,
-          LinkFile:
-            message.IsAttachment != 0
-              ? "https://sop.idtp.work/api/File/GetMessageFile?MessageID=" +
-                message.MessageID
-              : null,
-          SizeFileText:
-            message.IsAttachment > 0
-              ? this.formatFileSize(message.SizeFile)
-              : null,
-          Avatar: message.LinkImage
-            ? "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
-              message.SenderID
-            : null,
-          LastName: lastName,
-        });
-        this.messageLst = this.markLatestMessages(this.messageLst);
-        this.groupInfo.TextContent = message.TextContent;
-        this.scrollBottom();
-        document.title = "Bạn có tin nhắn mới - " + this.groupInfo.GroupName;
-      }
-      if (
-        message.SenderID == this.senderID &&
-        message.GroupID == this.groupInfo.GroupID
-      ) {
-        this.messageLst.push({
-          ...message,
-          IsMine: true,
-          LinkFile:
-            message.IsAttachment != 0
-              ? "https://sop.idtp.work/api/File/GetMessageFile?MessageID=" +
-                message.MessageID
-              : null,
-          SizeFileText:
-            message.IsAttachment > 0
-              ? this.formatFileSize(message.SizeFile)
-              : null,
-          Avatar: message.LinkImage
-            ? "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
-              message.SenderID
-            : null,
-          LastName: lastName,
-        });
-        this.messageLst = this.markLatestMessages(this.messageLst);
-        this.groupInfo.TextContent = message.TextContent;
-        this.scrollBottom();
-      }
+      const lastName = fullName.split(" ").pop();
+
+      this.messageLst.push({
+        ...message,
+        IsMine: message.SenderID === this.senderID,
+        Avatar: message.LinkImage
+          ? `https://sop.idtp.work/api/File/GetAvatarUser?UserName=${message.SenderID}`
+          : null,
+        LinkFile: message.IsAttachment
+          ? `https://sop.idtp.work/api/File/GetMessageFile?MessageID=${message.MessageID}`
+          : null,
+        SizeFileText: message.IsAttachment
+          ? this.formatFileSize(message.SizeFile)
+          : null,
+        LastName: lastName,
+      });
+
+      this.messageLst = this.markLatestMessages(this.messageLst);
+      this.scrollBottom();
     });
   },
 };
@@ -783,7 +862,7 @@ export default {
 <style lang="scss">
 .custome-content {
   overflow-y: auto;
-  height: calc(100vh - 280px);
+  height: calc(100vh - 240px);
   &::-webkit-scrollbar-track-piece {
     margin: 20px;
   }
@@ -799,6 +878,7 @@ export default {
   }
 }
 .customText {
+  background: rgb(var(--v-theme-grey-50));
   .v-field__input {
     margin-right: 4px;
 

@@ -9,7 +9,7 @@
           Sản phẩm:
           {{
             productInfo.DocumentFormLineLst.find(
-              (p) => p.Parameter == "Tên sản phẩm"
+              (p) => p.Parameter == "Tên sản phẩm",
             )?.TextResult || ""
           }}
         </div>
@@ -107,10 +107,10 @@
               item.Status == 4
                 ? 'green'
                 : item.Status == 6
-                ? 'orange'
-                : item.Status == 0
-                ? 'red'
-                : 'blue'
+                  ? 'orange'
+                  : item.Status == 0
+                    ? 'red'
+                    : 'blue'
             "
             @click="selectDoc(item)"
           >
@@ -415,7 +415,7 @@ export default {
       if (fileExtension === ".pdf") {
         this.fileUrl = previewUrl;
         window.open(
-          "https://docs.google.com/gview?embedded=true&url=" + previewUrl
+          "https://docs.google.com/gview?embedded=true&url=" + previewUrl,
         );
       } else if (fileExtension === ".docx") {
         this.fileUrl = previewUrl;
@@ -489,7 +489,7 @@ export default {
       GetDefaultValue({ Table: "ProductStatus" }).then((res) => {
         if (res.RespCode == 0) {
           this.productStatusLst = res.DefaultValueLst.filter(
-            (p) => p.Status > 0
+            (p) => p.Status > 0,
           ).map((item) => {
             return {
               ...item,
@@ -525,7 +525,7 @@ export default {
       this.isShowAddNew = true;
       this.newDocument = {
         ProductName: this.productInfo.DocumentFormLineLst.find(
-          (p) => p.Parameter == "Tên sản phẩm"
+          (p) => p.Parameter == "Tên sản phẩm",
         )?.TextResult,
         ProductID: this.$route.params.id,
         DateRecept: new Date(),
@@ -552,6 +552,8 @@ export default {
       });
     },
     updateDocumentForm(data) {
+      if (this.isLoadingFile) return;
+      this.isLoadingFile = true;
       var dataLine = data.DocumentFormLineLst.map((item) => {
         if (item.Type == 2 || item.Type == 3) {
           let textArr = [];
@@ -610,6 +612,7 @@ export default {
         },
       }).then((res) => {
         if (res.RespCode == 0) {
+          this.getDocumentFormByID();
           notify({
             title: "Thành công",
             text: "Cập nhật thành công",
@@ -661,6 +664,7 @@ export default {
           this.productInfo = {
             ...item,
           };
+          this.isLoadingFile = false;
           this.getDocumentByProID(this.$route.params.id);
         }
       });
@@ -731,7 +735,7 @@ export default {
                 DateRecept: formatDateDisplayDDMMYY(item.DateRecept),
                 DateExpired: formatDateDisplayDDMMYY(item.DateExpired),
               };
-            }
+            },
           );
         }
       });
@@ -742,7 +746,7 @@ export default {
           if (res.RespCode == 0) {
             this.proceduceLst = res.Data;
           }
-        }
+        },
       );
     },
   },

@@ -48,9 +48,9 @@ export function DelMemberGroup(data) {
   });
 }
 
-export function SendMessageChat(data) {
+export function SendMessage(data) {
   return request({
-    url: "messages/SendMessageChat",
+    url: "messages/SendMessage",
     method: "post",
     data,
   });

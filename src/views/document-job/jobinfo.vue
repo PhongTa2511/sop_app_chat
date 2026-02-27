@@ -1232,6 +1232,7 @@ export default {
       });
     },
     updateDocumentForm(data) {
+      if (this.isLoadingFile) return;
       this.isLoadingFile = true;
       var docForm = {
         ...data,
@@ -1328,13 +1329,13 @@ export default {
         DocumentFormInfo: docForm,
       })
         .then((res) => {
-          this.isLoadingFile = false;
           if (res.RespCode == 0) {
             notify({
               title: "Thành công",
               text: "Lưu thông tin thành công",
               type: "success",
             });
+            this.getDocumentFormByDocID();
           }
         })
         .catch(() => {
@@ -1888,6 +1889,7 @@ export default {
         if (this.formTabLst.length > 0) {
           this.tab = this.formTabLst[0];
         }
+        this.isLoadingFile = false;
       }
     },
     async getUserLstByTeamID(teamID) {

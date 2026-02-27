@@ -88,10 +88,6 @@ const router = createRouter({
           path: "quoc-gia",
           component: () => import("@/views/country/law.vue"),
         },
-        // {
-        //   path: "lich-lam-viec",
-        //   component: () => import("../pages/calendar.vue"),
-        // },
       ],
     },
     {
@@ -102,18 +98,10 @@ const router = createRouter({
           path: "dang-nhap",
           component: () => import("../pages/login.vue"),
         },
-        // {
-        //   path: "dang-ky",
-        //   component: () => import("../pages/register.vue"),
-        // },
         {
           path: "khieu-nai",
           component: () => import("../pages/complaint.vue"),
         },
-        // {
-        //   path: "/:pathMatch(.*)*",
-        //   component: () => import("../pages/404.vue"),
-        // },
         {
           path: "/404",
           component: () => import("@/pages/404.vue"),

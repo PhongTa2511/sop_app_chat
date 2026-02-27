@@ -277,7 +277,7 @@ export default {
     },
     "newProduct.Country"(value) {
       this.newProduct.Area = this.areaLst.find(
-        (p) => p.ValueName == value
+        (p) => p.ValueName == value,
       ).ValueName2;
     },
   },
@@ -304,7 +304,7 @@ export default {
       try {
         // 1️⃣ Lấy giá trị "Quốc gia"
         const country = this.newProduct.FormLineLst.find(
-          (p) => p.Parameter === "Quốc gia"
+          (p) => p.Parameter === "Quốc gia",
         )?.TextResult;
 
         // 2️⃣ Gọi GetDefaultValue và chờ kết quả
@@ -318,7 +318,7 @@ export default {
           resDefault.DefaultValueLst.length > 0
         ) {
           const areaField = this.newProduct.FormLineLst.find(
-            (p) => p.Parameter === "Khu vực"
+            (p) => p.Parameter === "Khu vực",
           );
           if (areaField) {
             areaField.TextResult = resDefault.DefaultValueLst[0].ValueName2;
@@ -329,17 +329,17 @@ export default {
         const productData = {
           ...this.newProduct,
           ProductName: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter === "Tên sản phẩm"
+            (p) => p.Parameter === "Tên sản phẩm",
           )?.TextResult,
           ProductExport: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter === "Tên xuất khẩu"
+            (p) => p.Parameter === "Tên xuất khẩu",
           )?.TextResult,
           Country: country,
           StoreType: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter === "Phân loại"
+            (p) => p.Parameter === "Phân loại",
           )?.TextResult,
           Area: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter === "Khu vực"
+            (p) => p.Parameter === "Khu vực",
           )?.TextResult,
         };
 
@@ -479,6 +479,7 @@ export default {
       return [];
     },
     updateDocumentForm(data) {
+      if (this.isLoadingFile) return;
       this.isLoadingFile = true;
       var docForm = {
         ...data,
@@ -558,6 +559,7 @@ export default {
               text: "Lưu thông tin thành công",
               type: "success",
             });
+            this.getProductLst();
           }
         })
         .catch(() => {
