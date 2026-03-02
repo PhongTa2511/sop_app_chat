@@ -33,6 +33,16 @@
           </span>
           <span>
             <v-text-field
+              v-model="searchProcedureName"
+              label="Quy trình"
+              hide-details
+              style="width: 150px !important"
+              clearable
+            ></v-text-field>
+          </span>
+
+          <span>
+            <v-text-field
               v-model="searchJobName"
               label="Công việc"
               hide-details
@@ -84,6 +94,14 @@
             size="small"
             @click="getGSPDocumentLst"
           ></v-btn>
+          <v-btn
+            color="green"
+            variant="tonal"
+            icon="mdi-microsoft-excel"
+            size="small"
+            @click="btExportExcel"
+          >
+          </v-btn>
         </div>
       </template>
       <template v-slot:item.Status="{ item }">
@@ -92,25 +110,41 @@
         >
       </template>
       <template v-slot:item.Action="{ item }">
-        <v-icon
+        <v-btn
           color="green"
           class="me-2"
-          size="small"
+          size="x-small"
           style="cursor: pointer"
           @click="btShowProcess(item)"
-          >mdi-progress-check</v-icon
-        >
+          icon="mdi-progress-check"
+        ></v-btn>
+      </template>
+      <template v-slot:item.DocumentID="{ item }">
+        <div>
+          {{ item.Key }}.
+          {{ item.DocName }}
+        </div>
+        <v-chip size="x-small" color="blue">
+          {{ item.DocumentID }}
+        </v-chip>
+      </template>
+      <template v-slot:item.Time="{ item }">
+        <v-chip size="x-small" color="blue">
+          {{ item.TimeCreateShow }}
+        </v-chip>
+        <v-chip size="x-small" color="green">
+          {{ item.DateExpiredShow }}
+        </v-chip>
       </template>
       <template v-slot:item.Key="{ item }">
-        {{ item.Key }}
-        <v-icon
+        <v-btn
           color="orange"
           class="me-2"
-          size="small"
+          size="x-small"
           style="cursor: pointer"
           @click="btPushToDocinfo(item)"
-          >mdi-note-edit</v-icon
-        >
+          icon="mdi-note-edit"
+        ></v-btn>
       </template>
     </v-data-table-server>
   </v-card>
@@ -290,8 +324,8 @@
   <v-dialog v-model="isShowCreateDocument" max-width="600">
     <v-card>
       <v-card-title>Tạo hồ sơ mới</v-card-title>
-      <v-card-text>
-        <v-select
+      <v-card-text class="py-0">
+        <v-autocomplete
           placeholder="Chọn loại quy trình"
           density="compact"
           v-model="createDocument.TypeDoc"
@@ -300,7 +334,10 @@
           item-title="ProcedureName"
           chips
           class="mb-2"
-        ></v-select>
+          filterable
+          clearable
+          hide-details=""
+        ></v-autocomplete>
         <v-textarea
           v-model="createDocument.Note"
           label="Mô tả"
@@ -358,6 +395,8 @@ import {
   fetchXlsxContent,
   isPreviewSupported,
 } from "@/utils/function";
+import { exportExcel2 } from "./function";
+
 export default {
   data() {
     return {
@@ -365,6 +404,7 @@ export default {
       searchJobName: "",
       searchNote: "",
       searchEmployeeName: "",
+      searchProcedureName: "",
       fileLst: [],
       rowspPage: 10,
       pageNumber: 1,
@@ -391,19 +431,18 @@ export default {
       workInfo: {},
       headers: [
         {
-          title: "STT",
+          title: "",
           sortable: false,
           key: "Key",
           align: "center",
-          width: 80,
         },
         { title: "Mã hồ sơ", key: "DocumentID", sortable: false },
-        { title: "Quy trình", key: "DocName", sortable: false },
+        // { title: "Quy trình", key: "DocName", sortable: false },
         { title: "Công việc", key: "JobName", sortable: false },
         { title: "Hồ sơ", key: "Note", sortable: false },
         {
-          title: "Deadline",
-          key: "DateExpiredShow",
+          title: "Thời gian",
+          key: "Time",
           sortable: false,
           width: 100,
         },
@@ -435,6 +474,9 @@ export default {
     },
   },
   methods: {
+    btExportExcel() {
+      exportExcel2(this.fileLst);
+    },
     btPage(data) {
       this.pageNumber = data;
     },
@@ -514,6 +556,7 @@ export default {
         "",
         "",
         "",
+        this.searchProcedureName,
       ].join("|");
       GetGSPDocumentLst({
         PageNumber: this.pageNumber,
@@ -527,6 +570,8 @@ export default {
             ...item,
             Key: index + 1 + num,
             DateExpiredShow: formatDateDisplayDDMMYY(item.DateExpired),
+            TimeCreateShow: formatDateDisplayDDMMYY(item.TimeCreate),
+            StatusShow: this.getStatus(item.Status).text,
           };
         });
         this.totalLength = res.TotalRows;

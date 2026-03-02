@@ -83,6 +83,7 @@ const getAccountLst = () => {
         return {
           ...item,
           Key: index + 1 + num,
+          TextShow: item.FullName + " - " + item.PhoneNumber,
         };
       });
       if (employeeLst.value.length > 0) {
@@ -141,9 +142,9 @@ watch([employeeSelect], ([newEmployee]) => {
       <h6 class="text-h6">DANH SÁCH PHÂN QUYỀN</h6>
     </v-card-title>
     <VCardText class="pb-0 px-4">
-      Tích chọn các quyền bạn muốn cấp cho tài khoản.
+      <!-- Tích chọn các quyền bạn muốn cấp cho tài khoản. -->
       <!-- <a href="javascript:void(0)">Request Permission</a> -->
-      <div class="mt-3 d-flex">
+      <div class="d-flex">
         <span>
           <v-autocomplete
             placeholder="Chọn nhân viên"
@@ -152,7 +153,7 @@ watch([employeeSelect], ([newEmployee]) => {
             v-model="employeeSelect"
             :items="employeeLst"
             item-value="PhoneNumber"
-            item-title="FullName"
+            item-title="TextShow"
             chips
             style="width: 320px"
             class="mr-2"

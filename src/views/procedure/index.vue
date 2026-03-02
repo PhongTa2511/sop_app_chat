@@ -96,11 +96,18 @@
       <div class="d-flex" style="justify-content: space-between">
         <h6 class="text-h6">DANH SÁCH QUY TRÌNH</h6>
         <div class="d-flex">
+          <span style="width: 250px">
+            <v-text-field
+              v-model="searchProcedure"
+              label="Tìm kiếm"
+            ></v-text-field>
+          </span>
+
           <v-btn
             color="blue"
             icon="mdi-file-document-multiple"
             size="small"
-            class="mr-1"
+            class="mx-1"
             @click="btShowCopyProcedure"
           ></v-btn>
           <v-btn
@@ -225,14 +232,17 @@
     <v-card>
       <v-card-title>Nhân bản quy trình</v-card-title>
       <v-card-text>
-        <v-select
+        <v-autocomplete
           v-model="selectedProcedureToCopy"
           :items="desserts"
           item-title="ProcedureName"
           item-value="ProcedureID"
           label="Chọn quy trình để nhân bản"
           placeholder="Chọn quy trình"
-        ></v-select>
+          filterable
+          clearable
+          hide-details=""
+        ></v-autocomplete>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
@@ -296,6 +306,7 @@ export default {
       isShowCopyProcedure: false,
       selectedProcedureToCopy: null,
       teamlst: [],
+      searchProcedure: "",
     };
   },
   watch: {
@@ -303,6 +314,9 @@ export default {
       this.getProcedure();
     },
     rowspPage(newValue) {
+      this.getProcedure();
+    },
+    searchProcedure() {
       this.getProcedure();
     },
   },
@@ -374,9 +388,6 @@ export default {
       this.createProcedure = {};
     },
     btCreateProcedure() {
-      console.log("Anhthanhf", this.createProcedure.TeamLst?.join(","));
-
-      // return;
       if (this.createProcedure.ProcedureName) {
         CreateProcedure({
           ProcedureInfo: {
@@ -464,7 +475,7 @@ export default {
       GetProcedureLst({
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
-        Search: "",
+        Search: this.searchProcedure,
       }).then((res) => {
         if (res.RespCode == 0) {
           var num = (this.pageNumber - 1) * this.rowspPage;

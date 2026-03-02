@@ -8,7 +8,7 @@
             <v-text-field
               v-model="search"
               label="Tìm kiếm"
-              class="mx-2"
+              class="mx-1"
               variant="outlined"
               hide-details
               density="compact"
@@ -17,9 +17,15 @@
               clearable
             ></v-text-field>
           </span>
-
           <v-btn
             color="blue"
+            @click="getUserLst"
+            icon="mdi-reload"
+            size="small"
+            class="mr-1"
+          ></v-btn>
+          <v-btn
+            color="green"
             @click="btShowCreate"
             icon="mdi-account-plus"
             size="small"
@@ -158,13 +164,16 @@
       <v-card-text>
         <v-row>
           <v-col cols="12">
-            <v-select
+            <v-autocomplete
               label="Nhóm"
               v-model="teamRoleUser.TeamID"
               :items="teamLst"
               item-value="TeamID"
               item-title="TeamName"
-            ></v-select>
+              filterable
+              clearable
+              hide-details=""
+            ></v-autocomplete>
           </v-col>
           <v-col cols="12">
             <v-select
@@ -269,13 +278,13 @@ export default {
   methods: {
     btRemoveTeam(data) {
       this.updateAccount.Data = this.updateAccount.Data.filter(
-        (p) => p.TeamID != data.TeamID
+        (p) => p.TeamID != data.TeamID,
       );
     },
     btAddTeam() {
       if (this.teamRoleUser.TeamID && this.teamRoleUser.Role) {
         const existingTeamIndex = this.updateAccount.Data.findIndex(
-          (p) => p.TeamID == this.teamRoleUser.TeamID
+          (p) => p.TeamID == this.teamRoleUser.TeamID,
         );
 
         if (existingTeamIndex !== -1) {
@@ -289,7 +298,7 @@ export default {
           this.updateAccount.Data.push({
             ...this.teamRoleUser,
             TeamName: this.teamLst.find(
-              (p) => p.TeamID == this.teamRoleUser.TeamID
+              (p) => p.TeamID == this.teamRoleUser.TeamID,
             ).TeamName,
           });
         }

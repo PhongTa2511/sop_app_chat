@@ -522,6 +522,7 @@ export default {
         this.searchCountry,
         this.searchCustomer,
         this.sortDeadline,
+        "",
       ].join("|");
 
       GetGSPDocumentLst({

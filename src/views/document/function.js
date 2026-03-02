@@ -2,7 +2,7 @@ export function formatJson(filterVal, jsonData) {
   return jsonData.map((v) =>
     filterVal.map((j) => {
       return v[j.key];
-    })
+    }),
   );
 }
 export function formatHeader(headerData) {
@@ -41,7 +41,7 @@ export function excelDateToJSDate(serial) {
     date_info.getDate(),
     hours,
     minutes,
-    seconds
+    seconds,
   );
 }
 
@@ -62,4 +62,57 @@ var username = getUserName();
 
 export function urlUploadFileFormLine(idForm, documentid) {
   return `https://sop.idtp.work/api/File/UploadDocumentFormLine?UserName=${username}&Token=${token}&idForm=${idForm}&documentid=${documentid}`;
+}
+
+export function exportExcel2(dataDoc) {
+  var headers = [
+    { title: "Mã hồ sơ", key: "DocumentID", sortable: false, align: "center" },
+    { title: "Quy trình", key: "DocName", sortable: false, align: "center" },
+    {
+      title: "Công việc",
+      key: "JobName",
+      sortable: false,
+      align: "center",
+    },
+    {
+      title: "Hồ sơ",
+      key: "Note",
+      sortable: false,
+      align: "center",
+    },
+    {
+      title: "Tiếp nhận",
+      key: "DateRecept",
+      sortable: false,
+      align: "center",
+    },
+    {
+      title: "Deadline",
+      key: "DateExpired",
+      sortable: false,
+      align: "center",
+    },
+    {
+      title: "Trạng thái",
+      key: "StatusShow",
+      sortable: false,
+      align: "center",
+    },
+    {
+      title: "Nhân viên",
+      key: "EmployeeName",
+      sortable: false,
+      align: "center",
+    },
+  ];
+  import("@/vendor/Export2Excel").then((excel) => {
+    const data = formatJson(headers, dataDoc);
+    excel.export_json_to_excel({
+      header: formatHeader(headers),
+      data: data,
+      filename: "Danh sách hồ sơ",
+      autoWidth: true,
+      bookType: "xlsx",
+    });
+  });
 }

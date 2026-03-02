@@ -15,11 +15,17 @@
         <div class="ml-4 mt-2">
           <v-icon color="blue" size="small">mdi-note</v-icon> Mô tả:
           {{ docInfo.Note }}
+          <v-btn
+            color="warning"
+            size="x-small"
+            icon="mdi-edit"
+            @click="isShowUpdateNote = true"
+          ></v-btn>
         </div>
         <div class="ml-4 mt-2">
           <v-icon color="blue" size="small">mdi-clipboard-text-clock</v-icon>
           Hạn xử lý:
-          {{ docInfo.DateExpired }}
+          {{ formatDateDDMMYY(docInfo.DateExpired) }}
         </div>
       </div>
       <div>
@@ -1401,6 +1407,25 @@
       </v-card-actions>
     </v-card>
   </v-dialog>
+  <v-dialog v-model="isShowUpdateNote" width="600">
+    <v-card>
+      <v-card-title>Cập nhật mô tả</v-card-title>
+      <v-card-text>
+        <v-textarea
+          v-model="docInfo.Note"
+          label="Nhập mô tả"
+          variant="outlined"
+        ></v-textarea>
+      </v-card-text>
+
+      <v-card-actions>
+        <v-btn @click="isShowUpdateNote = false">Đóng</v-btn>
+        <v-btn color="green" @click="updateGSPDocument(this.docInfo.Status)"
+          >Xác nhận</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
@@ -1426,7 +1451,11 @@ import { GetProductLst } from "@/api/productApi";
 import { GetTeamLstDocID, GetTeamLstProID } from "@/api/teamApi";
 import { GetUserLstByTeamID } from "@/api/user";
 import logo from "@/assets/images/logos/dtp-logo.png";
-import { formatDate, formatDateHHDDMM } from "@/helpers/getTime";
+import {
+  formatDate,
+  formatDateDDMMYY,
+  formatDateHHDDMM,
+} from "@/helpers/getTime";
 import {
   downloadFile,
   fetchDoc,
@@ -1515,6 +1544,8 @@ export default {
         VND: 25450,
       },
       editingField: null,
+      isShowUpdateNote: false,
+      isLoadding: false,
     };
   },
   watch: {
@@ -2129,6 +2160,7 @@ export default {
             text: "Cập nhật thành công",
             type: "success",
           });
+          this.isShowUpdateNote = false;
         } else {
           notify({
             title: "Lỗi",
@@ -2267,6 +2299,8 @@ export default {
       });
     },
     btAddUserInWork(data) {
+      if (this.isLoadding) return;
+      this.isLoadding = true;
       const asi = [];
       const hasJob = data.UserJob && data.UserJob.UserID; // có chọn người xử lý?
       const hasMana = data.UserMana && data.UserMana.UserID; // có chọn người phê duyệt?
@@ -2329,17 +2363,23 @@ export default {
         StepID: data.StepID,
         WorkID: data.WorkID,
         AssignLst: asi,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          notify({
-            title: "Thành công",
-            text: "Gán nhân sự thành công",
-            type: "success",
-          });
-        }
-      });
+      })
+        .then((res) => {
+          if (res.RespCode == 0) {
+            notify({
+              title: "Thành công",
+              text: "Gán nhân sự thành công",
+              type: "success",
+            });
+          }
+        })
+        .finally(() => {
+          this.isLoadding = false;
+        });
     },
     btAddUserInWork2(data) {
+      if (this.isLoadding) return;
+      this.isLoadding = true;
       const asi = [];
       const hasJob = data.UserJob && data.UserJob.UserID; // có chọn người xử lý?
       const hasMana = data.UserMana && data.UserMana.UserID; // có chọn người phê duyệt?
@@ -2402,15 +2442,19 @@ export default {
         StepID: data.StepID,
         WorkID: data.WorkID,
         AssignLst: asi,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          notify({
-            title: "Thành công",
-            text: "Gán nhân sự thành công",
-            type: "success",
-          });
-        }
-      });
+      })
+        .then((res) => {
+          if (res.RespCode == 0) {
+            notify({
+              title: "Thành công",
+              text: "Gán nhân sự thành công",
+              type: "success",
+            });
+          }
+        })
+        .finally(() => {
+          this.isLoadding = false;
+        });
     },
     async getDocumentFormByDocID() {
       const res = await GetDocumentFormByDocID({
@@ -2681,6 +2725,7 @@ export default {
       this.isShowCancelDialog = false;
       this.updateGSPDocument(0);
     },
+    formatDateDDMMYY,
   },
   created() {
     this.getDocumentInfoByID();
