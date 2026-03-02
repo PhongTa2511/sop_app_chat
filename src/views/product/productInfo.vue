@@ -610,22 +610,26 @@ export default {
           ...data,
           DocumentFormLineLst: dataLine,
         },
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.getDocumentFormByID();
-          notify({
-            title: "Thành công",
-            text: "Cập nhật thành công",
-            type: "success",
-          });
-        } else {
-          notify({
-            title: "Lỗi",
-            text: res.RespText,
-            type: "error",
-          });
-        }
-      });
+      })
+        .then((res) => {
+          if (res.RespCode == 0) {
+            this.getDocumentFormByID();
+            notify({
+              title: "Thành công",
+              text: "Cập nhật thành công",
+              type: "success",
+            });
+          } else {
+            notify({
+              title: "Lỗi",
+              text: res.RespText,
+              type: "error",
+            });
+          }
+        })
+        .finally(() => {
+          this.isLoadingFile = false;
+        });
     },
     getDocumentFormByID() {
       GetDocumentFormByProductID({
