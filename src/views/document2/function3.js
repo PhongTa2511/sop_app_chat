@@ -2,7 +2,7 @@ export function formatJson(filterVal, jsonData) {
   return jsonData.map((v) =>
     filterVal.map((j) => {
       return v[j.key];
-    })
+    }),
   );
 }
 export function formatHeader(headerData) {
@@ -13,49 +13,42 @@ export function formatHeader(headerData) {
 export function exportExcel(dataDoc) {
   var headers = [
     { title: "Mã hồ sơ", key: "DocumentID", sortable: false, align: "center" },
-    { title: "DocName", key: "DocName", sortable: false, align: "center" },
+    { title: "Quy trình", key: "DocName", sortable: false, align: "center" },
     {
       title: "Mã sản phẩm",
-      key: "WarehouseID",
+      key: "ProductID",
       sortable: false,
       align: "center",
     },
     {
       title: "Tên sản phẩm",
-      key: "WarehouseName",
+      key: "ProductName",
       sortable: false,
       align: "center",
     },
     {
       title: "Tên xuất khẩu",
-      key: "Name2",
+      key: "ProductExport",
       sortable: false,
       align: "center",
     },
     {
-      title: "Khu vực",
-      key: "Area",
+      title: "Loại sản phẩm",
+      key: "ProductType",
       sortable: false,
       align: "center",
     },
     { title: "Nước XK", key: "Country", sortable: false, align: "center" },
-    { title: "Khách", key: "CusName", sortable: false, align: "center" },
+    {
+      title: "Công việc",
+      key: "JobName",
+      sortable: false,
+      align: "center",
+    },
 
     {
-      title: "Phân loại",
-      key: "StoreType",
-      sortable: false,
-      align: "center",
-    },
-    {
-      title: "Quy cách",
-      key: "Package",
-      sortable: false,
-      align: "center",
-    },
-    {
-      title: "Ngày tạo",
-      key: "TimeCreate",
+      title: "Tiếp nhận",
+      key: "DateRecept",
       sortable: false,
       align: "center",
     },
@@ -66,13 +59,13 @@ export function exportExcel(dataDoc) {
       align: "center",
     },
     {
-      title: "Ngày làm việc",
+      title: "Đã làm (ngày)",
       key: "DaysWorked",
       sortable: false,
       align: "center",
     },
     {
-      title: "Quá hạn",
+      title: "Quá hạn (ngày)",
       key: "DaysRemaining",
       sortable: false,
       align: "center",
@@ -86,30 +79,6 @@ export function exportExcel(dataDoc) {
     {
       title: "Nhân viên",
       key: "EmployeeName",
-      sortable: false,
-      align: "center",
-    },
-    {
-      title: "Barcode",
-      key: "Barcode",
-      sortable: false,
-      align: "center",
-    },
-    {
-      title: "Design",
-      key: "Design",
-      sortable: false,
-      align: "center",
-    },
-    {
-      title: "Quy trình",
-      key: "StepID",
-      sortable: false,
-      align: "center",
-    },
-    {
-      title: "Phân loại hồ sơ",
-      key: "Conclusion",
       sortable: false,
       align: "center",
     },
