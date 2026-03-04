@@ -34,7 +34,6 @@
               v-for="folder in groupLst"
               :key="folder.GroupID"
               :subtitle="folder.TextContent"
-              :title="folder.GroupName ? folder.GroupName : folder.DocumentID"
               :value="folder"
               color="blue"
               variant="text"
@@ -52,8 +51,19 @@
                   <v-icon v-else>mdi-account-supervisor</v-icon>
                 </v-avatar>
               </template>
+              <template v-slot:title>
+                <div class="text-bold" style="font-weight: 700">
+                  {{ folder.GroupName ? folder.GroupName : folder.DocumentID }}
+                </div>
+              </template>
               <template v-slot:subtitle>
-                {{ folder.LastMessage ?? "Hãy bắt đầu cuộc trò chuyện" }}
+                <div class="text-xs text-gray-700">
+                  {{
+                    folder.NewMessage ??
+                    folder.LastMessage ??
+                    "Hãy bắt đầu cuộc trò chuyện"
+                  }}
+                </div>
               </template>
               <template v-slot:append v-if="folder.TimeCreate">
                 <v-badge
@@ -246,6 +256,35 @@
               background: rgb(var(--v-theme-background-overlay-multiplier));
             "
           >
+            <v-expand-transition>
+              <div
+                v-if="replyingTo"
+                class="reply-preview-bar d-flex align-center px-4 py-2 bg-grey-lighten-4 rounded-t-xl border-b"
+              >
+                <v-icon size="small" color="blue" class="mr-2"
+                  >mdi-reply</v-icon
+                >
+                <div class="flex-grow-1 overflow-hidden">
+                  <div class="text-caption font-weight-bold text-blue">
+                    Đang trả lời
+                    {{ replyingTo.NickName || replyingTo.LastName }}
+                  </div>
+                  <div class="text-truncate text-body-2 text-grey-darken-1">
+                    {{
+                      replyingTo.IsAttachment == 1
+                        ? "[Hình ảnh]"
+                        : replyingTo.TextContent
+                    }}
+                  </div>
+                </div>
+                <v-btn
+                  icon="mdi-close"
+                  size="x-small"
+                  variant="text"
+                  @click="replyingTo = null"
+                ></v-btn>
+              </div>
+            </v-expand-transition>
             <v-btn
               icon="mdi-link-variant"
               rounded="pill"
@@ -305,6 +344,7 @@
             </v-btn>
           </div>
         </v-main>
+
         <v-navigation-drawer
           v-model="drawerRight"
           :width="300"
@@ -353,60 +393,76 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="showCreateGroupDialog" max-width="450px">
-      <v-card class="rounded-lg">
-        <v-card-title class="text-h6 font-weight-bold text-center"
-          >Tạo nhóm mới</v-card-title
-        >
-        <v-card-text>
-          <v-row class="mx-2">
-            <v-col cols="12">
-              <v-text-field
-                v-model="newGroupName"
-                label="Tên nhóm"
-                outlined
-                dense
-                placeholder="Nhập tên nhóm..."
-                prepend-inner-icon="mdi-account-group"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12">
-              <v-select
-                v-model="selectedUsers"
-                :items="allUsers"
-                item-text="name"
-                item-value="id"
-                label="Chọn thành viên"
-                multiple
-                outlined
-                dense
-                chips
-                small-chips
-                placeholder="Chọn thành viên..."
-                prepend-inner-icon="mdi-account-multiple"
-              ></v-select>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions class="d-flex justify-end pt-2">
-          <v-btn
-            variant="tonal"
-            color="grey"
-            size="small"
-            @click="showCreateGroupDialog = false"
-            >Hủy</v-btn
+    <div v-if="showCreateGroupDialog" class="fb-dialog-overlay">
+      <div class="fb-dialog">
+        <div class="fb-header">
+          <h3>Tạo đoạn chat mới</h3>
+          <button class="close-btn" @click="showCreateGroupDialog = false">
+            &times;
+          </button>
+        </div>
+
+        <div class="fb-search-container">
+          <div class="selected-users-wrapper">
+            <span class="to-label">Đến:</span>
+            <div
+              v-for="user in selectedUsers"
+              :key="user.UserName"
+              class="fb-chip"
+            >
+              {{ user.FullName }}
+              <span class="remove-chip" @click="removeUser(user)">&times;</span>
+            </div>
+            <input
+              type="text"
+              v-model="searchUser"
+              @input="onSearchChange"
+              placeholder="Tìm kiếm người dùng..."
+              ref="searchInput"
+              class="w-100 px-4 py-2"
+            />
+          </div>
+        </div>
+
+        <div class="fb-user-list" @scroll="onScroll">
+          <div
+            v-for="item in desserts"
+            :key="item.UserName"
+            class="fb-user-item"
+            :class="{ selected: isSelected(item) }"
+            @click="toggleUser(item)"
           >
-          <v-btn
-            variant="tonal"
-            size="small"
-            color="primary"
+            <div class="fb-avatar">
+              {{ item.FullName.charAt(0) }}
+            </div>
+            <div class="fb-user-info">
+              <div class="fb-user-name">{{ item.FullName }}</div>
+              <div class="fb-user-sub">
+                {{ item.Email }}
+              </div>
+            </div>
+            <div class="fb-checkbox">
+              <div class="circle" :class="{ checked: isSelected(item) }"></div>
+            </div>
+          </div>
+
+          <div class="list-footer">
+            <div v-if="loading" class="fb-spinner"></div>
+            <!-- <span v-else-if="allLoaded">Đã hiển thị tất cả</span> -->
+          </div>
+        </div>
+
+        <div class="fb-footer">
+          <button
+            class="fb-btn-primary"
+            :disabled="selectedUsers.length === 0"
             @click="createNewChatGroup"
-            >Tạo</v-btn
           >
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+            Tạo nhóm chat
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
   <VideoCall
     v-if="isCalling"
@@ -419,11 +475,14 @@
 <script>
 // import { sendMessage, onMessage, onMessage2 } from "@/socket";
 import {
+  CreateGroup,
   GetGroupLstByUserID,
   GetMessageByGoupID,
+  ReadMessage,
   SendMessage,
   urlUploadMessageFile,
 } from "@/api/messageApi";
+import { GetUserLstAll } from "@/api/user";
 import { formatDateDisplay } from "@/helpers/getTime";
 import socket from "@/socket";
 import { getUserName } from "@/utils/auth";
@@ -495,11 +554,15 @@ export default {
       showCreateGroupDialog: false,
       newGroupName: "",
       selectedUsers: [],
-      allUsers: [
-        { id: 1, name: "User 1" },
-        { id: 2, name: "User 2" },
-        { id: 3, name: "User 3" },
-      ],
+      allUsers: [],
+      pageSize: 10,
+      pageUser: 1,
+      searchUser: "",
+      desserts: [], // Danh sách hiển thị trong autocomplete
+      loading: false, // Trạng thái đang tải
+      allLoaded: false, // Đã tải hết sạch dữ liệu chưa
+      timeout: null, // Dùng để debounce tìm kiếm
+      replyingTo: null,
     };
   },
   watch: {
@@ -517,6 +580,142 @@ export default {
     },
   },
   methods: {
+    // Kiểm tra có nên hiện tên người gửi không (giống messenger: gom nhóm tin nhắn)
+    showSenderName(mes, index) {
+      if (mes.IsMine) return false;
+      if (index === 0) return true;
+      return this.messageLst[index - 1].SenderID !== mes.SenderID;
+    },
+
+    // Khi nhấn nút Reply
+    setReply(message) {
+      this.replyingTo = message;
+      // Tìm đến textarea và focus (giả định bạn dùng ref)
+      this.$nextTick(() => {
+        const el = document.querySelector(
+          ".custom-textarea-messenger textarea",
+        );
+        if (el) el.focus();
+      });
+    },
+
+    // Lấy tên của người được reply
+    getReplyName(replyToID) {
+      const original = this.messageLst.find((m) => m.MessageID === replyToID);
+      return original ? original.NickName || original.LastName : "Người dùng";
+    },
+
+    // Lấy nội dung xem trước của tin nhắn gốc
+    getReplyContent(replyToID) {
+      const original = this.messageLst.find((m) => m.MessageID === replyToID);
+      if (!original) return "Tin nhắn đã bị xóa";
+      if (original.IsAttachment == 1) return "📸 Hình ảnh";
+      if (original.IsAttachment == 2) return "📁 Tệp đính kèm";
+      return original.TextContent;
+    },
+
+    // Cuộn đến tin nhắn gốc khi nhấn vào bong bóng reply
+    scrollToMessage(id) {
+      const el = document.getElementById(`msg-${id}`); // Bạn nên thêm id="msg-..." vào v-list-item
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    },
+
+    markAsRead(groupId) {
+      if (!groupId) return;
+      ReadMessage({
+        GroupID: groupId,
+      })
+        .then((res) => {
+          if (res.RespCode == 0) {
+            const group = this.groupLst.find((g) => g.GroupID === groupId);
+            if (group) {
+              group.UnreadCount = 0;
+            }
+            // Tùy chọn: Gửi socket nếu server cần đồng bộ các tab khác
+            // socket.emit("read_message", params);
+          }
+        })
+        .catch((err) => {
+          console.error("Lỗi khi đọc tin nhắn:", err);
+        });
+    },
+    getUserLst(isNewSearch = false) {
+      if (this.loading) return;
+      if (isNewSearch) {
+        this.pageUser = 1;
+        this.allLoaded = false;
+      }
+      if (this.allLoaded && !isNewSearch) return;
+      this.loading = true;
+      GetUserLstAll({
+        Search: this.searchUser,
+        PageNumber: this.pageUser,
+        RowspPage: this.pageSize,
+      })
+        .then((res) => {
+          if (res.RespCode == 0) {
+            const newData = res.Data || [];
+            const mappedData = newData.map((item, index) => {
+              const startIndex = this.pageSize * (this.pageUser - 1);
+              return {
+                ...item,
+                Key: index + 1 + startIndex,
+              };
+            });
+            if (isNewSearch) {
+              this.desserts = mappedData;
+            } else {
+              this.desserts = [...this.desserts, ...mappedData];
+            }
+            if (newData.length < this.pageSize) {
+              this.allLoaded = true;
+            } else {
+              this.pageUser++;
+            }
+          }
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
+    isSelected(user) {
+      return this.selectedUsers.some((u) => u.UserName === user.UserName);
+    },
+    toggleUser(user) {
+      const index = this.selectedUsers.findIndex(
+        (u) => u.UserName === user.UserName,
+      );
+      if (index > -1) {
+        this.selectedUsers.splice(index, 1);
+      } else {
+        this.selectedUsers.push(user);
+      }
+      this.searchUser = ""; // Xóa text tìm kiếm sau khi chọn như FB
+    },
+
+    removeUser(user) {
+      this.selectedUsers = this.selectedUsers.filter(
+        (u) => u.UserName !== user.UserName,
+      );
+    },
+
+    // Xử lý cuộn để tải thêm
+    onScroll(e) {
+      const { scrollTop, scrollHeight, clientHeight } = e.target;
+      // Nếu cuộn gần tới đáy (cách đáy 10px)
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
+        if (!this.loading && !this.allLoaded) {
+          this.getUserLst(false);
+        }
+      }
+    },
+
+    onSearchChange() {
+      clearTimeout(this.timeout);
+      this.timeout = setTimeout(() => {
+        this.getUserLst(true);
+      }, 500);
+    },
     btCloseCall() {
       this.isCalling = false;
     },
@@ -604,27 +803,30 @@ export default {
       return `${hours}h${parseInt(minutes)}p`;
     },
     sendMessageHandler() {
-      if (this.newMessage && this.newMessage.trim() != "") {
-        var req = {
-          SenderID: this.senderID,
-          GroupID: this.groupInfo.GroupID,
-          RecipientID: null,
-          TextContent: this.newMessage.trim(),
-          IsAttachment: 0,
-          IsMine: true,
-        };
-        SendMessage({
-          Data: req,
-        }).then((res) => {
-          if (res.RespCode == 0) {
-            socket.emit("sendMessage", res.Data);
-          }
-        });
-        this.newMessage = "";
-      }
+      if (!this.newMessage.trim() && !this.replyingTo) return;
+
+      var req = {
+        SenderID: this.senderID,
+        GroupID: this.groupInfo.GroupID,
+        RecipientID: null,
+        TextContent: this.newMessage.trim(),
+        IsAttachment: 0,
+        IsMine: true,
+        ReplyID: this.replyingTo ? this.replyingTo.MessageID : null,
+      };
+      SendMessage({
+        Data: req,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          socket.emit("sendMessage", res.Data);
+          this.newMessage = "";
+          this.replyingTo = null;
+        }
+      });
     },
     selectGroup(groupInfo) {
       this.groupInfo = groupInfo;
+      this.markAsRead(groupInfo.GroupID);
     },
     getMessageByGoupID() {
       GetMessageByGoupID({
@@ -784,16 +986,35 @@ export default {
     },
     openCreateGroupDialog() {
       this.showCreateGroupDialog = true;
+      this.searchUser = ""; // Reset tìm kiếm
+      this.getUserLst(true); // Gọi API lấy trang 1 ngay khi mở
     },
     createNewChatGroup() {
-      if (!this.newGroupName.trim()) {
-        notify({ title: "Lỗi", text: "Vui lòng nhập tên nhóm", type: "error" });
+      let finalGroupName = this.newGroupName.trim();
+      if (!finalGroupName) {
+        if (this.selectedUsers.length === 1) {
+          finalGroupName = this.selectedUsers[0].FullName;
+        } else if (this.selectedUsers.length > 1) {
+          finalGroupName = this.selectedUsers
+            .map((user) => {
+              const nameParts = user.FullName.trim().split(" ");
+              return nameParts[nameParts.length - 1]; // Lấy phần tử cuối cùng
+            })
+            .join(", ");
+        }
+      }
+      if (!finalGroupName) {
+        notify({
+          title: "Lỗi",
+          text: "Vui lòng chọn thành viên",
+          type: "error",
+        });
         return;
       }
+      this.selectedUsers.push({ UserName: getUserName() });
 
       const newGroup = {
-        GroupID: Date.now(),
-        GroupName: this.newGroupName,
+        GroupName: finalGroupName,
         TextContent: "",
         LastMessage: "Hãy bắt đầu cuộc trò chuyện",
         TimeCreate: new Date().toISOString(),
@@ -801,22 +1022,22 @@ export default {
         Avatar: null,
         Members: this.selectedUsers,
       };
-
-      this.groupLst.unshift(newGroup);
-      this.groupInfo = newGroup;
-      this.showCreateGroupDialog = false;
-      this.newGroupName = "";
-      this.selectedUsers = [];
+      CreateGroup({ Data: newGroup }).then((res) => {
+        if (res.RespCode == 0) {
+          this.groupLst.unshift(newGroup);
+          this.groupInfo = newGroup;
+          this.showCreateGroupDialog = false;
+          this.newGroupName = "";
+          this.selectedUsers = [];
+        }
+      });
     },
   },
   created() {
-    socket.emit("join:user", {
-      UserID: this.senderID,
-    });
     this.getGroupLstByUserID();
     socket.on("new_message", (message) => {
       if (message.GroupID !== this.groupInfo.GroupID) return;
-
+      this.markAsRead(message.GroupID);
       const fullName = message.FullName ?? "noname";
       const lastName = fullName.split(" ").pop();
 
@@ -838,6 +1059,42 @@ export default {
       this.messageLst = this.markLatestMessages(this.messageLst);
       this.scrollBottom();
     });
+
+    socket.on("sidebar:update", (data) => {
+      const { GroupID, LastMessage, TimeCreate } = data;
+      const groupIndex = this.groupLst.findIndex((g) => g.GroupID === GroupID);
+      // 1. Tìm index của group này trong mảng danh sách chat hiện tại
+      if (groupIndex !== -1) {
+        // Lấy đối tượng group ra
+        const updatedGroup = this.groupLst[groupIndex];
+
+        // 2. Cập nhật thông tin mới nhất
+        updatedGroup.NewMessage = LastMessage;
+        updatedGroup.TimeCreate = TimeCreate; // Cập nhật thời gian để sắp xếp
+        updatedGroup.TimeShow = this.calculateTimeDifference(TimeCreate);
+        // 4. Kiểm tra: Nếu không phải group đang mở thì mới tăng UnreadCount
+        // Giả sử 'this.currentGroupID' là ID của group người dùng đang xem
+        if (updatedGroup.GroupID !== this.currentGroupID) {
+          updatedGroup.UnreadCount = (updatedGroup.UnreadCount || 0) + 1;
+        }
+
+        // 3. Đẩy Group này lên đầu danh sách
+        // Xóa khỏi vị trí cũ và thêm vào vị trí [0]
+        this.groupLst.splice(groupIndex, 1);
+        this.groupLst.unshift(updatedGroup);
+      } else {
+        // TRƯỜNG HỢP NGOẠI LỆ: Nếu group chưa có trong danh sách sidebar hiện tại
+        // (Ví dụ: tin nhắn từ một người lạ hoặc nhóm mới tạo)
+        // Bạn có thể chọn cách gọi API lấy thông tin Group đó hoặc thêm tạm vào:
+        this.groupLst.unshift({
+          GroupID: GroupID,
+          LastMessage: LastMessage,
+          TimeCreate: TimeCreate,
+          UnreadCount: 1,
+          // ... các trường khác như GroupName, Avatar bạn nên lấy từ API
+        });
+      }
+    });
   },
 };
 </script>
@@ -857,6 +1114,151 @@ export default {
 .is-mine {
   background: rgb(var(--v-theme-blue));
   color: #fff;
+}
+.fb-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.fb-dialog {
+  background: #fff;
+  width: 500px;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.fb-header {
+  padding: 16px;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fb-search-container {
+  padding: 8px 16px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.selected-users-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.fb-chip {
+  background: #e7f3ff;
+  color: #1877f2;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+}
+
+.remove-chip {
+  margin-left: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.fb-user-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.fb-user-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.fb-user-item:hover {
+  background: #f2f2f2;
+}
+
+.fb-avatar {
+  width: 40px;
+  height: 40px;
+  background: #ddd;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
+.fb-user-info {
+  flex: 1;
+}
+.fb-user-name {
+  font-weight: 600;
+  color: #050505;
+}
+.fb-user-sub {
+  font-size: 12px;
+  color: #65676b;
+}
+
+.fb-checkbox .circle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ced0d4;
+  border-radius: 50%;
+}
+
+.fb-checkbox .circle.checked {
+  background: #1877f2;
+  border-color: #1877f2;
+  position: relative;
+}
+
+.fb-checkbox .circle.checked::after {
+  content: "✓";
+  color: white;
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.fb-footer {
+  padding: 16px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.fb-btn-primary {
+  width: 100%;
+  background: #1877f2;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.fb-btn-primary:disabled {
+  background: #e4e6eb;
+  color: #bcc0c4;
+  cursor: not-allowed;
 }
 </style>
 <style lang="scss">

@@ -56,6 +56,14 @@ export function SendMessage(data) {
   });
 }
 
+export function ReadMessage(data) {
+  return request({
+    url: "messages/ReadMessage",
+    method: "post",
+    data,
+  });
+}
+
 export function GetMemberLstByGroupID(data) {
   return request({
     url: "groups/GetMemberLstByGroupID",
