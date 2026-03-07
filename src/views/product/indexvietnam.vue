@@ -173,11 +173,24 @@
       </template>
     </v-data-table-server>
   </v-card>
+  <v-dialog v-model="isDeleteDialog" max-width="500px">
+    <v-card>
+      <v-card-title>
+        <span class="headline">Xóa sản phẩm</span>
+      </v-card-title>
+      <v-card-text> Bạn có chắc chắn muốn xóa sản phẩm này? </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="grey" @click="isDeleteDialog = false">Hủy</v-btn>
+        <v-btn color="red" @click="confirmDelete">Xóa</v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script>
 import { GetDefaultValue } from "@/api/default";
-import { GetProductLst2 } from "@/api/productApi";
+import { DelProduct, GetProductLst2 } from "@/api/productApi";
 import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 export default {
   data() {
@@ -228,6 +241,8 @@ export default {
       isCreateProductDialog: false,
       newProduct: {},
       statusProduct: 100,
+      isDeleteDialog: false,
+      productToDelete: null,
     };
   },
   watch: {
@@ -239,6 +254,34 @@ export default {
     },
   },
   methods: {
+    delProduct(data) {
+      DelProduct({
+        ProductID: data.ProductID,
+      }).then((res) => {
+        if (res.RespCode == 0) {
+          notify({
+            title: "Thành công",
+            type: "success",
+          });
+          this.getProductLst();
+        } else {
+          notify({
+            title: "Thất bại",
+            text: res.RespText,
+            type: "error",
+          });
+        }
+      });
+    },
+    confirmDelete() {
+      this.delProduct(this.productToDelete);
+      this.isDeleteDialog = false;
+      this.productToDelete = null;
+    },
+    openDeleteDialog(item) {
+      this.productToDelete = item;
+      this.isDeleteDialog = true;
+    },
     btShowInfo(data) {
       this.$router.push("/thong-tin-san-pham/" + data.ProductID);
     },

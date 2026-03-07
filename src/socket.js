@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
 
-// const socket = io("https://messageapi.icpc1hn.work/", {
+// const socket = io("https://sop.idtp.work/", {
+//   path: "/mes/socket.io",
 //   withCredentials: true,
 //   transports: ["websocket", "polling"],
 // });

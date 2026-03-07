@@ -105,7 +105,6 @@ onMounted(() => {
           title: 'Tin nhắn',
           icon: 'mdi-message-text',
           to: '/tin-nhan',
-          badge: 3,
         }"
       />
       <VerticalNavLink

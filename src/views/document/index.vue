@@ -661,7 +661,7 @@ export default {
     getProcedureLst() {
       GetProcedureLst({
         PageNumber: 1,
-        RowspPage: 100,
+        RowspPage: 300,
         Search: "",
       })
         .then((res) => {
