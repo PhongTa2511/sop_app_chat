@@ -18,7 +18,7 @@
               placeholder="Nhập mô tả quy trình"
               :rows="2"
             ></v-textarea>
-            <v-select
+            <v-autocomplete
               class="mt-2"
               v-model="createProcedure.TeamLst"
               :items="teamlst"
@@ -27,7 +27,7 @@
               label="Chọn nhóm liên quan"
               placeholder="Chọn quy trình"
               multiple=""
-            ></v-select>
+            ></v-autocomplete>
           </v-form>
         </v-card-text>
         <v-card-actions>
