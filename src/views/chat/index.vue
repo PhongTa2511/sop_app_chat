@@ -136,7 +136,7 @@
         <v-main style="height: calc(100vh - 116px)" class="position-relative">
           <v-list
             ref="chatList"
-            class="custome-content"
+            :class="replyingTo ? 'custome-content-reply' : 'custome-content'"
             v-if="messageLst.length > 0"
             @scroll="handleScroll"
           >
@@ -150,6 +150,8 @@
               v-for="(mes, index) in messageLst"
               :key="mes.MessageID"
               style="padding: 0 4px 0 8px; margin-top: 4px"
+              class="message-item"
+              :id="'msg-' + mes.MessageID"
             >
               <template v-slot:prepend v-if="!mes.IsMine">
                 <v-avatar size="small" v-if="mes.isLatest" color="secondary">
@@ -178,64 +180,95 @@
                 {{ mes.NickName ? mes.NickName : mes.LastName }}
               </div>
               <div
-                v-if="mes.IsAttachment == 0"
-                :class="{
-                  'float-right  is-mine': mes.IsMine,
-                }"
-                class="custom-layout-text"
+                class="message-row"
+                :class="{ 'flex-row-reverse': mes.IsMine }"
               >
-                <div
-                  :style="{ whiteSpace: 'pre-line' }"
-                  v-html="mes.TextContent"
-                ></div>
-              </div>
-              <div
-                v-else-if="mes.IsAttachment == 1"
-                :class="{
-                  'float-right text-right': mes.IsMine,
-                }"
-              >
-                <v-img
-                  :width="200"
-                  aspect-ratio="1/1"
-                  cover
-                  :src="mes.LinkFile"
-                  class="text-center custom-layout-text"
-                  @click="btShowImage(mes)"
-                >
-                  <template v-slot:error>
-                    <v-icon color="red" class="text-center mt-3" size="large">
-                      mdi-file-image-remove</v-icon
-                    >
-                    <div class="text-subtitle-2 mt-1">Hình ảnh bị lỗi</div>
-                  </template>
-                </v-img>
-              </div>
-              <div
-                v-else-if="mes.IsAttachment == 2"
-                :class="{
-                  'float-right ': mes.IsMine,
-                }"
-                class="custom-layout-text"
-              >
-                <div class="d-flex">
-                  <v-btn
-                    icon
-                    rounded="fill"
-                    color="grey-800"
-                    size="small"
-                    @click="btDownloadFile(mes)"
+                <div class="message-content">
+                  <div
+                    v-if="mes.ReplyID"
+                    class="customer-layout-reply"
+                    @click="scrollToMessage(mes.ReplyID)"
                   >
-                    <v-icon> mdi-file-document-outline </v-icon>
-                  </v-btn>
-                  <div class="pl-2">
-                    <div class="text-subtitle-2">
-                      {{ mes.TextContent }}
-                    </div>
-                    <div>
-                      {{ mes.SizeFileText }}
+                    {{ mes.ReplyContent }}
+                  </div>
+                  <div
+                    v-if="mes.IsAttachment == 0"
+                    :class="{
+                      ' is-mine': mes.IsMine,
+                    }"
+                    class="custom-layout-text"
+                  >
+                    <div
+                      :style="{ whiteSpace: 'pre-line' }"
+                      v-html="mes.TextContent"
+                    ></div>
+                  </div>
+                  <div v-else-if="mes.IsAttachment == 1">
+                    <v-img
+                      :width="200"
+                      aspect-ratio="1/1"
+                      cover
+                      :src="mes.LinkFile"
+                      class="text-center custom-layout-text border"
+                      @click="btShowImage(mes)"
+                    >
+                      <template v-slot:error>
+                        <v-icon
+                          color="red"
+                          class="text-center mt-3"
+                          size="large"
+                        >
+                          mdi-file-image-remove</v-icon
+                        >
+                        <div class="text-subtitle-2 mt-1">Hình ảnh bị lỗi</div>
+                      </template>
+                    </v-img>
+                  </div>
+                  <div
+                    v-else-if="mes.IsAttachment == 2"
+                    :class="{
+                      'float-right ': mes.IsMine,
+                    }"
+                    class="custom-layout-text"
+                  >
+                    <div class="d-flex">
+                      <v-btn
+                        icon
+                        rounded="fill"
+                        color="grey-800"
+                        size="small"
+                        @click="btDownloadFile(mes)"
+                      >
+                        <v-icon> mdi-file-document-outline </v-icon>
+                      </v-btn>
+                      <div class="pl-2">
+                        <div class="text-subtitle-2">
+                          {{ mes.TextContent }}
+                        </div>
+                        <div>
+                          {{ mes.SizeFileText }}
+                        </div>
+                      </div>
                     </div>
                   </div>
+                </div>
+                <div class="message-actions">
+                  <v-btn
+                    size="small"
+                    icon="mdi-share"
+                    density="compact"
+                    style="border-radius: 50%"
+                    :color="mes.IsMine ? 'blue' : 'grey'"
+                    @click="setReply(mes)"
+                  ></v-btn>
+
+                  <v-btn
+                    size="small"
+                    icon="mdi-emoticon-happy-outline"
+                    density="compact"
+                    style="border-radius: 50%"
+                    :color="mes.IsMine ? 'blue' : 'grey'"
+                  ></v-btn>
                 </div>
               </div>
             </v-list-item>
@@ -246,20 +279,18 @@
               <div>Hãy bắt đầu cuộc trò chuyện</div>
             </div>
           </div>
+
           <div
-            class="d-flex align-center px-1 position-absolute bottom-0 mb-2"
+            class="position-absolute bottom-0 bg-white border-t d-flex flex-column"
             :style="{
               left: drawerLeft ? '300px' : '0',
               right: drawerRight ? '300px' : '0',
             }"
-            style="
-              background: rgb(var(--v-theme-background-overlay-multiplier));
-            "
           >
             <v-expand-transition>
               <div
                 v-if="replyingTo"
-                class="reply-preview-bar d-flex align-center px-4 py-2 bg-grey-lighten-4 rounded-t-xl border-b"
+                class="d-flex align-center px-4 py-2 bg-grey-100 border-b w-full"
               >
                 <v-icon size="small" color="blue" class="mr-2"
                   >mdi-reply</v-icon
@@ -285,63 +316,70 @@
                 ></v-btn>
               </div>
             </v-expand-transition>
-            <v-btn
-              icon="mdi-link-variant"
-              rounded="pill"
-              color="blue"
-              variant="text"
-              @click="$refs.fileInput.click()"
+            <div
+              class="d-flex align-center px-1"
+              style="
+                background: rgb(var(--v-theme-background-overlay-multiplier));
+              "
             >
-            </v-btn>
-            <v-menu
-              v-model="showEmojiPicker"
-              :close-on-content-click="false"
-              location="top center"
-            >
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  icon="mdi-emoticon-outline"
-                  variant="text"
-                  rounded="pill"
-                  color="blue"
-                  v-bind="props"
-                >
-                </v-btn>
-              </template>
-
-              <v-card class="px-2 py-2" elevation="24" max-width="300">
-                <div class="emoji-picker">
-                  <span
-                    v-for="emoji in emojis"
-                    :key="emoji"
-                    @click="addEmoji(emoji)"
-                    style="cursor: pointer; padding: 5px; font-size: 24px"
+              <v-btn
+                icon="mdi-link-variant"
+                rounded="pill"
+                color="blue"
+                variant="text"
+                @click="$refs.fileInput.click()"
+              >
+              </v-btn>
+              <v-menu
+                v-model="showEmojiPicker"
+                :close-on-content-click="false"
+                location="top center"
+              >
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    icon="mdi-emoticon-outline"
+                    variant="text"
+                    rounded="pill"
+                    color="blue"
+                    v-bind="props"
                   >
-                    {{ emoji }}
-                  </span>
-                </div>
-              </v-card>
-            </v-menu>
+                  </v-btn>
+                </template>
 
-            <v-textarea
-              placeholder="Aa"
-              v-model="newMessage"
-              class="customText"
-              @keydown="handleKeyPress"
-              auto-grow
-              color="blue"
-              max-rows="6"
-              rows="1"
-              rounded="xl"
-            ></v-textarea>
-            <v-btn
-              icon="mdi-send"
-              rounded="pill"
-              color="blue"
-              variant="text"
-              @click="sendMessageHandler"
-            >
-            </v-btn>
+                <v-card class="px-2 py-2" elevation="24" max-width="300">
+                  <div class="emoji-picker">
+                    <span
+                      v-for="emoji in emojis"
+                      :key="emoji"
+                      @click="addEmoji(emoji)"
+                      style="cursor: pointer; padding: 5px; font-size: 24px"
+                    >
+                      {{ emoji }}
+                    </span>
+                  </div>
+                </v-card>
+              </v-menu>
+
+              <v-textarea
+                placeholder="Aa"
+                v-model="newMessage"
+                class="customText"
+                @keydown="handleKeyPress"
+                auto-grow
+                color="blue"
+                max-rows="6"
+                rows="1"
+                rounded="xl"
+              ></v-textarea>
+              <v-btn
+                icon="mdi-send"
+                rounded="pill"
+                color="blue"
+                variant="text"
+                @click="sendMessageHandler"
+              >
+              </v-btn>
+            </div>
           </div>
         </v-main>
 
@@ -485,7 +523,7 @@ import {
 import { GetUserLstAll } from "@/api/user";
 import { formatDateDisplay } from "@/helpers/getTime";
 import socket from "@/socket";
-import { getUserName } from "@/utils/auth";
+import { getAvatar, getUserName } from "@/utils/auth";
 import { notify } from "@kyvg/vue3-notification";
 import Axios from "axios";
 import RightChat from "./components/right-chat.vue";
@@ -574,9 +612,6 @@ export default {
     },
     searchGroup() {
       this.getGroupLstByUserID();
-    },
-    messageLst(newValue) {
-      console.log("123", newValue);
     },
   },
   methods: {
@@ -736,6 +771,7 @@ export default {
           IsAttachment: 1,
           IsMine: true,
           SizeFile: sizeFile,
+          Avatar: getAvatar(),
         };
         SendMessage({
           Data: req,
@@ -744,6 +780,11 @@ export default {
             Axios.post(urlUploadMessageFile(res.Data.MessageID), params).then(
               (resfile) => {
                 if (resfile.data.RespCode == 0) {
+                  console.log("123", res.Data);
+
+                  socket.emit("sendMessage", res.Data);
+                  this.newMessage = "";
+                  this.replyingTo = null;
                 } else {
                   notify({
                     title: "Lỗi",
@@ -803,7 +844,7 @@ export default {
       return `${hours}h${parseInt(minutes)}p`;
     },
     sendMessageHandler() {
-      if (!this.newMessage.trim() && !this.replyingTo) return;
+      if (!this.newMessage.trim()) return;
 
       var req = {
         SenderID: this.senderID,
@@ -813,6 +854,7 @@ export default {
         IsAttachment: 0,
         IsMine: true,
         ReplyID: this.replyingTo ? this.replyingTo.MessageID : null,
+        Avatar: getAvatar(),
       };
       SendMessage({
         Data: req,
@@ -826,6 +868,8 @@ export default {
     },
     selectGroup(groupInfo) {
       this.groupInfo = groupInfo;
+      this.newMessage = "";
+      this.replyingTo = null;
       this.markAsRead(groupInfo.GroupID);
     },
     getMessageByGoupID() {
@@ -847,16 +891,7 @@ export default {
             return {
               ...item,
               IsMine: item.SenderID == this.senderID ? true : false,
-              Avatar: item.LinkImage
-                ? "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
-                  item.SenderID
-                : null,
               LastName: lastName,
-              LinkFile:
-                item.IsAttachment != 0
-                  ? "https://sop.idtp.work/api/File/GetMessageFile?MessageID=" +
-                    item.MessageID
-                  : null,
               SizeFileText:
                 item.IsAttachment > 0
                   ? this.formatFileSize(item.SizeFile)
@@ -926,16 +961,7 @@ export default {
             return {
               ...item,
               IsMine: item.SenderID == this.senderID ? true : false,
-              Avatar: item.LinkImage
-                ? "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
-                  item.SenderID
-                : null,
               LastName: lastName,
-              LinkFile:
-                item.IsAttachment != 0
-                  ? "https://sop.idtp.work/api/File/GetMessageFile?MessageID=" +
-                    item.MessageID
-                  : null,
               SizeFileText:
                 item.IsAttachment > 0
                   ? this.formatFileSize(item.SizeFile)
@@ -965,10 +991,6 @@ export default {
           this.searchResults = res.Data.map((item) => {
             return {
               ...item,
-              Avatar: item.LinkImage
-                ? "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
-                  item.SenderID
-                : null,
               TimeShow: formatDateDisplay(item.TimeCreate),
             };
           });
@@ -1036,6 +1058,8 @@ export default {
   created() {
     this.getGroupLstByUserID();
     socket.on("new_message", (message) => {
+      console.log("chạy vào đây", message);
+
       if (message.GroupID !== this.groupInfo.GroupID) return;
       this.markAsRead(message.GroupID);
       const fullName = message.FullName ?? "noname";
@@ -1044,12 +1068,8 @@ export default {
       this.messageLst.push({
         ...message,
         IsMine: message.SenderID === this.senderID,
-        Avatar: message.LinkImage
-          ? `https://sop.idtp.work/api/File/GetAvatarUser?UserName=${message.SenderID}`
-          : null,
-        LinkFile: message.IsAttachment
-          ? `https://sop.idtp.work/api/File/GetMessageFile?MessageID=${message.MessageID}`
-          : null,
+        Avatar: message.Avatar,
+        LinkFile: message.LinkFile,
         SizeFileText: message.IsAttachment
           ? this.formatFileSize(message.SizeFile)
           : null,
@@ -1099,22 +1119,64 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.customer-layout-reply {
+  background: rgb(var(--v-theme-blue), 0.2);
+  color: var(--v-theme-grey-500) !important;
+  font-size: 14px;
+  padding: 8px;
+  padding-bottom: 24px;
+  border-radius: 16px;
+  margin-bottom: -16px;
+  width: fit-content;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .custom-layout-name {
   font-size: 12px;
   padding-left: 8px;
 }
-.custom-layout-text {
-  display: inline-block;
-  padding: 6px 12px;
+.message-item {
+  position: relative;
+}
+
+.message-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.message-content {
   max-width: 66%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.custom-layout-text {
+  padding: 6px 12px;
   border-radius: 16px;
   background: rgb(var(--v-theme-grey-100));
   font-size: 14px;
+  word-break: break-word;
 }
 .is-mine {
   background: rgb(var(--v-theme-blue));
   color: #fff;
+  margin-left: auto;
 }
+.message-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: 0.2s ease;
+}
+
+.message-row:hover .message-actions {
+  opacity: 1;
+}
+
 .fb-dialog-overlay {
   position: fixed;
   top: 0;
@@ -1265,6 +1327,23 @@ export default {
 .custome-content {
   overflow-y: auto;
   height: calc(100vh - 240px);
+  &::-webkit-scrollbar-track-piece {
+    margin: 20px;
+  }
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #bec5ce;
+    border-radius: 20px;
+  }
+}
+.custome-content-reply {
+  overflow-y: auto;
+  height: calc(100vh - 280px);
   &::-webkit-scrollbar-track-piece {
     margin: 20px;
   }

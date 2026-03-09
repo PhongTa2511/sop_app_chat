@@ -27,6 +27,7 @@
               label="Chọn nhóm liên quan"
               placeholder="Chọn quy trình"
               multiple=""
+              filterable
             ></v-autocomplete>
           </v-form>
         </v-card-text>
@@ -56,7 +57,7 @@
               placeholder="Nhập mô tả quy trình"
               :rows="2"
             ></v-textarea>
-            <v-select
+            <v-autocomplete
               class="mt-2"
               v-model="createProcedure.TeamLst"
               :items="teamlst"
@@ -65,7 +66,8 @@
               label="Chọn nhóm liên quan"
               placeholder="Chọn quy trình"
               multiple=""
-            ></v-select>
+              filterable
+            ></v-autocomplete>
             <!-- <v-radio-group v-model="createProcedure.Status">
               <v-radio label="Đang hoạt động" :value="1"></v-radio>
               <v-radio label="Dừng hoạt động" :value="0"></v-radio>

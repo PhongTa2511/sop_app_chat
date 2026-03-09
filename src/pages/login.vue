@@ -39,10 +39,7 @@ export default {
         setEmail(res.UserInfo.Email);
         setRole(res.UserInfo.Role);
         if (res.UserInfo.LinkImage && res.UserInfo.LinkImage != "") {
-          setAvatar(
-            "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
-              res.UserInfo.UserName
-          );
+          setAvatar(res.UserInfo.LinkImage);
         } else {
           removeAvatar();
         }
