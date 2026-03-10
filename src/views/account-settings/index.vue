@@ -114,31 +114,67 @@
           <div style="width: 100%" class="mx-3">
             <span> Nhóm </span>
             <v-btn
+              icon
               class="float-right"
-              icon="mdi-plus"
-              size="x-small"
+              size="small"
+              density="compact"
               @click="btShowAddTeam"
             >
+              <v-icon size="20">mdi-plus</v-icon>
             </v-btn>
           </div>
-          <div style="width: 100%" class="mx-3">
-            <v-chip
-              class="mb-1"
-              color="blue"
+          <div style="width:100%" class="mx-3">
+            <v-sheet
               v-for="(item, index) in updateAccount.Data"
               :key="index"
-              ><v-icon color="green"> mdi-account-multiple </v-icon>
-              {{ item.TeamName }}
-              <v-icon color="green" class="ml-4"> mdi-tag-text </v-icon>
-              {{ item.Role }}
-              <v-icon
-                color="red"
-                class="ml-4 cursor-pointer"
-                @click="btRemoveTeam(item)"
-              >
-                mdi-close
-              </v-icon>
-            </v-chip>
+              class="team-row px-2 py-1 mb-1"
+            >
+              <div class="team-grid">
+
+                <!-- TEAM -->
+                <div class="team-left text-body-2">
+                  <v-icon size="18" color="green" class="mr-2">mdi-account-multiple</v-icon>
+                  {{ item.TeamName }}
+                </div>
+
+                <!-- ROLE -->
+                <div class="team-role text-body-2">
+                  <v-menu>
+                    <template v-slot:activator="{ props }">
+                      <div v-bind="props" class="d-flex align-center cursor-pointer">
+                        <v-icon size="18" color="green" class="mr-1">
+                          mdi-tag
+                        </v-icon>
+                        {{ item.Role }}
+                      </div>
+                    </template>
+
+                    <v-list density="compact">
+                      <v-list-item
+                        v-for="role in positionLst"
+                        :key="role.ValueName"
+                        @click="changeRole(item, role.ValueName)"
+                      >
+                        <v-list-item-title>
+                          {{ role.ValueName }}
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </div>
+
+                <!-- DELETE -->
+                <v-icon
+                  size="18"
+                  color="red"
+                  class="cursor-pointer"
+                  @click="btRemoveTeam(item)"
+                >
+                  mdi-close
+                </v-icon>
+
+              </div>
+            </v-sheet>
           </div>
         </v-row>
         <div></div>
@@ -276,6 +312,9 @@ export default {
     },
   },
   methods: {
+    changeRole(teamItem, role) {
+      teamItem.Role = role;
+    },
     btRemoveTeam(data) {
       this.updateAccount.Data = this.updateAccount.Data.filter(
         (p) => p.TeamID != data.TeamID,
@@ -464,3 +503,41 @@ export default {
   },
 };
 </script>
+<style>
+.team-row{
+  background:#e3f2fd;
+  border-radius:999px;
+}
+
+.team-grid{
+  display:grid;
+  grid-template-columns:60% 35% 5%;
+  align-items:center;
+}
+
+.team-left{
+  display:flex;
+  align-items:center;
+}
+
+.team-role{
+  display:flex;
+  align-items:center;
+}
+
+.team-delete{
+  display:flex;
+  justify-content:center;
+}
+
+.team-name{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.team-row{
+  background:#e3f2fd;
+  border-radius:999px;
+  min-height:32px;
+}
+</style>

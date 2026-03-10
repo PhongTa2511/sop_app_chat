@@ -20,6 +20,7 @@ const memberList = ref([]);
 const selectedTeam = ref(null);
 const teamScrollRef = ref(null);
 const refInputEl = ref();
+const selectedUser = ref(null);
 const accountDataLocal = ref(structuredClone(accountData));
 var specializeLst = ref([]);
 var positionLst = ref([]);
@@ -73,7 +74,9 @@ const getUserInfo = () => {
     };
     if (res.UserInfo.LinkImage) {
       accountDataLocal.value.avatarImg =
-        "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
+        res.UserInfo.LinkImage
+        ?"data:image/jpeg;base64," + res.UserInfo.LinkImage
+        :"https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
         res.UserInfo.UserName;
     }
   });
@@ -318,12 +321,15 @@ getDefaultValue();
                 class="member-card"
               >
                   <div class="member-top">
-                    <v-avatar size="50" color="primary">
-                      <img
-                        v-if="!user.avatarError"
-                        :src="'https://sop.idtp.work/api/File/GetAvatarUser?UserName=' + user.UserName"
-                        @error="user.avatarError = true"
+                    <v-avatar size="50" color="primary" class="avatar-border">
+                      <v-img
+                        v-if="user.LinkImage"
+                        :src="user.LinkImage.startsWith('/9j') 
+                          ? 'data:image/jpeg;base64,' + user.LinkImage
+                          : user.LinkImage"
+                        cover
                       />
+
                       <span v-else>
                         {{ user.FullName ? user.FullName[0].toUpperCase() : user.UserName[0].toUpperCase() }}
                       </span>
@@ -342,7 +348,7 @@ getDefaultValue();
 
                   <div class="member-footer">
                     <span>{{ user.RoleName || 'Thành viên'}}</span>
-                    <v-icon size="18">mdi-dots-horizontal</v-icon>
+                    <span size="18">{{ user.PhoneNumber }}</span>
                   </div>
               </div>
             </div>
@@ -416,6 +422,9 @@ getDefaultValue();
   border-radius: 14px;
   transition: all 0.25s ease;
   position: relative;
+  
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  border: 2px solid #e6e6e6;  
 }
 
 .member-card:hover {
@@ -492,4 +501,11 @@ getDefaultValue();
   color: rgb(var(--v-theme-primary));
   background: #f5f7fa;
 }
+
+.avatar-border {
+  border: 2px solid #f5f7fa;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+
 </style>
