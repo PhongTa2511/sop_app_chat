@@ -91,8 +91,13 @@
                     style="width: 250px !important"
                     prepend-inner-icon="mdi-magnify"
                     clearable
-                    class="pt-2"
+                    class="py-2"
                   ></v-text-field>
+                  <V-DateField
+                    v-model:modelValue="timeOver"
+                    label="Thời gian"
+                    width="100%"
+                  />
                   <v-select
                     class="pt-2"
                     v-model="workOver"
@@ -275,6 +280,7 @@ export default {
         { value: "Quá hạn" },
         { value: "Đúng hạn" },
       ],
+      timeOver: "",
     };
   },
   watch: {
@@ -369,6 +375,7 @@ export default {
         country: this.country,
         employeeName: this.employeeName,
         workOver: this.workOver,
+        timeOver: this.timeOver,
       };
       this.$router.push({
         path: this.$route.path,
@@ -392,7 +399,9 @@ export default {
           "|" +
           (this.name2 ?? "") +
           "|" +
-          (this.country ?? ""),
+          (this.country ?? "") +
+          "|" +
+          (this.timeOver ? formatDate(this.timeOver) : ""),
       }).then((res) => {
         if (res.RespCode == 0) {
           this.jobLst = res.DocumentJobLst.map((item, index) => {

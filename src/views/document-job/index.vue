@@ -20,6 +20,7 @@
         { value: 10000, title: 'All' },
       ]"
       fixed-header=""
+      :loading="loadding"
     >
       <template v-slot:top>
         <div class="d-flex flex-wrap gap-2 px-2">
@@ -72,8 +73,13 @@
                     style="width: 250px !important"
                     prepend-inner-icon="mdi-magnify"
                     clearable
-                    class="pt-2"
+                    class="py-2"
                   ></v-text-field>
+                  <V-DateField
+                    v-model:modelValue="timeOver"
+                    label="Thời gian"
+                    width="100%"
+                  />
                   <v-select
                     class="pt-2"
                     v-model="workOver"
@@ -216,6 +222,7 @@ export default {
       note: "",
       employeeName: "",
       inputSearch: "",
+      timeOver: "",
     };
   },
   watch: {
@@ -274,6 +281,7 @@ export default {
         note: this.note,
         employeeName: this.employeeName,
         workOver: this.workOver,
+        timeOver: this.timeOver,
       };
       this.$router.push({
         path: this.$route.path,
@@ -292,7 +300,9 @@ export default {
           "|" +
           (this.employeeName ?? "") +
           "|" +
-          (this.workOver ?? ""),
+          (this.workOver ?? "") +
+          "||||" +
+          (this.timeOver ? formatDate(this.timeOver) : ""),
       }).then((res) => {
         if (res.RespCode == 0) {
           this.jobLst = res.DocumentJobLst.map((item, index) => {
