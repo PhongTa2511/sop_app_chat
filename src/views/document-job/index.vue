@@ -115,15 +115,14 @@
       </template>
 
       <template v-slot:item.Key="{ item }">
-        {{ item.Key }}
-        <v-icon
+        <v-btn
           color="orange"
           class="me-2"
-          size="small"
+          size="x-small"
           style="cursor: pointer"
           @click="btPushToDocinfo(item)"
-          >mdi-note-edit</v-icon
-        >
+          icon="mdi-note-edit"
+        ></v-btn>
       </template>
       <template v-slot:item.Time="{ item }">
         <div style="color: green">
@@ -135,7 +134,7 @@
       </template>
       <template v-slot:item.ProcedureName="{ item }">
         <div :class="itemRowBackground(item)">
-          {{ item.ProcedureName }}
+          {{ item.Key }}. {{ item.ProcedureName }}
         </div>
         <div style="font-size: 12px">
           <span style="color: blue">{{ item.DocumentID }}</span>
@@ -152,6 +151,20 @@
         </div>
         <div style="font-size: 12px">
           <span style="color: blue">{{ item.RowID }}</span>
+          <v-tooltip interactive>
+            <template v-slot:activator="{ props: activatorProps }">
+              <v-btn
+                size="mini"
+                icon="mdi-information-outline"
+                v-bind="activatorProps"
+                color="info"
+              ></v-btn>
+            </template>
+            <div>
+              <a class="text-info font-weight-medium"> Người giao </a>
+              {{ item.AssignName }}
+            </div>
+          </v-tooltip>
         </div>
       </template>
       <template v-slot:item.Note="{ item }">
@@ -193,7 +206,7 @@ export default {
           sortable: false,
           key: "Key",
           align: "center",
-          width: 80,
+          width: 30,
         },
         { title: "Quy trình", key: "ProcedureName", sortable: false },
         { title: "Bước", key: "StepName", sortable: false },

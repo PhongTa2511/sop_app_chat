@@ -136,8 +136,6 @@
       </template>
 
       <template v-slot:item.Key="{ item }">
-        {{ item.Key }}
-
         <v-btn
           icon="mdi-note-edit"
           color="orange"
@@ -162,7 +160,7 @@
       </template>
       <template v-slot:item.ProcedureName="{ item }">
         <div :class="itemRowBackground(item)">
-          {{ item.ProcedureName }}
+          {{ item.Key }}. {{ item.ProcedureName }}
           <v-chip color="green" size="x-small" v-if="item.DaysWorked != 0">{{
             item.DaysWorked
           }}</v-chip>
@@ -180,6 +178,20 @@
         </div>
         <div style="font-size: 12px">
           <span style="color: blue">{{ item.RowID }}</span>
+          <v-tooltip interactive>
+            <template v-slot:activator="{ props: activatorProps }">
+              <v-btn
+                size="mini"
+                icon="mdi-information-outline"
+                v-bind="activatorProps"
+                color="info"
+              ></v-btn>
+            </template>
+            <div>
+              <a class="text-info font-weight-medium"> Người giao </a>
+              {{ item.AssignName }}
+            </div>
+          </v-tooltip>
         </div>
       </template>
       <template v-slot:item.WarehouseName="{ item }">
@@ -251,7 +263,7 @@ export default {
           sortable: false,
           key: "Key",
           align: "center",
-          width: 120,
+          width: 100,
         },
         { title: "Hồ sơ", key: "ProcedureName", sortable: false },
         { title: "Công việc", key: "JobName", sortable: false },
