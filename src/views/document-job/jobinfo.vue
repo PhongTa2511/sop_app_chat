@@ -1343,31 +1343,46 @@ export default {
         });
     },
     checkNumberTypeOrPhone(str) {
+      // Nếu chứa ký tự chữ → Text
       if (/[^0-9.,+\s]/.test(str)) {
         return { isValid: true, type: "Text", value: str };
       }
+
+      // Nếu là số điện thoại
       const isPhone = /^[+]?[0-9]{9,15}$/.test(str);
       if (isPhone) {
-        return { isValid: true, type: "Text", value: str }; // Là số điện thoại
+        return { isValid: true, type: "Text", value: str };
       }
-      const cleanedStr = str.replace(/[,.]/g, "");
-      const num = parseFloat(cleanedStr);
+
+      // Nếu có dấu . hoặc , → giữ nguyên
+      if (/[.,]/.test(str)) {
+        return { isValid: true, type: "Text", value: str };
+      }
+
+      // Nếu bắt đầu bằng 0 → giữ nguyên
+      if (/^0\d+/.test(str)) {
+        return { isValid: true, type: "Text", value: str };
+      }
+
+      const num = parseFloat(str);
+
       if (isNaN(num)) {
-        return { isValid: false, type: null, value: str }; // Không hợp lệ
+        return { isValid: false, type: null, value: str };
       }
+
       if (Number.isInteger(num)) {
         return {
           isValid: true,
           type: "Int",
           value: new Intl.NumberFormat("en-US").format(num),
-        }; // Số nguyên
-      } else {
-        return {
-          isValid: true,
-          type: "Float",
-          value: new Intl.NumberFormat("en-US").format(num),
-        }; // Số thập phân
+        };
       }
+
+      return {
+        isValid: true,
+        type: "Float",
+        value: new Intl.NumberFormat("en-US").format(num),
+      };
     },
     btExportExcel() {
       exportExcel(this.headers);
