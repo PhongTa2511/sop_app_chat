@@ -141,7 +141,7 @@
         </div>
         <div style="color: red">
           {{
-            item.NgayHetHanSoDangKyHienTai.includes("T00:00:00")
+            item.NgayHetHanSoDangKyHienTai?.includes("T00:00:00")
               ? formatDateDisplayDDMMYY(item.NgayHetHanSoDangKyHienTai)
               : item.NgayHetHanSoDangKyHienTai
           }}

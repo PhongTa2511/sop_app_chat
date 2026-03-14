@@ -422,8 +422,8 @@
           confirmDialog.type === "success"
             ? "Bạn có chắc chắn muốn đánh dấu công việc này là hoàn thành?"
             : confirmDialog.type === "start"
-            ? "Bạn có chắc chắn muốn bắt đầu công việc này?"
-            : "Bạn có chắc chắn muốn xóa công việc này?"
+              ? "Bạn có chắc chắn muốn bắt đầu công việc này?"
+              : "Bạn có chắc chắn muốn xóa công việc này?"
         }}
       </v-card-text>
       <v-card-actions>
@@ -556,7 +556,7 @@ export default {
     selectedTeam(value) {
       if (value) {
         this.userOptions = this.teamOptions.find(
-          (p) => p.TeamID == value
+          (p) => p.TeamID == value,
         ).UserLst;
       }
     },
@@ -718,7 +718,7 @@ export default {
           this.stepInfo.UserJobLst = [];
         }
         var team = this.teamOptions.find(
-          (p) => String(p.TeamID) === String(this.selectedTeam)
+          (p) => String(p.TeamID) === String(this.selectedTeam),
         );
         var userLst = team.UserLst || [];
         for (let index = 0; index < this.selectedUser.length; index++) {
@@ -746,7 +746,7 @@ export default {
     },
     removeUserJob(phone) {
       this.stepInfo.UserJobLst = this.stepInfo.UserJobLst.filter(
-        (p) => p.UserID != phone
+        (p) => p.UserID != phone,
       );
     },
     confirmAddUserMana() {
@@ -755,7 +755,7 @@ export default {
           this.stepInfo.UserManaLst = [];
         }
         var team = this.teamOptions.find(
-          (p) => String(p.TeamID) === String(this.selectedTeam)
+          (p) => String(p.TeamID) === String(this.selectedTeam),
         );
         var userLst = team.UserLst || [];
 
@@ -781,7 +781,7 @@ export default {
     },
     removeUserMana(phone) {
       this.stepInfo.UserManaLst = this.stepInfo.UserManaLst.filter(
-        (p) => p.UserID != phone
+        (p) => p.UserID != phone,
       );
     },
     showFileDialog(item) {

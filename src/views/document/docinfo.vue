@@ -2528,8 +2528,15 @@ export default {
       return [];
     },
     addNewDocument() {
-      console.log("new document", this.newDocument);
+      console.log("new document", this.newDocument, this.headers);
+      var headDate = this.headers.filter((p) => p.type == 4);
+      console.log("headDate");
 
+      for (var item in headDate) {
+        var newLine = this.newDocument[item.key];
+        this.newDocument[item.key] = formatDateDDMMYY(newLine);
+        console.log(this.newDocument, item.key);
+      }
       this.isShowAddNew = false;
       this.desserts.push(this.newDocument);
 
