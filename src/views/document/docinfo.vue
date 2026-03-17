@@ -585,7 +585,7 @@
           <div class="text-p">Mô tả: {{ item.DesJob }}</div>
 
           <v-row>
-            <v-col :lg="6">
+            <v-col :lg="7">
               <span>Cài đặt xử lý</span>
               <v-select
                 v-model="item.UserJob.ComID"
@@ -595,8 +595,7 @@
                 item-value="TeamID"
                 item-title="TeamName"
                 chips
-                style="max-width: 280px"
-                class="mb-2 mt-2"
+                class="mb-2 mt-2 w-100"
                 clearable
               ></v-select>
               <v-autocomplete
@@ -606,11 +605,12 @@
                 item-value="UserName"
                 item-title="FullName"
                 chips
-                style="max-width: 280px"
-                class="mb-2"
-                clearable
+                class="mb-2 w-100"
                 hide-details
-              ></v-autocomplete>
+                multiple
+                closable-chips
+              >
+              </v-autocomplete>
               <v-text-field
                 v-model="item.UserJob.QuotaTime"
                 label="Hạn xử lý"
@@ -618,11 +618,11 @@
                 :min="1"
                 :max="1000"
                 suffix="Ngày"
-                style="max-width: 280px"
+                class="mb-2 w-100"
                 clearable
               ></v-text-field>
             </v-col>
-            <v-col :lg="6">
+            <v-col :lg="5">
               <span>Cài đặt phê duyệt</span>
               <v-select
                 v-model="item.UserMana.ComID"
@@ -632,8 +632,7 @@
                 item-value="TeamID"
                 item-title="TeamName"
                 chips
-                style="max-width: 280px"
-                class="mb-2 mt-2"
+                class="mb-2 mt-2 w-100"
                 clearable
               ></v-select>
               <v-autocomplete
@@ -644,9 +643,8 @@
                 item-value="UserName"
                 item-title="FullName"
                 chips
-                style="max-width: 280px"
-                class="mb-2"
-                clearable
+                class="mb-2 w-100"
+                closable-chips
                 hide-details
               ></v-autocomplete>
               <v-text-field
@@ -656,7 +654,7 @@
                 :min="1"
                 :max="1000"
                 suffix="Ngày"
-                style="max-width: 280px"
+                class="w-100"
                 clearable
               ></v-text-field>
             </v-col>
@@ -1701,7 +1699,26 @@ export default {
   mounted() {
     this.fetchExchangeRates();
   },
+  computed: {
+    likesAllFruit() {
+      return (
+        this.officeName && this.officeName.length === this.officeLst.length
+      );
+    },
+    likesSomeFruit() {
+      return this.officeName && this.officeName.length > 0;
+    },
+  },
   methods: {
+    toggle(data) {
+      if (this.likesAllFruit) {
+        data.UserID = [];
+      } else {
+        data.UserID = getUserLstByTeamID(data?.ComID).map(
+          (item) => item.UserName,
+        );
+      }
+    },
     btApplyMaterial(data) {
       if (!data || !Array.isArray(data)) {
         console.error("Invalid data passed to btApplyMaterial:", data);
@@ -2230,14 +2247,22 @@ export default {
         if (res.RespCode == 0) {
           this.workLst = res.DocumentJobLst.map((item, index) => {
             var userJob = null;
-            var a = item.UserAssignLst.find((p) => p.UserRole == "Xử lý");
-            if (a) {
-              userJob = a;
+            var a = item.UserAssignLst.filter((p) => p.UserRole == "Xử lý");
+            if (a.length > 0) {
+              userJob = {
+                ...a[0],
+                UserID: a.filter((i) => i.UserID).map((i) => i.UserID),
+              };
             }
-            var a = item.AssignLst.find((p) => p.UserRole == "Xử lý");
-            if (a) {
-              userJob = a;
+
+            var a = item.AssignLst.filter((p) => p.UserRole == "Xử lý");
+            if (a.length > 0) {
+              userJob = {
+                ...a[0],
+                UserID: a.filter((i) => i.UserID).map((i) => i.UserID),
+              };
             }
+
             var userMana = null;
             var b = item.UserAssignLst.find((p) => p.UserRole == "Phê duyệt");
             if (b && b.ComID != 0) {
@@ -2344,11 +2369,13 @@ export default {
           });
           return;
         }
-
-        asi.push({
-          ...data.UserJob,
-          UserRole: "Xử lý",
-        });
+        for (var item of data.UserJob.UserID) {
+          asi.push({
+            ...data.UserJob,
+            UserRole: "Xử lý",
+            UserID: item,
+          });
+        }
       }
 
       // 3️⃣ Validate người phê duyệt (nếu có)
@@ -2396,8 +2423,9 @@ export default {
       if (this.isLoadding) return;
       this.isLoadding = true;
       const asi = [];
-      const hasJob = data.UserJob && data.UserJob.UserID; // có chọn người xử lý?
-      const hasMana = data.UserMana && data.UserMana.UserID; // có chọn người phê duyệt?
+      const hasJob = data.UserJob && data.UserJob.UserID;
+
+      const hasMana = data.UserMana && data.UserMana.UserID;
 
       // 1️⃣ Không chọn ai cả → báo lỗi
       if (!hasJob && !hasMana) {
@@ -2423,11 +2451,13 @@ export default {
           });
           return;
         }
-
-        asi.push({
-          ...data.UserJob,
-          UserRole: "Xử lý",
-        });
+        for (var item of data.UserJob.UserID) {
+          asi.push({
+            ...data.UserJob,
+            UserRole: "Xử lý",
+            UserID: item,
+          });
+        }
       }
 
       // 3️⃣ Validate người phê duyệt (nếu có)
@@ -2450,7 +2480,8 @@ export default {
           UserRole: "Phê duyệt",
         });
       }
-
+      // console.log("asi", asi);
+      // return;
       // 4️⃣ Submit
       StartJob({
         DocumentID: data.DocumentID,

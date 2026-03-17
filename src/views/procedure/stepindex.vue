@@ -34,7 +34,22 @@
               label="Mô tả"
               class="mb-2"
             ></v-textarea>
-
+            <v-checkbox
+              label="Các công việc trong bước có độc lập hay không"
+              v-model="createPhase.IsContinueJob"
+              :true-value="1"
+              :false-value="0"
+              color="primary"
+              hide-details=""
+            ></v-checkbox>
+            <v-checkbox
+              label="Có từ chối các bước cùng cấp hay không"
+              v-model="createPhase.IsBackCurrent"
+              :true-value="1"
+              :false-value="0"
+              color="primary"
+              hide-details=""
+            ></v-checkbox>
             <v-row>
               <v-col cols="6">
                 <span>Khi bị từ chối</span>
@@ -100,6 +115,22 @@
               label="Mô tả"
               class="mb-2"
             ></v-textarea>
+            <v-checkbox
+              label="Các công việc trong bước có độc lập hay không"
+              v-model="editPhase.IsContinueJob"
+              :true-value="1"
+              :false-value="0"
+              color="primary"
+              hide-details=""
+            ></v-checkbox>
+            <v-checkbox
+              label="Có từ chối các bước cùng cấp hay không"
+              v-model="editPhase.IsBackCurrent"
+              :true-value="1"
+              :false-value="0"
+              color="primary"
+              hide-details=""
+            ></v-checkbox>
             <v-row>
               <v-col cols="6">
                 <span>Khi bị từ chối</span>
@@ -287,7 +318,7 @@ export default {
           if (res.RespCode == 0) {
             this.getPhaseLst();
             this.isShowCreatePhase = false;
-            (this.createPhase = {
+            ((this.createPhase = {
               Status: 1,
               StepOrder: 1,
             }),
@@ -295,7 +326,7 @@ export default {
                 title: "Thành công",
                 text: "Thêm Bước thành công",
                 type: "success",
-              });
+              }));
           }
         });
       } else {

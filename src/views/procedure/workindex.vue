@@ -153,6 +153,7 @@
                   class="mb-2"
                   clearable
                   hide-details
+                  multiple
                 ></v-autocomplete>
                 <v-text-field
                   v-model="userWork.QuotaTime"
@@ -252,7 +253,7 @@
     <v-data-table
       :headers="headers"
       :items="workLst"
-      height="calc(100vh - 300px)"
+      height="calc(100vh - 260px)"
       :loading="loadding"
     >
       <template v-slot:loading>
@@ -283,15 +284,14 @@
 
 <script>
 import {
-  GetStepByID,
   CreateWorkDefine,
-  UpdateWorkDefine,
   DelWorkDefine,
+  GetStepByID,
   GetWorkDefineLst,
+  UpdateWorkDefine,
 } from "@/api/procedureApi";
-import { GetDefaultValue } from "@/api/default";
-import { GetUserLstByTeamID } from "@/api/user";
 import { GetTeamLstProID } from "@/api/teamApi";
+import { GetUserLstByTeamID } from "@/api/user";
 export default {
   data() {
     return {
@@ -344,7 +344,7 @@ export default {
         var data = this.groupLst.find((p) => p.TeamID == value);
         if (data) {
           this.userLstWork = this.groupLst.find(
-            (p) => p.TeamID == value
+            (p) => p.TeamID == value,
           ).UserLst;
         }
       }
@@ -354,7 +354,7 @@ export default {
         var data = this.groupLst.find((p) => p.TeamID == value);
         if (data) {
           this.userLstMana = this.groupLst.find(
-            (p) => p.TeamID == value
+            (p) => p.TeamID == value,
           ).UserLst;
         }
       }
@@ -385,7 +385,7 @@ export default {
 
     btShowLstForm(data) {
       this.$router.push(
-        "/form2/" + data.ProcedureID + "/" + data.StepID + "/" + data.WorkID
+        "/form2/" + data.ProcedureID + "/" + data.StepID + "/" + data.WorkID,
       );
     },
     btShowCreateWork() {
@@ -425,8 +425,16 @@ export default {
     btShowEditWork(item) {
       this.isShowEditWork = true; // Show the edit dialog
       this.editWork = { ...item }; // Populate editWork with the selected item's data
-
-      this.userWork = item.Data.find((p) => p.UserRole == "Xử lý") ?? {};
+      var lstUser = item.Data.filter((p) => p.UserRole == "Xử lý");
+      if (lstUser.length > 0) {
+        this.userWork = {
+          ...lstUser[0],
+          UserID: lstUser.map((item) => item.UserID).filter((p) => p),
+        };
+      } else {
+        this.userWork = {};
+      }
+      // console.log("user", this.userWork);
       if (this.userWork.ComID != 0) {
         this.getUserLstByTeamIDWork(this.userWork.ComID);
       } else {
@@ -434,7 +442,7 @@ export default {
       }
       this.userManager = item.Data.find((p) => p.UserRole == "Phê duyệt") ?? {};
       if (this.userManager.ComID != 0) {
-        this.getUserLstByTeamIDWork(this.userManager.ComID);
+        this.getUserLstByTeamIDMana(this.userManager.ComID);
       } else {
         this.userManager.ComID = null;
       }
@@ -501,15 +509,25 @@ export default {
     },
 
     btEditWork() {
-      // Prepare the request payload
       const reqAssign = [];
-      reqAssign.push({ ...this.userWork, UserRole: "Xử lý" });
-      reqAssign.push({ ...this.userManager, UserRole: "Phê duyệt" });
+      if (this.userWork.UserID && this.userWork.UserID.length > 0) {
+        for (var item of this.userWork.UserID) {
+          reqAssign.push({
+            ...this.userWork,
+            UserRole: "Xử lý",
+            UserID: item,
+          });
+        }
+      } else {
+        reqAssign.push({ ...this.userWork, UserID: null, UserRole: "Xử lý" });
+      }
 
-      // Call the UpdateWorkDefine API
+      // reqAssign.push({ ...this.userWork, UserRole: "Xử lý" });
+      reqAssign.push({ ...this.userManager, UserRole: "Phê duyệt" });
       UpdateWorkDefine({
         WorkInfo: {
           ...this.editWork,
+          Data: [],
         },
         AssignLst: reqAssign,
       }).then((res) => {

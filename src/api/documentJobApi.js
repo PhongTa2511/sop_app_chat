@@ -49,7 +49,7 @@ export function GetDocumentJobByEm(data) {
 
 export function ReportDocumentJob(data) {
   return request({
-    url: "GSPDocumentJob/ReportDocumentJob",
+    url: "GSPDocumentJob/ReportDocumentJobV2",
     method: "post",
     data,
   });
@@ -57,7 +57,7 @@ export function ReportDocumentJob(data) {
 
 export function ApproveDocumentJob(data) {
   return request({
-    url: "GSPDocumentJob/ApproveDocumentJob",
+    url: "GSPDocumentJob/ApproveDocumentJobV2",
     method: "post",
     data,
   });
@@ -96,7 +96,7 @@ export function StartDocument(data) {
 }
 export function StartJob(data) {
   return request({
-    url: "GSPDocumentJob/StartJob",
+    url: "GSPDocumentJob/StartJobV2",
     method: "post",
     data,
   });
