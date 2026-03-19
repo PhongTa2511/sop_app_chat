@@ -89,7 +89,7 @@ export function CancelDocument(data) {
 
 export function StartDocument(data) {
   return request({
-    url: "GSPDocumentJob/StartDocument",
+    url: "GSPDocumentJob/StartDocumentV2",
     method: "post",
     data,
   });

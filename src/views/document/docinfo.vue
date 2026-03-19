@@ -431,14 +431,26 @@
       <v-card class="py-2 px-4 layout-card">
         <div class="d-flex justify-space-between">
           <div class="text-h6">Thông tin các bước</div>
-          <v-btn
+          <!-- <v-btn
             rounded="full"
             color="green"
             icon="mdi-progress-check"
             size="x-small"
             @click="btShowProcess()"
           >
-          </v-btn>
+          </v-btn> -->
+          <v-tooltip text="Quá trình thực hiện">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                v-bind="props"
+                size="x-small"
+                color="green"
+                class="mr-1"
+                icon="mdi-progress-check"
+                @click="btShowProcess()"
+              ></v-btn>
+            </template>
+          </v-tooltip>
         </div>
         <v-divider class="my-2"></v-divider>
         <div v-for="(item, index) in processLst" :key="index" class="mx-2 my-2">
@@ -486,7 +498,7 @@
       <v-card class="py-2 px-2 layout-card">
         <div class="d-flex justify-space-between">
           <div class="text-h6">Các nhóm thực hiện</div>
-          <v-tooltip text="Lưu thông tin" v-if="teamLst.length > 0">
+          <!-- <v-tooltip text="Lưu thông tin" v-if="teamLst.length > 0">
             <template v-slot:activator="{ props }">
               <v-btn
                 v-bind="props"
@@ -497,7 +509,7 @@
                 @click="updateDocumentAssign()"
               ></v-btn>
             </template>
-          </v-tooltip>
+          </v-tooltip> -->
         </div>
 
         <v-divider class="my-2"></v-divider>
@@ -523,6 +535,7 @@
                 class="mb-2"
                 clearable
                 hide-details
+                @update:modelValue="updateDocumentAssign"
               ></v-autocomplete>
             </div>
             <!-- <v-divider class="my-2" color="blue"></v-divider> -->
@@ -557,7 +570,10 @@
           rounded="full"
           color="gray"
           size="small"
-          @click="isShowInfoStep = false"
+          @click="
+            isShowInfoStep = false;
+            this.processDocument();
+          "
         ></v-btn
       ></v-card-title>
       <v-card-text v-for="(item, index) in workLst" :key="index">
@@ -659,7 +675,7 @@
               ></v-text-field>
             </v-col>
           </v-row>
-          <div class="d-flex justify-center my-4">
+          <div class="d-flex justify-center my-4" v-if="item.Status != 4">
             <v-btn
               variant="tonal"
               rounded="8"
@@ -2413,6 +2429,10 @@ export default {
               text: "Gán nhân sự thành công",
               type: "success",
             });
+            this.getDocumentJobByDocID(
+              this.stepInfo.StepID,
+              this.stepInfo.RowID,
+            );
           }
         })
         .finally(() => {
@@ -2496,6 +2516,10 @@ export default {
               text: "Gán nhân sự thành công",
               type: "success",
             });
+            this.getDocumentJobByDocID(
+              this.stepInfo.StepID,
+              this.stepInfo.RowID,
+            );
           }
         })
         .finally(() => {
