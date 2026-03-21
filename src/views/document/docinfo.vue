@@ -597,6 +597,12 @@
               v-if="item.Status == 4"
               >Hoàn thành</v-chip
             >
+            <v-chip
+              style="margin-top: -10px"
+              color="error"
+              v-if="item.Status == 5"
+              >Bị từ chối</v-chip
+            >
           </div>
           <div class="text-p">Mô tả: {{ item.DesJob }}</div>
 
@@ -675,7 +681,10 @@
               ></v-text-field>
             </v-col>
           </v-row>
-          <div class="d-flex justify-center my-4" v-if="item.Status != 4">
+          <div
+            class="d-flex justify-center my-4"
+            v-if="item.Status == 1 || item.Status == 0"
+          >
             <v-btn
               variant="tonal"
               rounded="8"
