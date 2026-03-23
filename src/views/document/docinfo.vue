@@ -2165,7 +2165,7 @@ export default {
           const wb = XLSX.read(bstr, { type: "binary" });
           const wsname = wb.SheetNames[0];
           const ws = wb.Sheets[wsname];
-          const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+          const data = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false });
           this.desserts = this.convertToReq(data).map((item, index) => {
             return {
               ...item,

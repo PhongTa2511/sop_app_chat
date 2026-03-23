@@ -1396,7 +1396,7 @@ export default {
           const wb = XLSX.read(bstr, { type: "binary" });
           const wsname = wb.SheetNames[0];
           const ws = wb.Sheets[wsname];
-          const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+          const data = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false });
           this.desserts = this.convertToReq(data).map((item, index) => {
             return {
               ...item,
@@ -1712,7 +1712,7 @@ export default {
             return {
               ...item,
               Key: index + 1,
-              Checked: false,
+              Checked: index == 0 ? true : false,
             };
           });
 
@@ -1755,7 +1755,7 @@ export default {
             return {
               ...item,
               Key: index + 1,
-              Checked: true,
+              Checked: index == 0 ? true : false,
             };
           });
         if (this.dataJobInfo.AssignLst.length > 1) {

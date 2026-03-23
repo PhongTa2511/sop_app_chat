@@ -35,7 +35,7 @@
               class="mb-2"
             ></v-textarea>
             <v-checkbox
-              label="Các công việc trong bước có độc lập hay không"
+              label="Các công việc trong bước có độc lập"
               v-model="createPhase.IsContinueJob"
               :true-value="1"
               :false-value="0"
@@ -43,7 +43,7 @@
               hide-details=""
             ></v-checkbox>
             <v-checkbox
-              label="Có từ chối các bước cùng cấp hay không"
+              label="Có từ chối các bước cùng cấp"
               v-model="createPhase.IsBackCurrent"
               :true-value="1"
               :false-value="0"
@@ -116,7 +116,7 @@
               class="mb-2"
             ></v-textarea>
             <v-checkbox
-              label="Các công việc trong bước có độc lập hay không"
+              label="Các công việc trong bước có độc lập"
               v-model="editPhase.IsContinueJob"
               :true-value="1"
               :false-value="0"
@@ -124,7 +124,7 @@
               hide-details=""
             ></v-checkbox>
             <v-checkbox
-              label="Có từ chối các bước cùng cấp hay không"
+              label="Có từ chối các bước cùng cấp"
               v-model="editPhase.IsBackCurrent"
               :true-value="1"
               :false-value="0"
