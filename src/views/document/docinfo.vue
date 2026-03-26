@@ -625,7 +625,7 @@
                 :items="getUserLstByTeamID(item.UserJob?.ComID) || []"
                 placeholder="Người xử lý"
                 item-value="UserName"
-                item-title="FullName"
+                :item-title="item => `${item.FullName} (${item.UserName})`"
                 chips
                 class="mb-2 w-100"
                 hide-details

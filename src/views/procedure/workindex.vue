@@ -147,7 +147,7 @@
                   v-model="userWork.UserID"
                   :items="userLstWork"
                   item-value="UserName"
-                  item-title="FullName"
+                  :item-title="item => `${item.FullName} (${item.UserName})`"
                   chips
                   style="max-width: 280px"
                   class="mb-2"
@@ -186,7 +186,7 @@
                   v-model="userManager.UserID"
                   :items="userLstMana"
                   item-value="UserName"
-                  item-title="FullName"
+                  :item-title="item => `${item.FullName} (${item.UserName})`"
                   chips
                   style="max-width: 280px"
                   class="mb-2"
