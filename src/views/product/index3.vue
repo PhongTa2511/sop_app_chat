@@ -1,10 +1,8 @@
 <template>
-  <v-card class="py-2 pb-0">
-    <v-data-table-server
+  <VCard class="py-2 pb-0">
+    <VDataTableServer
       :items-per-page="pageSize"
       :items-length="totalLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="productLst"
@@ -12,31 +10,32 @@
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
+      @update:itemsPerPage="btRow"
       :items-per-page-options="[
         { value: 10, title: '10' },
         { value: 50, title: '50' },
         { value: 100, title: '100' },
         { value: 10000, title: 'All' },
       ]"
+      @update:page="btPage"
       :loading="loadding"
       fixed-header
     >
-      <template v-slot:top>
+      <template #top>
         <div class="d-flex flex-wrap gap-1 px-2">
           <span>
-            <v-menu :close-on-content-click="false">
-              <template v-slot:activator="{ props }">
-                <v-btn
+            <VMenu :close-on-content-click="false">
+              <template #activator="{ props }">
+                <VBtn
                   color="blue"
                   size="small"
                   icon=" mdi-filter"
                   v-bind="props"
-                >
-                </v-btn>
+                />
               </template>
-              <v-list>
-                <v-list-item>
-                  <v-text-field
+              <VList>
+                <VListItem>
+                  <VTextField
                     v-model="product"
                     label="Sản phẩm"
                     hide-details
@@ -44,9 +43,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="name2"
                     label="Tên xuất khẩu"
                     hide-details
@@ -54,9 +53,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="country"
                     label="Nước xk"
                     hide-details
@@ -64,9 +63,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="area"
                     label="Khu vực"
                     hide-details
@@ -74,8 +73,8 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
-                  <v-text-field
+                  />
+                  <VTextField
                     v-model="storeType"
                     label="Phân loại"
                     hide-details
@@ -83,52 +82,58 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-btn block class="rounded mt-2" @click="getProductLst"
-                    >Tìm kiếm</v-btn
-                  >
-                </v-list-item>
-              </v-list>
-            </v-menu>
+                  <VBtn
+                    block
+                    class="rounded mt-2"
+                    @click="getProductLst"
+                  >Tìm kiếm</VBtn>
+                </VListItem>
+              </VList>
+            </VMenu>
           </span>
 
-          <v-btn
+          <VBtn
             color="green"
             variant="tonal"
             icon="mdi-reload"
             size="small"
             @click="getProductLst"
-          ></v-btn>
-          <!-- <v-btn
+          />
+          <!--
+            <v-btn
             color="blue"
             variant="tonal"
             icon="mdi-plus"
             size="small"
             @click="openCreateProductDialog"
-          ></v-btn> -->
+            ></v-btn> 
+          -->
         </div>
       </template>
 
-      <template v-slot:item.Key="{ item }">
+      <template #item.Key="{ item }">
         {{ item.Key }}
-        <v-icon
+        <VIcon
           color="orange"
           class="me-2"
           size="small"
           style="cursor: pointer"
           @click="btShowInfo(item)"
-          >mdi-note-edit</v-icon
         >
+          mdi-note-edit
+        </VIcon>
       </template>
-    </v-data-table-server>
-  </v-card>
+    </VDataTableServer>
+  </VCard>
 </template>
 
 <script>
-import { GetDefaultValue } from "@/api/default";
-import { GetProductLst } from "@/api/productApi";
-import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
+import { GetDefaultValue } from "@/api/default"
+import { GetProductLst } from "@/api/productApi"
+import { formatDateDisplayDDMMYY } from "@/helpers/getTime"
+
 export default {
   data() {
     return {
@@ -168,87 +173,91 @@ export default {
       productDefaultLst: [],
       isCreateProductDialog: false,
       newProduct: {},
-    };
+    }
   },
   watch: {
     pageSize(value) {
-      this.getProductLst();
+      this.getProductLst()
     },
     currentPage(value) {
-      this.getProductLst();
+      this.getProductLst()
     },
     "newProduct.Country"(value) {
       this.newProduct.Area = this.areaLst.find(
-        (p) => p.ValueName == value
-      ).ValueName2;
+        p => p.ValueName == value,
+      ).ValueName2
     },
+  },
+  created() {
+    this.getProductLst()
+    this.getDefaultValue()
   },
   methods: {
     btShowInfo(data) {
-      this.$router.push("/thong-tin-san-pham/" + data.ProductID);
+      this.$router.push("/thong-tin-san-pham/" + data.ProductID)
     },
 
     btPage(data) {
-      this.currentPage = data;
+      this.currentPage = data
     },
     btRow(data) {
-      this.pageSize = data;
+      this.pageSize = data
     },
     getProductLst() {
-      this.loadding = true;
+      this.loadding = true
+
       const searchString = [
         this.product,
         this.name2,
         this.country,
         this.area,
         this.storeType,
-      ].join("|");
+      ].join("|")
+
       const requestData = {
         PageNumber: this.currentPage,
         RowspPage: this.pageSize,
         Search: searchString + "|4",
-      };
-      GetProductLst(requestData).then((res) => {
+      }
+
+      GetProductLst(requestData).then(res => {
         if (res.RespCode == 0) {
           this.productLst = res.Data.map((item, index) => {
-            var num = this.pageSize * (this.currentPage - 1);
+            var num = this.pageSize * (this.currentPage - 1)
+            
             return {
               ...item,
               Key: index + 1 + num,
               ExpDateShow: formatDateDisplayDDMMYY(item.ExpDate),
-            };
-          });
-          this.totalLength = res.TotalRows;
+            }
+          })
+          this.totalLength = res.TotalRows
         }
-        this.loadding = false;
-      });
+        this.loadding = false
+      })
     },
     getDefaultValue() {
       GetDefaultValue({
         Table: "Khu vực",
-      }).then((res) => {
-        this.areaLst = res.DefaultValueLst;
-      });
-      GetDefaultValue({ Table: "Phân loại đối tượng" }).then((res) => {
+      }).then(res => {
+        this.areaLst = res.DefaultValueLst
+      })
+      GetDefaultValue({ Table: "Phân loại đối tượng" }).then(res => {
         if (res.RespCode == 0) {
-          this.typeStorageLst = res.DefaultValueLst;
+          this.typeStorageLst = res.DefaultValueLst
         }
-      });
-      GetDefaultValue({ Table: "Sản phẩm" }).then((res) => {
+      })
+      GetDefaultValue({ Table: "Sản phẩm" }).then(res => {
         if (res.RespCode == 0) {
-          this.productDefaultLst = res.DefaultValueLst;
+          this.productDefaultLst = res.DefaultValueLst
         }
-      });
+      })
     },
     openCreateProductDialog() {
-      this.isCreateProductDialog = true;
+      this.isCreateProductDialog = true
     },
   },
-  created() {
-    this.getProductLst();
-    this.getDefaultValue();
-  },
-};
+}
 </script>
 
 <style></style>

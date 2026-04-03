@@ -1,29 +1,18 @@
 <script setup>
 // import ManagerSystem from "@/views/manager-system/branch.vue";
-import DocumentJobRD from "@/views/document-job/index-rd.vue";
-import JobRecurring from "@/views/document-job/index-recurring.vue";
-import DocumentJob from "@/views/document-job/index.vue";
+import RecurringJob from "@/views/recurring/index.vue";
+
 import { ref } from "vue";
 
-var activeTab = ref("");
+const activeTab = ref("");
 const permission = JSON.parse(localStorage.getItem("PermissionsDTP"));
 
 // tabs
 const tabs = [
   {
-    title: "Danh sách công việc",
-    icon: "mdi-briefcase-account",
-    tab: "cong-viec",
-  },
-  {
-    title: "Công việc RD",
-    icon: "mdi-briefcase-account",
-    tab: "cong-viec-rd",
-  },
-  {
-    title: "Công việc định kỳ",
-    icon: "mdi-lan",
-    tab: "cong-viec-dinh-ky",
+    title: "Lịch định kỳ",
+    icon: "mdi-text-box",
+    tab: "lich-dinh-ky",
   },
 ];
 
@@ -53,22 +42,10 @@ if (!availableTabs.value.find((t) => t.tab === activeTab.value)) {
 
     <VWindow v-model="activeTab" class="mt-2 disable-tab-transition">
       <VWindowItem
-        v-if="availableTabs.some((t) => t.tab === 'cong-viec')"
-        value="cong-viec"
+        v-if="availableTabs.some((t) => t.tab === 'lich-dinh-ky')"
+        value="lich-dinh-ky"
       >
-        <DocumentJob />
-      </VWindowItem>
-      <VWindowItem
-        v-if="availableTabs.some((t) => t.tab === 'cong-viec-rd')"
-        value="cong-viec-rd"
-      >
-        <DocumentJobRD />
-      </VWindowItem>
-      <VWindowItem
-        v-if="availableTabs.some((t) => t.tab === 'cong-viec-dinh-ky')"
-        value="cong-viec-dinh-ky"
-      >
-        <JobRecurring />
+        <RecurringJob />
       </VWindowItem>
     </VWindow>
   </div>

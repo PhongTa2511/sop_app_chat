@@ -153,4 +153,4 @@ export default {
     density: "compact",
     color: "secondary",
   },
-};
+}

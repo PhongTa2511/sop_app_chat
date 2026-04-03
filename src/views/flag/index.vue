@@ -1,10 +1,8 @@
 <template>
-  <v-card class="pt-2">
-    <v-data-table-server
+  <VCard class="pt-2">
+    <VDataTableServer
       :items-per-page="pageSize"
       :items-length="totalLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="productLst"
@@ -12,19 +10,21 @@
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
+      @update:itemsPerPage="btRow"
       :items-per-page-options="[
         { value: 10, title: '10' },
         { value: 50, title: '50' },
         { value: 100, title: '100' },
         { value: 10000, title: 'All' },
       ]"
+      @update:page="btPage"
       :loading="loadding"
       fixed-header
     >
-      <template v-slot:top>
+      <template #top>
         <div class="d-flex flex-wrap gap-2 px-2">
           <span>
-            <v-autocomplete
+            <VAutocomplete
               v-model="country"
               label="Quốc gia"
               :items="countryLst"
@@ -33,22 +33,21 @@
               item-title="Country"
               item-value="Country"
               multiple
-            ></v-autocomplete>
+            />
           </span>
           <span>
-            <v-menu :close-on-content-click="false">
-              <template v-slot:activator="{ props }">
-                <v-btn
+            <VMenu :close-on-content-click="false">
+              <template #activator="{ props }">
+                <VBtn
                   color="blue"
                   size="small"
                   icon=" mdi-filter"
                   v-bind="props"
-                >
-                </v-btn>
+                />
               </template>
-              <v-list>
-                <v-list-item>
-                  <v-text-field
+              <VList>
+                <VListItem>
+                  <VTextField
                     v-model="companyName"
                     label="Tên công ty"
                     hide-details
@@ -57,9 +56,9 @@
                     clearable
                     class="pt-2"
                     @keyup.enter="getCompanyLst"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="phone"
                     label="Số điện thoại"
                     hide-details
@@ -68,9 +67,9 @@
                     clearable
                     class="pt-2"
                     @keyup.enter="getCompanyLst"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="customerName"
                     label="Khách hàng"
                     hide-details
@@ -79,9 +78,9 @@
                     clearable
                     class="pt-2"
                     @keyup.enter="getCompanyLst"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="email"
                     label="Email"
                     hide-details
@@ -90,8 +89,8 @@
                     clearable
                     class="pt-2"
                     @keyup.enter="getCompanyLst"
-                  ></v-text-field>
-                  <v-text-field
+                  />
+                  <VTextField
                     v-model="employeeCare"
                     label="Phụ trách"
                     hide-details
@@ -100,10 +99,10 @@
                     clearable
                     class="pt-2"
                     @keyup.enter="getCompanyLst"
-                  ></v-text-field>
-                  <v-autocomplete
-                    class="pt-2"
+                  />
+                  <VAutocomplete
                     v-model="flagName"
+                    class="pt-2"
                     prepend-inner-icon="mdi-magnify"
                     label="Chọn cờ"
                     :items="flagLst"
@@ -112,52 +111,61 @@
                     item-title="text"
                     item-value="value"
                     clearable
-                  ></v-autocomplete>
-                  <v-btn block class="rounded mt-2" @click="getCompanyLst"
-                    >Tìm kiếm</v-btn
-                  >
-                </v-list-item>
-              </v-list>
-            </v-menu>
+                  />
+                  <VBtn
+                    block
+                    class="rounded mt-2"
+                    @click="getCompanyLst"
+                  >Tìm kiếm</VBtn>
+                </VListItem>
+              </VList>
+            </VMenu>
           </span>
 
-          <v-btn
+          <VBtn
             color="green"
             variant="tonal"
             icon="mdi-reload"
             size="small"
             @click="getCompanyLst"
-          ></v-btn>
+          />
 
-          <v-btn
+          <VBtn
             color="blue"
             variant="tonal"
             icon="mdi-plus"
             size="small"
             @click="openAddCompanyDialog"
-          ></v-btn>
+          />
           <div class="number-flag">
-            <v-icon color="green"> mdi-flag-variant </v-icon>
+            <VIcon color="green">
+              mdi-flag-variant
+            </VIcon>
             <span class="number">{{ dataFlag.FlagGreen }}</span>
-            <v-icon color="yellow"> mdi-flag-variant </v-icon>
+            <VIcon color="yellow">
+              mdi-flag-variant
+            </VIcon>
             <span class="number">{{ dataFlag.FlagYellow }}</span>
-            <v-icon color="grey"> mdi-flag-variant </v-icon>
+            <VIcon color="grey">
+              mdi-flag-variant
+            </VIcon>
             <span class="number">{{ dataFlag.FlagGrey }}</span>
           </div>
         </div>
       </template>
 
-      <template v-slot:item.Key="{ item }">
+      <template #item.Key="{ item }">
         {{ item.Key }}
-        <v-icon
+        <VIcon
           color="orange"
           class="me-2"
           size="small"
           style="cursor: pointer"
           @click="btShowInfo(item)"
-          >mdi-note-edit</v-icon
         >
-        <v-icon
+          mdi-note-edit
+        </VIcon>
+        <VIcon
           color="error"
           class="me-2"
           size="small"
@@ -165,9 +173,9 @@
           @click="confirmDelete(item.CompanyID)"
         >
           mdi-delete
-        </v-icon>
+        </VIcon>
       </template>
-      <template v-slot:item.Phone="{ item }">
+      <template #item.Phone="{ item }">
         <div>
           {{ item.Phone }}
         </div>
@@ -175,7 +183,7 @@
           {{ item.Email }}
         </div>
       </template>
-      <template v-slot:item.CompanyName="{ item }">
+      <template #item.CompanyName="{ item }">
         <div>
           {{ item.CompanyName }}
         </div>
@@ -183,7 +191,7 @@
           {{ item.Country }}
         </div>
       </template>
-      <template v-slot:item.Delegate="{ item }">
+      <template #item.Delegate="{ item }">
         <div>
           {{ item.Delegate }}
         </div>
@@ -192,38 +200,77 @@
         </div>
       </template>
 
-      <template v-slot:item.IsFlag="{ item }">
-        <v-icon color="grey" v-if="item.IsFlag == 1">mdi-flag-variant</v-icon>
-        <v-icon color="green" v-if="item.IsFlag == 4">mdi-flag-variant</v-icon>
-        <v-icon color="yellow" v-if="item.IsFlag == 2">mdi-flag-variant</v-icon>
+      <template #item.IsFlag="{ item }">
+        <VIcon
+          v-if="item.IsFlag == 1"
+          color="grey"
+        >
+          mdi-flag-variant
+        </VIcon>
+        <VIcon
+          v-if="item.IsFlag == 4"
+          color="green"
+        >
+          mdi-flag-variant
+        </VIcon>
+        <VIcon
+          v-if="item.IsFlag == 2"
+          color="yellow"
+        >
+          mdi-flag-variant
+        </VIcon>
       </template>
-    </v-data-table-server>
+    </VDataTableServer>
 
-    <v-dialog v-model="isShowCompany" max-width="700px">
+    <VDialog
+      v-model="isShowCompany"
+      max-width="700px"
+    >
       <InfoCompany
-        :companyID="companyInfo.CompanyID"
-        :countryLst="countryLst"
+        :company-i-d="companyInfo.CompanyID"
+        :country-lst="countryLst"
         @btClose="btClose"
       />
-    </v-dialog>
+    </VDialog>
 
-    <v-dialog v-model="isShowAddCompany" max-width="700px">
-      <InfoCompany :countryLst="countryLst" @btClose="btClose" />
-    </v-dialog>
-  </v-card>
-  <v-dialog v-model="deleteDialog" max-width="400px">
-    <v-card>
-      <v-card-title class="text-h6">Xác nhận xoá</v-card-title>
-      <v-card-text>Bạn có chắc chắn muốn xoá công ty này không?</v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="grey" variant="text" @click="deleteDialog = false"
-          >Huỷ</v-btn
+    <VDialog
+      v-model="isShowAddCompany"
+      max-width="700px"
+    >
+      <InfoCompany
+        :country-lst="countryLst"
+        @btClose="btClose"
+      />
+    </VDialog>
+  </VCard>
+  <VDialog
+    v-model="deleteDialog"
+    max-width="400px"
+  >
+    <VCard>
+      <VCardTitle class="text-h6">
+        Xác nhận xoá
+      </VCardTitle>
+      <VCardText>Bạn có chắc chắn muốn xoá công ty này không?</VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
+          color="grey"
+          variant="text"
+          @click="deleteDialog = false"
         >
-        <v-btn color="red" variant="text" @click="deleteCompany">Xoá</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+          Huỷ
+        </VBtn>
+        <VBtn
+          color="red"
+          variant="text"
+          @click="deleteCompany"
+        >
+          Xoá
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <script>
@@ -232,10 +279,11 @@ import {
   GetCompanyLst,
   GetCountryLstByUserID,
   UpdateCompanyLst,
-} from "@/api/companyApi";
-import { GetDefaultValue } from "@/api/default";
-import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
-import InfoCompany from "./components/index.vue";
+} from "@/api/companyApi"
+import { GetDefaultValue } from "@/api/default"
+import { formatDateDisplayDDMMYY } from "@/helpers/getTime"
+import InfoCompany from "./components/index.vue"
+
 export default {
   components: {
     InfoCompany,
@@ -289,67 +337,72 @@ export default {
       dataFlag: {},
       deleteDialog: false,
       selectedCompanyID: null,
-    };
+    }
   },
   watch: {
     pageSize(value) {
-      this.getCompanyLst();
+      this.getCompanyLst()
     },
     currentPage(value) {
-      this.getCompanyLst();
+      this.getCompanyLst()
     },
     "newProduct.Country"(value) {
       this.newProduct.Area = this.areaLst.find(
-        (p) => p.ValueName == value
-      ).ValueName2;
+        p => p.ValueName == value,
+      ).ValueName2
     },
+  },
+  created() {
+    this.getCompanyLst()
+    this.getCountryLstByUserID()
   },
   methods: {
     confirmDelete(companyID) {
-      this.selectedCompanyID = companyID;
-      this.deleteDialog = true;
+      this.selectedCompanyID = companyID
+      this.deleteDialog = true
     },
     deleteCompany() {
-      DelCompanyInfo({ Data: this.selectedCompanyID }).then((res) => {
+      DelCompanyInfo({ Data: this.selectedCompanyID }).then(res => {
         if (res.RespCode === 0) {
-          this.deleteDialog = false;
-          this.getCompanyLst();
+          this.deleteDialog = false
+          this.getCompanyLst()
           notify({
             type: "success",
             title: "Xoá thành công",
-          });
+          })
         } else {
           notify({
             type: "error",
             title: "Xoá thất bại",
             text: res.RespText,
-          });
+          })
         }
-      });
+      })
     },
     btClose() {
-      this.isShowCompany = false;
-      this.isShowAddCompany = false;
-      this.getCompanyLst();
+      this.isShowCompany = false
+      this.isShowAddCompany = false
+      this.getCompanyLst()
     },
     btShowInfo(data) {
-      this.isShowCompany = true;
-      this.companyInfo = data;
+      this.isShowCompany = true
+      this.companyInfo = data
     },
 
     getCountryLstByUserID() {
-      GetCountryLstByUserID({}).then((res) => {
-        this.countryLst = res.Data;
-      });
+      GetCountryLstByUserID({}).then(res => {
+        this.countryLst = res.Data
+      })
     },
     btPage(data) {
-      this.currentPage = data;
+      this.currentPage = data
     },
     btRow(data) {
-      this.pageSize = data;
+      this.pageSize = data
     },
     getCompanyLst() {
-      this.loadding = true;
+      this.loadding = true
+
       const searchString = [
         this.country,
         this.companyName,
@@ -358,67 +411,67 @@ export default {
         this.email,
         this.employeeCare,
         this.flagName,
-      ].join("|");
+      ].join("|")
+
       const requestData = {
         PageNumber: this.currentPage,
         RowspPage: this.pageSize,
         Search: searchString,
-      };
-      GetCompanyLst(requestData).then((res) => {
+      }
+
+      GetCompanyLst(requestData).then(res => {
         if (res.RespCode == 0) {
           this.productLst = res.CompanyLst.map((item, index) => {
-            var num = this.pageSize * (this.currentPage - 1);
+            var num = this.pageSize * (this.currentPage - 1)
+            
             return {
               ...item,
               Key: index + 1 + num,
               ExpDateShow: formatDateDisplayDDMMYY(item.ExpDate),
-            };
-          });
-          this.totalLength = res.TotalRows;
-          this.dataFlag = res;
+            }
+          })
+          this.totalLength = res.TotalRows
+          this.dataFlag = res
         }
-        this.loadding = false;
-      });
+        this.loadding = false
+      })
     },
     getDefaultValue() {
       GetDefaultValue({
         Table: "Khu vực",
-      }).then((res) => {
-        this.areaLst = res.DefaultValueLst;
-      });
+      }).then(res => {
+        this.areaLst = res.DefaultValueLst
+      })
     },
     openCreateProductDialog() {
-      this.isCreateProductDialog = true;
+      this.isCreateProductDialog = true
     },
     openAddCompanyDialog() {
-      this.isShowAddCompany = true;
+      this.isShowAddCompany = true
     },
     addCompany() {
       // Implement the logic to add the new company
-      UpdateCompanyLst({ Data: [{ ...this.newCompany }] }).then((res) => {
+      UpdateCompanyLst({ Data: [{ ...this.newCompany }] }).then(res => {
         if (res.RespCode == 0) {
-          this.isShowAddCompany = false;
-          this.getCompanyLst();
+          this.isShowAddCompany = false
+          this.getCompanyLst()
           notify({
             type: "success",
             title: "Thành công",
-          });
+          })
         } else {
           notify({
             type: "error",
             title: "Lỗi",
             text: res.RespText,
-          });
+          })
         }
-      });
+      })
     },
   },
-  created() {
-    this.getCompanyLst();
-    this.getCountryLstByUserID();
-  },
-};
+}
 </script>
+
 <style lang="scss" scoped>
 .number-flag {
   border: 1px solid #ccc;

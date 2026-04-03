@@ -1210,7 +1210,7 @@
   <v-dialog v-model="isShowMaterial" width="1000">
     <v-card>
       <v-card-title class="d-flex">
-        <span> Phân ra nguyên phụ liệu </span>
+        <span> Phân rã nguyên phụ liệu </span>
         <v-spacer />
       </v-card-title>
       <v-card-text class="py-0">
@@ -1334,9 +1334,90 @@
               autofocus
               @update:modelValue="updateExchange(item)"
               width="100px"
+              density="compact"
             ></v-select>
           </template>
+          <template v-slot:item.DocumentID="{ item }">
+            <div
+              v-if="editingField !== item.ProductID.trim() + '_document'"
+              @click="startEdit(item, 'document')"
+              class="editable-cell justify-center"
+            >
+              {{ item.DocumentID ?? "..." }}
+            </div>
+            <v-text-field
+              v-else
+              v-model="item.DocumentID"
+              dense
+              hide-details
+              class="inline-edit-input"
+              autofocus
+              @update:focused="btDocument(item)"
+              width="100px"
+              density="compact"
+            ></v-text-field>
+          </template>
 
+          <template v-slot:item.Invoice="{ item }">
+            <div
+              v-if="editingField !== item.ProductID.trim() + '_invoice'"
+              @click="startEdit(item, 'invoice')"
+              class="editable-cell justify-center"
+            >
+              {{ item.Invoice ?? "..." }}
+            </div>
+            <v-text-field
+              v-else
+              v-model="item.Invoice"
+              dense
+              hide-details
+              class="inline-edit-input"
+              autofocus
+              @update:focused="btDocument(item)"
+              width="100px"
+              density="compact"
+            ></v-text-field>
+          </template>
+          <template v-slot:item.DateInvoice="{ item }">
+            <div
+              v-if="editingField !== item.ProductID.trim() + '_dateinvoice'"
+              @click="startEdit(item, 'dateinvoice')"
+              class="editable-cell justify-center"
+            >
+              {{ item.DateInvoice ?? "..." }}
+            </div>
+            <v-text-field
+              v-else
+              v-model="item.DateInvoice"
+              dense
+              hide-details
+              class="inline-edit-input"
+              autofocus
+              @update:focused="btDocument(item)"
+              width="100px"
+              density="compact"
+            ></v-text-field>
+          </template>
+          <template v-slot:item.NCC="{ item }">
+            <div
+              v-if="editingField !== item.ProductID.trim() + '_ncc'"
+              @click="startEdit(item, 'ncc')"
+              class="editable-cell justify-center"
+            >
+              {{ item.NCC ?? "..." }}
+            </div>
+            <v-text-field
+              v-else
+              v-model="item.NCC"
+              dense
+              hide-details
+              class="inline-edit-input"
+              autofocus
+              @update:focused="btDocument(item)"
+              width="100px"
+              density="compact"
+            ></v-text-field>
+          </template>
           <!-- Tỉ giá (Tự động hoặc Nhập tay) -->
           <template v-slot:item.Exchange="{ item }">
             <div
@@ -1538,13 +1619,32 @@ export default {
       },
       materialheaders: [
         // { title: "Mã NL", key: "ProductID", width: "80px" },
-        { title: "Nguyên Phụ Liệu", key: "ProductName" },
-        { title: "Định mức", key: "Quantity", align: "end" },
+        {
+          title: "Nguyên Phụ Liệu",
+          key: "ProductName",
+          width: 180,
+          sortable: false,
+        },
+        { title: "Định mức", key: "Quantity", align: "end", sortable: false },
         // { title: "Đơn vị", key: "UnitOfMeasure", align: "end" },
-        { title: "Giá tiền", key: "UnitPrice", align: "end" },
-        { title: "ĐV tiền", key: "UnitMoney", align: "end" },
-        { title: "Đơn giá", key: "Exchange", align: "end" },
-        { title: "Trị giá", key: "Total", align: "end" },
+        { title: "Giá tiền", key: "UnitPrice", align: "end", sortable: false },
+        { title: "ĐV tiền", key: "UnitMoney", align: "end", sortable: false },
+        { title: "Đơn giá", key: "Exchange", align: "end", sortable: false },
+        { title: "Trị giá", key: "Total", align: "end", sortable: false },
+        { title: "Mã HS", key: "DocumentID", align: "center", sortable: false },
+        {
+          title: "Tờ khai/HĐ",
+          key: "Invoice",
+          align: "center",
+          sortable: false,
+        },
+        {
+          title: "Ngày tờ khai",
+          key: "DateInvoice",
+          align: "center",
+          sortable: false,
+        },
+        { title: "NCC", key: "NCC", align: "center", sortable: false },
         { title: "Thao tác", key: "actions", sortable: false, align: "center" },
       ],
       materials: [],
@@ -1735,6 +1835,9 @@ export default {
     },
   },
   methods: {
+    btDocument(data) {
+      console.log("anhthanfh", data);
+    },
     toggle(data) {
       if (this.likesAllFruit) {
         data.UserID = [];
@@ -1754,7 +1857,7 @@ export default {
           Key: index + 1,
           ["Line" + 1]: item.ProductName,
           ["Line" + 2]: item.ProductID,
-          ["Line" + 3]: null,
+          ["Line" + 3]: item.DocumentID,
           ["Line" + 4]: item.UnitOfMeasure,
           ["Line" + 5]: item.Quantity,
           ["Line" + 6]: item.UnitPrice,
@@ -1762,10 +1865,9 @@ export default {
           ["Line" + 8]: item.Exchange,
           ["Line" + 9]: null,
           ["Line" + 10]: this.formatNumber(item.Total),
-          ["Line" + 11]: null,
-          ["Line" + 12]: null,
-          ["Line" + 13]: null,
-          ["Line" + 14]: null,
+          ["Line" + 11]: item.Invoice,
+          ["Line" + 12]: item.DateInvoice,
+          ["Line" + 13]: item.NCC,
           ["Line" + 15]: null,
           Status: 1,
         };

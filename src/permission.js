@@ -1,4 +1,5 @@
 import router from "./router";
+
 // import store from "./store";
 // import { Message } from "element-ui";
 // import NProgress from "nprogress"; // progress bar
@@ -24,6 +25,7 @@ export const fetchUserPermissions = async () => {
       });
     }
     localStorage.setItem("PermissionsDTP", JSON.stringify(resPerm.Data));
+
     return resPerm.Data;
   }
 
@@ -35,6 +37,7 @@ const whiteList = [
   "/khieu-nai",
   "/thong-tin/",
   "/thong-tin-cong-viec/",
+  "/cong-viec-dinh-ky/",
   "/form/",
   "/form2/",
   "/buoc/",
@@ -55,12 +58,13 @@ router.beforeEach(async (to, from, next) => {
       var permissionActive = [];
 
       permissionActive = permissions.filter(
-        (p) => p.TableName === "Menu" && p.CanAccess == 1
+        (p) => p.TableName === "Menu" && p.CanAccess == 1,
       );
 
       const routeKey = to.path.replace("/", "");
+
       const matchedFeature = permissionActive.find((p) =>
-        routeKey.includes(p.FeatureKey)
+        routeKey.includes(p.FeatureKey),
       );
 
       if (to.path === "/") {

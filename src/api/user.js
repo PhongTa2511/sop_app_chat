@@ -1,6 +1,7 @@
-import { getToken } from "@/utils/auth.js";
+import { getToken } from "@/utils/auth.js"
 
-import request from "@/utils/request";
+import request from "@/utils/request"
+
 // import requestC from "@/utils/request-cpc1hn";
 
 export function LostPassword(data) {
@@ -8,28 +9,28 @@ export function LostPassword(data) {
     url: "User/LostPassword",
     method: "post",
     data: data,
-  });
+  })
 }
 export function UserRegister(data) {
   return request({
     url: "User/UserRegister",
     method: "post",
     data: data,
-  });
+  })
 }
 export function GetOTPCheck(data) {
   return request({
     url: "User/GetOTPCheck",
     method: "post",
     data: data,
-  });
+  })
 }
 export function ChangePassword(data) {
   return request({
     url: "User/ChangePassword",
     method: "post",
     data: data,
-  });
+  })
 }
 
 export function GetEmployeeLst(data) {
@@ -37,7 +38,7 @@ export function GetEmployeeLst(data) {
     url: "User/GetEmployeeLst",
     method: "post",
     data: data,
-  });
+  })
 }
 
 export function AddEmployeeLst(data) {
@@ -45,7 +46,7 @@ export function AddEmployeeLst(data) {
     url: "User/AddEmployeeLst",
     method: "post",
     data: data,
-  });
+  })
 }
 
 export function Login(data) {
@@ -53,7 +54,7 @@ export function Login(data) {
     url: "User/GSPLogin",
     method: "post",
     data: data,
-  });
+  })
 }
 
 export function GetUserLstAll(data) {
@@ -61,7 +62,7 @@ export function GetUserLstAll(data) {
     url: "User/GetUserLstAll",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetUserLstByTeamID(data) {
@@ -69,35 +70,35 @@ export function GetUserLstByTeamID(data) {
     url: "User/GetUserLstByTeamID",
     method: "post",
     data,
-  });
+  })
 }
 export function SetUserRole(data) {
   return request({
     url: "User/SetUserRole",
     method: "post",
     data,
-  });
+  })
 }
 export function DelUserRole(data) {
   return request({
     url: "User/DelUserRole",
     method: "post",
     data,
-  });
+  })
 }
 export function GetUserRole(data) {
   return request({
     url: "User/GetUserRole",
     method: "post",
     data,
-  });
+  })
 }
 export function RegisterAccount(data) {
   return request({
     url: "User/GSPRegister",
     method: "post",
     data,
-  });
+  })
 }
 
 export function UpdateUserInfo(data) {
@@ -105,7 +106,7 @@ export function UpdateUserInfo(data) {
     url: "User/UpdateUserInfo",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetUserInfo(data) {
@@ -113,11 +114,11 @@ export function GetUserInfo(data) {
     url: "User/GetUserInfo",
     method: "post",
     data,
-  });
+  })
 }
 
 export function urlUploadImageAvatar(ID) {
-  return `https://sop.idtp.work/api/File/UploadAvatarUser?UserName=${ID}&Token=${getToken()}`;
+  return `https://sop.idtp.work/api/File/UploadAvatarUser?UserName=${ID}&Token=${getToken()}`
 }
 
 export function GetUserPermisstionByID(data) {
@@ -125,7 +126,7 @@ export function GetUserPermisstionByID(data) {
     url: "User/GetUserPermisstionByID",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetUserPermisstionLst(data) {
@@ -133,7 +134,7 @@ export function GetUserPermisstionLst(data) {
     url: "User/GetUserPermisstionLst",
     method: "post",
     data,
-  });
+  })
 }
 
 export function UpdateUserPermisstionLst(data) {
@@ -141,5 +142,5 @@ export function UpdateUserPermisstionLst(data) {
     url: "User/UpdateUserPermisstionLst",
     method: "post",
     data,
-  });
+  })
 }

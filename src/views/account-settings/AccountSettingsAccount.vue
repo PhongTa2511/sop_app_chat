@@ -1,141 +1,146 @@
 <script setup>
-import { GetDefaultValue } from "@/api/default";
-import { GetTeamLstUserID } from "@/api/teamApi";
+import { GetDefaultValue } from "@/api/default"
+import { GetTeamLstUserID } from "@/api/teamApi"
 import {
   GetUserInfo,
   GetUserLstByTeamID,
   UpdateUserInfo,
-  urlUploadImageAvatar
-} from "@/api/user.js";
-import { getUserName, setAvatar } from "@/utils/auth";
-import avatar1 from "@images/avatars/avatar-1.png";
-import Axios from "axios";
-import { nextTick } from "vue";
+  urlUploadImageAvatar,
+} from "@/api/user.js"
+import { getUserName, setAvatar } from "@/utils/auth"
+import avatar1 from "@images/avatars/avatar-1.png"
+import Axios from "axios"
+import { nextTick } from "vue"
+
 const accountData = {
   avatarImg: avatar1,
-};
+}
 
-const teamList = ref([]);
-const memberList = ref([]);
-const selectedTeam = ref(null);
-const teamScrollRef = ref(null);
-const refInputEl = ref();
-const selectedUser = ref(null);
-const accountDataLocal = ref(structuredClone(accountData));
-var specializeLst = ref([]);
-var positionLst = ref([]);
-const userName = getUserName();
+const teamList = ref([])
+const memberList = ref([])
+const selectedTeam = ref(null)
+const teamScrollRef = ref(null)
+const refInputEl = ref()
+const selectedUser = ref(null)
+const accountDataLocal = ref(structuredClone(accountData))
+var specializeLst = ref([])
+var positionLst = ref([])
+const userName = getUserName()
+
 const resetForm = () => {
-  accountDataLocal.value = structuredClone(accountData);
-};
+  accountDataLocal.value = structuredClone(accountData)
+}
 
-const changeAvatar = (file) => {
-  const fileReader = new FileReader();
-  const { files } = file.target;
+const changeAvatar = file => {
+  const fileReader = new FileReader()
+  const { files } = file.target
   if (files && files.length) {
-    fileReader.readAsDataURL(files[0]);
+    fileReader.readAsDataURL(files[0])
     fileReader.onload = () => {
       if (typeof fileReader.result === "string")
-        accountDataLocal.value.avatarImg = fileReader.result;
-    };
-    const params = new FormData();
-    params.append("file", files[0]);
+        accountDataLocal.value.avatarImg = fileReader.result
+    }
 
-    Axios.post(urlUploadImageAvatar(userName), params).then((res) => {
+    const params = new FormData()
+
+    params.append("file", files[0])
+
+    Axios.post(urlUploadImageAvatar(userName), params).then(res => {
       if (res.data.RespCode == 0) {
         notify({
           type: "success",
           title: "Thành công",
           text: "Lưu thông tin chăm sóc thành công",
-        });
+        })
         accountDataLocal.value.avatarImg =
-          "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" + userName;
-        setAvatar(accountDataLocal.value.avatarImg);
-        location.reload();
+          "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" + userName
+        setAvatar(accountDataLocal.value.avatarImg)
+        location.reload()
       } else {
         notify({
           title: "Lỗi",
           text: res.data.RespText,
           type: "error",
-        });
+        })
       }
-    });
+    })
   }
-};
+}
 
 const getUserInfo = () => {
   GetUserInfo({
     UserInfo: {
       UserName: getUserName(),
     },
-  }).then((res) => {
+  }).then(res => {
     accountDataLocal.value = {
       ...res.UserInfo,
-    };
+    }
     if (res.UserInfo.LinkImage) {
       accountDataLocal.value.avatarImg =
         res.UserInfo.LinkImage
-        ?"data:image/jpeg;base64," + res.UserInfo.LinkImage
-        :"https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
-        res.UserInfo.UserName;
+          ?"data:image/jpeg;base64," + res.UserInfo.LinkImage
+          :"https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
+        res.UserInfo.UserName
     }
-  });
-};
+  })
+}
 
 // reset avatar image
 const resetAvatar = () => {
-  accountDataLocal.value.avatarImg = accountData.avatarImg;
-};
+  accountDataLocal.value.avatarImg = accountData.avatarImg
+}
 
 const getDefaultValue = () => {
   GetDefaultValue({
     Table: "Phòng ban",
-  }).then((res) => {
+  }).then(res => {
     if (res.RespCode == 0) {
-      specializeLst = res.DefaultValueLst;
+      specializeLst = res.DefaultValueLst
     }
-  });
+  })
   GetDefaultValue({
     Table: "Chức vụ",
-  }).then((res) => {
+  }).then(res => {
     if (res.RespCode == 0) {
-      positionLst = res.DefaultValueLst;
+      positionLst = res.DefaultValueLst
     }
-  });
-};
+  })
+}
 
 const updateUserInfo = () => {
   UpdateUserInfo({
     UserInfo: {
       ...accountDataLocal.value,
     },
-  }).then((res) => {
+  }).then(res => {
     if (res.RespCode == 0) {
       notify({
         type: "success",
         title: "Thành công",
         text: "Cập nhật thông tin thành công",
-      });
-      getUserInfo();
+      })
+      getUserInfo()
     }
-  });
-};
+  })
+}
 
 const getTeamList = () => {
   GetTeamLstUserID({
     UserName: userName,
     Token: "",
-  }).then((res) => {
+  }).then(res => {
     if(res.RespCode === 0) {
-      teamList.value = res.Data;
+      teamList.value = res.Data
       if (teamList.value.length > 0) {
-        getUserByTeam(teamList.value[0], 0);
+        getUserByTeam(teamList.value[0], 0)
+      }
     }
-  }
-  });
-};
+  })
+}
+
 const getUserByTeam = (team, index) => {
-  selectedTeam.value = team;
+  selectedTeam.value = team
 
   GetUserLstByTeamID({
     UserName: userName,
@@ -144,11 +149,11 @@ const getUserByTeam = (team, index) => {
     PageNumber: 1,
     RowspPage: 50,
     TeamID: team.TeamID,
-  }).then((res) => {
+  }).then(res => {
     if (res.RespCode === 0) {
-      memberList.value = res.Data;
+      memberList.value = res.Data
     }
-  });
+  })
 
   //scroll
   
@@ -162,14 +167,14 @@ const getUserByTeam = (team, index) => {
     btn.scrollIntoView({
       behavior: "smooth",
       inline: "center",
-      block: "nearest"
+      block: "nearest",
     })
-  });
-};
+  })
+}
 
-getTeamList();
-getUserInfo();
-getDefaultValue();
+getTeamList()
+getUserInfo()
+getDefaultValue()
 </script>
 
 <template>
@@ -184,8 +189,10 @@ getDefaultValue();
         <VCardText>
           <VForm class="">
             <VRow>
-              <v-col md="4">
-                <div class="mb-4">ẢNH ĐẠI DIỆN</div>
+              <VCol md="4">
+                <div class="mb-4">
+                  ẢNH ĐẠI DIỆN
+                </div>
 
                 <div class="avatar-wrapper">
                   <!-- Avatar -->
@@ -198,8 +205,8 @@ getDefaultValue();
 
                   <div
                     v-else
-                    class="default-avatar text-h4 font-weight-medium"
                     v-if="accountDataLocal.FullName"
+                    class="default-avatar text-h4 font-weight-medium"
                   >
                     {{ accountDataLocal.FullName[0] }}
                   </div>
@@ -220,16 +227,21 @@ getDefaultValue();
                     accept=".jpeg,.png,.jpg"
                     hidden
                     @input="changeAvatar"
-                  />
+                  >
 
                   <p class="text-caption mt-2 text-medium-emphasis text-center">
                     Được phép JPG hoặc PNG. Kích thước tối đa 1MB
                   </p>
                 </div>
-              </v-col>
+              </VCol>
               <!-- 👉 First Name -->
-              <VCol md="4" cols="12">
-                <div class="mb-2">THÔNG TIN CƠ BẢN</div>
+              <VCol
+                md="4"
+                cols="12"
+              >
+                <div class="mb-2">
+                  THÔNG TIN CƠ BẢN
+                </div>
                 <VTextField
                   v-model="accountDataLocal.EmployeeCode"
                   label="Mã nhân viên"
@@ -257,29 +269,52 @@ getDefaultValue();
               </VCol>
 
               <!-- 👉 Last Name -->
-              <VCol md="4" cols="12">
-                <div class="mb-2">NHÓM - CHỨC VỤ</div>
+              <VCol
+                md="4"
+                cols="12"
+              >
+                <div class="mb-2">
+                  NHÓM - CHỨC VỤ
+                </div>
 
                 <div class="team-role-scroll">
-                  <v-chip
+                  <VChip
+                    v-for="(item, index) in accountDataLocal.Data"
+                    :key="index"
                     class="mb-2"
                     color="blue"
                     size="large"
-                    v-for="(item, index) in accountDataLocal.Data"
-                    :key="index"
                   >
-                    <v-icon color="green" start>mdi-account-multiple</v-icon>
+                    <VIcon
+                      color="green"
+                      start
+                    >
+                      mdi-account-multiple
+                    </VIcon>
                     {{ item.TeamName }}
 
-                    <v-icon color="green" class="ml-2">mdi-tag-text</v-icon>
+                    <VIcon
+                      color="green"
+                      class="ml-2"
+                    >
+                      mdi-tag-text
+                    </VIcon>
                     {{ item.Role }}
-                  </v-chip>
+                  </VChip>
                 </div>
               </VCol>
               <VDivider />
               <!-- 👉 Form Actions -->
-              <VCol cols="12" class="d-flex flex-wrap gap-4">
-                <VBtn color="#00D084" @click="updateUserInfo">Lưu thay đổi</VBtn>
+              <VCol
+                cols="12"
+                class="d-flex flex-wrap gap-4"
+              >
+                <VBtn
+                  color="#00D084"
+                  @click="updateUserInfo"
+                >
+                  Lưu thay đổi
+                </VBtn>
               </VCol>
             </VRow>
           </VForm>
@@ -294,8 +329,11 @@ getDefaultValue();
         </div>
         <VDivider />
         <VCardText>
-          <div class="team-scroll" ref="teamScrollRef">
-            <v-btn
+          <div
+            ref="teamScrollRef"
+            class="team-scroll"
+          >
+            <VBtn
               v-for="(team, index) in teamList"
               :key="team.TeamID"
               class="me-2"
@@ -303,9 +341,11 @@ getDefaultValue();
               :variant="selectedTeam?.TeamID === team.TeamID ? 'flat' : 'tonal'"
               @click="getUserByTeam(team, index)"
             >
-              <v-icon start>mdi-account-group</v-icon>
+              <VIcon start>
+                mdi-account-group
+              </VIcon>
               {{ team.TeamName }}
-            </v-btn>
+            </VBtn>
           </div>
 
           <div v-if="memberList.length">
@@ -320,36 +360,40 @@ getDefaultValue();
                 :key="user.UserName"
                 class="member-card"
               >
-                  <div class="member-top">
-                    <v-avatar size="50" color="primary" class="avatar-border">
-                      <v-img
-                        v-if="user.LinkImage"
-                        :src="user.LinkImage.startsWith('/9j') 
-                          ? 'data:image/jpeg;base64,' + user.LinkImage
-                          : user.LinkImage"
-                        cover
-                      />
+                <div class="member-top">
+                  <VAvatar
+                    size="50"
+                    color="primary"
+                    class="avatar-border"
+                  >
+                    <VImg
+                      v-if="user.LinkImage"
+                      :src="user.LinkImage.startsWith('/9j') 
+                        ? 'data:image/jpeg;base64,' + user.LinkImage
+                        : user.LinkImage"
+                      cover
+                    />
 
-                      <span v-else>
-                        {{ user.FullName ? user.FullName[0].toUpperCase() : user.UserName[0].toUpperCase() }}
-                      </span>
-                    </v-avatar>
+                    <span v-else>
+                      {{ user.FullName ? user.FullName[0].toUpperCase() : user.UserName[0].toUpperCase() }}
+                    </span>
+                  </VAvatar>
 
-                    <div class="member-info">
-                      <div class="member-name">
-                        {{ user.FullName }}
-                      </div>
+                  <div class="member-info">
+                    <div class="member-name">
+                      {{ user.FullName }}
+                    </div>
 
-                      <div class="member-email">
-                        {{ user.Email }}
-                      </div>
+                    <div class="member-email">
+                      {{ user.Email }}
                     </div>
                   </div>
+                </div>
 
-                  <div class="member-footer">
-                    <span>{{ user.RoleName || 'Thành viên'}}</span>
-                    <span size="18">{{ user.PhoneNumber }}</span>
-                  </div>
+                <div class="member-footer">
+                  <span>{{ user.RoleName || 'Thành viên' }}</span>
+                  <span size="18">{{ user.PhoneNumber }}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -357,9 +401,8 @@ getDefaultValue();
       </VCard>
     </VCol>
   </VRow>
-
-  
 </template>
+
 <style lang="scss" scoped>
 .default-avatar {
   background: #e6e6e6;
@@ -506,6 +549,4 @@ getDefaultValue();
   border: 2px solid #f5f7fa;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
-
-
 </style>

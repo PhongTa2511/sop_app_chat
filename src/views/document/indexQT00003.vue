@@ -1,10 +1,8 @@
 <template>
-  <v-card class="pt-2">
-    <v-data-table-server
+  <VCard class="pt-2">
+    <VDataTableServer
       :items-per-page="rowspPage"
       :items-length="totalLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="fileLst"
@@ -12,31 +10,32 @@
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
+      @update:itemsPerPage="btRow"
       :items-per-page-options="[
         { value: 10, title: '10' },
         { value: 50, title: '50' },
         { value: 100, title: '100' },
         { value: 10000, title: 'All' },
       ]"
+      @update:page="btPage"
       :loading="loadding"
       fixed-header
     >
-      <template v-slot:top>
+      <template #top>
         <div class="d-flex flex-wrap gap-2 px-2">
           <span>
-            <v-menu :close-on-content-click="false">
-              <template v-slot:activator="{ props }">
-                <v-btn
+            <VMenu :close-on-content-click="false">
+              <template #activator="{ props }">
+                <VBtn
                   color="blue"
                   size="small"
                   icon=" mdi-filter"
                   v-bind="props"
-                >
-                </v-btn>
+                />
               </template>
-              <v-list>
-                <v-list-item>
-                  <v-text-field
+              <VList>
+                <VListItem>
+                  <VTextField
                     v-model="product"
                     label="Tên sản phẩm"
                     hide-details
@@ -44,9 +43,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="type"
                     label="Phân loại"
                     hide-details
@@ -54,9 +53,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="dosage"
                     label="Dạng bào chế"
                     hide-details
@@ -64,9 +63,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="ingredient"
                     label="Hoạt chất"
                     hide-details
@@ -74,8 +73,8 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
-                  <v-text-field
+                  />
+                  <VTextField
                     v-model="numberRegister"
                     label="Số đăng ký"
                     hide-details
@@ -83,8 +82,8 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
-                  <v-text-field
+                  />
+                  <VTextField
                     v-model="employeeNCV"
                     label="NCV phụ trách"
                     hide-details
@@ -92,8 +91,8 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
-                  <v-text-field
+                  />
+                  <VTextField
                     v-model="employeeDKT"
                     label="ĐKT phụ trách"
                     hide-details
@@ -101,64 +100,67 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-btn
+                  <VBtn
                     block
                     class="rounded mt-2"
                     @click="getDocumentQT00003Lst"
-                    >Tìm kiếm</v-btn
+                    >Tìm kiếm</VBtn
                   >
-                </v-list-item>
-              </v-list>
-            </v-menu>
+                </VListItem>
+              </VList>
+            </VMenu>
           </span>
-          <v-btn
+          <VBtn
             color="green"
             variant="tonal"
             icon="mdi-reload"
             size="small"
             @click="getDocumentQT00003Lst"
-          ></v-btn>
+          />
         </div>
       </template>
-      <template v-slot:item.Status="{ item }">
-        <v-chip :color="getStatus(item.Status).color">
-          {{ getStatus(item.Status).text }}</v-chip
-        >
+      <template #item.Status="{ item }">
+        <VChip :color="getStatus(item.Status).color">
+          {{ getStatus(item.Status).text }}
+        </VChip>
       </template>
-      <template v-slot:item.Action="{ item }">
-        <v-icon
+      <template #item.Action="{ item }">
+        <VIcon
           color="green"
           class="me-2"
           size="small"
           style="cursor: pointer"
           @click="btShowProcess(item)"
-          >mdi-progress-check</v-icon
         >
+          mdi-progress-check
+        </VIcon>
       </template>
-      <template v-slot:item.Key="{ item }">
+      <template #item.Key="{ item }">
         {{ item.Key }}
-        <v-icon
+        <VIcon
           color="orange"
           class="me-2"
           size="small"
           style="cursor: pointer"
           @click="btPushToDocinfo(item)"
-          >mdi-note-edit</v-icon
         >
+          mdi-note-edit
+        </VIcon>
       </template>
-      <template v-slot:item.DocumentID="{ item }">
+      <template #item.DocumentID="{ item }">
         {{ item.DocumentID }}
-        <div style="color: rgb(var(--v-theme-primary))">{{ item.MaRD }}</div>
+        <div style="color: rgb(var(--v-theme-primary))">
+          {{ item.MaRD }}
+        </div>
       </template>
-    </v-data-table-server>
-  </v-card>
+    </VDataTableServer>
+  </VCard>
 </template>
 
 <script>
 import { GetDocumentQT00003Lst } from "@/api/briefApi";
-import { formatDateDDMMYY } from "@/helpers/getTime";
 
 export default {
   data() {
@@ -335,6 +337,9 @@ export default {
       this.getDocumentQT00003Lst();
     },
   },
+  created() {
+    this.getDocumentQT00003Lst();
+  },
   methods: {
     btPage(data) {
       this.pageNumber = data;
@@ -370,23 +375,21 @@ export default {
       }).then((res) => {
         this.fileLst = res.Data.map((item, index) => {
           var num = (this.pageNumber - 1) * this.rowspPage;
+
           return {
             ...item,
             Key: index + 1 + num,
-            NgayCapSoDangKy: formatDateDDMMYY(item.NgayCapSoDangKy),
-            NgayHetHanSoDangKyHienTai:
-              item.NgayHetHanSoDangKyHienTai == "Vô thời hạn"
-                ? item.NgayHetHanSoDangKyHienTai
-                : formatDateDDMMYY(item.NgayHetHanSoDangKyHienTai),
+            // NgayCapSoDangKy: item.NgayCapSoDangKy,
+            // NgayHetHanSoDangKyHienTai:
+            //   item.NgayHetHanSoDangKyHienTai == "Vô thời hạn"
+            //     ? item.NgayHetHanSoDangKyHienTai
+            //     : formatDateDDMMYY(item.NgayHetHanSoDangKyHienTai),
           };
         });
         this.totalLength = res.TotalRows;
         this.loadding = false;
       });
     },
-  },
-  created() {
-    this.getDocumentQT00003Lst();
   },
 };
 </script>

@@ -1,11 +1,11 @@
 <template>
-  <v-card>
-    <v-card-title class="p-2 pl-2">DANH SÁCH PHIẾU KHIẾU NẠI</v-card-title>
-    <v-data-table-server
+  <VCard>
+    <VCardTitle class="p-2 pl-2">
+      DANH SÁCH PHIẾU KHIẾU NẠI
+    </VCardTitle>
+    <VDataTableServer
       :items-per-page="rowspPage"
       :items-length="totalLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="fileLst"
@@ -13,136 +13,187 @@
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
+      @update:itemsPerPage="btRow"
       :items-per-page-options="[
         { value: 10, title: '10' },
         { value: 50, title: '50' },
         { value: 100, title: '100' },
         { value: 10000, title: 'All' },
       ]"
+      @update:page="btPage"
     >
-      <template v-slot:top>
+      <template #top>
         <div class="d-flex flex-wrap gap-2 px-2">
           <span>
-            <v-text-field
+            <VTextField
               v-model="searchString"
               label="Tìm kiếm"
               hide-details
               style="width: 250px !important"
               clearable
-            ></v-text-field>
+            />
           </span>
 
-          <!-- <span>
+          <!--
+            <span>
             <v-select
-              v-model="optionStatus"
-              placeholder="Trạng thái"
-              density="compact"
-              :items="optionStatusLst"
-              item-value="value"
-              item-title="label"
-              chips
-              style="width: 220px !important"
+            v-model="optionStatus"
+            placeholder="Trạng thái"
+            density="compact"
+            :items="optionStatusLst"
+            item-value="value"
+            item-title="label"
+            chips
+            style="width: 220px !important"
             ></v-select>
-          </span> -->
-          <!-- <v-btn
+            </span> 
+          -->
+          <!--
+            <v-btn
             color="blue"
             variant="tonal"
             icon="mdi-playlist-plus"
             size="small"
             @click="isShowCreateDocument = true"
-          ></v-btn> -->
-          <v-btn
+            ></v-btn> 
+          -->
+          <VBtn
             color="green"
             variant="tonal"
             icon="mdi-reload"
             size="small"
             @click="getDocumentFormLstPublic"
-          ></v-btn>
+          />
         </div>
       </template>
-      <template v-slot:item.Status="{ item }">
-        <v-chip :color="getStatus(item.Status).color" size="small">
-          {{ getStatus(item.Status).text }}</v-chip
+      <template #item.Status="{ item }">
+        <VChip
+          :color="getStatus(item.Status).color"
+          size="small"
         >
+          {{ getStatus(item.Status).text }}
+        </VChip>
       </template>
 
-      <template v-slot:item.Key="{ item }">
+      <template #item.Key="{ item }">
         {{ item.Key }}
 
-        <v-btn
+        <VBtn
+          v-if="item.DocumentID"
           size="x-small"
           icon
-          @click="btPushToDocinfo(item)"
           class="mr-1"
-          v-if="item.DocumentID"
+          @click="btPushToDocinfo(item)"
         >
-          <v-icon>mdi-list-box</v-icon>
-          <v-tooltip activator="parent" location="top">Xem hồ sơ</v-tooltip>
-        </v-btn>
-        <v-btn
+          <VIcon>mdi-list-box</VIcon>
+          <VTooltip
+            activator="parent"
+            location="top"
+          >
+            Xem hồ sơ
+          </VTooltip>
+        </VBtn>
+        <VBtn
           v-else
           size="x-small"
           class="mr-1"
           icon
-          @click="btShowCreateDocument(item)"
           color="green"
+          @click="btShowCreateDocument(item)"
         >
-          <v-icon>mdi-note-plus</v-icon>
-          <v-tooltip activator="parent" location="top"
-            >Tạo hồ sơ xử lý khiếu nại</v-tooltip
+          <VIcon>mdi-note-plus</VIcon>
+          <VTooltip
+            activator="parent"
+            location="top"
           >
-        </v-btn>
-        <v-btn size="x-small" icon @click="btShowForm(item)" color="orange">
-          <v-icon>mdi-account-file-text</v-icon>
-          <v-tooltip activator="parent" location="top"
-            >Xem thông tin phiếu khiếu nại</v-tooltip
+            Tạo hồ sơ xử lý khiếu nại
+          </VTooltip>
+        </VBtn>
+        <VBtn
+          size="x-small"
+          icon
+          color="orange"
+          @click="btShowForm(item)"
+        >
+          <VIcon>mdi-account-file-text</VIcon>
+          <VTooltip
+            activator="parent"
+            location="top"
           >
-        </v-btn>
+            Xem thông tin phiếu khiếu nại
+          </VTooltip>
+        </VBtn>
       </template>
-    </v-data-table-server>
-  </v-card>
+    </VDataTableServer>
+  </VCard>
 
-  <v-dialog v-model="isShowCreateDocument" max-width="500">
-    <v-card>
-      <v-card-title>Tạo hồ sơ xử lý khiếu nại</v-card-title>
-      <v-card-text>
-        <v-select
+  <VDialog
+    v-model="isShowCreateDocument"
+    max-width="500"
+  >
+    <VCard>
+      <VCardTitle>Tạo hồ sơ xử lý khiếu nại</VCardTitle>
+      <VCardText>
+        <VSelect
+          v-model="createDocument.TypeDoc"
           placeholder="Chọn loại quy trình"
           density="compact"
-          v-model="createDocument.TypeDoc"
           :items="procedureLst"
           item-value="ProcedureID"
           item-title="ProcedureName"
           chips
           class="mb-2"
-        ></v-select>
-        <v-textarea
+        />
+        <VTextarea
           v-model="createDocument.Note"
           label="Mô tả"
           required
           :rows="2"
           class="mb-2"
-        ></v-textarea>
-      </v-card-text>
-      <v-card-actions>
-        <v-btn @click="isShowCreateDocument = false" text>Hủy</v-btn>
-        <v-btn color="green" @click="btCreateDocument">Xác nhận</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-  <v-dialog v-model="isShowFile" persistent width="600">
-    <v-card class="px-6 py-4">
-      <v-card-title class="pl-2">Thông tin phiếu khiếu nại</v-card-title>
-      <v-form ref="form" v-if="formFields.length">
-        <div v-for="field in formFields" :key="field.RowID" class="mb-2">
-          <v-text-field
+        />
+      </VCardText>
+      <VCardActions>
+        <VBtn
+          text
+          @click="isShowCreateDocument = false"
+        >
+          Hủy
+        </VBtn>
+        <VBtn
+          color="green"
+          @click="btCreateDocument"
+        >
+          Xác nhận
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
+  <VDialog
+    v-model="isShowFile"
+    persistent
+    width="600"
+  >
+    <VCard class="px-6 py-4">
+      <VCardTitle class="pl-2">
+        Thông tin phiếu khiếu nại
+      </VCardTitle>
+      <VForm
+        v-if="formFields.length"
+        ref="form"
+      >
+        <div
+          v-for="field in formFields"
+          :key="field.RowID"
+          class="mb-2"
+        >
+          <VTextField
             v-if="field.Type === 1"
             v-model="field.TextResult"
             :label="field.Parameter"
             readonly
           />
 
-          <v-select
+          <VSelect
             v-else-if="field.Type === 2"
             v-model="field.TextResult"
             :label="field.Parameter"
@@ -153,20 +204,23 @@
             hide-details
           />
         </div>
-      </v-form>
-      <v-card-actions>
-        <v-btn @click="isShowFile = false">Đóng</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+      </VForm>
+      <VCardActions>
+        <VBtn @click="isShowFile = false">
+          Đóng
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <script>
-import { CreateGSPDocument } from "@/api/briefApi";
-import { GetDocumentFormLstPublic } from "@/api/documentFormApi";
+import { CreateGSPDocument } from "@/api/briefApi"
+import { GetDocumentFormLstPublic } from "@/api/documentFormApi"
 
-import { GetProcedureLst } from "@/api/procedureApi";
-import { formatDateDisplay } from "@/helpers/getTime";
+import { GetProcedureLst } from "@/api/procedureApi"
+import { formatDateDisplay } from "@/helpers/getTime"
+
 export default {
   data() {
     return {
@@ -217,74 +271,80 @@ export default {
       formFields: [],
       isShowFile: false,
       rowForm: 0,
-    };
+    }
   },
   watch: {
     pageNumber(value) {
-      this.getDocumentFormLstPublic();
+      this.getDocumentFormLstPublic()
     },
     rowspPage(value) {
-      this.getDocumentFormLstPublic();
+      this.getDocumentFormLstPublic()
     },
+  },
+  created() {
+    this.getDocumentFormLstPublic()
+    this.getProcedureLst() // Call the new method to fetch procedure list
   },
   methods: {
     btPage(data) {
-      this.pageNumber = data;
+      this.pageNumber = data
     },
     btRow(data) {
-      this.rowspPage = data;
+      this.rowspPage = data
     },
     btShowForm(data) {
-      console.log(data);
+      console.log(data)
 
-      this.formFields = data.DocumentFormLineLst;
-      this.isShowFile = true;
+      this.formFields = data.DocumentFormLineLst
+      this.isShowFile = true
     },
     parseOptions(optionAnswer) {
-      return optionAnswer.split(";").map((item) => {
-        const [Name, Value] = item.split(":");
-        return { Name, Value };
-      });
+      return optionAnswer.split(";").map(item => {
+        const [Name, Value] = item.split(":")
+        
+        return { Name, Value }
+      })
     },
     btShowCreateDocument(data) {
-      this.rowForm = data.RowID;
-      this.isShowCreateDocument = true;
+      this.rowForm = data.RowID
+      this.isShowCreateDocument = true
     },
     btPushToDocinfo(data) {
-      this.$router.push("/thong-tin/" + data.DocumentID);
+      this.$router.push("/thong-tin/" + data.DocumentID)
     },
 
     getDocumentFormLstPublic() {
-      this.loadding = true;
+      this.loadding = true
 
       GetDocumentFormLstPublic({
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
         Search: this.searchString,
-      }).then((res) => {
+      }).then(res => {
         this.fileLst = res.Data.map((item, index) => {
-          var num = (this.pageNumber - 1) * this.rowspPage;
+          var num = (this.pageNumber - 1) * this.rowspPage
+          
           return {
             ...item,
             Key: index + 1 + num,
             TimeCreateShow: formatDateDisplay(item.TimeCreate),
-          };
-        });
-        this.totalLength = res.TotalRows;
-      });
+          }
+        })
+        this.totalLength = res.TotalRows
+      })
     },
     getStatus(status) {
       if (status == 0) {
-        return { text: "Hủy", color: "error" };
+        return { text: "Hủy", color: "error" }
       }
       if (status == 1) {
-        return { text: "Mới tạo", color: "blue" };
+        return { text: "Mới tạo", color: "blue" }
       }
       if (status == 4) {
-        return { text: "Đã tạo HS", color: "success" };
+        return { text: "Đã tạo HS", color: "success" }
       }
 
-      return { text: "Tạm dừng", color: "more" };
+      return { text: "Tạm dừng", color: "more" }
     },
 
     btCreateDocument() {
@@ -295,24 +355,24 @@ export default {
           Data: this.productExcelLst,
           ComID: this.rowForm,
         },
-      }).then((res) => {
+      }).then(res => {
         // Updated to use createDocument
         if (res.RespCode === 0) {
           notify({
             title: "Tạo hồ sơ",
             text: "Hồ sơ đã được tạo thành công",
             type: "success",
-          });
-          this.isShowCreateDocument = false; // Close dialog
-          this.getDocumentFormLstPublic(); // Refresh the document list
+          })
+          this.isShowCreateDocument = false // Close dialog
+          this.getDocumentFormLstPublic() // Refresh the document list
         } else {
           notify({
             title: "Lỗi",
             text: res.RespText,
             type: "error",
-          });
+          })
         }
-      });
+      })
     },
 
     getProcedureLst() {
@@ -321,32 +381,28 @@ export default {
         RowspPage: 100,
         Search: "",
       })
-        .then((res) => {
+        .then(res => {
           if (res.RespCode === 0) {
-            this.procedureLst = res.Data.filter((p) =>
-              "QT01022,QT01023,QT01024".includes(p.ProcedureID)
-            ); // Assuming you want to store the result in procedureLst
+            this.procedureLst = res.Data.filter(p =>
+              "QT01022,QT01023,QT01024".includes(p.ProcedureID),
+            ) // Assuming you want to store the result in procedureLst
           } else {
             notify({
               title: "Error",
               text: res.RespText,
               type: "error",
-            });
+            })
           }
         })
-        .catch((error) => {
+        .catch(error => {
           notify({
             title: "Error",
             text: "Failed to fetch procedure list.",
             type: "error",
-          });
-          console.error(error);
-        });
+          })
+          console.error(error)
+        })
     },
   },
-  created() {
-    this.getDocumentFormLstPublic();
-    this.getProcedureLst(); // Call the new method to fetch procedure list
-  },
-};
+}
 </script>

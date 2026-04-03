@@ -1,11 +1,11 @@
-import request from "@/utils/request";
+import request from "@/utils/request"
 
 export function UpdateDocumentForm(data) {
   return request({
     url: "GSPDocumentForm/UpdateDocumentForm",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetDocumentFormByDocID(data) {
@@ -13,7 +13,7 @@ export function GetDocumentFormByDocID(data) {
     url: "GSPDocumentForm/GetDocumentFormByDocID",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetDocumentFormByID(data) {
@@ -21,7 +21,7 @@ export function GetDocumentFormByID(data) {
     url: "GSPDocumentForm/GetDocumentFormByID",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetDocumentFormByProductID(data) {
@@ -29,7 +29,7 @@ export function GetDocumentFormByProductID(data) {
     url: "GSPDocumentForm/GetDocumentFormByProductID",
     method: "post",
     data,
-  });
+  })
 }
 
 export function UpdateDocumentFormPublic(data) {
@@ -37,7 +37,7 @@ export function UpdateDocumentFormPublic(data) {
     url: "GSPDocumentForm/UpdateDocumentFormPublic",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetDocumentFormLstPublic(data) {
@@ -45,5 +45,5 @@ export function GetDocumentFormLstPublic(data) {
     url: "GSPDocumentForm/GetDocumentFormLstPublic",
     method: "post",
     data,
-  });
+  })
 }

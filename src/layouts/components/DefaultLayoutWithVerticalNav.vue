@@ -17,6 +17,7 @@ const hasAccess = (featureKey) =>
 
 // Đóng mở menu sidebar ở desktop
 const isNavCollapsed = ref(false);
+
 const toggleNavCollapse = () => {
   isNavCollapsed.value = !isNavCollapsed.value;
 };
@@ -55,9 +56,11 @@ onMounted(() => {
 
         <VSpacer />
 
-        <!-- <IconBtn class="me-2">
+        <!--
+          <IconBtn class="me-2">
           <VIcon icon="bx-bell" />
-        </IconBtn> -->
+          </IconBtn> 
+        -->
 
         <NavbarThemeSwitcher class="me-2" />
 
@@ -91,6 +94,14 @@ onMounted(() => {
         }"
       />
       <VerticalNavLink
+        v-if="hasAccess('viec-dinh-ky')"
+        :item="{
+          title: 'Việc định kỳ',
+          icon: 'mdi-calendar-sync',
+          to: '/viec-dinh-ky',
+        }"
+      />
+      <VerticalNavLink
         v-if="hasAccess('san-pham')"
         :item="{
           title: 'Sản phẩm',
@@ -115,14 +126,15 @@ onMounted(() => {
           to: '/cam-co',
         }"
       />
-      <VerticalNavLink
+      <!-- <VerticalNavLink
         v-if="hasAccess('phat-sinh')"
         :item="{
           title: 'Phát sinh',
           icon: 'mdi-sitemap-outline',
           to: '/phat-sinh',
         }"
-      />
+      /> -->
+
       <VerticalNavLink
         v-if="hasAccess('quoc-gia')"
         :item="{
@@ -159,9 +171,11 @@ onMounted(() => {
       />
     </template>
 
-    <!-- <template #after-vertical-nav-items>
+    <!--
+      <template #after-vertical-nav-items>
       <div>Anh Thành</div>
-    </template> -->
+      </template> 
+    -->
 
     <!-- 👉 Pages -->
     <slot />

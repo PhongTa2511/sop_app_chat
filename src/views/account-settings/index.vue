@@ -1,11 +1,11 @@
 <template>
-  <v-card>
-    <v-card-title class="text-h6 pl-4 pr-2 pb-0">
+  <VCard>
+    <VCardTitle class="text-h6 pl-4 pr-2 pb-0">
       <div class="d-flex justify-sm-space-between">
         <div>Danh sách tài khoản</div>
         <div class="d-flex flex-wrap">
           <span>
-            <v-text-field
+            <VTextField
               v-model="search"
               label="Tìm kiếm"
               class="mx-1"
@@ -15,28 +15,26 @@
               style="width: 250px !important"
               prepend-inner-icon="mdi-magnify"
               clearable
-            ></v-text-field>
+            />
           </span>
-          <v-btn
+          <VBtn
             color="blue"
-            @click="getUserLst"
             icon="mdi-reload"
             size="small"
             class="mr-1"
-          ></v-btn>
-          <v-btn
+            @click="getUserLst"
+          />
+          <VBtn
             color="green"
-            @click="btShowCreate"
             icon="mdi-account-plus"
             size="small"
-          ></v-btn>
+            @click="btShowCreate"
+          />
         </div>
       </div>
-    </v-card-title>
-    <v-data-table-server
+    </VCardTitle>
+    <VDataTableServer
       :items-length="totalLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="desserts"
@@ -44,210 +42,262 @@
       height="calc(100vh - 270px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
+      @update:itemsPerPage="btRow"
       sort-desc-icon="mdi-menu-down"
+      @update:page="btPage"
       :items-per-page-options="[
         { value: 10, title: '10' },
         { value: 50, title: '50' },
         { value: 100, title: '100' },
       ]"
     >
-      <template v-slot:item.Status="{ item }">
-        <v-chip
+      <template #item.Status="{ item }">
+        <VChip
+          v-if="item.Status == 1 || item.Status == 2"
           color="green"
           size="small"
-          v-if="item.Status == 1 || item.Status == 2"
         >
           Đang làm
-        </v-chip>
-        <v-chip color="red" size="small" v-if="item.Status == 0"> Xóa </v-chip>
+        </VChip>
+        <VChip
+          v-if="item.Status == 0"
+          color="red"
+          size="small"
+        >
+          Xóa
+        </VChip>
       </template>
-      <template v-slot:item.TeamName="{ item }">
-        <v-chip
+      <template #item.TeamName="{ item }">
+        <VChip
+          v-for="(item, index) in item.Data"
+          :key="index"
           size="small"
           class="mb-1"
           color="blue"
-          v-for="(item, index) in item.Data"
-          :key="index"
-          ><v-icon color="green"> mdi-account-multiple </v-icon>
+        >
+          <VIcon color="green">
+            mdi-account-multiple
+          </VIcon>
           {{ item.TeamName }}
-          <!-- <v-icon color="green" class="ml-4"> mdi-tag-text </v-icon>
-          {{ item.Role }} -->
-        </v-chip>
+          <!--
+            <v-icon color="green" class="ml-4"> mdi-tag-text </v-icon>
+            {{ item.Role }} 
+          -->
+        </VChip>
       </template>
-      <template v-slot:item.Key="{ item }">
+      <template #item.Key="{ item }">
         {{ item.Key }}
-        <v-icon color="orange" size="small" @click="btShowUpdate(item)">
+        <VIcon
+          color="orange"
+          size="small"
+          @click="btShowUpdate(item)"
+        >
           mdi-square-edit-outline
-        </v-icon>
+        </VIcon>
       </template>
-    </v-data-table-server>
-  </v-card>
+    </VDataTableServer>
+  </VCard>
 
-  <v-dialog v-model="isShowUpdateAccount" persistent width="450">
-    <v-card>
-      <v-card-title>
-        <h6 class="text-h6 pt-2">Cập nhật tài khoản</h6>
-      </v-card-title>
-      <v-card-text>
-        <v-row>
-          <v-col cols="12">
-            <v-text-field
-              label="Họ tên"
+  <VDialog
+    v-model="isShowUpdateAccount"
+    persistent
+    width="450"
+  >
+    <VCard>
+      <VCardTitle>
+        <h6 class="text-h6 pt-2">
+          Cập nhật tài khoản
+        </h6>
+      </VCardTitle>
+      <VCardText>
+        <VRow>
+          <VCol cols="12">
+            <VTextField
               v-model="updateAccount.FullName"
+              label="Họ tên"
               hide-details=""
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
-              label="Email"
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
               v-model="updateAccount.Email"
+              label="Email"
               hide-details=""
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
-              label="Số điện thoại"
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
               v-model="updateAccount.PhoneNumber"
+              label="Số điện thoại"
               hide-details=""
-            ></v-text-field>
-          </v-col>
-          <div style="width: 100%" class="mx-3">
+            />
+          </VCol>
+          <div
+            style="width: 100%"
+            class="mx-3"
+          >
             <span> Nhóm </span>
-            <v-btn
+            <VBtn
               icon
               class="float-right"
               size="small"
               density="compact"
               @click="btShowAddTeam"
             >
-              <v-icon size="20">mdi-plus</v-icon>
-            </v-btn>
+              <VIcon size="20">
+                mdi-plus
+              </VIcon>
+            </VBtn>
           </div>
-          <div style="width:100%" class="mx-3">
-            <v-sheet
+          <div
+            style="width:100%"
+            class="mx-3"
+          >
+            <VSheet
               v-for="(item, index) in updateAccount.Data"
               :key="index"
               class="team-row px-2 py-1 mb-1"
             >
               <div class="team-grid">
-
                 <!-- TEAM -->
                 <div class="team-left text-body-2">
-                  <v-icon size="18" color="green" class="mr-2">mdi-account-multiple</v-icon>
+                  <VIcon
+                    size="18"
+                    color="green"
+                    class="mr-2"
+                  >
+                    mdi-account-multiple
+                  </VIcon>
                   {{ item.TeamName }}
                 </div>
 
                 <!-- ROLE -->
                 <div class="team-role text-body-2">
-                  <v-menu>
-                    <template v-slot:activator="{ props }">
-                      <div v-bind="props" class="d-flex align-center cursor-pointer">
-                        <v-icon size="18" color="green" class="mr-1">
+                  <VMenu>
+                    <template #activator="{ props }">
+                      <div
+                        v-bind="props"
+                        class="d-flex align-center cursor-pointer"
+                      >
+                        <VIcon
+                          size="18"
+                          color="green"
+                          class="mr-1"
+                        >
                           mdi-tag
-                        </v-icon>
+                        </VIcon>
                         {{ item.Role }}
                       </div>
                     </template>
 
-                    <v-list density="compact">
-                      <v-list-item
+                    <VList density="compact">
+                      <VListItem
                         v-for="role in positionLst"
                         :key="role.ValueName"
                         @click="changeRole(item, role.ValueName)"
                       >
-                        <v-list-item-title>
+                        <VListItemTitle>
                           {{ role.ValueName }}
-                        </v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
+                        </VListItemTitle>
+                      </VListItem>
+                    </VList>
+                  </VMenu>
                 </div>
 
                 <!-- DELETE -->
-                <v-icon
+                <VIcon
                   size="18"
                   color="red"
                   class="cursor-pointer"
                   @click="btRemoveTeam(item)"
                 >
                   mdi-close
-                </v-icon>
-
+                </VIcon>
               </div>
-            </v-sheet>
+            </VSheet>
           </div>
-        </v-row>
-        <div></div>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
+        </VRow>
+        <div />
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
           color="blue-darken-1"
           variant="text"
           @click="isShowUpdateAccount = false"
         >
           Đóng
-        </v-btn>
-        <v-btn @click="updateUserInfo"> Xác nhận </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-  <v-dialog v-model="isShowAddTeam" persistent width="380">
-    <v-card>
-      <v-card-title>
-        <h6 class="text-h6 pt-2">Thêm nhóm</h6>
-      </v-card-title>
-      <v-card-text>
-        <v-row>
-          <v-col cols="12">
-            <v-autocomplete
-              label="Nhóm"
+        </VBtn>
+        <VBtn @click="updateUserInfo">
+          Xác nhận
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
+  <VDialog
+    v-model="isShowAddTeam"
+    persistent
+    width="380"
+  >
+    <VCard>
+      <VCardTitle>
+        <h6 class="text-h6 pt-2">
+          Thêm nhóm
+        </h6>
+      </VCardTitle>
+      <VCardText>
+        <VRow>
+          <VCol cols="12">
+            <VAutocomplete
               v-model="teamRoleUser.TeamID"
+              label="Nhóm"
               :items="teamLst"
               item-value="TeamID"
               item-title="TeamName"
               filterable
               clearable
               hide-details=""
-            ></v-autocomplete>
-          </v-col>
-          <v-col cols="12">
-            <v-select
-              label="Chức vụ"
+            />
+          </VCol>
+          <VCol cols="12">
+            <VSelect
               v-model="teamRoleUser.Role"
+              label="Chức vụ"
               :items="positionLst"
               item-value="ValueName"
               item-title="ValueName"
               hide-details=""
-            ></v-select>
-          </v-col>
-        </v-row>
-        <div></div>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
+            />
+          </VCol>
+        </VRow>
+        <div />
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
           color="blue-darken-1"
           variant="text"
           @click="isShowAddTeam = false"
         >
           Đóng
-        </v-btn>
-        <v-btn @click="btAddTeam"> Xác nhận </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        </VBtn>
+        <VBtn @click="btAddTeam">
+          Xác nhận
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <script>
-import { GetDefaultValue } from "@/api/default";
-import { GetTeamLst } from "@/api/teamApi";
+import { GetDefaultValue } from "@/api/default"
+import { GetTeamLst } from "@/api/teamApi"
 import {
   DelUserRole,
   GetUserLstAll,
   GetUserRole,
   UpdateUserInfo,
-} from "@/api/user";
+} from "@/api/user"
 
 export default {
   data() {
@@ -298,90 +348,95 @@ export default {
       teamLst: [],
       isShowAddTeam: false,
       teamRoleUser: {},
-    };
+    }
   },
   watch: {
     search() {
-      this.getUserLst();
+      this.getUserLst()
     },
     pageNumber(newValue) {
-      this.getUserLst();
+      this.getUserLst()
     },
     rowspPage(newValue) {
-      this.getUserLst();
+      this.getUserLst()
     },
+  },
+
+  created() {
+    this.getUserLst()
+    this.getDefaultValue()
   },
   methods: {
     changeRole(teamItem, role) {
-      teamItem.Role = role;
+      teamItem.Role = role
     },
     btRemoveTeam(data) {
       this.updateAccount.Data = this.updateAccount.Data.filter(
-        (p) => p.TeamID != data.TeamID,
-      );
+        p => p.TeamID != data.TeamID,
+      )
     },
     btAddTeam() {
       if (this.teamRoleUser.TeamID && this.teamRoleUser.Role) {
         const existingTeamIndex = this.updateAccount.Data.findIndex(
-          (p) => p.TeamID == this.teamRoleUser.TeamID,
-        );
+          p => p.TeamID == this.teamRoleUser.TeamID,
+        )
 
         if (existingTeamIndex !== -1) {
           // Cập nhật thông tin nếu TeamID đã tồn tại
           this.updateAccount.Data[existingTeamIndex] = {
             ...this.updateAccount.Data[existingTeamIndex],
             Role: this.teamRoleUser.Role, // Cập nhật chỉ Role
-          };
+          }
         } else {
           // Thêm mới nếu TeamID chưa tồn tại
           this.updateAccount.Data.push({
             ...this.teamRoleUser,
             TeamName: this.teamLst.find(
-              (p) => p.TeamID == this.teamRoleUser.TeamID,
+              p => p.TeamID == this.teamRoleUser.TeamID,
             ).TeamName,
-          });
+          })
         }
-        this.isShowAddTeam = false;
+        this.isShowAddTeam = false
       } else {
         notify({
           title: "Cảnh báo",
           text: "Nhập đầy đủ thông tin",
           type: "error",
-        });
+        })
       }
     },
     btShowAddTeam() {
-      this.isShowAddTeam = true;
-      this.teamRoleUser = {};
+      this.isShowAddTeam = true
+      this.teamRoleUser = {}
     },
     btShowCreate() {
-      this.isShowCreate = true;
+      this.isShowCreate = true
     },
     btPage(data) {
-      this.pageNumber = data;
+      this.pageNumber = data
     },
     btRow(data) {
-      this.rowspPage = data;
+      this.rowspPage = data
     },
     getDefaultValue() {
-      GetDefaultValue({ Table: "Chức vụ" }).then((res) => {
+      GetDefaultValue({ Table: "Chức vụ" }).then(res => {
         if (res.RespCode == 0) {
-          this.positionLst = res.DefaultValueLst.filter((p) => p.Status > 0);
+          this.positionLst = res.DefaultValueLst.filter(p => p.Status > 0)
         }
-      });
+      })
       GetTeamLst({
         RowspPage: 10000,
         PageNumber: 1,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          this.teamLst = res.Data;
+          this.teamLst = res.Data
         }
-      });
+      })
     },
     btShowUserRole(data) {
-      this.isShowSetUserRole = true;
-      this.userRole = data;
-      this.getUserRole(data.UserName);
+      this.isShowSetUserRole = true
+      this.userRole = data
+      this.getUserRole(data.UserName)
     },
 
     delUserRole(data) {
@@ -392,53 +447,54 @@ export default {
           Role: data.Role,
           Description: data.Description,
         },
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          this.getUserRole(data.UserID);
+          this.getUserRole(data.UserID)
           notify({
             title: "Xóa quyền",
             text: "Xóa phân quyền thành công",
             type: "success",
-          });
+          })
         }
-      });
+      })
     },
     getUserRole(data) {
       GetUserRole({
         UserID: data,
-      }).then((res) => {
+      }).then(res => {
         this.userRoleLst = res.Data.map((item, index) => {
           return {
             ...item,
             Key: index + 1,
-          };
-        });
-      });
+          }
+        })
+      })
     },
     getUserLst() {
       GetUserLstAll({
         Search: this.search,
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
           this.desserts = res.Data.map((item, index) => {
-            var a = this.rowspPage * (this.pageNumber - 1);
+            var a = this.rowspPage * (this.pageNumber - 1)
+            
             return {
               ...item,
               Key: index + 1 + a,
-            };
-          });
-          this.totalLength = res.TotalRows;
+            }
+          })
+          this.totalLength = res.TotalRows
         }
-      });
+      })
     },
 
     btShowUpdate(data) {
-      this.isShowUpdateAccount = true;
+      this.isShowUpdateAccount = true
       this.updateAccount = {
         ...data,
-      };
+      }
     },
     updateUserInfo() {
       UpdateUserInfo({
@@ -452,18 +508,18 @@ export default {
           TeamID: this.updateAccount.TeamID,
           Status: this.updateAccount.Status,
         },
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          this.isShowUpdateAccount = false;
-          this.updateAccount = {};
-          this.getUserLst();
+          this.isShowUpdateAccount = false
+          this.updateAccount = {}
+          this.getUserLst()
           notify({
             title: "Tài khoản",
             text: "Cập nhật tài khoản thành công",
             type: "success",
-          });
+          })
         }
-      });
+      })
     },
     delUserInfo(data) {
       this.$confirm("Có chắc bạn muốn xóa tài khoản này không?", "Warning", {
@@ -475,6 +531,7 @@ export default {
           UpdateUserInfo({
             UserInfo: {
               UserName: data.UserName,
+
               // Password: this.updateAccount.Password,
               Email: data.Email,
               FullName: data.FullName,
@@ -482,27 +539,23 @@ export default {
               Status: -1,
               OrganizationLst: data.OrganizationLst,
             },
-          }).then((res) => {
+          }).then(res => {
             if (res.RespCode == 0) {
-              this.getUserLst();
+              this.getUserLst()
               notify({
                 title: "Tài khoản",
                 text: "Xóa tài khoản thành công",
                 type: "success",
-              });
+              })
             }
-          });
+          })
         })
-        .catch(() => {});
+        .catch(() => {})
     },
   },
-
-  created() {
-    this.getUserLst();
-    this.getDefaultValue();
-  },
-};
+}
 </script>
+
 <style>
 .team-row{
   background:#e3f2fd;

@@ -1,5 +1,5 @@
 <script>
-import { Login } from "@/api/user.js";
+import { Login } from "@/api/user.js"
 import {
   removeAvatar,
   setAvatar,
@@ -10,8 +10,9 @@ import {
   setRole,
   setToken,
   setUserName,
-} from "@/utils/auth";
-import logo from "@images/logos/dtp-logo.png";
+} from "@/utils/auth"
+import logo from "@images/logos/dtp-logo.png"
+
 export default {
   data() {
     return {
@@ -22,7 +23,7 @@ export default {
       },
       logo: logo,
       isPasswordVisible: false,
-    };
+    }
   },
 
   methods: {
@@ -30,40 +31,49 @@ export default {
       Login({
         UserName: this.form.idEmployee,
         Password: this.form.password,
-      }).then((res) => {
-        setToken(res.Token);
-        setUserName(this.form.idEmployee);
-        setFullName(res.UserInfo.FullName);
-        setPhoneNumber(res.UserInfo.PhoneNumber);
-        setEmployCode(res.UserInfo.EmployeeCode);
-        setEmail(res.UserInfo.Email);
-        setRole(res.UserInfo.Role);
+      }).then(res => {
+        setToken(res.Token)
+        setUserName(this.form.idEmployee)
+        setFullName(res.UserInfo.FullName)
+        setPhoneNumber(res.UserInfo.PhoneNumber)
+        setEmployCode(res.UserInfo.EmployeeCode)
+        setEmail(res.UserInfo.Email)
+        setRole(res.UserInfo.Role)
         if (res.UserInfo.LinkImage && res.UserInfo.LinkImage != "") {
-          setAvatar(res.UserInfo.LinkImage);
+          setAvatar(res.UserInfo.LinkImage)
         } else {
-          removeAvatar();
+          removeAvatar()
         }
-        this.$router.push("/");
+        this.$router.push("/")
         notify({
           type: "success",
           title: "Thành công",
           text: "Đăng nhập thành công",
-        });
-      });
+        })
+      })
     },
   },
-};
+}
 </script>
 
 <template>
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
-    <VCard class="auth-card px-4 pb-4" max-width="448">
+    <VCard
+      class="auth-card px-4 pb-4"
+      max-width="448"
+    >
       <div class="d-flex justify-center">
-        <img :src="logo" alt="" style="height: 180px" />
+        <img
+          :src="logo"
+          alt=""
+          style="height: 180px"
+        >
       </div>
 
       <VCardText class="pt-0">
-        <h5 class="text-h5 mb-1">Quản lý quy trình DTP 👋🏻</h5>
+        <h5 class="text-h5 mb-1">
+          Quản lý quy trình DTP 👋🏻
+        </h5>
         <p class="mb-0">
           Vui lòng đăng nhập vào tài khoản của bạn và bắt đầu trải nghiệm
         </p>
@@ -95,41 +105,53 @@ export default {
               />
 
               <!-- remember me checkbox -->
-              <div
-                class="d-flex align-center justify-space-between flex-wrap mt-1 mb-4"
-              >
+              <div class="d-flex align-center justify-space-between flex-wrap mt-1 mb-4">
                 <!-- <VCheckbox v-model="form.remember" label="Remember me" /> -->
 
-                <!-- <RouterLink
+                <!--
+                  <RouterLink
                   class="text-primary ms-2 mb-1"
                   to="javascript:void(0)"
-                >
+                  >
                   Quên mật khẩu?
-                </RouterLink> -->
+                  </RouterLink> 
+                -->
               </div>
 
               <!-- login button -->
-              <VBtn block type="submit" rounded="md"> Đăng nhập </VBtn>
+              <VBtn
+                block
+                type="submit"
+                rounded="md"
+              >
+                Đăng nhập
+              </VBtn>
             </VCol>
 
             <!-- create account -->
-            <!-- <VCol cols="12" class="text-center text-base">
+            <!--
+              <VCol cols="12" class="text-center text-base">
               <span>Bạn chưa có tải khoản ?</span>
               <RouterLink class="text-primary ms-2" to="/dang-ky">
-                Tạo mới
+              Tạo mới
               </RouterLink>
-            </VCol> -->
+              </VCol> 
+            -->
 
-            <!-- <VCol cols="12" class="d-flex align-center">
+            <!--
+              <VCol cols="12" class="d-flex align-center">
               <VDivider />
               <span class="mx-4">or</span>
               <VDivider />
-            </VCol> -->
+              </VCol> 
+            -->
 
             <!-- auth providers -->
-            <!-- <VCol cols="12" class="text-center">
+            <!--
+              <VCol cols="12" class="text-center">
               <AuthProvider />
-            </VCol> -->
+              </VCol> 
+            -->
           </VRow>
         </VForm>
       </VCardText>

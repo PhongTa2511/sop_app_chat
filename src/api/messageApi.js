@@ -1,11 +1,12 @@
-import { getToken, getUserName } from "@/utils/auth";
-import request from "@/utils/requestMessage";
+import { getToken, getUserName } from "@/utils/auth"
+import request from "@/utils/requestMessage"
+
 export function GetMessageByGoupID(data) {
   return request({
     url: "messages/GetMessageByGroupID",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetGroupLstByUserID(data) {
@@ -13,7 +14,7 @@ export function GetGroupLstByUserID(data) {
     url: "groups/GetGroupLstByUserID",
     method: "post",
     data,
-  });
+  })
 }
 
 export function CreateGroup(data) {
@@ -21,7 +22,7 @@ export function CreateGroup(data) {
     url: "groups/CreateGroup",
     method: "post",
     data,
-  });
+  })
 }
 
 export function UpdateGroup(data) {
@@ -29,7 +30,7 @@ export function UpdateGroup(data) {
     url: "groups/UpdateGroup",
     method: "post",
     data,
-  });
+  })
 }
 
 export function AddMemberGroup(data) {
@@ -37,7 +38,7 @@ export function AddMemberGroup(data) {
     url: "groups/AddMemberGroup",
     method: "post",
     data,
-  });
+  })
 }
 
 export function DelMemberGroup(data) {
@@ -45,7 +46,7 @@ export function DelMemberGroup(data) {
     url: "groups/DelMemberGroup",
     method: "post",
     data,
-  });
+  })
 }
 
 export function SendMessage(data) {
@@ -53,7 +54,7 @@ export function SendMessage(data) {
     url: "messages/SendMessage",
     method: "post",
     data,
-  });
+  })
 }
 
 export function ReadMessage(data) {
@@ -61,7 +62,7 @@ export function ReadMessage(data) {
     url: "messages/ReadMessage",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetMemberLstByGroupID(data) {
@@ -69,12 +70,12 @@ export function GetMemberLstByGroupID(data) {
     url: "groups/GetMemberLstByGroupID",
     method: "post",
     data,
-  });
+  })
 }
 
 export function urlUploadImageGroup(ID) {
-  return `https://sop.idtp.work/api/File/UploadAvatarGroup?UserName=${getUserName()}&Token=${getToken()}&GroupID=${ID}`;
+  return `https://sop.idtp.work/api/File/UploadAvatarGroup?UserName=${getUserName()}&Token=${getToken()}&GroupID=${ID}`
 }
 export function urlUploadMessageFile(ID) {
-  return `https://sop.idtp.work/api/File/UploadMessageFile?UserName=${getUserName()}&Token=${getToken()}&MessageID=${ID}`;
+  return `https://sop.idtp.work/api/File/UploadMessageFile?UserName=${getUserName()}&Token=${getToken()}&MessageID=${ID}`
 }

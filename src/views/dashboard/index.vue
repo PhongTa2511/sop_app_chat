@@ -1,306 +1,420 @@
 <template>
   <div class="container">
     <div class="content">
-      <div class="title-content">Thống kê hồ sơ</div>
+      <div class="title-content">
+        Thống kê hồ sơ
+      </div>
       <div class="row-top">
         <div class="flex-2-0">
-          <div class="box" style="background: #e3f9f8">
-            <div class="title">Hồ sơ</div>
-            <v-row>
-              <v-col>
+          <div
+            class="box"
+            style="background: #e3f9f8"
+          >
+            <div class="title">
+              Hồ sơ
+            </div>
+            <VRow>
+              <VCol>
                 <div>Đang làm</div>
-                <v-btn color="primary">
+                <VBtn color="primary">
                   {{ dashInfo.NumDoc2 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Tạm dừng</div>
-                <v-btn color="orange">
+                <VBtn color="orange">
                   {{ dashInfo.NumDoc3 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Hoàn thành</div>
-                <v-btn color="green">
+                <VBtn color="green">
                   {{ dashInfo.NumDoc4 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Dừng</div>
-                <v-btn color="indigo">
+                <VBtn color="indigo">
                   {{ dashInfo.NumDoc0 }}
-                </v-btn>
-              </v-col>
-            </v-row>
+                </VBtn>
+              </VCol>
+            </VRow>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #fff2ee">
-            <div class="title">Hồ sơ quá hạn</div>
+          <div
+            class="box"
+            style="background: #fff2ee"
+          >
+            <div class="title">
+              Hồ sơ quá hạn
+            </div>
             <div class="value">
               {{ dashInfo.NumDocOver }}
             </div>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #ffeef3">
-            <div class="title">Công việc quá hạn</div>
-            <div class="value">{{ dashInfo.NumJob }}</div>
+          <div
+            class="box"
+            style="background: #ffeef3"
+          >
+            <div class="title">
+              Công việc quá hạn
+            </div>
+            <div class="value">
+              {{ dashInfo.NumJob }}
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="content">
-      <div class="title-content">Thống kê Nhãn đăng ký</div>
+      <div class="title-content">
+        Thống kê Nhãn đăng ký
+      </div>
       <div class="row-top">
         <div class="flex-2-0">
-          <div class="box" style="background: #e3f9f8">
-            <div class="title">Nhãn đăng ký</div>
-            <v-row>
-              <v-col>
+          <div
+            class="box"
+            style="background: #e3f9f8"
+          >
+            <div class="title">
+              Nhãn đăng ký
+            </div>
+            <VRow>
+              <VCol>
                 <div>Đang làm</div>
-                <v-btn color="primary">
+                <VBtn color="primary">
                   {{ dashInfoDesign.NumDoc2 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Tạm dừng</div>
-                <v-btn color="orange">
+                <VBtn color="orange">
                   {{ dashInfoDesign.NumDoc3 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Hoàn thành</div>
-                <v-btn color="green">
+                <VBtn color="green">
                   {{ dashInfoDesign.NumDoc4 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Dừng</div>
-                <v-btn color="indigo">
+                <VBtn color="indigo">
                   {{ dashInfoDesign.NumDoc0 }}
-                </v-btn>
-              </v-col>
-            </v-row>
+                </VBtn>
+              </VCol>
+            </VRow>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #fff2ee">
-            <div class="title">Nhãn quá hạn</div>
+          <div
+            class="box"
+            style="background: #fff2ee"
+          >
+            <div class="title">
+              Nhãn quá hạn
+            </div>
             <div class="value">
               {{ dashInfoDesign.NumDocOver }}
             </div>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #ffeef3">
-            <div class="title">Công việc quá hạn</div>
-            <div class="value">{{ dashInfoDesign.NumJob }}</div>
+          <div
+            class="box"
+            style="background: #ffeef3"
+          >
+            <div class="title">
+              Công việc quá hạn
+            </div>
+            <div class="value">
+              {{ dashInfoDesign.NumJob }}
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="content">
-      <div class="title-content">Thống kê Nhãn sản xuất</div>
+      <div class="title-content">
+        Thống kê Nhãn sản xuất
+      </div>
       <div class="row-top">
         <div class="flex-2-0">
-          <div class="box" style="background: #e3f9f8">
-            <div class="title">Nhãn sản xuất</div>
-            <v-row>
-              <v-col>
+          <div
+            class="box"
+            style="background: #e3f9f8"
+          >
+            <div class="title">
+              Nhãn sản xuất
+            </div>
+            <VRow>
+              <VCol>
                 <div>Đang làm</div>
-                <v-btn color="primary">
+                <VBtn color="primary">
                   {{ dashInfoDesign2.NumDoc2 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Tạm dừng</div>
-                <v-btn color="orange">
+                <VBtn color="orange">
                   {{ dashInfoDesign2.NumDoc3 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Hoàn thành</div>
-                <v-btn color="green">
+                <VBtn color="green">
                   {{ dashInfoDesign2.NumDoc4 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Dừng</div>
-                <v-btn color="indigo">
+                <VBtn color="indigo">
                   {{ dashInfoDesign2.NumDoc0 }}
-                </v-btn>
-              </v-col>
-            </v-row>
+                </VBtn>
+              </VCol>
+            </VRow>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #fff2ee">
-            <div class="title">Nhãn quá hạn</div>
+          <div
+            class="box"
+            style="background: #fff2ee"
+          >
+            <div class="title">
+              Nhãn quá hạn
+            </div>
             <div class="value">
               {{ dashInfoDesign2.NumDocOver }}
             </div>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #ffeef3">
-            <div class="title">Công việc quá hạn</div>
-            <div class="value">{{ dashInfoDesign2.NumJob }}</div>
+          <div
+            class="box"
+            style="background: #ffeef3"
+          >
+            <div class="title">
+              Công việc quá hạn
+            </div>
+            <div class="value">
+              {{ dashInfoDesign2.NumJob }}
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="content">
-      <div class="title-content">Thống kê Mẫu xuất khẩu</div>
+      <div class="title-content">
+        Thống kê Mẫu xuất khẩu
+      </div>
       <div class="row-top">
         <div class="flex-2-0">
-          <div class="box" style="background: #e3f9f8">
-            <div class="title">Mẫu xuất khẩu</div>
-            <v-row>
-              <v-col>
+          <div
+            class="box"
+            style="background: #e3f9f8"
+          >
+            <div class="title">
+              Mẫu xuất khẩu
+            </div>
+            <VRow>
+              <VCol>
                 <div>Đang làm</div>
-                <v-btn color="primary">
+                <VBtn color="primary">
                   {{ dashInfoSample.NumDoc2 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Tạm dừng</div>
-                <v-btn color="orange">
+                <VBtn color="orange">
                   {{ dashInfoSample.NumDoc3 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Hoàn thành</div>
-                <v-btn color="green">
+                <VBtn color="green">
                   {{ dashInfoSample.NumDoc4 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Dừng</div>
-                <v-btn color="indigo">
+                <VBtn color="indigo">
                   {{ dashInfoSample.NumDoc0 }}
-                </v-btn>
-              </v-col>
-            </v-row>
+                </VBtn>
+              </VCol>
+            </VRow>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #fff2ee">
-            <div class="title">Hồ sơ quá hạn</div>
+          <div
+            class="box"
+            style="background: #fff2ee"
+          >
+            <div class="title">
+              Hồ sơ quá hạn
+            </div>
             <div class="value">
               {{ dashInfoSample.NumDocOver }}
             </div>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #ffeef3">
-            <div class="title">Công việc quá hạn</div>
-            <div class="value">{{ dashInfoSample.NumJob }}</div>
+          <div
+            class="box"
+            style="background: #ffeef3"
+          >
+            <div class="title">
+              Công việc quá hạn
+            </div>
+            <div class="value">
+              {{ dashInfoSample.NumJob }}
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="content">
-      <div class="title-content">Thống kê Nhãn Trong Nước</div>
+      <div class="title-content">
+        Thống kê Nhãn Trong Nước
+      </div>
       <div class="row-top">
         <div class="flex-2-0">
-          <div class="box" style="background: #e3f9f8">
-            <div class="title">Nhãn trong nước</div>
-            <v-row>
-              <v-col>
+          <div
+            class="box"
+            style="background: #e3f9f8"
+          >
+            <div class="title">
+              Nhãn trong nước
+            </div>
+            <VRow>
+              <VCol>
                 <div>Đang làm</div>
-                <v-btn color="primary">
+                <VBtn color="primary">
                   {{ dashInfoInCountry.NumDoc2 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Tạm dừng</div>
-                <v-btn color="orange">
+                <VBtn color="orange">
                   {{ dashInfoInCountry.NumDoc3 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Hoàn thành</div>
-                <v-btn color="green">
+                <VBtn color="green">
                   {{ dashInfoInCountry.NumDoc4 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Dừng</div>
-                <v-btn color="indigo">
+                <VBtn color="indigo">
                   {{ dashInfoInCountry.NumDoc0 }}
-                </v-btn>
-              </v-col>
-            </v-row>
+                </VBtn>
+              </VCol>
+            </VRow>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #fff2ee">
-            <div class="title">Hồ sơ quá hạn</div>
+          <div
+            class="box"
+            style="background: #fff2ee"
+          >
+            <div class="title">
+              Hồ sơ quá hạn
+            </div>
             <div class="value">
               {{ dashInfoInCountry.NumDocOver }}
             </div>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #ffeef3">
-            <div class="title">Công việc quá hạn</div>
-            <div class="value">{{ dashInfoInCountry.NumJob }}</div>
+          <div
+            class="box"
+            style="background: #ffeef3"
+          >
+            <div class="title">
+              Công việc quá hạn
+            </div>
+            <div class="value">
+              {{ dashInfoInCountry.NumJob }}
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="content">
-      <div class="title-content">Thống kê Order Chất Chuẩn</div>
+      <div class="title-content">
+        Thống kê Order Chất Chuẩn
+      </div>
       <div class="row-top">
         <div class="flex-2-0">
-          <div class="box" style="background: #e3f9f8">
-            <div class="title">Order Chất Chuẩn</div>
-            <v-row>
-              <v-col>
+          <div
+            class="box"
+            style="background: #e3f9f8"
+          >
+            <div class="title">
+              Order Chất Chuẩn
+            </div>
+            <VRow>
+              <VCol>
                 <div>Đang làm</div>
-                <v-btn color="primary">
+                <VBtn color="primary">
                   {{ dashInfoOrder.NumDoc2 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Tạm dừng</div>
-                <v-btn color="orange">
+                <VBtn color="orange">
                   {{ dashInfoOrder.NumDoc3 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Hoàn thành</div>
-                <v-btn color="green">
+                <VBtn color="green">
                   {{ dashInfoOrder.NumDoc4 }}
-                </v-btn>
-              </v-col>
-              <v-col>
+                </VBtn>
+              </VCol>
+              <VCol>
                 <div>Dừng</div>
-                <v-btn color="indigo">
+                <VBtn color="indigo">
                   {{ dashInfoOrder.NumDoc0 }}
-                </v-btn>
-              </v-col>
-            </v-row>
+                </VBtn>
+              </VCol>
+            </VRow>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #fff2ee">
-            <div class="title">Hồ sơ quá hạn</div>
+          <div
+            class="box"
+            style="background: #fff2ee"
+          >
+            <div class="title">
+              Hồ sơ quá hạn
+            </div>
             <div class="value">
               {{ dashInfoOrder.NumDocOver }}
             </div>
           </div>
         </div>
         <div class="flex-1-0">
-          <div class="box" style="background: #ffeef3">
-            <div class="title">Công việc quá hạn</div>
-            <div class="value">{{ dashInfoOrder.NumJob }}</div>
+          <div
+            class="box"
+            style="background: #ffeef3"
+          >
+            <div class="title">
+              Công việc quá hạn
+            </div>
+            <div class="value">
+              {{ dashInfoOrder.NumJob }}
+            </div>
           </div>
         </div>
       </div>
@@ -309,7 +423,8 @@
 </template>
 
 <script>
-import { GetDashboard } from "@/api/dashboardApi";
+import { GetDashboard } from "@/api/dashboardApi"
+
 export default {
   data() {
     return {
@@ -325,34 +440,35 @@ export default {
       employee: "",
       employeeInfo: {},
       tableDataCom: [],
-    };
+    }
   },
   watch: {
     year(value) {
-      this.getDashboard(value);
+      this.getDashboard(value)
     },
+  },
+  created() {
+    this.getDashboard(this.year)
   },
   methods: {
     getDashboard(year) {
       GetDashboard({
         Year: year,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          this.dashInfo = res.Data;
-          this.dashInfoDesign = res.DataDesign;
-          this.dashInfoDesign2 = res.DataDesign2;
-          this.dashInfoSample = res.DataSample;
-          this.dashInfoInCountry = res.DataInCountry;
-          this.dashInfoOrder = res.DataOrder;
+          this.dashInfo = res.Data
+          this.dashInfoDesign = res.DataDesign
+          this.dashInfoDesign2 = res.DataDesign2
+          this.dashInfoSample = res.DataSample
+          this.dashInfoInCountry = res.DataInCountry
+          this.dashInfoOrder = res.DataOrder
         }
-      });
+      })
     },
   },
-  created() {
-    this.getDashboard(this.year);
-  },
-};
+}
 </script>
+
 <style lang="scss" scoped>
 .container {
   .content {
