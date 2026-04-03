@@ -10,10 +10,18 @@
               label="Tìm kiếm"
               class="mx-1"
               variant="outlined"
+            ></v-text-field>
+          </div>
+          <div style="width: 320px">
+            <v-autocomplete
+              v-model="teamName"
+              label="Nhóm"
               hide-details
               density="compact"
-              style="width: 250px !important"
-              prepend-inner-icon="mdi-magnify"
+              variant="outlined"
+              :items="teamlst"
+              item-title="TeamName"
+              item-value="TeamID"
               clearable
             />
           </span>
@@ -31,6 +39,7 @@
             @click="btShowCreate"
           />
         </div>
+        
       </div>
     </VCardTitle>
     <VDataTableServer
@@ -38,9 +47,7 @@
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="desserts"
-      :search="search"
-      height="calc(100vh - 270px)"
-      items-per-page-text="Số dòng 1 trang"
+      items-per-page-text=""
       sort-asc-icon="mdi-menu-up"
       @update:itemsPerPage="btRow"
       sort-desc-icon="mdi-menu-down"
@@ -290,49 +297,35 @@
 </template>
 
 <script>
-import { GetDefaultValue } from "@/api/default"
-import { GetTeamLst } from "@/api/teamApi"
+import { GetDefaultValue } from "@/api/default";
+import { GetTeamLst } from "@/api/teamApi";
 import {
   DelUserRole,
   GetUserLstAll,
   GetUserRole,
   UpdateUserInfo,
-} from "@/api/user"
+} from "@/api/user";
 
 export default {
   data() {
     return {
+      // ĐÃ GIỮ NGUYÊN BẢNG HEADERS CỦA BẠN
       headers: [
-        {
-          title: "STT",
-          sortable: false,
-          key: "Key",
-          align: "center",
-          width: 80,
-        },
-        { title: "Họ tên", key: "FullName", sortable: false },
-        { title: "Tài khoản", key: "PhoneNumber", sortable: false },
-        { title: "Email", key: "Email", sortable: false },
-        {
-          title: "Nhóm",
-          key: "TeamName",
-          sortable: false,
-          align: "left",
-        },
-        {
-          title: "Trạng thái",
-          key: "Status",
-          sortable: false,
-          width: 100,
-          align: "center",
-        },
+        { title: "STT", sortable: false, key: "Key", width: 140 }, // Tăng nhẹ width để Desktop không bị chật
+        { title: "Quy trình", key: "ProcedureID", sortable: false },
+        { title: "Mô tả", key: "Description", sortable: false },
+        { title: "Nhóm", key: "TeamLst", sortable: false },
+        { title: "Người tạo", key: "CreateName", sortable: false, align: "center" },
       ],
       desserts: [],
-      search: "",
-      tableData: [],
-      rowspPage: 10,
       pageNumber: 1,
-      totalLength: 0,
+      rowspPage: 10,
+      search: "",
+      dataLength: 0,
+      loadding: false,
+
+      createProcedure: {},
+      isShowUpdate: false,
       isShowCreate: false,
       isShowDel: false,
       isShowUpdateAccount: false,
@@ -451,8 +444,8 @@ export default {
         if (res.RespCode == 0) {
           this.getUserRole(data.UserID)
           notify({
-            title: "Xóa quyền",
-            text: "Xóa phân quyền thành công",
+            title: "Thành công",
+            text: "Xóa quy trình thành công",
             type: "success",
           })
         }
