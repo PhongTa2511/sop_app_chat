@@ -5,14 +5,14 @@
         <div>Danh sách tài khoản</div>
         <div class="d-flex flex-wrap">
           <span>
-            <VTextField
+            <v-text-field
               v-model="search"
               label="Tìm kiếm"
               class="mx-1"
               variant="outlined"
             ></v-text-field>
-          </div>
-          <div style="width: 320px">
+          </span>
+          <span style="width: 320px">
             <v-autocomplete
               v-model="teamName"
               label="Nhóm"
@@ -39,7 +39,6 @@
             @click="btShowCreate"
           />
         </div>
-        
       </div>
     </VCardTitle>
     <VDataTableServer
@@ -66,13 +65,7 @@
         >
           Đang làm
         </VChip>
-        <VChip
-          v-if="item.Status == 0"
-          color="red"
-          size="small"
-        >
-          Xóa
-        </VChip>
+        <VChip v-if="item.Status == 0" color="red" size="small"> Xóa </VChip>
       </template>
       <template #item.TeamName="{ item }">
         <VChip
@@ -82,9 +75,7 @@
           class="mb-1"
           color="blue"
         >
-          <VIcon color="green">
-            mdi-account-multiple
-          </VIcon>
+          <VIcon color="green"> mdi-account-multiple </VIcon>
           {{ item.TeamName }}
           <!--
             <v-icon color="green" class="ml-4"> mdi-tag-text </v-icon>
@@ -94,27 +85,17 @@
       </template>
       <template #item.Key="{ item }">
         {{ item.Key }}
-        <VIcon
-          color="orange"
-          size="small"
-          @click="btShowUpdate(item)"
-        >
+        <VIcon color="orange" size="small" @click="btShowUpdate(item)">
           mdi-square-edit-outline
         </VIcon>
       </template>
     </VDataTableServer>
   </VCard>
 
-  <VDialog
-    v-model="isShowUpdateAccount"
-    persistent
-    width="450"
-  >
+  <VDialog v-model="isShowUpdateAccount" persistent width="450">
     <VCard>
       <VCardTitle>
-        <h6 class="text-h6 pt-2">
-          Cập nhật tài khoản
-        </h6>
+        <h6 class="text-h6 pt-2">Cập nhật tài khoản</h6>
       </VCardTitle>
       <VCardText>
         <VRow>
@@ -139,10 +120,7 @@
               hide-details=""
             />
           </VCol>
-          <div
-            style="width: 100%"
-            class="mx-3"
-          >
+          <div style="width: 100%" class="mx-3">
             <span> Nhóm </span>
             <VBtn
               icon
@@ -151,15 +129,10 @@
               density="compact"
               @click="btShowAddTeam"
             >
-              <VIcon size="20">
-                mdi-plus
-              </VIcon>
+              <VIcon size="20"> mdi-plus </VIcon>
             </VBtn>
           </div>
-          <div
-            style="width:100%"
-            class="mx-3"
-          >
+          <div style="width: 100%" class="mx-3">
             <VSheet
               v-for="(item, index) in updateAccount.Data"
               :key="index"
@@ -168,11 +141,7 @@
               <div class="team-grid">
                 <!-- TEAM -->
                 <div class="team-left text-body-2">
-                  <VIcon
-                    size="18"
-                    color="green"
-                    class="mr-2"
-                  >
+                  <VIcon size="18" color="green" class="mr-2">
                     mdi-account-multiple
                   </VIcon>
                   {{ item.TeamName }}
@@ -186,11 +155,7 @@
                         v-bind="props"
                         class="d-flex align-center cursor-pointer"
                       >
-                        <VIcon
-                          size="18"
-                          color="green"
-                          class="mr-1"
-                        >
+                        <VIcon size="18" color="green" class="mr-1">
                           mdi-tag
                         </VIcon>
                         {{ item.Role }}
@@ -235,22 +200,14 @@
         >
           Đóng
         </VBtn>
-        <VBtn @click="updateUserInfo">
-          Xác nhận
-        </VBtn>
+        <VBtn @click="updateUserInfo"> Xác nhận </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
-  <VDialog
-    v-model="isShowAddTeam"
-    persistent
-    width="380"
-  >
+  <VDialog v-model="isShowAddTeam" persistent width="380">
     <VCard>
       <VCardTitle>
-        <h6 class="text-h6 pt-2">
-          Thêm nhóm
-        </h6>
+        <h6 class="text-h6 pt-2">Thêm nhóm</h6>
       </VCardTitle>
       <VCardText>
         <VRow>
@@ -288,9 +245,7 @@
         >
           Đóng
         </VBtn>
-        <VBtn @click="btAddTeam">
-          Xác nhận
-        </VBtn>
+        <VBtn @click="btAddTeam"> Xác nhận </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
@@ -315,7 +270,12 @@ export default {
         { title: "Quy trình", key: "ProcedureID", sortable: false },
         { title: "Mô tả", key: "Description", sortable: false },
         { title: "Nhóm", key: "TeamLst", sortable: false },
-        { title: "Người tạo", key: "CreateName", sortable: false, align: "center" },
+        {
+          title: "Người tạo",
+          key: "CreateName",
+          sortable: false,
+          align: "center",
+        },
       ],
       desserts: [],
       pageNumber: 1,
@@ -341,95 +301,95 @@ export default {
       teamLst: [],
       isShowAddTeam: false,
       teamRoleUser: {},
-    }
+    };
   },
   watch: {
     search() {
-      this.getUserLst()
+      this.getUserLst();
     },
     pageNumber(newValue) {
-      this.getUserLst()
+      this.getUserLst();
     },
     rowspPage(newValue) {
-      this.getUserLst()
+      this.getUserLst();
     },
   },
 
   created() {
-    this.getUserLst()
-    this.getDefaultValue()
+    this.getUserLst();
+    this.getDefaultValue();
   },
   methods: {
     changeRole(teamItem, role) {
-      teamItem.Role = role
+      teamItem.Role = role;
     },
     btRemoveTeam(data) {
       this.updateAccount.Data = this.updateAccount.Data.filter(
-        p => p.TeamID != data.TeamID,
-      )
+        (p) => p.TeamID != data.TeamID,
+      );
     },
     btAddTeam() {
       if (this.teamRoleUser.TeamID && this.teamRoleUser.Role) {
         const existingTeamIndex = this.updateAccount.Data.findIndex(
-          p => p.TeamID == this.teamRoleUser.TeamID,
-        )
+          (p) => p.TeamID == this.teamRoleUser.TeamID,
+        );
 
         if (existingTeamIndex !== -1) {
           // Cập nhật thông tin nếu TeamID đã tồn tại
           this.updateAccount.Data[existingTeamIndex] = {
             ...this.updateAccount.Data[existingTeamIndex],
             Role: this.teamRoleUser.Role, // Cập nhật chỉ Role
-          }
+          };
         } else {
           // Thêm mới nếu TeamID chưa tồn tại
           this.updateAccount.Data.push({
             ...this.teamRoleUser,
             TeamName: this.teamLst.find(
-              p => p.TeamID == this.teamRoleUser.TeamID,
+              (p) => p.TeamID == this.teamRoleUser.TeamID,
             ).TeamName,
-          })
+          });
         }
-        this.isShowAddTeam = false
+        this.isShowAddTeam = false;
       } else {
         notify({
           title: "Cảnh báo",
           text: "Nhập đầy đủ thông tin",
           type: "error",
-        })
+        });
       }
     },
     btShowAddTeam() {
-      this.isShowAddTeam = true
-      this.teamRoleUser = {}
+      this.isShowAddTeam = true;
+      this.teamRoleUser = {};
     },
     btShowCreate() {
-      this.isShowCreate = true
+      this.isShowCreate = true;
     },
     btPage(data) {
-      this.pageNumber = data
+      this.pageNumber = data;
     },
     btRow(data) {
-      this.rowspPage = data
+      this.rowspPage = data;
     },
     getDefaultValue() {
-      GetDefaultValue({ Table: "Chức vụ" }).then(res => {
+      GetDefaultValue({ Table: "Chức vụ" }).then((res) => {
         if (res.RespCode == 0) {
-          this.positionLst = res.DefaultValueLst.filter(p => p.Status > 0)
+          this.positionLst = res.DefaultValueLst.filter((p) => p.Status > 0);
         }
-      })
+      });
       GetTeamLst({
         RowspPage: 10000,
         PageNumber: 1,
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
-          this.teamLst = res.Data
+          this.teamLst = res.Data;
         }
-      })
+      });
     },
     btShowUserRole(data) {
-      this.isShowSetUserRole = true
-      this.userRole = data
-      this.getUserRole(data.UserName)
+      this.isShowSetUserRole = true;
+      this.userRole = data;
+      this.getUserRole(data.UserName);
     },
 
     delUserRole(data) {
@@ -440,54 +400,54 @@ export default {
           Role: data.Role,
           Description: data.Description,
         },
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
-          this.getUserRole(data.UserID)
+          this.getUserRole(data.UserID);
           notify({
             title: "Thành công",
             text: "Xóa quy trình thành công",
             type: "success",
-          })
+          });
         }
-      })
+      });
     },
     getUserRole(data) {
       GetUserRole({
         UserID: data,
-      }).then(res => {
+      }).then((res) => {
         this.userRoleLst = res.Data.map((item, index) => {
           return {
             ...item,
             Key: index + 1,
-          }
-        })
-      })
+          };
+        });
+      });
     },
     getUserLst() {
       GetUserLstAll({
         Search: this.search,
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
           this.desserts = res.Data.map((item, index) => {
-            var a = this.rowspPage * (this.pageNumber - 1)
-            
+            var a = this.rowspPage * (this.pageNumber - 1);
+
             return {
               ...item,
               Key: index + 1 + a,
-            }
-          })
-          this.totalLength = res.TotalRows
+            };
+          });
+          this.totalLength = res.TotalRows;
         }
-      })
+      });
     },
 
     btShowUpdate(data) {
-      this.isShowUpdateAccount = true
+      this.isShowUpdateAccount = true;
       this.updateAccount = {
         ...data,
-      }
+      };
     },
     updateUserInfo() {
       UpdateUserInfo({
@@ -501,18 +461,18 @@ export default {
           TeamID: this.updateAccount.TeamID,
           Status: this.updateAccount.Status,
         },
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
-          this.isShowUpdateAccount = false
-          this.updateAccount = {}
-          this.getUserLst()
+          this.isShowUpdateAccount = false;
+          this.updateAccount = {};
+          this.getUserLst();
           notify({
             title: "Tài khoản",
             text: "Cập nhật tài khoản thành công",
             type: "success",
-          })
+          });
         }
-      })
+      });
     },
     delUserInfo(data) {
       this.$confirm("Có chắc bạn muốn xóa tài khoản này không?", "Warning", {
@@ -532,58 +492,58 @@ export default {
               Status: -1,
               OrganizationLst: data.OrganizationLst,
             },
-          }).then(res => {
+          }).then((res) => {
             if (res.RespCode == 0) {
-              this.getUserLst()
+              this.getUserLst();
               notify({
                 title: "Tài khoản",
                 text: "Xóa tài khoản thành công",
                 type: "success",
-              })
+              });
             }
-          })
+          });
         })
-        .catch(() => {})
+        .catch(() => {});
     },
   },
-}
+};
 </script>
 
 <style>
-.team-row{
-  background:#e3f2fd;
-  border-radius:999px;
+.team-row {
+  background: #e3f2fd;
+  border-radius: 999px;
 }
 
-.team-grid{
-  display:grid;
-  grid-template-columns:60% 35% 5%;
-  align-items:center;
+.team-grid {
+  display: grid;
+  grid-template-columns: 60% 35% 5%;
+  align-items: center;
 }
 
-.team-left{
-  display:flex;
-  align-items:center;
+.team-left {
+  display: flex;
+  align-items: center;
 }
 
-.team-role{
-  display:flex;
-  align-items:center;
+.team-role {
+  display: flex;
+  align-items: center;
 }
 
-.team-delete{
-  display:flex;
-  justify-content:center;
+.team-delete {
+  display: flex;
+  justify-content: center;
 }
 
-.team-name{
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+.team-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.team-row{
-  background:#e3f2fd;
-  border-radius:999px;
-  min-height:32px;
+.team-row {
+  background: #e3f2fd;
+  border-radius: 999px;
+  min-height: 32px;
 }
 </style>

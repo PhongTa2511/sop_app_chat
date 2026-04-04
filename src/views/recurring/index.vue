@@ -457,99 +457,137 @@
   </VDialog>
 
   <!-- Progress dialog: shows detailed status and participant list -->
-  <VDialog v-model="progressDialog.show" max-width="700px">
-    <VCard>
-      <VCardTitle class="text-h6">Quá trình thực hiện</VCardTitle>
-      <VCardText class="py-0">
-        <div v-if="progressDialog.item">
-          <div class="mb-3 d-flex flex-wrap gap-2">
-            <VChip size="small" color="green" variant="tonal">
-              <VIcon left icon="mdi-check-circle-outline" />
-              {{ progressDialog.job.JobSuccess || 0 }} Đã được duyệt
-            </VChip>
-            <VChip size="small" color="blue" variant="tonal">
-              <VIcon left icon="mdi-account-edit" />
-              {{ progressDialog.job.JobProgress || 0 }} Đang làm
-            </VChip>
-            <VChip size="small" color="orange" variant="tonal">
-              <VIcon left icon="mdi-file-document-outline" />
-              {{ progressDialog.job.JobReport || 0 }}
-              Đã báo cáo
-            </VChip>
-            <VChip size="small" color="red" variant="tonal">
-              <VIcon left icon="mdi-close-circle-outline" />
-              {{ progressDialog.job.JobError || 0 }} Bị từ chối
-            </VChip>
+  <VDialog v-model="progressDialog.show" max-width="920px" scrollable>
+    <VCard class="dtp-progress-dialog">
+      <VCardTitle class="dtp-progress-title">
+        <div class="d-flex align-center justify-space-between w-100">
+          <div>
+            <div class="text-h6">Quá trình thực hiện</div>
           </div>
 
-          <div>
-            <div class="d-flex flex-column gap-1">
-              <v-sheet
-                class="px-1 py-1"
-                rounded
-                :border="
-                  job.Status == 1
-                    ? 'blue md'
-                    : job.Status == 3
-                      ? 'orange md'
-                      : job.Status == 4
-                        ? 'green md'
-                        : job.Status == 5
-                          ? 'red md'
-                          : 'gray md'
-                "
-                v-for="(job, gi) in progressDialog.item"
-                :key="gi"
+          <VBtn
+            icon="mdi-close"
+            variant="text"
+            density="comfortable"
+            @click="progressDialog.show = false"
+          />
+        </div>
+      </VCardTitle>
+      <VDivider />
+      <VCardText class="dtp-progress-body">
+        <div v-if="progressDialog.item">
+          <VRow dense class="mb-1">
+            <VCol
+              v-for="card in progressSummaryCards"
+              :key="card.key"
+              cols="6"
+              sm="6"
+              md="3"
+            >
+              <VCard
+                variant="tonal"
+                :color="card.color"
+                class="dtp-summary-card"
               >
-                <div class="text-md mb-1 fw-medium position-relative">
-                  <div class="d-flex">
-                    <VChip
-                      class="mr-2"
-                      :color="
-                        job.Status == 1
-                          ? 'blue'
-                          : job.Status == 3
-                            ? 'orange md'
-                            : job.Status == 4
-                              ? 'green'
-                              : job.Status == 5
-                                ? 'red'
-                                : 'gray'
-                      "
-                    >
-                      {{ job.TimeRepeat }}
-                    </VChip>
-                    {{ job.Title }}
+                <VCardText
+                  class="d-flex align-center justify-space-between py-3"
+                >
+                  <div class="d-flex flex-column">
+                    <div class="text-caption text-medium-emphasis">
+                      {{ card.label }}
+                    </div>
+                    <div class="text-h5 font-weight-bold">
+                      {{ progressDialog.job?.[card.key] || 0 }}
+                    </div>
                   </div>
-                  <VIcon
-                    v-if="job.Status == 4"
-                    class="position-absolute right-0 top-0"
-                    color="green"
-                    size="small"
+                  <VIcon :icon="card.icon" size="28" />
+                </VCardText>
+              </VCard>
+            </VCol>
+          </VRow>
+          <v-chip
+            color="purple"
+            v-if="progressDialog.job?.Title"
+            class="text-caption text-medium-emphasis rounded mb-2"
+          >
+            JOB: {{ progressDialog.job.Title }}
+          </v-chip>
+          <VAlert
+            v-if="!progressDialog.item.length"
+            type="info"
+            variant="tonal"
+            class="mb-2"
+            title="Không có lịch sử"
+            text="Chưa có bước nào được ghi nhận cho công việc này."
+          />
+
+          <div v-else class="d-flex flex-column gap-2">
+            <v-sheet
+              v-for="(job, gi) in progressDialog.item"
+              :key="gi"
+              class="dtp-progress-item"
+              rounded="lg"
+              :border="getJobBorder(job.Status)"
+            >
+              <div class="d-flex justify-space-between">
+                <div class="d-flex align-center gap-2">
+                  <VChip
+                    v-if="job.TimeRepeat"
+                    variant="tonal"
+                    color="purple"
+                    class="rounded"
                   >
-                    mdi-check-circle-outline
-                  </VIcon>
-                  <VIcon
-                    v-if="job.Status == 5"
-                    class="position-absolute right-0 top-0"
-                    color="red"
-                    size="small"
+                    {{ job.TimeRepeat }}
+                  </VChip>
+                  <v-chip
+                    class="text-caption text-medium-emphasis d-flex align-center flex-wrap gap-2 rounded"
+                    color="purple"
                   >
-                    mdi-close-circle-outline
-                  </VIcon>
+                    <span class="d-flex align-center gap-1 text">
+                      <VIcon color="purple" size="small"
+                        >mdi-calendar-clock</VIcon
+                      >
+                      Tạo lúc: {{ formatDateDDMMYY(job.TimeCreate) }}
+                    </span>
+                  </v-chip>
                 </div>
-                <div class="text-caption">
-                  <div>
-                    <VIcon color="blue" size="small"> mdi-account-edit </VIcon>
-                    {{ job.AssignName }}
-                    <VIcon color="blue" v-if="job.TimeModify" size="small">
-                      mdi-clock
-                    </VIcon>
-                    {{ job.TimeModify }}
-                  </div>
+
+                <div class="text-right">
+                  <VChip
+                    size="small"
+                    class="rounded"
+                    variant="tonal"
+                    :color="getJobStatusMeta(job.Status).color"
+                  >
+                    {{ getJobStatusMeta(job.Status).label }}
+                  </VChip>
+                </div>
+              </div>
+
+              <div class="dtp-progress-meta">
+                <div class="dtp-section-title">
+                  <VIcon size="22" icon="mdi-account-edit" color="blue" />
+                  {{ job.AssignName }}
+                  <span v-if="job.TimeModify" class="d-flex align-center gap-1">
+                    <VIcon color="blue" size="small">mdi-clock</VIcon>
+                    {{ formatDateDisplay(job.TimeModify) }}
+                  </span>
+                </div>
+                <v-sheet
+                  v-if="job.Report"
+                  class="dtp-html-box mt-2"
+                  rounded="lg"
+                  border
+                >
                   <div v-html="job.Report" />
+                </v-sheet>
+                <div v-else class="text-caption text-medium-emphasis mt-2">
+                  Chưa có báo cáo.
                 </div>
-                <div v-if="job.DataAssign.length > 0" class="file-lst">
+              </div>
+
+              <div v-if="job.DataAssign?.length" class="dtp-progress-section">
+                <div class="dtp-file-chips">
                   <VMenu
                     v-for="(file, indfile) in job.DataAssign"
                     :key="indfile"
@@ -560,7 +598,8 @@
                         <template #activator="{ props: tooltipProps }">
                           <VChip
                             color="gray"
-                            class="mr-1"
+                            variant="tonal"
+                            class="dtp-file-chip"
                             v-bind="{ ...props, ...tooltipProps }"
                           >
                             {{ file.MineFile }}
@@ -603,18 +642,33 @@
                     </VList>
                   </VMenu>
                 </div>
-                <div v-if="job.ApproveID" class="text-caption">
-                  <div>
-                    <VIcon color="red" size="small"> mdi-account-check </VIcon>
-                    {{ job.ApproveName }}
-                    <VIcon color="red" v-if="job.TimeApprove" size="small">
-                      mdi-clock
-                    </VIcon>
-                    {{ job.TimeApprove }}
-                  </div>
-                  <div v-html="job.NoteApprove" />
+              </div>
+
+              <div v-if="job.ApproveID" class="dtp-progress-section">
+                <div class="dtp-section-title">
+                  <VIcon size="22" icon="mdi-account-check" color="red" />
+                  {{ job.ApproveName }}
+                  <span
+                    v-if="job.TimeApprove"
+                    class="d-flex align-center gap-1"
+                  >
+                    <VIcon color="red" size="small">mdi-clock</VIcon>
+                    {{ formatDateDisplay(job.TimeApprove) }}
+                  </span>
                 </div>
-                <div v-if="job.DataApprove.length > 0" class="file-lst">
+
+                <v-sheet
+                  v-if="job.NoteApprove"
+                  class="dtp-html-box mt-2"
+                  rounded="lg"
+                  border
+                >
+                  <div v-html="job.NoteApprove" />
+                </v-sheet>
+              </div>
+
+              <div v-if="job.DataApprove?.length" class="dtp-progress-section">
+                <div class="dtp-file-chips">
                   <VMenu
                     v-for="(file, indfile) in job.DataApprove"
                     :key="indfile"
@@ -625,7 +679,8 @@
                         <template #activator="{ props: tooltipProps }">
                           <VChip
                             color="gray"
-                            class="mr-1"
+                            variant="tonal"
+                            class="dtp-file-chip"
                             v-bind="{ ...props, ...tooltipProps }"
                           >
                             {{ file.MineFile }}
@@ -668,17 +723,15 @@
                     </VList>
                   </VMenu>
                 </div>
-              </v-sheet>
-              <div v-if="!progressDialog.item.length" class="text-caption">
-                Không có lịch sử.
               </div>
-            </div>
+            </v-sheet>
           </div>
         </div>
       </VCardText>
+      <VDivider />
       <VCardActions>
         <VSpacer />
-        <VBtn text @click="progressDialog.show = false">Đóng</VBtn>
+        <VBtn variant="tonal" @click="progressDialog.show = false">Đóng</VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
@@ -731,7 +784,11 @@ import {
 } from "@/api/recurringJobApi";
 import { GetTeamLstUserID } from "@/api/teamApi";
 import { GetUserLstByTeamID } from "@/api/user";
-import { formatDate00, formatDateDDMMYY } from "@/helpers/getTime";
+import {
+  formatDate00,
+  formatDateDDMMYY,
+  formatDateDisplay,
+} from "@/helpers/getTime";
 export default {
   data() {
     return {
@@ -757,7 +814,34 @@ export default {
       progressDialog: {
         show: false,
         item: null,
+        job: null,
       },
+      progressSummaryCards: [
+        {
+          key: "JobSuccess",
+          label: "Đã duyệt",
+          color: "green",
+          icon: "mdi-check-circle-outline",
+        },
+        {
+          key: "JobProgress",
+          label: "Đang làm",
+          color: "blue",
+          icon: "mdi-account-edit",
+        },
+        {
+          key: "JobReport",
+          label: "Đã báo cáo",
+          color: "orange",
+          icon: "mdi-file-document-outline",
+        },
+        {
+          key: "JobError",
+          label: "Bị từ chối",
+          color: "red",
+          icon: "mdi-close-circle-outline",
+        },
+      ],
     };
   },
   watch: {
@@ -796,6 +880,7 @@ export default {
     this.getRecurringJobLst();
   },
   methods: {
+    formatDateDisplay,
     getProgressByRecID(templateID) {
       GetProgressByRecID({
         TemplateID: templateID,
@@ -815,6 +900,53 @@ export default {
       const d = new Date(value);
       if (isNaN(d)) return String(value);
       return d.toLocaleString();
+    },
+    getJobStatusMeta(status) {
+      const s = Number(status);
+
+      if (s === 4) {
+        return {
+          key: "success",
+          label: "Đã duyệt",
+          color: "green",
+          icon: "mdi-check-circle-outline",
+        };
+      }
+      if (s === 1) {
+        return {
+          key: "progress",
+          label: "Đang làm",
+          color: "blue",
+          icon: "mdi-account-edit",
+        };
+      }
+      if (s === 3) {
+        return {
+          key: "report",
+          label: "Đã báo cáo",
+          color: "orange",
+          icon: "mdi-file-document-outline",
+        };
+      }
+      if (s === 5) {
+        return {
+          key: "error",
+          label: "Bị từ chối",
+          color: "red",
+          icon: "mdi-close-circle-outline",
+        };
+      }
+
+      return {
+        key: "pending",
+        label: "Chưa xử lý",
+        color: "gray",
+        icon: "mdi-clock-outline",
+      };
+    },
+    getJobBorder(status) {
+      const meta = this.getJobStatusMeta(status);
+      return meta.color === "gray" ? "gray md" : `${meta.color} md`;
     },
 
     updateStepArising() {
@@ -1061,3 +1193,68 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.dtp-progress-title {
+  padding-block: 12px;
+}
+
+.dtp-progress-body {
+  padding-block: 16px;
+}
+
+.dtp-summary-card {
+  border-radius: 12px;
+}
+
+.dtp-progress-item {
+  padding: 8px;
+}
+
+.dtp-job-title {
+  font-weight: 600;
+}
+
+.dtp-progress-meta {
+  margin-top: 10px;
+}
+
+.dtp-progress-section {
+  margin-top: 12px;
+}
+
+.dtp-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.dtp-file-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dtp-file-chip {
+  max-width: 100%;
+}
+
+.dtp-html-box {
+  padding: 8px 12px;
+  padding-bottom: 6px;
+  background: rgb(var(--v-theme-background));
+}
+
+.dtp-html-box :deep(img) {
+  max-width: 100%;
+  height: auto;
+}
+
+.dtp-html-box :deep(pre),
+.dtp-html-box :deep(code) {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+</style>
