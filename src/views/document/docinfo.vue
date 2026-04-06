@@ -2027,7 +2027,6 @@ export default {
       this.itemToDelete = item;
       this.deleteDialog = true;
     },
-
     confirmDelete() {
       const index = this.materials.indexOf(this.itemToDelete);
       if (index > -1) {

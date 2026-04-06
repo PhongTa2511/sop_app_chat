@@ -264,16 +264,28 @@ import {
 export default {
   data() {
     return {
-      // ĐÃ GIỮ NGUYÊN BẢNG HEADERS CỦA BẠN
       headers: [
-        { title: "STT", sortable: false, key: "Key", width: 140 }, // Tăng nhẹ width để Desktop không bị chật
-        { title: "Quy trình", key: "ProcedureID", sortable: false },
-        { title: "Mô tả", key: "Description", sortable: false },
-        { title: "Nhóm", key: "TeamLst", sortable: false },
         {
-          title: "Người tạo",
-          key: "CreateName",
+          title: "STT",
           sortable: false,
+          key: "Key",
+          align: "center",
+          width: 80,
+        },
+        { title: "Họ tên", key: "FullName", sortable: false },
+        { title: "Tài khoản", key: "PhoneNumber", sortable: false },
+        { title: "Email", key: "Email", sortable: false },
+        {
+          title: "Nhóm",
+          key: "TeamName",
+          sortable: false,
+          align: "left",
+        },
+        {
+          title: "Trạng thái",
+          key: "Status",
+          sortable: false,
+          width: 100,
           align: "center",
         },
       ],
