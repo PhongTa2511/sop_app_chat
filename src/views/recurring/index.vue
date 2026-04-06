@@ -276,7 +276,7 @@
           <VCol cols="12" v-if="recurringInfo.RecurrenceType == 3" class="pb-0">
             <VTextField
               v-model="recurringInfo.DayOfMonth"
-              label="Ngày trong tháng"
+              label="Ngày giao việc"
               type="number"
               variant="outlined"
               dense
@@ -785,6 +785,7 @@ import {
 import { GetTeamLstUserID } from "@/api/teamApi";
 import { GetUserLstByTeamID } from "@/api/user";
 import {
+  formatDate,
   formatDate00,
   formatDateDDMMYY,
   formatDateDisplay,
@@ -849,7 +850,7 @@ export default {
       if (newVal !== 2) {
         this.recurringInfo.WeekdaysCsv = [];
       } else {
-        this.recurringInfo.WeekdaysCsv = [2, 3, 4, 5, 6];
+        this.recurringInfo.WeekdaysCsv = [];
       }
       if (newVal !== 3) {
         this.recurringInfo.DayOfMonth = null;
@@ -873,6 +874,8 @@ export default {
             this.userOptions = res.Data;
           }
         });
+      } else {
+        this.userOptions = [];
       }
     },
   },
@@ -970,7 +973,7 @@ export default {
 
       const payload = {
         Title: this.recurringInfo.Title,
-        StartDate: this.recurringInfo.StartDate,
+        StartDate: formatDate(this.recurringInfo.StartDate),
         RecurrenceType: this.recurringInfo.RecurrenceType,
         IntervalN: this.recurringInfo.IntervalN,
         WeekdaysCsv: this.recurringInfo.WeekdaysCsv
