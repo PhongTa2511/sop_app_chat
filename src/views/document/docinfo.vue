@@ -1216,7 +1216,7 @@
       <v-card-text class="py-0">
         <div class="d-flex">
           <v-text-field
-            v-model="searchParams.ProductID"
+            v-model="searchParams.MaterialID"
             label="Mã Sản Phẩm"
             class="mr-2"
             prepend-inner-icon="mdi-package-variant"
@@ -1252,7 +1252,7 @@
         >
           <template v-slot:item.ProductName="{ item }">
             <div class="text-subtitle-2 font-weight-medium">
-              {{ item.ProductName }}
+              {{ item.MaterialName }}
             </div>
             <div class="caption grey--text font-italic">
               <v-chip
@@ -1261,16 +1261,16 @@
                 class="font-mono font-weight-bold"
                 :color="item.isExpanded ? '' : 'green'"
               >
-                {{ item.ProductID.trim() }}
+                {{ item.MaterialID }}
               </v-chip>
-              ĐVT: {{ item.UnitOfMeasure.trim() }}
+              ĐVT: {{ item.Unit }}
             </div>
           </template>
 
           <!-- Định mức (Inline Edit) -->
           <template v-slot:item.Quantity="{ item }">
             <div
-              v-if="editingField !== item.ProductID.trim() + '_qty'"
+              v-if="editingField !== item.MaterialID + '_qty'"
               @click="startEdit(item, 'qty')"
               class="editable-cell justify-end font-mono"
             >
@@ -1293,7 +1293,7 @@
           <!-- Giá tiền (Inline Edit) -->
           <template v-slot:item.UnitPrice="{ item }">
             <div
-              v-if="editingField !== item.ProductID.trim() + '_price'"
+              v-if="editingField !== item.MaterialID + '_price'"
               @click="startEdit(item, 'price')"
               class="editable-cell justify-end font-mono"
             >
@@ -1314,19 +1314,19 @@
           </template>
 
           <!-- Đơn vị tiền (Dropdown Edit) -->
-          <template v-slot:item.UnitMoney="{ item }">
+          <template v-slot:item.UnitCurrent="{ item }">
             <div
-              v-if="editingField !== item.ProductID.trim() + '_money'"
+              v-if="editingField !== item.MaterialID + '_money'"
               @click="startEdit(item, 'money')"
               class="editable-cell justify-center"
             >
-              <v-chip x-small :color="getMoneyColor(item.UnitMoney)">{{
-                item.UnitMoney || "VND"
+              <v-chip x-small :color="getMoneyColor(item.UnitCurrent)">{{
+                item.UnitCurrent || "VND"
               }}</v-chip>
             </div>
             <v-select
               v-else
-              v-model="item.UnitMoney"
+              v-model="item.UnitCurrent"
               :items="['VND', 'USD', 'EUR']"
               dense
               hide-details
@@ -1339,7 +1339,7 @@
           </template>
           <template v-slot:item.DocumentID="{ item }">
             <div
-              v-if="editingField !== item.ProductID.trim() + '_document'"
+              v-if="editingField !== item.MaterialID + '_document'"
               @click="startEdit(item, 'document')"
               class="editable-cell justify-center"
             >
@@ -1358,17 +1358,17 @@
             ></v-text-field>
           </template>
 
-          <template v-slot:item.Invoice="{ item }">
+          <template v-slot:item.NumberGTGT="{ item }">
             <div
-              v-if="editingField !== item.ProductID.trim() + '_invoice'"
+              v-if="editingField !== item.MaterialID + '_invoice'"
               @click="startEdit(item, 'invoice')"
               class="editable-cell justify-center"
             >
-              {{ item.Invoice ?? "..." }}
+              {{ item.NumberGTGT ?? "..." }}
             </div>
             <v-text-field
               v-else
-              v-model="item.Invoice"
+              v-model="item.NumberGTGT"
               dense
               hide-details
               class="inline-edit-input"
@@ -1378,17 +1378,17 @@
               density="compact"
             ></v-text-field>
           </template>
-          <template v-slot:item.DateInvoice="{ item }">
+          <template v-slot:item.DateGTGT="{ item }">
             <div
-              v-if="editingField !== item.ProductID.trim() + '_dateinvoice'"
+              v-if="editingField !== item.MaterialID + '_dateinvoice'"
               @click="startEdit(item, 'dateinvoice')"
               class="editable-cell justify-center"
             >
-              {{ item.DateInvoice ?? "..." }}
+              {{ item.DateGTGT ?? "..." }}
             </div>
             <v-text-field
               v-else
-              v-model="item.DateInvoice"
+              v-model="item.DateGTGT"
               dense
               hide-details
               class="inline-edit-input"
@@ -1398,17 +1398,17 @@
               density="compact"
             ></v-text-field>
           </template>
-          <template v-slot:item.NCC="{ item }">
+          <template v-slot:item.CO="{ item }">
             <div
-              v-if="editingField !== item.ProductID.trim() + '_ncc'"
+              v-if="editingField !== item.MaterialID + '_ncc'"
               @click="startEdit(item, 'ncc')"
               class="editable-cell justify-center"
             >
-              {{ item.NCC ?? "..." }}
+              {{ item.CO ?? "..." }}
             </div>
             <v-text-field
               v-else
-              v-model="item.NCC"
+              v-model="item.CO"
               dense
               hide-details
               class="inline-edit-input"
@@ -1419,21 +1419,21 @@
             ></v-text-field>
           </template>
           <!-- Tỉ giá (Tự động hoặc Nhập tay) -->
-          <template v-slot:item.Exchange="{ item }">
+          <template v-slot:item.CIF="{ item }">
             <div
               @click="startEdit(item, 'ex')"
               class="editable-cell justify-end font-mono"
             >
-              {{ formatNumber(item.Exchange) }}
+              {{ formatNumber(item.CIF) }}
             </div>
           </template>
 
           <!-- Trị giá (Read Only) -->
-          <template v-slot:item.Total="{ item }">
+          <template v-slot:item.FTANON="{ item }">
             <div
               class="font-weight-black primary--text font-mono text-right pr-2"
             >
-              {{ formatNumber(item.Total) }}
+              {{ formatNumber(item.FTANON) }}
             </div>
           </template>
 
@@ -1449,7 +1449,7 @@
               <v-list density="compact">
                 <v-list-item
                   @click="expandMaterial(item)"
-                  :disabled="expandingId === item.ProductID.trim()"
+                  :disabled="expandingId === item.MaterialID"
                 >
                   <template #prepend>
                     <v-icon color="primary">mdi-plus-circle</v-icon>
@@ -1458,7 +1458,7 @@
 
                   <template #append>
                     <v-progress-circular
-                      v-if="expandingId === item.ProductID.trim()"
+                      v-if="expandingId === item.MaterialID"
                       size="16"
                       indeterminate
                     />
@@ -1570,9 +1570,9 @@ import XLSX from "xlsx";
 import { exportExcel } from "./function";
 import { exportExcel1 } from "./function1";
 // import { exportExcel1 } from "./function1";
+import { GetMaterialLst, UpdateMaterialLst } from "@/api/materialApi";
 import Axios from "axios";
 import { urlUploadFileFormLine } from "./function";
-
 export default {
   data() {
     return {
@@ -1612,13 +1612,13 @@ export default {
       previewImage: "",
       isShowMaterial: false,
       searchParams: {
-        ProductID: "",
+        MaterialID: "",
         Quantity: 1,
-        UnitOfMeasure: "ONG",
+        Unit: "ONG",
         ShowBTP: 1,
       },
       materialheaders: [
-        // { title: "Mã NL", key: "ProductID", width: "80px" },
+        // { title: "Mã NL", key: "MaterialID", width: "80px" },
         {
           title: "Nguyên Phụ Liệu",
           key: "ProductName",
@@ -1626,25 +1626,25 @@ export default {
           sortable: false,
         },
         { title: "Định mức", key: "Quantity", align: "end", sortable: false },
-        // { title: "Đơn vị", key: "UnitOfMeasure", align: "end" },
+        // { title: "Đơn vị", key: "Unit", align: "end" },
         { title: "Giá tiền", key: "UnitPrice", align: "end", sortable: false },
-        { title: "ĐV tiền", key: "UnitMoney", align: "end", sortable: false },
-        { title: "Đơn giá", key: "Exchange", align: "end", sortable: false },
-        { title: "Trị giá", key: "Total", align: "end", sortable: false },
+        { title: "ĐV tiền", key: "UnitCurrent", align: "end", sortable: false },
+        { title: "Đơn giá", key: "CIF", align: "end", sortable: false },
+        { title: "Trị giá", key: "FTANON", align: "end", sortable: false },
         { title: "Mã HS", key: "DocumentID", align: "center", sortable: false },
         {
           title: "Tờ khai/HĐ",
-          key: "Invoice",
+          key: "NumberGTGT",
           align: "center",
           sortable: false,
         },
         {
           title: "Ngày tờ khai",
-          key: "DateInvoice",
+          key: "DateGTGT",
           align: "center",
           sortable: false,
         },
-        { title: "NCC", key: "NCC", align: "center", sortable: false },
+        { title: "CO", key: "CO", align: "center", sortable: false },
         { title: "Thao tác", key: "actions", sortable: false, align: "center" },
       ],
       materials: [],
@@ -1655,7 +1655,7 @@ export default {
       editDialog: false,
       deleteDialog: false,
       editedItem: {
-        ProductID: "",
+        MaterialID: "",
         ProductName: "",
         Quantity: 0,
       },
@@ -1852,23 +1852,25 @@ export default {
         console.error("Invalid data passed to btApplyMaterial:", data);
         return;
       }
+      UpdateMaterialLst({ Data: data });
+
       this.desserts = data.map((item, index) => {
         return {
           Key: index + 1,
-          ["Line" + 1]: item.ProductName,
-          ["Line" + 2]: item.ProductID,
+          ["Line" + 1]: item.MaterialName,
+          ["Line" + 2]: item.MaterialID,
           ["Line" + 3]: item.DocumentID,
-          ["Line" + 4]: item.UnitOfMeasure,
+          ["Line" + 4]: item.Unit,
           ["Line" + 5]: item.Quantity,
           ["Line" + 6]: item.UnitPrice,
-          ["Line" + 7]: item.UnitMoney,
-          ["Line" + 8]: item.Exchange,
-          ["Line" + 9]: null,
-          ["Line" + 10]: this.formatNumber(item.Total),
-          ["Line" + 11]: item.Invoice,
-          ["Line" + 12]: item.DateInvoice,
-          ["Line" + 13]: item.NCC,
-          ["Line" + 15]: null,
+          ["Line" + 7]: item.UnitCurrent,
+          ["Line" + 8]: item.CIF,
+          ["Line" + 9]: item.FTA,
+          ["Line" + 10]: this.formatNumber(item.FTANON),
+          ["Line" + 11]: item.NumberGTGT,
+          ["Line" + 12]: item.DateGTGT,
+          ["Line" + 13]: item.CO,
+          ["Line" + 14]: null,
           Status: 1,
         };
       });
@@ -1891,49 +1893,19 @@ export default {
         console.warn("Không thể lấy tỷ giá tự động, dùng mặc định");
       }
     },
-    async callApi(id, qty, unit) {
-      const url =
-        "https://icpc1hn.work/APIHDDT/KHReport/GetRawMaterialByProduct";
-      const payload = {
-        UserName: "api-kh",
-        Token: "8e565ea5-95b1-482f-a78b-bec0c34b7156",
-        ProductLst: [
-          {
-            ProductID: id.trim(),
-            ProductID2: "",
-            Quantity: Number(qty),
-            UnitOfMeasure: unit.trim(),
-          },
-        ],
-        ShowBTP: this.searchParams.ShowBTP,
-      };
-      try {
-        const response = await Axios.post(url, payload);
-        return response.data;
-      } catch (err) {
-        // Xử lý lỗi Axios chuyên sâu
-        let msg = "Lỗi kết nối server.";
-        if (err.response) {
-          msg = `Server phản hồi lỗi: ${err.response.status}`;
-        } else if (err.request) {
-          msg = "Không nhận được phản hồi từ server.";
-        }
-        throw new Error(msg);
-      }
+    async callApi(id) {
+      var data = await GetMaterialLst({ ProductID: id });
+      return data.Data;
     },
 
     async fetchInitialMaterials() {
       this.loading = true;
       this.error = null;
       try {
-        const data = await this.callApi(
-          this.searchParams.ProductID,
-          this.searchParams.Quantity,
-          this.searchParams.UnitOfMeasure,
-        );
-        this.materials = (data.ProductLst || []).map((m) =>
-          this.processItem(m),
-        );
+        const data = await this.callApi(this.searchParams.MaterialID);
+        console.log(data);
+
+        this.materials = data.map((m) => this.processItem(m));
       } catch (err) {
         this.error = err.message;
       } finally {
@@ -1941,12 +1913,10 @@ export default {
       }
     },
     processItem(item, isChild = false) {
-      const unitMoney = item.UnitMoney || "USD";
+      const unitMoney = item.UnitCurrent || "USD";
       return {
         ...item,
-        ProductID: item.ProductID.trim(),
-        UnitPrice: item.UnitPrice || 0,
-        UnitMoney: unitMoney,
+        UnitCurrent: unitMoney,
         ExchangeRate: this.rates[unitMoney] || 1,
         isExpanded: isChild,
       };
@@ -1958,8 +1928,8 @@ export default {
     },
 
     startEdit(item, field) {
-      // Đảm bảo ProductID là duy nhất để tránh nhảy ô input
-      this.editingField = item.ProductID.trim() + "_" + field;
+      // Đảm bảo MaterialID là duy nhất để tránh nhảy ô input
+      this.editingField = item.MaterialID + "_" + field;
     },
 
     stopEdit(item) {
@@ -1967,8 +1937,8 @@ export default {
         console.error("Invalid item passed to stopEdit:", item);
         return;
       }
-      item.Exchange = (item.UnitPrice ?? 0) / (item.ExchangeRate ?? 0);
-      item.Total = (Number(item.Quantity) || 0) * (Number(item.Exchange) || 0);
+      item.CIF = (item.UnitPrice ?? 0) / (item.ExchangeRate ?? 0);
+      item.FTANON = (Number(item.Quantity) || 0) * (Number(item.CIF) || 0);
       this.editingField = null;
     },
     updateExchange(item) {
@@ -1977,33 +1947,30 @@ export default {
         return;
       }
 
-      const newRate = this.rates[item.UnitMoney] || 1;
+      const newRate = this.rates[item.UnitCurrent] || 1;
       item.ExchangeRate = newRate;
       this.stopEdit(item); // Pass the item here
     },
 
     async expandMaterial(parentItem) {
-      const pId = parentItem.ProductID.trim();
+      const pId = parentItem.MaterialID;
       const parentQuantity = parentItem.Quantity;
       this.expandingId = pId;
 
       try {
-        const reqQty =
-          parentItem.TotalQuantity ||
-          parentItem.Quantity * this.searchParams.Quantity;
-        const data = await this.callApi(pId, reqQty, parentItem.UnitOfMeasure);
-        const newItems = data.ProductLst || [];
+        const data = await this.callApi(pId);
+        const newItems = data || [];
         if (newItems.length === 0) {
           this.error = `Mã ${pId} không có cấu trúc con để phân rã.`;
           return;
         }
         const map = new Map();
         this.materials.forEach((m) => {
-          if (m.ProductID.trim() !== pId) map.set(m.ProductID.trim(), m);
+          if (m.MaterialID !== pId) map.set(m.MaterialID, m);
         });
 
         newItems.forEach((newItem) => {
-          const id = newItem.ProductID.trim();
+          const id = newItem.MaterialID;
           const processed = this.processItem(newItem, true);
           processed.Quantity = newItem.Quantity * parentQuantity;
 
@@ -2826,7 +2793,7 @@ export default {
 
         // ép về string để trim an toàn
         const safeValue =
-          value === null || value === undefined ? "" : String(value).trim();
+          value === null || value === undefined ? "" : String(value);
 
         return line.IsValue == 1 && safeValue === "";
       });
