@@ -121,6 +121,14 @@
                         @click="updateDocumentForm(tab)"
                         >Lưu thông tin</v-btn
                       >
+                      <v-btn class="ml-2"
+                        size="small"
+                        color="green"
+                        rounded="md"
+                        @click="btExportExcel"
+                      >
+                      Xuất excel
+                      </v-btn>
                     </div>
                   </template>
 
