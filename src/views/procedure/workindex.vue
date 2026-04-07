@@ -163,7 +163,7 @@
                   placeholder="Người xử lý"
                   :items="userLstWork"
                   item-value="UserName"
-                  item-title="FullName"
+                  :item-title="item => `${item.FullName} (${item.UserName})`"
                   chips
                   style="max-width: 280px"
                   class="mb-2"
@@ -202,7 +202,7 @@
                   density="compact"
                   :items="userLstMana"
                   item-value="UserName"
-                  item-title="FullName"
+                  :item-title="item => `${item.FullName} (${item.UserName})`"
                   chips
                   style="max-width: 280px"
                   class="mb-2"

@@ -81,7 +81,6 @@
               label="Chọn nhóm liên quan"
               placeholder="Chọn quy trình"
               multiple=""
-              filterable
             />
             <!--
               <v-radio-group v-model="createProcedure.Status">
@@ -129,34 +128,121 @@
       </VCard>
     </VDialog>
 
-    <VCardTitle class="pr-2 pl-4 pb-0">
-      <div
-        class="d-flex"
-        style="justify-content: space-between"
-      >
-        <h6 class="text-h6">
+    <VCardTitle class="px-4 py-3">
+      <div class="d-flex flex-wrap align-center gap-2">
+        <h6 class="text-h6 mb-0 w-100 w-sm-auto">
           DANH SÁCH QUY TRÌNH
         </h6>
-        <div class="d-flex">
-          <span style="width: 250px">
+
+        <VSpacer class="d-none d-sm-block" />
+
+        <div class="d-none d-sm-flex align-center gap-2">
+          <div style="width: 160px;">
             <VTextField
-              v-model="searchProcedure"
-              label="Tìm kiếm"
+              v-model="procedureName"
+              label="Quy trình"
+              hide-details
+              density="compact"
+              variant="outlined"
             />
-          </span>
+          </div>
+          <div style="width: 320px;">
+            <VAutocomplete
+              v-model="teamName"
+              label="Nhóm"
+              hide-details
+              density="compact"
+              variant="outlined"
+              :items="teamlst"
+              item-title="TeamName"
+              item-value="TeamID"
+              clearable
+            />
+          </div>
+          <div style="width: 160px;">
+            <VTextField
+              v-model="employeeName"
+              label="Nhân viên"
+              hide-details
+              density="compact"
+              variant="outlined"
+            />
+          </div>
+        </div>
+
+        <div class="d-flex align-center gap-1 mt-2 mt-sm-0">
+          <VDialog
+            v-model="isShowMobileFilter"
+            max-width="500px"
+          >
+            <template #activator="{ props }">
+              <VBtn
+                v-bind="props"
+                color="primary"
+                icon="mdi-filter-variant"
+                size="small"
+                variant="tonal"
+                class="d-sm-none"
+              />
+            </template>
+            <VCard>
+              <VCardTitle>Bộ lọc tìm kiếm</VCardTitle>
+              <VCardText>
+                <VRow dense>
+                  <VCol cols="12">
+                    <VTextField
+v-model="procedureName"
+                                label="Quy trình"
+variant="outlined"
+/>
+                  </VCol>
+                  <VCol cols="12">
+                    <VAutocomplete
+v-model="teamName"
+                                   label="Nhóm"
+variant="outlined" :items="teamlst" item-title="TeamName" item-value="TeamID" clearable
+/>
+                  </VCol>
+                  <VCol cols="12">
+                    <VTextField
+v-model="employeeName"
+                                label="Nhân viên"
+variant="outlined"
+/>
+                  </VCol>
+                </VRow>
+              </VCardText>
+              <VCardActions>
+                <VSpacer />
+                <VBtn
+                  color="grey"
+                  @click="isShowMobileFilter = false"
+                >
+                  Đóng
+                </VBtn>
+                <VBtn
+                  color="primary"
+                  @click="btSearch"
+                >
+                  Tìm kiếm
+                </VBtn>
+              </VCardActions>
+            </VCard>
+          </VDialog>
 
           <VBtn
             color="blue"
             icon="mdi-file-document-multiple"
             size="small"
             class="mx-1"
+            variant="tonal"
             @click="btShowCopyProcedure"
           />
           <VBtn
             color="green"
             icon="mdi-playlist-plus"
             size="small"
-            class="mr-1"
+            variant="flat"
             @click="btShowCreateProcedure"
           />
         </div>
@@ -179,16 +265,17 @@
         { value: 100, title: '100' },
       ]"
       fixed-header
+      mobile-breakpoint="md"
       @update:itemsPerPage="btRow"
       @update:page="btPage"
     >
       <template #item.Key="{ item }">
-        <div class="d-flex">
-          <div class="mr-2">
+        <div class="d-flex flex-wrap">
+          <div class="mr-2 mt-1">
             {{ item.Key }}
           </div>
+          
           <div>
-            <!-- Xóa -->
             <VTooltip
               text="Xóa"
               location="top"
@@ -205,7 +292,6 @@
               </template>
             </VTooltip>
 
-            <!-- Sửa -->
             <VTooltip
               text="Sửa quy trình"
               location="top"
@@ -222,7 +308,6 @@
               </template>
             </VTooltip>
 
-            <!-- Danh sách phase -->
             <VTooltip
               text="Danh sách Bước"
               location="top"
@@ -239,7 +324,6 @@
               </template>
             </VTooltip>
 
-            <!-- Danh sách Form -->
             <VTooltip
               text="Danh sách Form"
               location="top"
@@ -258,50 +342,66 @@
           </div>
         </div>
       </template>
+
       <template #item.Status="{ item }">
         <VChip
           v-if="item.Status == 1"
           color="blue"
+          size="small"
         >
           Mới tạo
         </VChip>
         <VChip
           v-if="item.Status == 2"
           color="orange"
+          size="small"
         >
           Chỉnh sửa
         </VChip>
       </template>
+
       <template #item.CreateName="{ item }">
         <div>{{ item.CreateName }}</div>
         <VChip
           color="green"
           size="x-small"
+          class="mt-1"
         >
           {{ item.TimeCreate }}
         </VChip>
       </template>
+
       <template #item.ProcedureID="{ item }">
-        <div>{{ item.ProcedureName }}</div>
+        <div class="font-weight-medium">
+          {{ item.ProcedureName }}
+        </div>
         <VChip
           color="green"
           size="x-small"
+          class="mt-1"
         >
           {{ item.ProcedureID }}
         </VChip>
       </template>
+
       <template #item.TeamLst="{ item }">
-        <VChip
-          v-for="tem in item.Data"
-          :key="tem.TeamID"
-          size="x-small"
-          color="blue"
+        <div
+          class="d-flex flex-wrap"
+          style="gap: 4px;"
         >
-          {{ tem.TeamName }}
-        </VChip>
+          <VChip
+            v-for="tem in item.Data"
+            :key="tem.TeamID"
+            size="x-small"
+            color="blue"
+          >
+            {{ tem.TeamName }}
+          </VChip>
+        </div>
       </template>
     </VDataTableServer>
   </VCard>
+
   <VDialog
     v-model="isShowCopyProcedure"
     max-width="500px"
@@ -352,28 +452,13 @@ import { formatDateDisplayDDMMYY } from "@/helpers/getTime"
 export default {
   data() {
     return {
+      // ĐÃ GIỮ NGUYÊN BẢNG HEADERS CỦA BẠN
       headers: [
-        { title: "STT", sortable: false, key: "Key", width: 130 },
-
+        { title: "STT", sortable: false, key: "Key", width: 140 }, // Tăng nhẹ width để Desktop không bị chật
         { title: "Quy trình", key: "ProcedureID", sortable: false },
-
-        {
-          title: "Mô tả",
-          key: "Description",
-          sortable: false,
-        },
-        {
-          title: "Nhóm",
-          key: "TeamLst",
-          sortable: false,
-        },
-
-        {
-          title: "Người tạo",
-          key: "CreateName",
-          sortable: false,
-          align: "center",
-        },
+        { title: "Mô tả", key: "Description", sortable: false },
+        { title: "Nhóm", key: "TeamLst", sortable: false },
+        { title: "Người tạo", key: "CreateName", sortable: false, align: "center" },
       ],
       desserts: [],
       pageNumber: 1,
@@ -392,6 +477,13 @@ export default {
       selectedProcedureToCopy: null,
       teamlst: [],
       searchProcedure: "",
+
+      filterTeamID: null,
+
+      procedureName: "",
+      teamName: "",
+      employeeName: "",
+      isShowMobileFilter: false,
     }
   },
   watch: {
@@ -401,7 +493,17 @@ export default {
     rowspPage(newValue) {
       this.getProcedure()
     },
-    searchProcedure() {
+    procedureName() {
+      this.getProcedure()
+    },
+    teamName() {
+      this.getProcedure()
+    },
+    employeeName() {
+      this.getProcedure()
+    },
+    filterTeamID(){
+      this.pageNumber = 1
       this.getProcedure()
     },
   },
@@ -409,7 +511,15 @@ export default {
     this.getProcedure()
     this.getTeamLst()
   },
+  created() {
+    this.getProcedure()
+    this.getTeamLst()
+  },
   methods: {
+    btSearch() {
+      this.isShowMobileFilter = false
+      this.getProcedure()
+    },
     getTeamLst() {
       GetTeamLst({ RowspPage: 10000, PageNumber: 1 }).then(res => {
         if (res.RespCode == 0) {
@@ -525,7 +635,7 @@ export default {
             this.getProcedure()
             notify({
               title: "Thành công",
-              text: "Tạo quy trình mới thành công",
+              text: "Cập nhật quy trình thành công",
               type: "success",
             })
           }
@@ -561,12 +671,19 @@ export default {
     },
     getProcedure() {
       this.loadding = true
+      var searchText =
+        (this.procedureName ?? "") +
+        "|" +
+        (this.teamName ?? "") +
+        "|" +
+        (this.employeeName ?? "")
       GetProcedureLst({
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
-        Search: this.searchProcedure,
+        Search: searchText,
       }).then(res => {
         if (res.RespCode == 0) {
+          console.log("search: ", searchText)
           var num = (this.pageNumber - 1) * this.rowspPage
           this.desserts = res.Data.filter(p => p.Status != 0).map(
             (item, index) => {
@@ -589,20 +706,29 @@ export default {
 
 <style lang="scss" scoped>
 .groups {
+  block-size: calc(100vh - 250px);
   overflow-y: scroll;
-  height: calc(100vh - 250px);
-  padding-right: 2px;
+  padding-inline-end: 2px;
+
   &::-webkit-scrollbar-track-piece {
-    background: #ffffff;
+    background: #fff;
   }
 
   &::-webkit-scrollbar {
-    width: 6px;
+    inline-size: 6px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgb(var(--v-theme-primary));
     border-radius: 20px;
+    background: rgb(var(--v-theme-primary));
   }
+}
+
+.gap-1 {
+  gap: 4px;
+}
+
+.gap-2 {
+  gap: 8px;
 }
 </style>
