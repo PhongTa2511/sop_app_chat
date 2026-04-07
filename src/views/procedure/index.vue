@@ -1,26 +1,30 @@
 <template>
-  <v-card>
-    <v-dialog v-model="isShowCreate" max-width="500px" persistent>
-      <v-card>
-        <v-card-title>Tạo quy trình mới</v-card-title>
-        <v-card-text>
-          <v-form ref="form">
-            <v-text-field
+  <VCard>
+    <VDialog
+      v-model="isShowCreate"
+      max-width="500px"
+      persistent
+    >
+      <VCard>
+        <VCardTitle>Tạo quy trình mới</VCardTitle>
+        <VCardText>
+          <VForm ref="form">
+            <VTextField
               v-model="createProcedure.ProcedureName"
               label="Tên quy trình(*)"
               placeholder="Nhập trên quy trình"
               required
               class="mb-2"
-            ></v-text-field>
-            <v-textarea
+            />
+            <VTextarea
               v-model="createProcedure.Description"
               label="Mô tả"
               placeholder="Nhập mô tả quy trình"
               :rows="2"
-            ></v-textarea>
-            <v-autocomplete
-              class="mt-2"
+            />
+            <VAutocomplete
               v-model="createProcedure.TeamLst"
+              class="mt-2"
               :items="teamlst"
               item-title="TeamName"
               item-value="TeamID"
@@ -28,101 +32,223 @@
               placeholder="Chọn quy trình"
               multiple=""
               filterable
-            ></v-autocomplete>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="isShowCreate = false">Cancel</v-btn>
-          <v-btn color="green" @click="btCreateProcedure">Xác nhận</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+            />
+          </VForm>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="isShowCreate = false">
+            Cancel
+          </VBtn>
+          <VBtn
+            color="green"
+            @click="btCreateProcedure"
+          >
+            Xác nhận
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
 
-    <v-dialog v-model="isShowUpdate" max-width="500px" persistent>
-      <v-card>
-        <v-card-title>Cập nhật quy trình</v-card-title>
-        <v-card-text>
-          <v-form ref="form">
-            <v-text-field
+    <VDialog
+      v-model="isShowUpdate"
+      max-width="500px"
+      persistent
+    >
+      <VCard>
+        <VCardTitle>Cập nhật quy trình</VCardTitle>
+        <VCardText>
+          <VForm ref="form">
+            <VTextField
               v-model="createProcedure.ProcedureName"
               label="Tên quy trình(*)"
               placeholder="Nhập trên quy trình"
               required
               class="mb-2"
-            ></v-text-field>
-            <v-textarea
+            />
+            <VTextarea
               v-model="createProcedure.Description"
               label="Mô tả"
               placeholder="Nhập mô tả quy trình"
               :rows="2"
-            ></v-textarea>
-            <v-autocomplete
-              class="mt-2"
+            />
+            <VAutocomplete
               v-model="createProcedure.TeamLst"
+              class="mt-2"
               :items="teamlst"
               item-title="TeamName"
               item-value="TeamID"
               label="Chọn nhóm liên quan"
               placeholder="Chọn quy trình"
               multiple=""
-              filterable
-            ></v-autocomplete>
-            <!-- <v-radio-group v-model="createProcedure.Status">
+            />
+            <!--
+              <v-radio-group v-model="createProcedure.Status">
               <v-radio label="Đang hoạt động" :value="1"></v-radio>
               <v-radio label="Dừng hoạt động" :value="0"></v-radio>
-            </v-radio-group> -->
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="isShowUpdate = false">Cancel</v-btn>
-          <v-btn color="green" @click="btEditProcedure">Cập nhật</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+              </v-radio-group> 
+            -->
+          </VForm>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="isShowUpdate = false">
+            Cancel
+          </VBtn>
+          <VBtn
+            color="green"
+            @click="btEditProcedure"
+          >
+            Cập nhật
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
 
-    <v-dialog v-model="isShowConfirmDelete" max-width="500px" persistent>
-      <v-card>
-        <v-card-title>Xác nhận xóa</v-card-title>
-        <v-card-text> Bạn có chắc chắn muốn xóa quy trình này? </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="isShowConfirmDelete = false">Hủy</v-btn>
-          <v-btn color="red" @click="confirmDelete">Xóa</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <VDialog
+      v-model="isShowConfirmDelete"
+      max-width="500px"
+      persistent
+    >
+      <VCard>
+        <VCardTitle>Xác nhận xóa</VCardTitle>
+        <VCardText> Bạn có chắc chắn muốn xóa quy trình này? </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="isShowConfirmDelete = false">
+            Hủy
+          </VBtn>
+          <VBtn
+            color="red"
+            @click="confirmDelete"
+          >
+            Xóa
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
 
-    <v-card-title class="pr-2 pl-4 pb-0">
-      <div class="d-flex" style="justify-content: space-between">
-        <h6 class="text-h6">DANH SÁCH QUY TRÌNH</h6>
-        <div class="d-flex">
-          <span style="width: 250px">
-            <v-text-field
-              v-model="searchProcedure"
-              label="Tìm kiếm"
-            ></v-text-field>
-          </span>
+    <VCardTitle class="px-4 py-3">
+      <div class="d-flex flex-wrap align-center gap-2">
+        <h6 class="text-h6 mb-0 w-100 w-sm-auto">
+          DANH SÁCH QUY TRÌNH
+        </h6>
 
-          <v-btn
+        <VSpacer class="d-none d-sm-block" />
+
+        <div class="d-none d-sm-flex align-center gap-2">
+          <div style="width: 160px;">
+            <VTextField
+              v-model="procedureName"
+              label="Quy trình"
+              hide-details
+              density="compact"
+              variant="outlined"
+            />
+          </div>
+          <div style="width: 320px;">
+            <VAutocomplete
+              v-model="teamName"
+              label="Nhóm"
+              hide-details
+              density="compact"
+              variant="outlined"
+              :items="teamlst"
+              item-title="TeamName"
+              item-value="TeamID"
+              clearable
+            />
+          </div>
+          <div style="width: 160px;">
+            <VTextField
+              v-model="employeeName"
+              label="Nhân viên"
+              hide-details
+              density="compact"
+              variant="outlined"
+            />
+          </div>
+        </div>
+
+        <div class="d-flex align-center gap-1 mt-2 mt-sm-0">
+          <VDialog
+            v-model="isShowMobileFilter"
+            max-width="500px"
+          >
+            <template #activator="{ props }">
+              <VBtn
+                v-bind="props"
+                color="primary"
+                icon="mdi-filter-variant"
+                size="small"
+                variant="tonal"
+                class="d-sm-none"
+              />
+            </template>
+            <VCard>
+              <VCardTitle>Bộ lọc tìm kiếm</VCardTitle>
+              <VCardText>
+                <VRow dense>
+                  <VCol cols="12">
+                    <VTextField
+v-model="procedureName"
+                                label="Quy trình"
+variant="outlined"
+/>
+                  </VCol>
+                  <VCol cols="12">
+                    <VAutocomplete
+v-model="teamName"
+                                   label="Nhóm"
+variant="outlined" :items="teamlst" item-title="TeamName" item-value="TeamID" clearable
+/>
+                  </VCol>
+                  <VCol cols="12">
+                    <VTextField
+v-model="employeeName"
+                                label="Nhân viên"
+variant="outlined"
+/>
+                  </VCol>
+                </VRow>
+              </VCardText>
+              <VCardActions>
+                <VSpacer />
+                <VBtn
+                  color="grey"
+                  @click="isShowMobileFilter = false"
+                >
+                  Đóng
+                </VBtn>
+                <VBtn
+                  color="primary"
+                  @click="btSearch"
+                >
+                  Tìm kiếm
+                </VBtn>
+              </VCardActions>
+            </VCard>
+          </VDialog>
+
+          <VBtn
             color="blue"
             icon="mdi-file-document-multiple"
             size="small"
             class="mx-1"
+            variant="tonal"
             @click="btShowCopyProcedure"
-          ></v-btn>
-          <v-btn
+          />
+          <VBtn
             color="green"
             icon="mdi-playlist-plus"
             size="small"
-            class="mr-1"
+            variant="flat"
             @click="btShowCreateProcedure"
-          ></v-btn>
+          />
         </div>
       </div>
-    </v-card-title>
-    <v-data-table-server
+    </VCardTitle>
+    <VDataTableServer
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="desserts"
@@ -130,8 +256,6 @@
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
       :items-length="dataLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
       height="calc(100vh - 250px)"
       :loading="loadding"
       :items-per-page="rowspPage"
@@ -141,100 +265,152 @@
         { value: 100, title: '100' },
       ]"
       fixed-header
+      mobile-breakpoint="md"
+      @update:itemsPerPage="btRow"
+      @update:page="btPage"
     >
-      <template v-slot:item.Key="{ item }">
-        <div class="d-flex">
-          <div class="mr-2">
+      <template #item.Key="{ item }">
+        <div class="d-flex flex-wrap">
+          <div class="mr-2 mt-1">
             {{ item.Key }}
           </div>
+          
           <div>
-            <!-- Xóa -->
-            <v-tooltip text="Xóa" location="top">
+            <VTooltip
+              text="Xóa"
+              location="top"
+            >
               <template #activator="{ props }">
-                <v-btn
+                <VBtn
                   v-bind="props"
                   color="red"
                   class="mr-1 mb-1"
-                  @click="btShowDel(item)"
                   icon="mdi-trash-can"
                   size="x-small"
+                  @click="btShowDel(item)"
                 />
               </template>
-            </v-tooltip>
+            </VTooltip>
 
-            <!-- Sửa -->
-            <v-tooltip text="Sửa quy trình" location="top">
+            <VTooltip
+              text="Sửa quy trình"
+              location="top"
+            >
               <template #activator="{ props }">
-                <v-btn
+                <VBtn
                   v-bind="props"
                   color="orange"
                   class="mr-1 mb-1"
-                  @click="btShowEditProcedure(item)"
                   icon="mdi-square-edit-outline"
                   size="x-small"
+                  @click="btShowEditProcedure(item)"
                 />
               </template>
-            </v-tooltip>
+            </VTooltip>
 
-            <!-- Danh sách phase -->
-            <v-tooltip text="Danh sách Bước" location="top">
+            <VTooltip
+              text="Danh sách Bước"
+              location="top"
+            >
               <template #activator="{ props }">
-                <v-btn
+                <VBtn
                   v-bind="props"
                   color="green"
                   size="x-small"
                   class="mr-1 mb-1"
-                  @click="btShowLstPhase(item)"
                   icon="mdi-format-list-numbered"
+                  @click="btShowLstPhase(item)"
                 />
               </template>
-            </v-tooltip>
+            </VTooltip>
 
-            <!-- Danh sách Form -->
-            <v-tooltip text="Danh sách Form" location="top">
+            <VTooltip
+              text="Danh sách Form"
+              location="top"
+            >
               <template #activator="{ props }">
-                <v-btn
+                <VBtn
                   v-bind="props"
                   color="blue"
                   size="x-small"
                   class="mr-1 mb-1"
-                  @click="btShowLstForm(item)"
                   icon="mdi-form-select"
+                  @click="btShowLstForm(item)"
                 />
               </template>
-            </v-tooltip>
+            </VTooltip>
           </div>
         </div>
       </template>
-      <template v-slot:item.Status="{ item }">
-        <v-chip color="blue" v-if="item.Status == 1"> Mới tạo </v-chip>
-        <v-chip color="orange" v-if="item.Status == 2"> Chỉnh sửa </v-chip>
-      </template>
-      <template v-slot:item.CreateName="{ item }">
-        <div>{{ item.CreateName }}</div>
-        <v-chip color="green" size="x-small">{{ item.TimeCreate }}</v-chip>
-      </template>
-      <template v-slot:item.ProcedureID="{ item }">
-        <div>{{ item.ProcedureName }}</div>
-        <v-chip color="green" size="x-small">{{ item.ProcedureID }}</v-chip>
-      </template>
-      <template v-slot:item.TeamLst="{ item }">
-        <v-chip
-          size="x-small"
+
+      <template #item.Status="{ item }">
+        <VChip
+          v-if="item.Status == 1"
           color="blue"
-          v-for="tem in item.Data"
-          :key="tem.TeamID"
+          size="small"
         >
-          {{ tem.TeamName }}
-        </v-chip>
+          Mới tạo
+        </VChip>
+        <VChip
+          v-if="item.Status == 2"
+          color="orange"
+          size="small"
+        >
+          Chỉnh sửa
+        </VChip>
       </template>
-    </v-data-table-server>
-  </v-card>
-  <v-dialog v-model="isShowCopyProcedure" max-width="500px" persistent>
-    <v-card>
-      <v-card-title>Nhân bản quy trình</v-card-title>
-      <v-card-text>
-        <v-autocomplete
+
+      <template #item.CreateName="{ item }">
+        <div>{{ item.CreateName }}</div>
+        <VChip
+          color="green"
+          size="x-small"
+          class="mt-1"
+        >
+          {{ item.TimeCreate }}
+        </VChip>
+      </template>
+
+      <template #item.ProcedureID="{ item }">
+        <div class="font-weight-medium">
+          {{ item.ProcedureName }}
+        </div>
+        <VChip
+          color="green"
+          size="x-small"
+          class="mt-1"
+        >
+          {{ item.ProcedureID }}
+        </VChip>
+      </template>
+
+      <template #item.TeamLst="{ item }">
+        <div
+          class="d-flex flex-wrap"
+          style="gap: 4px;"
+        >
+          <VChip
+            v-for="tem in item.Data"
+            :key="tem.TeamID"
+            size="x-small"
+            color="blue"
+          >
+            {{ tem.TeamName }}
+          </VChip>
+        </div>
+      </template>
+    </VDataTableServer>
+  </VCard>
+
+  <VDialog
+    v-model="isShowCopyProcedure"
+    max-width="500px"
+    persistent
+  >
+    <VCard>
+      <VCardTitle>Nhân bản quy trình</VCardTitle>
+      <VCardText>
+        <VAutocomplete
           v-model="selectedProcedureToCopy"
           :items="desserts"
           item-title="ProcedureName"
@@ -244,15 +420,22 @@
           filterable
           clearable
           hide-details=""
-        ></v-autocomplete>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn @click="isShowCopyProcedure = false">Hủy</v-btn>
-        <v-btn color="green" @click="btCopyProcedure">Nhân bản</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+        />
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn @click="isShowCopyProcedure = false">
+          Hủy
+        </VBtn>
+        <VBtn
+          color="green"
+          @click="btCopyProcedure"
+        >
+          Nhân bản
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <script>
@@ -269,28 +452,13 @@ import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
 export default {
   data() {
     return {
+      // ĐÃ GIỮ NGUYÊN BẢNG HEADERS CỦA BẠN
       headers: [
-        { title: "STT", sortable: false, key: "Key", width: 130 },
-
+        { title: "STT", sortable: false, key: "Key", width: 140 }, // Tăng nhẹ width để Desktop không bị chật
         { title: "Quy trình", key: "ProcedureID", sortable: false },
-
-        {
-          title: "Mô tả",
-          key: "Description",
-          sortable: false,
-        },
-        {
-          title: "Nhóm",
-          key: "TeamLst",
-          sortable: false,
-        },
-
-        {
-          title: "Người tạo",
-          key: "CreateName",
-          sortable: false,
-          align: "center",
-        },
+        { title: "Mô tả", key: "Description", sortable: false },
+        { title: "Nhóm", key: "TeamLst", sortable: false },
+        { title: "Người tạo", key: "CreateName", sortable: false, align: "center" },
       ],
       desserts: [],
       pageNumber: 1,
@@ -309,85 +477,110 @@ export default {
       selectedProcedureToCopy: null,
       teamlst: [],
       searchProcedure: "",
-    };
+
+      filterTeamID: null,
+
+      procedureName: "",
+      teamName: "",
+      employeeName: "",
+      isShowMobileFilter: false,
+    }
   },
   watch: {
     pageNumber(newValue) {
-      this.getProcedure();
+      this.getProcedure()
     },
     rowspPage(newValue) {
-      this.getProcedure();
+      this.getProcedure()
     },
-    searchProcedure() {
-      this.getProcedure();
+    procedureName() {
+      this.getProcedure()
+    },
+    teamName() {
+      this.getProcedure()
+    },
+    employeeName() {
+      this.getProcedure()
+    },
+    filterTeamID(){
+      this.pageNumber = 1
+      this.getProcedure()
     },
   },
+  created() {
+    this.getProcedure()
+    this.getTeamLst()
+  },
   methods: {
+    btSearch() {
+      this.isShowMobileFilter = false
+      this.getProcedure()
+    },
     getTeamLst() {
-      GetTeamLst({ RowspPage: 10000, PageNumber: 1 }).then((res) => {
+      GetTeamLst({ RowspPage: 10000, PageNumber: 1 }).then(res => {
         if (res.RespCode == 0) {
-          this.teamlst = res.Data;
+          this.teamlst = res.Data
         }
-      });
+      })
     },
     btCopyProcedure() {
       if (this.selectedProcedureToCopy) {
         CopyProcedure({
           Data: this.selectedProcedureToCopy,
         })
-          .then((res) => {
+          .then(res => {
             if (res.RespCode == 0) {
-              this.isShowCopyProcedure = false;
-              this.getProcedure();
+              this.isShowCopyProcedure = false
+              this.getProcedure()
               notify({
                 title: "Thành công",
                 text: "Nhân bản quy trình thành công",
                 type: "success",
-              });
+              })
             } else {
               notify({
                 title: "Lỗi",
                 text: res.RespText || "Không thể nhân bản quy trình",
                 type: "error",
-              });
+              })
             }
           })
-          .catch((error) => {
+          .catch(error => {
             notify({
               title: "Lỗi",
               text: "Có lỗi xảy ra khi nhân bản quy trình",
               type: "error",
-            });
-          });
+            })
+          })
       } else {
         notify({
           title: "Nhắc nhở",
           text: "Vui lòng chọn quy trình để nhân bản",
           type: "warning",
-        });
+        })
       }
     },
     btShowCopyProcedure() {
-      this.isShowCopyProcedure = true;
-      this.selectedProcedureToCopy = null;
+      this.isShowCopyProcedure = true
+      this.selectedProcedureToCopy = null
     },
     btPage(data) {
-      this.pageNumber = data;
+      this.pageNumber = data
     },
     btRow(data) {
-      this.rowspPage = data;
+      this.rowspPage = data
     },
 
     btShowLstForm(data) {
-      this.$router.push("/form/" + data.ProcedureID);
+      this.$router.push("/form/" + data.ProcedureID)
     },
     btShowLstPhase(data) {
-      this.$router.push("/buoc/" + data.ProcedureID);
+      this.$router.push("/buoc/" + data.ProcedureID)
     },
 
     btShowCreateProcedure() {
-      this.isShowCreate = true;
-      this.createProcedure = {};
+      this.isShowCreate = true
+      this.createProcedure = {}
     },
     btCreateProcedure() {
       if (this.createProcedure.ProcedureName) {
@@ -397,29 +590,29 @@ export default {
             Description: this.createProcedure.Description,
           },
           TeamLst: this.createProcedure.TeamLst.join(","),
-        }).then((res) => {
+        }).then(res => {
           if (res.RespCode == 0) {
-            this.isShowCreate = false;
-            this.createProcedure = {};
-            this.getProcedure();
+            this.isShowCreate = false
+            this.createProcedure = {}
+            this.getProcedure()
             notify({
               title: "Thành công",
               text: "Tạo quy trình mới thành công",
               type: "success",
-            });
+            })
           }
-        });
+        })
       } else {
         notify({
           title: "Nhắc nhở",
           text: "Vui lòng nhập đầy đủ thông tin",
           type: "warning",
-        });
+        })
       }
     },
     btShowEditProcedure(data) {
-      this.isShowUpdate = true;
-      this.createProcedure = data;
+      this.isShowUpdate = true
+      this.createProcedure = data
     },
     btEditProcedure() {
       if (this.createProcedure.ProcedureName) {
@@ -431,95 +624,107 @@ export default {
             Status: 1,
           },
           TeamLst: this.createProcedure.TeamLst?.join(","),
-        }).then((res) => {
+        }).then(res => {
           if (res.RespCode == 0) {
-            this.isShowUpdate = false;
-            this.createProcedure = {};
-            this.getProcedure();
+            this.isShowUpdate = false
+            this.createProcedure = {}
+            this.getProcedure()
             notify({
               title: "Thành công",
-              text: "Tạo quy trình mới thành công",
+              text: "Cập nhật quy trình thành công",
               type: "success",
-            });
+            })
           }
-        });
+        })
       } else {
         notify({
           title: "Nhắc nhở",
           text: "Vui lòng nhập đầy đủ thông tin",
           type: "warning",
-        });
+        })
       }
     },
     btShowDel(data) {
-      this.procedureToDelete = data;
-      this.isShowConfirmDelete = true;
+      this.procedureToDelete = data
+      this.isShowConfirmDelete = true
     },
     confirmDelete() {
-      this.btDelProcedure(this.procedureToDelete);
-      this.isShowConfirmDelete = false;
-      this.procedureToDelete = null;
+      this.btDelProcedure(this.procedureToDelete)
+      this.isShowConfirmDelete = false
+      this.procedureToDelete = null
     },
     btDelProcedure(data) {
-      DelProcedure({ ProcedureID: data.ProcedureID }).then((res) => {
+      DelProcedure({ ProcedureID: data.ProcedureID }).then(res => {
         if (res.RespCode == 0) {
-          this.getProcedure();
+          this.getProcedure()
           notify({
             title: "Thành công",
             text: "Xóa quy trình thành công",
             type: "success",
-          });
+          })
         }
-      });
+      })
     },
     getProcedure() {
-      this.loadding = true;
+      this.loadding = true
+      var searchText =
+        (this.procedureName ?? "") +
+        "|" +
+        (this.teamName ?? "") +
+        "|" +
+        (this.employeeName ?? "")
       GetProcedureLst({
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
-        Search: this.searchProcedure,
-      }).then((res) => {
+        Search: searchText,
+      }).then(res => {
         if (res.RespCode == 0) {
-          var num = (this.pageNumber - 1) * this.rowspPage;
-          this.desserts = res.Data.filter((p) => p.Status != 0).map(
+          console.log("search: ", searchText)
+          var num = (this.pageNumber - 1) * this.rowspPage
+          this.desserts = res.Data.filter(p => p.Status != 0).map(
             (item, index) => {
               return {
                 ...item,
                 Key: index + 1 + num,
                 TimeCreate: formatDateDisplayDDMMYY(item.TimeCreate),
-                TeamLst: item.Data.map((item) => item.TeamID),
-              };
+                TeamLst: item.Data.map(item => item.TeamID),
+              }
             },
-          );
-          this.dataLength = res.TotalRows;
-          this.loadding = false;
+          )
+          this.dataLength = res.TotalRows
+          this.loadding = false
         }
-      });
+      })
     },
   },
-  created() {
-    this.getProcedure();
-    this.getTeamLst();
-  },
-};
+}
 </script>
 
 <style lang="scss" scoped>
 .groups {
+  block-size: calc(100vh - 250px);
   overflow-y: scroll;
-  height: calc(100vh - 250px);
-  padding-right: 2px;
+  padding-inline-end: 2px;
+
   &::-webkit-scrollbar-track-piece {
-    background: #ffffff;
+    background: #fff;
   }
 
   &::-webkit-scrollbar {
-    width: 6px;
+    inline-size: 6px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgb(var(--v-theme-primary));
     border-radius: 20px;
+    background: rgb(var(--v-theme-primary));
   }
+}
+
+.gap-1 {
+  gap: 4px;
+}
+
+.gap-2 {
+  gap: 8px;
 }
 </style>

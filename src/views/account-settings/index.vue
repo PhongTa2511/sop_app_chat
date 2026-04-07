@@ -1,117 +1,19 @@
 <template>
-  <v-card>
-    <v-dialog v-model="isShowCreate" max-width="500px" persistent>
-      <v-card>
-        <v-card-title>Tạo quy trình mới</v-card-title>
-        <v-card-text>
-          <v-form ref="form">
-            <v-text-field
-              v-model="createProcedure.ProcedureName"
-              label="Tên quy trình(*)"
-              placeholder="Nhập trên quy trình"
-              required
-              class="mb-2"
-            ></v-text-field>
-            <v-textarea
-              v-model="createProcedure.Description"
-              label="Mô tả"
-              placeholder="Nhập mô tả quy trình"
-              :rows="2"
-            ></v-textarea>
-            <v-autocomplete
-              class="mt-2"
-              v-model="createProcedure.TeamLst"
-              :items="teamlst"
-              item-title="TeamName"
-              item-value="TeamID"
-              label="Chọn nhóm liên quan"
-              placeholder="Chọn quy trình"
-              multiple=""
-              filterable
-            ></v-autocomplete>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="isShowCreate = false">Cancel</v-btn>
-          <v-btn color="green" @click="btCreateProcedure">Xác nhận</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="isShowUpdate" max-width="500px" persistent>
-      <v-card>
-        <v-card-title>Cập nhật quy trình</v-card-title>
-        <v-card-text>
-          <v-form ref="form">
-            <v-text-field
-              v-model="createProcedure.ProcedureName"
-              label="Tên quy trình(*)"
-              placeholder="Nhập trên quy trình"
-              required
-              class="mb-2"
-            ></v-text-field>
-            <v-textarea
-              v-model="createProcedure.Description"
-              label="Mô tả"
-              placeholder="Nhập mô tả quy trình"
-              :rows="2"
-            ></v-textarea>
-            <v-autocomplete
-              class="mt-2"
-              v-model="createProcedure.TeamLst"
-              :items="teamlst"
-              item-title="TeamName"
-              item-value="TeamID"
-              label="Chọn nhóm liên quan"
-              placeholder="Chọn quy trình"
-              multiple=""
-            ></v-autocomplete>
-            <!-- <v-radio-group v-model="createProcedure.Status">
-              <v-radio label="Đang hoạt động" :value="1"></v-radio>
-              <v-radio label="Dừng hoạt động" :value="0"></v-radio>
-            </v-radio-group> -->
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="isShowUpdate = false">Cancel</v-btn>
-          <v-btn color="green" @click="btEditProcedure">Cập nhật</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-dialog v-model="isShowConfirmDelete" max-width="500px" persistent>
-      <v-card>
-        <v-card-title>Xác nhận xóa</v-card-title>
-        <v-card-text> Bạn có chắc chắn muốn xóa quy trình này? </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="isShowConfirmDelete = false">Hủy</v-btn>
-          <v-btn color="red" @click="confirmDelete">Xóa</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-card-title class="px-4 py-3">
-      <div class="d-flex flex-wrap align-center gap-2">
-        
-        <h6 class="text-h6 mb-0 w-100 w-sm-auto">DANH SÁCH QUY TRÌNH</h6>
-
-        <v-spacer class="d-none d-sm-block"></v-spacer>
-
-        <div class="d-none d-sm-flex align-center gap-2">
-          <div style="width: 160px">
-            <v-text-field
-              v-model="procedureName"
-              label="Quy trình"
-              hide-details
-              density="compact"
+  <VCard>
+    <VCardTitle class="text-h6 pl-4 pr-2 pb-0">
+      <div class="d-flex justify-sm-space-between">
+        <div>Danh sách tài khoản</div>
+        <div class="d-flex flex-wrap">
+          <span>
+            <VTextField
+              v-model="search"
+              label="Tìm kiếm"
+              class="mx-1"
               variant="outlined"
-            ></v-text-field>
-          </div>
-          <div style="width: 320px">
-            <v-autocomplete
+            />
+          </span>
+          <span style="width: 320px;">
+            <VAutocomplete
               v-model="teamName"
               label="Nhóm"
               hide-details
@@ -121,232 +23,315 @@
               item-title="TeamName"
               item-value="TeamID"
               clearable
-            ></v-autocomplete>
-          </div>
-          <div style="width: 160px">
-            <v-text-field
-              v-model="employeeName"
-              label="Nhân viên"
-              hide-details
-              density="compact"
-              variant="outlined"
-            ></v-text-field>
-          </div>
-        </div>
-
-        <div class="d-flex align-center gap-1 mt-2 mt-sm-0">
-          <v-dialog v-model="isShowMobileFilter" max-width="500px">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                v-bind="props"
-                color="primary"
-                icon="mdi-filter-variant"
-                size="small"
-                variant="tonal"
-                class="d-sm-none"
-              ></v-btn>
-            </template>
-            <v-card>
-              <v-card-title>Bộ lọc tìm kiếm</v-card-title>
-              <v-card-text>
-                <v-row dense>
-                  <v-col cols="12">
-                    <v-text-field v-model="procedureName" label="Quy trình" variant="outlined"></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-autocomplete v-model="teamName" label="Nhóm" variant="outlined" :items="teamlst" item-title="TeamName" item-value="TeamID" clearable></v-autocomplete>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field v-model="employeeName" label="Nhân viên" variant="outlined"></v-text-field>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="grey" @click="isShowMobileFilter = false">Đóng</v-btn>
-                <v-btn color="primary" @click="btSearch">Tìm kiếm</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-
-          <v-btn
+            />
+          </span>
+          <VBtn
             color="blue"
-            icon="mdi-file-document-multiple"
+            icon="mdi-reload"
             size="small"
-            class="mx-1"
-            variant="tonal"
-            @click="btShowCopyProcedure"
-          ></v-btn>
-          <v-btn
+            class="mr-1"
+            @click="getUserLst"
+          />
+          <VBtn
             color="green"
-            icon="mdi-playlist-plus"
+            icon="mdi-account-plus"
             size="small"
-            variant="flat"
-            @click="btShowCreateProcedure"
-          ></v-btn>
+            @click="btShowCreate"
+          />
         </div>
-        
       </div>
-    </v-card-title>
-    <v-data-table-server
+    </VCardTitle>
+    <VDataTableServer
+      :items-length="totalLength"
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="desserts"
       items-per-page-text=""
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
-      :items-length="dataLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
-      height="calc(100vh - 250px)"
-      :loading="loadding"
-      :items-per-page="rowspPage"
       :items-per-page-options="[
         { value: 10, title: '10' },
         { value: 50, title: '50' },
         { value: 100, title: '100' },
       ]"
-      fixed-header
-      mobile-breakpoint="md"
+      @update:itemsPerPage="btRow"
+      @update:page="btPage"
     >
-      <template v-slot:item.Key="{ item }">
-        <div class="d-flex flex-wrap">
-          <div class="mr-2 mt-1">
-            {{ item.Key }}
-          </div>
-          
-          <div>
-            <v-tooltip text="Xóa" location="top">
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  color="red"
-                  class="mr-1 mb-1"
-                  @click="btShowDel(item)"
-                  icon="mdi-trash-can"
-                  size="x-small"
-                />
-              </template>
-            </v-tooltip>
-
-            <v-tooltip text="Sửa quy trình" location="top">
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  color="orange"
-                  class="mr-1 mb-1"
-                  @click="btShowEditProcedure(item)"
-                  icon="mdi-square-edit-outline"
-                  size="x-small"
-                />
-              </template>
-            </v-tooltip>
-
-            <v-tooltip text="Danh sách Bước" location="top">
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  color="green"
-                  size="x-small"
-                  class="mr-1 mb-1"
-                  @click="btShowLstPhase(item)"
-                  icon="mdi-format-list-numbered"
-                />
-              </template>
-            </v-tooltip>
-
-            <v-tooltip text="Danh sách Form" location="top">
-              <template #activator="{ props }">
-                <v-btn
-                  v-bind="props"
-                  color="blue"
-                  size="x-small"
-                  class="mr-1 mb-1"
-                  @click="btShowLstForm(item)"
-                  icon="mdi-form-select"
-                />
-              </template>
-            </v-tooltip>
-          </div>
-        </div>
+      <template #item.Status="{ item }">
+        <VChip
+          v-if="item.Status == 1 || item.Status == 2"
+          color="green"
+          size="small"
+        >
+          Đang làm
+        </VChip>
+        <VChip
+          v-if="item.Status == 0"
+          color="red"
+          size="small"
+        >
+          Xóa
+        </VChip>
       </template>
-
-      <template v-slot:item.Status="{ item }">
-        <v-chip color="blue" v-if="item.Status == 1" size="small"> Mới tạo </v-chip>
-        <v-chip color="orange" v-if="item.Status == 2" size="small"> Chỉnh sửa </v-chip>
+      <template #item.TeamName="{ item }">
+        <VChip
+          v-for="(item, index) in item.Data"
+          :key="index"
+          size="small"
+          class="mb-1"
+          color="blue"
+        >
+          <VIcon color="green">
+            mdi-account-multiple
+          </VIcon>
+          {{ item.TeamName }}
+          <!--
+            <v-icon color="green" class="ml-4"> mdi-tag-text </v-icon>
+            {{ item.Role }} 
+          -->
+        </VChip>
       </template>
-
-      <template v-slot:item.CreateName="{ item }">
-        <div>{{ item.CreateName }}</div>
-        <v-chip color="green" size="x-small" class="mt-1">{{ item.TimeCreate }}</v-chip>
+      <template #item.Key="{ item }">
+        {{ item.Key }}
+        <VIcon
+          color="orange"
+          size="small"
+          @click="btShowUpdate(item)"
+        >
+          mdi-square-edit-outline
+        </VIcon>
       </template>
+    </VDataTableServer>
+  </VCard>
 
-      <template v-slot:item.ProcedureID="{ item }">
-        <div class="font-weight-medium">{{ item.ProcedureName }}</div>
-        <v-chip color="green" size="x-small" class="mt-1">{{ item.ProcedureID }}</v-chip>
-      </template>
-
-      <template v-slot:item.TeamLst="{ item }">
-        <div class="d-flex flex-wrap" style="gap: 4px;">
-          <v-chip
-            size="x-small"
-            color="blue"
-            v-for="tem in item.Data"
-            :key="tem.TeamID"
+  <VDialog
+    v-model="isShowUpdateAccount"
+    persistent
+    width="450"
+  >
+    <VCard>
+      <VCardTitle>
+        <h6 class="text-h6 pt-2">
+          Cập nhật tài khoản
+        </h6>
+      </VCardTitle>
+      <VCardText>
+        <VRow>
+          <VCol cols="12">
+            <VTextField
+              v-model="updateAccount.FullName"
+              label="Họ tên"
+              hide-details=""
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
+              v-model="updateAccount.Email"
+              label="Email"
+              hide-details=""
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
+              v-model="updateAccount.PhoneNumber"
+              label="Số điện thoại"
+              hide-details=""
+            />
+          </VCol>
+          <div
+            style="width: 100%;"
+            class="mx-3"
           >
-            {{ tem.TeamName }}
-          </v-chip>
-        </div>
-      </template>
-    </v-data-table-server>
-  </v-card>
+            <span> Nhóm </span>
+            <VBtn
+              icon
+              class="float-right"
+              size="small"
+              density="compact"
+              @click="btShowAddTeam"
+            >
+              <VIcon size="20">
+                mdi-plus
+              </VIcon>
+            </VBtn>
+          </div>
+          <div
+            style="width: 100%;"
+            class="mx-3"
+          >
+            <VSheet
+              v-for="(item, index) in updateAccount.Data"
+              :key="index"
+              class="team-row px-2 py-1 mb-1"
+            >
+              <div class="team-grid">
+                <!-- TEAM -->
+                <div class="team-left text-body-2">
+                  <VIcon
+                    size="18"
+                    color="green"
+                    class="mr-2"
+                  >
+                    mdi-account-multiple
+                  </VIcon>
+                  {{ item.TeamName }}
+                </div>
 
-  <v-dialog v-model="isShowCopyProcedure" max-width="500px" persistent>
-    <v-card>
-      <v-card-title>Nhân bản quy trình</v-card-title>
-      <v-card-text>
-        <v-autocomplete
-          v-model="selectedProcedureToCopy"
-          :items="desserts"
-          item-title="ProcedureName"
-          item-value="ProcedureID"
-          label="Chọn quy trình để nhân bản"
-          placeholder="Chọn quy trình"
-          filterable
-          clearable
-          hide-details=""
-        ></v-autocomplete>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer />
-        <v-btn @click="isShowCopyProcedure = false">Hủy</v-btn>
-        <v-btn color="green" @click="btCopyProcedure">Nhân bản</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+                <!-- ROLE -->
+                <div class="team-role text-body-2">
+                  <VMenu>
+                    <template #activator="{ props }">
+                      <div
+                        v-bind="props"
+                        class="d-flex align-center cursor-pointer"
+                      >
+                        <VIcon
+                          size="18"
+                          color="green"
+                          class="mr-1"
+                        >
+                          mdi-tag
+                        </VIcon>
+                        {{ item.Role }}
+                      </div>
+                    </template>
+
+                    <VList density="compact">
+                      <VListItem
+                        v-for="role in positionLst"
+                        :key="role.ValueName"
+                        @click="changeRole(item, role.ValueName)"
+                      >
+                        <VListItemTitle>
+                          {{ role.ValueName }}
+                        </VListItemTitle>
+                      </VListItem>
+                    </VList>
+                  </VMenu>
+                </div>
+
+                <!-- DELETE -->
+                <VIcon
+                  size="18"
+                  color="red"
+                  class="cursor-pointer"
+                  @click="btRemoveTeam(item)"
+                >
+                  mdi-close
+                </VIcon>
+              </div>
+            </VSheet>
+          </div>
+        </VRow>
+        <div />
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
+          color="blue-darken-1"
+          variant="text"
+          @click="isShowUpdateAccount = false"
+        >
+          Đóng
+        </VBtn>
+        <VBtn @click="updateUserInfo">
+          Xác nhận
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
+  <VDialog
+    v-model="isShowAddTeam"
+    persistent
+    width="380"
+  >
+    <VCard>
+      <VCardTitle>
+        <h6 class="text-h6 pt-2">
+          Thêm nhóm
+        </h6>
+      </VCardTitle>
+      <VCardText>
+        <VRow>
+          <VCol cols="12">
+            <VAutocomplete
+              v-model="teamRoleUser.TeamID"
+              label="Nhóm"
+              :items="teamLst"
+              item-value="TeamID"
+              item-title="TeamName"
+              filterable
+              clearable
+              hide-details=""
+            />
+          </VCol>
+          <VCol cols="12">
+            <VSelect
+              v-model="teamRoleUser.Role"
+              label="Chức vụ"
+              :items="positionLst"
+              item-value="ValueName"
+              item-title="ValueName"
+              hide-details=""
+            />
+          </VCol>
+        </VRow>
+        <div />
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
+          color="blue-darken-1"
+          variant="text"
+          @click="isShowAddTeam = false"
+        >
+          Đóng
+        </VBtn>
+        <VBtn @click="btAddTeam">
+          Xác nhận
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <script>
-import {
-  CopyProcedure,
-  CreateProcedure,
-  DelProcedure,
-  GetProcedureLst,
-  UpdateProcedure,
-} from "@/api/procedureApi";
+import { GetDefaultValue } from "@/api/default";
 import { GetTeamLst } from "@/api/teamApi";
-import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
+import {
+  DelUserRole,
+  GetUserLstAll,
+  GetUserRole,
+  UpdateUserInfo,
+} from "@/api/user";
 
 export default {
   data() {
     return {
-      // ĐÃ GIỮ NGUYÊN BẢNG HEADERS CỦA BẠN
       headers: [
-        { title: "STT", sortable: false, key: "Key", width: 140 }, // Tăng nhẹ width để Desktop không bị chật
-        { title: "Quy trình", key: "ProcedureID", sortable: false },
-        { title: "Mô tả", key: "Description", sortable: false },
-        { title: "Nhóm", key: "TeamLst", sortable: false },
-        { title: "Người tạo", key: "CreateName", sortable: false, align: "center" },
+        {
+          title: "STT",
+          sortable: false,
+          key: "Key",
+          align: "center",
+          width: 80,
+        },
+        { title: "Họ tên", key: "FullName", sortable: false },
+        { title: "Tài khoản", key: "PhoneNumber", sortable: false },
+        { title: "Email", key: "Email", sortable: false },
+        {
+          title: "Nhóm",
+          key: "TeamName",
+          sortable: false,
+          align: "left",
+        },
+        {
+          title: "Trạng thái",
+          key: "Status",
+          sortable: false,
+          width: 100,
+          align: "center",
+        },
       ],
       desserts: [],
       pageNumber: 1,
@@ -358,259 +343,264 @@ export default {
       createProcedure: {},
       isShowUpdate: false,
       isShowCreate: false,
-      procedureLst: [],
-      isShowConfirmDelete: false,
-      procedureToDelete: null,
-      isShowCopyProcedure: false,
-      selectedProcedureToCopy: null,
-      teamlst: [],
-      searchProcedure: "",
+      isShowDel: false,
+      isShowUpdateAccount: false,
+      isShowSetUserRole: false,
+      updateAccount: {},
+      createAccount: {},
+      userLst: [],
+      userRole: {},
+      userRoleLst: [],
+      organization: [],
 
-      filterTeamID: null,
-
-      procedureName: "",
-      teamName: "",
-      employeeName: "",
-      isShowMobileFilter: false,
-    };
+      positionLst: [],
+      teamLst: [],
+      isShowAddTeam: false,
+      teamRoleUser: {},
+    }
   },
   watch: {
+    search() {
+      this.getUserLst()
+    },
     pageNumber(newValue) {
-      this.getProcedure();
+      this.getUserLst()
     },
     rowspPage(newValue) {
-      this.getProcedure();
-    },
-    procedureName() {
-      this.getProcedure();
-    },
-    teamName() {
-      this.getProcedure();
-    },
-    employeeName() {
-      this.getProcedure();
-    },
-    filterTeamID(){
-      this.pageNumber = 1;
-      this.getProcedure();
+      this.getUserLst()
     },
   },
+
+  created() {
+    this.getUserLst()
+    this.getDefaultValue()
+  },
   methods: {
-    btSearch() {
-      this.isShowMobileFilter = false;
-      this.getProcedure();
+    changeRole(teamItem, role) {
+      teamItem.Role = role
     },
-    getTeamLst() {
-      GetTeamLst({ RowspPage: 10000, PageNumber: 1 }).then((res) => {
-        if (res.RespCode == 0) {
-          this.teamlst = res.Data;
-        }
-      });
+    btRemoveTeam(data) {
+      this.updateAccount.Data = this.updateAccount.Data.filter(
+        p => p.TeamID != data.TeamID,
+      )
     },
-    btCopyProcedure() {
-      if (this.selectedProcedureToCopy) {
-        CopyProcedure({
-          Data: this.selectedProcedureToCopy,
-        })
-          .then((res) => {
-            if (res.RespCode == 0) {
-              this.isShowCopyProcedure = false;
-              this.getProcedure();
-              notify({
-                title: "Thành công",
-                text: "Nhân bản quy trình thành công",
-                type: "success",
-              });
-            } else {
-              notify({
-                title: "Lỗi",
-                text: res.RespText || "Không thể nhân bản quy trình",
-                type: "error",
-              });
-            }
+    btAddTeam() {
+      if (this.teamRoleUser.TeamID && this.teamRoleUser.Role) {
+        const existingTeamIndex = this.updateAccount.Data.findIndex(
+          p => p.TeamID == this.teamRoleUser.TeamID,
+        )
+
+        if (existingTeamIndex !== -1) {
+          // Cập nhật thông tin nếu TeamID đã tồn tại
+          this.updateAccount.Data[existingTeamIndex] = {
+            ...this.updateAccount.Data[existingTeamIndex],
+            Role: this.teamRoleUser.Role, // Cập nhật chỉ Role
+          }
+        } else {
+          // Thêm mới nếu TeamID chưa tồn tại
+          this.updateAccount.Data.push({
+            ...this.teamRoleUser,
+            TeamName: this.teamLst.find(
+              p => p.TeamID == this.teamRoleUser.TeamID,
+            ).TeamName,
           })
-          .catch((error) => {
-            notify({
-              title: "Lỗi",
-              text: "Có lỗi xảy ra khi nhân bản quy trình",
-              type: "error",
-            });
-          });
+        }
+        this.isShowAddTeam = false
       } else {
         notify({
-          title: "Nhắc nhở",
-          text: "Vui lòng chọn quy trình để nhân bản",
-          type: "warning",
-        });
+          title: "Cảnh báo",
+          text: "Nhập đầy đủ thông tin",
+          type: "error",
+        })
       }
     },
-    btShowCopyProcedure() {
-      this.isShowCopyProcedure = true;
-      this.selectedProcedureToCopy = null;
+    btShowAddTeam() {
+      this.isShowAddTeam = true
+      this.teamRoleUser = {}
+    },
+    btShowCreate() {
+      this.isShowCreate = true
     },
     btPage(data) {
-      this.pageNumber = data;
+      this.pageNumber = data
     },
     btRow(data) {
-      this.rowspPage = data;
+      this.rowspPage = data
     },
-
-    btShowLstForm(data) {
-      this.$router.push("/form/" + data.ProcedureID);
-    },
-    btShowLstPhase(data) {
-      this.$router.push("/buoc/" + data.ProcedureID);
-    },
-
-    btShowCreateProcedure() {
-      this.isShowCreate = true;
-      this.createProcedure = {};
-    },
-    btCreateProcedure() {
-      if (this.createProcedure.ProcedureName) {
-        CreateProcedure({
-          ProcedureInfo: {
-            ProcedureName: this.createProcedure.ProcedureName,
-            Description: this.createProcedure.Description,
-          },
-          TeamLst: this.createProcedure.TeamLst.join(","),
-        }).then((res) => {
-          if (res.RespCode == 0) {
-            this.isShowCreate = false;
-            this.createProcedure = {};
-            this.getProcedure();
-            notify({
-              title: "Thành công",
-              text: "Tạo quy trình mới thành công",
-              type: "success",
-            });
-          }
-        });
-      } else {
-        notify({
-          title: "Nhắc nhở",
-          text: "Vui lòng nhập đầy đủ thông tin",
-          type: "warning",
-        });
-      }
-    },
-    btShowEditProcedure(data) {
-      this.isShowUpdate = true;
-      this.createProcedure = data;
-    },
-    btEditProcedure() {
-      if (this.createProcedure.ProcedureName) {
-        UpdateProcedure({
-          ProcedureInfo: {
-            ProcedureID: this.createProcedure.ProcedureID,
-            ProcedureName: this.createProcedure.ProcedureName,
-            Description: this.createProcedure.Description,
-            Status: 1,
-          },
-          TeamLst: this.createProcedure.TeamLst?.join(","),
-        }).then((res) => {
-          if (res.RespCode == 0) {
-            this.isShowUpdate = false;
-            this.createProcedure = {};
-            this.getProcedure();
-            notify({
-              title: "Thành công",
-              text: "Cập nhật quy trình thành công",
-              type: "success",
-            });
-          }
-        });
-      } else {
-        notify({
-          title: "Nhắc nhở",
-          text: "Vui lòng nhập đầy đủ thông tin",
-          type: "warning",
-        });
-      }
-    },
-    btShowDel(data) {
-      this.procedureToDelete = data;
-      this.isShowConfirmDelete = true;
-    },
-    confirmDelete() {
-      this.btDelProcedure(this.procedureToDelete);
-      this.isShowConfirmDelete = false;
-      this.procedureToDelete = null;
-    },
-    btDelProcedure(data) {
-      DelProcedure({ ProcedureID: data.ProcedureID }).then((res) => {
+    getDefaultValue() {
+      GetDefaultValue({ Table: "Chức vụ" }).then(res => {
         if (res.RespCode == 0) {
-          this.getProcedure();
+          this.positionLst = res.DefaultValueLst.filter(p => p.Status > 0)
+        }
+      })
+      GetTeamLst({
+        RowspPage: 10000,
+        PageNumber: 1,
+      }).then(res => {
+        if (res.RespCode == 0) {
+          this.teamLst = res.Data
+        }
+      })
+    },
+    btShowUserRole(data) {
+      this.isShowSetUserRole = true
+      this.userRole = data
+      this.getUserRole(data.UserName)
+    },
+
+    delUserRole(data) {
+      DelUserRole({
+        UserRoleInfo: {
+          RowID: data.RowID,
+          UserID: data.UserID,
+          Role: data.Role,
+          Description: data.Description,
+        },
+      }).then(res => {
+        if (res.RespCode == 0) {
+          this.getUserRole(data.UserID)
           notify({
             title: "Thành công",
             text: "Xóa quy trình thành công",
             type: "success",
-          });
+          })
         }
-      });
+      })
     },
-    getProcedure() {
-      this.loadding = true;
-      var searchText =
-        (this.procedureName ?? "") +
-        "|" +
-        (this.teamName ?? "") +
-        "|" +
-        (this.employeeName ?? "");
-      GetProcedureLst({
+    getUserRole(data) {
+      GetUserRole({
+        UserID: data,
+      }).then(res => {
+        this.userRoleLst = res.Data.map((item, index) => {
+          return {
+            ...item,
+            Key: index + 1,
+          }
+        })
+      })
+    },
+    getUserLst() {
+      GetUserLstAll({
+        Search: this.search,
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
-        Search: searchText,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          console.log("search: ", searchText);
-          var num = (this.pageNumber - 1) * this.rowspPage;
-          this.desserts = res.Data.filter((p) => p.Status != 0).map(
-            (item, index) => {
-              return {
-                ...item,
-                Key: index + 1 + num,
-                TimeCreate: formatDateDisplayDDMMYY(item.TimeCreate),
-                TeamLst: item.Data.map((item) => item.TeamID),
-              };
-            },
-          );
-          this.dataLength = res.TotalRows;
-          this.loadding = false;
+          this.desserts = res.Data.map((item, index) => {
+            var a = this.rowspPage * (this.pageNumber - 1)
+
+            return {
+              ...item,
+              Key: index + 1 + a,
+            }
+          })
+          this.totalLength = res.TotalRows
         }
-      });
+      })
+    },
+
+    btShowUpdate(data) {
+      this.isShowUpdateAccount = true
+      this.updateAccount = {
+        ...data,
+      }
+    },
+    updateUserInfo() {
+      UpdateUserInfo({
+        UserInfo: {
+          ...this.updateAccount,
+          UserName: this.updateAccount.UserName,
+          Email: this.updateAccount.Email,
+          FullName: this.updateAccount.FullName,
+          PhoneNumber: this.updateAccount.PhoneNumber,
+          Role: this.updateAccount.Role,
+          TeamID: this.updateAccount.TeamID,
+          Status: this.updateAccount.Status,
+        },
+      }).then(res => {
+        if (res.RespCode == 0) {
+          this.isShowUpdateAccount = false
+          this.updateAccount = {}
+          this.getUserLst()
+          notify({
+            title: "Tài khoản",
+            text: "Cập nhật tài khoản thành công",
+            type: "success",
+          })
+        }
+      })
+    },
+    delUserInfo(data) {
+      this.$confirm("Có chắc bạn muốn xóa tài khoản này không?", "Warning", {
+        confirmButtonText: "OK",
+        cancelButtonText: "Cancel",
+        type: "warning",
+      })
+        .then(() => {
+          UpdateUserInfo({
+            UserInfo: {
+              UserName: data.UserName,
+
+              // Password: this.updateAccount.Password,
+              Email: data.Email,
+              FullName: data.FullName,
+              PhoneNumber: data.PhoneNumber,
+              Status: -1,
+              OrganizationLst: data.OrganizationLst,
+            },
+          }).then(res => {
+            if (res.RespCode == 0) {
+              this.getUserLst()
+              notify({
+                title: "Tài khoản",
+                text: "Xóa tài khoản thành công",
+                type: "success",
+              })
+            }
+          })
+        })
+        .catch(() => {})
     },
   },
-  created() {
-    this.getProcedure();
-    this.getTeamLst();
-  },
-};
+}
 </script>
 
-<style lang="scss" scoped>
-.groups {
-  overflow-y: scroll;
-  height: calc(100vh - 250px);
-  padding-right: 2px;
-  &::-webkit-scrollbar-track-piece {
-    background: #ffffff;
-  }
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgb(var(--v-theme-primary));
-    border-radius: 20px;
-  }
+<style>
+.team-row {
+  border-radius: 999px;
+  background: #e3f2fd;
 }
 
-.gap-1 {
-  gap: 4px;
+.team-grid {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 60% 35% 5%;
 }
-.gap-2 {
-  gap: 8px;
+
+.team-left {
+  display: flex;
+  align-items: center;
+}
+
+.team-role {
+  display: flex;
+  align-items: center;
+}
+
+.team-delete {
+  display: flex;
+  justify-content: center;
+}
+
+.team-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team-row {
+  border-radius: 999px;
+  background: #e3f2fd;
+  min-block-size: 32px;
 }
 </style>
