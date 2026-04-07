@@ -10,18 +10,10 @@
               label="Tìm kiếm"
               class="mx-1"
               variant="outlined"
-            />
-          </span>
-          <span style="width: 320px;">
-            <VAutocomplete
-              v-model="teamName"
-              label="Nhóm"
               hide-details
               density="compact"
-              variant="outlined"
-              :items="teamlst"
-              item-title="TeamName"
-              item-value="TeamID"
+              style="width: 250px !important;"
+              prepend-inner-icon="mdi-magnify"
               clearable
             />
           </span>
@@ -46,16 +38,18 @@
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="desserts"
-      items-per-page-text=""
+      :search="search"
+      height="calc(100vh - 270px)"
+      items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
+      @update:itemsPerPage="btRow"
       sort-desc-icon="mdi-menu-down"
+      @update:page="btPage"
       :items-per-page-options="[
         { value: 10, title: '10' },
         { value: 50, title: '50' },
         { value: 100, title: '100' },
       ]"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
     >
       <template #item.Status="{ item }">
         <VChip
@@ -107,7 +101,7 @@
   <VDialog
     v-model="isShowUpdateAccount"
     persistent
-    width="450"
+    width="600"
   >
     <VCard>
       <VCardTitle>
@@ -159,68 +153,70 @@
             style="width: 100%;"
             class="mx-3"
           >
-            <VSheet
-              v-for="(item, index) in updateAccount.Data"
-              :key="index"
-              class="team-row px-2 py-1 mb-1"
-            >
-              <div class="team-grid">
-                <!-- TEAM -->
-                <div class="team-left text-body-2">
+            <div class="team-scroll">
+              <VSheet
+                v-for="(item, index) in updateAccount.Data"
+                :key="index"
+                class="team-row px-2 py-1 mb-1"
+              >
+                <div class="team-grid">
+                  <!-- TEAM -->
+                  <div class="team-left text-body-2">
+                    <VIcon
+                      size="18"
+                      color="green"
+                      class="mr-2"
+                    >
+                      mdi-account-multiple
+                    </VIcon>
+                    {{ item.TeamName }}
+                  </div>
+
+                  <!-- ROLE -->
+                  <div class="team-role text-body-2">
+                    <VMenu>
+                      <template #activator="{ props }">
+                        <div
+                          v-bind="props"
+                          class="d-flex align-center cursor-pointer"
+                        >
+                          <VIcon
+                            size="18"
+                            color="green"
+                            class="mr-1"
+                          >
+                            mdi-tag
+                          </VIcon>
+                          {{ item.Role }}
+                        </div>
+                      </template>
+
+                      <VList density="compact">
+                        <VListItem
+                          v-for="role in positionLst"
+                          :key="role.ValueName"
+                          @click="changeRole(item, role.ValueName)"
+                        >
+                          <VListItemTitle>
+                            {{ role.ValueName }}
+                          </VListItemTitle>
+                        </VListItem>
+                      </VList>
+                    </VMenu>
+                  </div>
+
+                  <!-- DELETE -->
                   <VIcon
                     size="18"
-                    color="green"
-                    class="mr-2"
+                    color="red"
+                    class="cursor-pointer"
+                    @click="btRemoveTeam(item)"
                   >
-                    mdi-account-multiple
+                    mdi-close
                   </VIcon>
-                  {{ item.TeamName }}
                 </div>
-
-                <!-- ROLE -->
-                <div class="team-role text-body-2">
-                  <VMenu>
-                    <template #activator="{ props }">
-                      <div
-                        v-bind="props"
-                        class="d-flex align-center cursor-pointer"
-                      >
-                        <VIcon
-                          size="18"
-                          color="green"
-                          class="mr-1"
-                        >
-                          mdi-tag
-                        </VIcon>
-                        {{ item.Role }}
-                      </div>
-                    </template>
-
-                    <VList density="compact">
-                      <VListItem
-                        v-for="role in positionLst"
-                        :key="role.ValueName"
-                        @click="changeRole(item, role.ValueName)"
-                      >
-                        <VListItemTitle>
-                          {{ role.ValueName }}
-                        </VListItemTitle>
-                      </VListItem>
-                    </VList>
-                  </VMenu>
-                </div>
-
-                <!-- DELETE -->
-                <VIcon
-                  size="18"
-                  color="red"
-                  class="cursor-pointer"
-                  @click="btRemoveTeam(item)"
-                >
-                  mdi-close
-                </VIcon>
-              </div>
-            </VSheet>
+              </VSheet>
+            </div>
           </div>
         </VRow>
         <div />
@@ -334,14 +330,11 @@ export default {
         },
       ],
       desserts: [],
-      pageNumber: 1,
-      rowspPage: 10,
       search: "",
-      dataLength: 0,
-      loadding: false,
-
-      createProcedure: {},
-      isShowUpdate: false,
+      tableData: [],
+      rowspPage: 10,
+      pageNumber: 1,
+      totalLength: 0,
       isShowCreate: false,
       isShowDel: false,
       isShowUpdateAccount: false,
@@ -460,8 +453,8 @@ export default {
         if (res.RespCode == 0) {
           this.getUserRole(data.UserID)
           notify({
-            title: "Thành công",
-            text: "Xóa quy trình thành công",
+            title: "Xóa quyền",
+            text: "Xóa phân quyền thành công",
             type: "success",
           })
         }
@@ -488,7 +481,7 @@ export default {
         if (res.RespCode == 0) {
           this.desserts = res.Data.map((item, index) => {
             var a = this.rowspPage * (this.pageNumber - 1)
-
+            
             return {
               ...item,
               Key: index + 1 + a,
@@ -602,5 +595,11 @@ export default {
   border-radius: 999px;
   background: #e3f2fd;
   min-block-size: 32px;
+}
+
+.team-scroll {
+  max-block-size: 250px;
+  overflow-y: auto;
+  padding-inline-end: 4px;
 }
 </style>
