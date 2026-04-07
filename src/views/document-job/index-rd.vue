@@ -1,10 +1,8 @@
 <template>
-  <v-card class="pt-2">
-    <v-data-table-server
+  <VCard class="pt-2">
+    <VDataTableServer
       :items-per-page="rowspPage"
       :items-length="totalLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="jobLst"
@@ -12,31 +10,32 @@
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
+      @update:itemsPerPage="btRow"
       :items-per-page-options="[
         { value: 10, title: '10' },
         { value: 50, title: '50' },
         { value: 100, title: '100' },
         { value: 10000, title: 'All' },
       ]"
+      @update:page="btPage"
       fixed-header
       :loading="loadding"
     >
-      <template v-slot:top>
+      <template #top>
         <div class="d-flex flex-wrap gap-2 px-2">
           <span>
-            <v-menu :close-on-content-click="false">
-              <template v-slot:activator="{ props }">
-                <v-btn
+            <VMenu :close-on-content-click="false">
+              <template #activator="{ props }">
+                <VBtn
                   color="blue"
                   size="small"
                   icon=" mdi-filter"
                   v-bind="props"
-                >
-                </v-btn>
+                />
               </template>
-              <v-list>
-                <v-list-item>
-                  <v-text-field
+              <VList>
+                <VListItem>
+                  <VTextField
                     v-model="proName"
                     label="Hồ sơ"
                     hide-details
@@ -44,9 +43,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="workName"
                     label="Công việc"
                     hide-details
@@ -54,9 +53,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="product"
                     label="Sản phẩm"
                     hide-details
@@ -64,9 +63,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="name2"
                     label="Tên xuất khẩu"
                     hide-details
@@ -74,8 +73,8 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
-                  <v-text-field
+                  />
+                  <VTextField
                     v-model="country"
                     label="Quốc gia"
                     hide-details
@@ -83,8 +82,8 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
-                  <v-text-field
+                  />
+                  <VTextField
                     v-model="employeeName"
                     label="Nhân viên"
                     hide-details
@@ -92,65 +91,70 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="py-2"
-                  ></v-text-field>
-                  <V-DateField
+                  />
+                  <VDateField
                     v-model:modelValue="timeOver"
                     label="Thời gian"
                     width="100%"
                   />
-                  <v-select
-                    class="pt-2"
+                  <VSelect
                     v-model="workOver"
+                    class="pt-2"
                     label="Tình trạng"
                     density="compact"
                     :items="workOverLst"
                     item-value="value"
                     item-title="value"
-                  ></v-select>
-                  <v-btn block class="rounded mt-2" @click="getDocumentJobByEm"
-                    >Tìm kiếm</v-btn
-                  >
-                </v-list-item>
-              </v-list>
-            </v-menu>
+                  />
+                  <VBtn
+                    block
+                    class="rounded mt-2"
+                    @click="getDocumentJobByEm"
+                  >Tìm kiếm</VBtn>
+                </VListItem>
+              </VList>
+            </VMenu>
           </span>
 
-          <v-btn
+          <VBtn
             color="green"
             variant="tonal"
             icon="mdi-reload"
             size="small"
             @click="getDocumentJobByEm"
-          ></v-btn>
+          />
         </div>
       </template>
-      <template v-slot:item.Status="{ item }">
+      <template #item.Status="{ item }">
         <div>
-          <v-chip size="x-small" :color="getStatus(item.Status).color">
-            {{ getStatus(item.Status).text }}</v-chip
+          <VChip
+            size="x-small"
+            :color="getStatus(item.Status).color"
           >
+            {{ getStatus(item.Status).text }}
+          </VChip>
         </div>
         <div style="font-size: 11px">
           {{ item.FullName }}
         </div>
       </template>
 
-      <template v-slot:item.Key="{ item }">
-        <v-btn
+      <template #item.Key="{ item }">
+        <VBtn
           icon="mdi-note-edit"
           color="orange"
           size="x-small"
           class="mr-1"
           @click="btPushToDocinfo(item)"
-        ></v-btn>
-        <v-btn
+        />
+        <VBtn
           icon="mdi-delete"
           color="red"
           size="x-small"
           @click="btDeleteJob(item)"
-        ></v-btn>
+        />
       </template>
-      <template v-slot:item.TimeStartShow="{ item }">
+      <template #item.TimeStartShow="{ item }">
         <div style="color: green">
           {{ item.TimeStartShow }}
         </div>
@@ -158,92 +162,114 @@
           {{ item.TimeEndShow }}
         </div>
       </template>
-      <template v-slot:item.ProcedureName="{ item }">
+      <template #item.ProcedureName="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.Key }}. {{ item.ProcedureName }}
-          <v-chip color="green" size="x-small" v-if="item.DaysWorked != 0">{{
-            item.DaysWorked
-          }}</v-chip>
-          <v-chip color="red" size="x-small" v-if="item.DaysRemaining != 0">
+          <VChip
+            v-if="item.DaysWorked != 0"
+            color="green"
+            size="x-small"
+          >
+            {{
+              item.DaysWorked
+            }}
+          </VChip>
+          <VChip
+            v-if="item.DaysRemaining != 0"
+            color="red"
+            size="x-small"
+          >
             {{ item.DaysRemaining }}
-          </v-chip>
+          </VChip>
         </div>
         <div style="font-size: 12px">
           <span style="color: blue">{{ item.DocumentID }}</span>
         </div>
       </template>
-      <template v-slot:item.JobName="{ item }">
+      <template #item.JobName="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.JobName }}
         </div>
         <div style="font-size: 12px">
           <span style="color: blue">{{ item.RowID }}</span>
-          <v-tooltip interactive>
-            <template v-slot:activator="{ props: activatorProps }">
-              <v-btn
+          <VTooltip interactive>
+            <template #activator="{ props: activatorProps }">
+              <VBtn
                 size="mini"
                 icon="mdi-information-outline"
                 v-bind="activatorProps"
                 color="info"
-              ></v-btn>
+              />
             </template>
             <div>
               <a class="text-info font-weight-medium"> Người giao </a>
               {{ item.AssignName }}
             </div>
-          </v-tooltip>
+          </VTooltip>
         </div>
       </template>
-      <template v-slot:item.WarehouseName="{ item }">
+      <template #item.WarehouseName="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.WarehouseName }}
         </div>
       </template>
-      <template v-slot:item.Name2="{ item }">
+      <template #item.Name2="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.Name2 }}
         </div>
       </template>
-      <template v-slot:item.Country="{ item }">
+      <template #item.Country="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.Country }}
         </div>
       </template>
-    </v-data-table-server>
+    </VDataTableServer>
 
     <!-- Delete Confirmation Dialog -->
-    <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card>
-        <v-card-title class="text-h5">Xác nhận xóa công việc</v-card-title>
-        <v-card-text class="py-0">
+    <VDialog
+      v-model="deleteDialog"
+      max-width="400"
+    >
+      <VCard>
+        <VCardTitle class="text-h5">
+          Xác nhận xóa công việc
+        </VCardTitle>
+        <VCardText class="py-0">
           <p>Bạn có chắc chắn muốn xóa công việc này không?</p>
-          <p v-if="selectedJobToDelete" class="font-weight-bold">
+          <p
+            v-if="selectedJobToDelete"
+            class="font-weight-bold"
+          >
             {{ selectedJobToDelete.ProcedureName }} -
             {{ selectedJobToDelete.JobName }}
           </p>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="grey" variant="text" @click="deleteDialog = false">
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn
+            color="grey"
+            variant="text"
+            @click="deleteDialog = false"
+          >
             Hủy
-          </v-btn>
-          <v-btn
+          </VBtn>
+          <VBtn
             color="red"
             variant="tonal"
-            @click="confirmDelete"
             :loading="deleteLoading"
+            @click="confirmDelete"
           >
             Xóa
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-card>
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+  </VCard>
 </template>
 
 <script>
-import { CancelDocumentJob, GetDocumentJobByEm } from "@/api/documentJobApi";
-import { formatDate, formatDateDisplayDDMMYY } from "@/helpers/getTime";
+import { CancelDocumentJob, GetDocumentJobByEm } from "@/api/documentJobApi"
+import { formatDate, formatDateDisplayDDMMYY } from "@/helpers/getTime"
 
 export default {
   data() {
@@ -293,92 +319,105 @@ export default {
         { value: "Đúng hạn" },
       ],
       timeOver: "",
-    };
+    }
   },
   watch: {
     search() {
-      this.getDocumentJobByEm();
+      this.getDocumentJobByEm()
     },
     pageNumber(newValue) {
-      this.getDocumentJobByEm();
+      this.getDocumentJobByEm()
     },
     rowspPage(newValue) {
-      this.getDocumentJobByEm();
+      this.getDocumentJobByEm()
     },
+  },
+  created() {
+    this.proName = this.$route.query.proName
+    this.workName = this.$route.query.workName
+    this.product = this.$route.query.product
+    this.name2 = this.$route.query.name2
+    this.country = this.$route.query.country
+    this.employeeName = this.$route.query.employeeName
+    this.getDocumentJobByEm()
   },
   methods: {
     itemRowBackground(item) {
-      const endDate = new Date(item.TimeEnd);
-      endDate.setHours(0, 0, 0, 0);
+      const endDate = new Date(item.TimeEnd)
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      endDate.setHours(0, 0, 0, 0)
+
+      const today = new Date()
+
+      today.setHours(0, 0, 0, 0)
 
       if (endDate.getTime() < today.getTime()) {
-        return "wilExpired365";
+        return "wilExpired365"
       }
-      return "";
+      
+      return ""
     },
     btPushToDocinfo(data) {
-      this.$router.push("/thong-tin-cong-viec/" + data.RowID);
+      this.$router.push("/thong-tin-cong-viec/" + data.RowID)
     },
     btDeleteJob(item) {
-      this.selectedJobToDelete = item;
-      this.deleteDialog = true;
+      this.selectedJobToDelete = item
+      this.deleteDialog = true
     },
     confirmDelete() {
-      this.deleteLoading = true;
+      this.deleteLoading = true
       CancelDocumentJob({
         RowID: this.selectedJobToDelete.RowID,
       })
-        .then((res) => {
+        .then(res => {
           if (res.RespCode == 0) {
             notify({
               title: "Thành công",
               type: "success",
-            });
-            this.deleteDialog = false;
-            this.getDocumentJobByEm();
+            })
+            this.deleteDialog = false
+            this.getDocumentJobByEm()
           } else {
             notify({
               title: res.RespText || "Đã xảy ra lỗi",
               type: "error",
-            });
+            })
           }
         })
-        .catch((err) => {
+        .catch(err => {
           notify({
             title: err.message || "Đã xảy ra lỗi",
             type: "error",
-          });
+          })
         })
         .finally(() => {
-          this.deleteLoading = false;
-        });
+          this.deleteLoading = false
+        })
     },
     btPage(data) {
-      this.pageNumber = data;
+      this.pageNumber = data
     },
     btRow(data) {
-      this.rowspPage = data;
+      this.rowspPage = data
     },
     getStatus(status) {
       if (status == 0) {
-        return { text: "Hủy", color: "error" };
+        return { text: "Hủy", color: "error" }
       }
 
       if (status == 1 || status == 2) {
-        return { text: "Đang làm", color: "info" };
+        return { text: "Đang làm", color: "info" }
       }
       if (status == 3) {
-        return { text: "Đã báo cáo", color: "blue" };
+        return { text: "Đã báo cáo", color: "blue" }
       }
       if (status == 4) {
-        return { text: "Hoàn thành", color: "green" };
+        return { text: "Hoàn thành", color: "green" }
       }
     },
     getDocumentJobByEm() {
-      this.loadding = true;
+      this.loadding = true
+
       const searchParams = {
         proName: this.proName,
         workName: this.workName,
@@ -388,11 +427,12 @@ export default {
         employeeName: this.employeeName,
         workOver: this.workOver,
         timeOver: this.timeOver,
-      };
+      }
+
       this.$router.push({
         path: this.$route.path,
         query: searchParams, // Chuyển đổi searchParams thành đối tượng
-      });
+      })
 
       GetDocumentJobByEm({
         PageNumber: this.pageNumber,
@@ -414,36 +454,28 @@ export default {
           (this.country ?? "") +
           "|" +
           (this.timeOver ? formatDate(this.timeOver) : ""),
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
           this.jobLst = res.DocumentJobLst.map((item, index) => {
-            var dateStart = new Date(item.TimeStart);
-            var num = (this.pageNumber - 1) * this.rowspPage;
-            dateStart.setDate(dateStart.getDate() + item.QuotaTime ?? 0);
+            var dateStart = new Date(item.TimeStart)
+            var num = (this.pageNumber - 1) * this.rowspPage
+            dateStart.setDate(dateStart.getDate() + item.QuotaTime ?? 0)
+            
             return {
               ...item,
               Key: index + 1 + num,
               TimeStartShow: formatDateDisplayDDMMYY(item.TimeStart),
               TimeEndShow: formatDateDisplayDDMMYY(dateStart),
               TimeEnd: formatDate(dateStart),
-            };
-          });
-          this.totalLength = res.TotalRows;
-          this.loadding = false;
+            }
+          })
+          this.totalLength = res.TotalRows
+          this.loadding = false
         }
-      });
+      })
     },
   },
-  created() {
-    this.proName = this.$route.query.proName;
-    this.workName = this.$route.query.workName;
-    this.product = this.$route.query.product;
-    this.name2 = this.$route.query.name2;
-    this.country = this.$route.query.country;
-    this.employeeName = this.$route.query.employeeName;
-    this.getDocumentJobByEm();
-  },
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -505,6 +537,7 @@ export default {
   }
 }
 </style>
+
 <style>
 .wilExpired365 {
   color: red;

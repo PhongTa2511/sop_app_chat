@@ -445,9 +445,9 @@ import {
   DelProcedure,
   GetProcedureLst,
   UpdateProcedure,
-} from "@/api/procedureApi";
-import { GetTeamLst } from "@/api/teamApi";
-import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
+} from "@/api/procedureApi"
+import { GetTeamLst } from "@/api/teamApi"
+import { formatDateDisplayDDMMYY } from "@/helpers/getTime"
 
 export default {
   data() {
@@ -506,6 +506,10 @@ export default {
       this.pageNumber = 1
       this.getProcedure()
     },
+  },
+  created() {
+    this.getProcedure()
+    this.getTeamLst()
   },
   created() {
     this.getProcedure()

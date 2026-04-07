@@ -3,33 +3,36 @@ import {
   GetUserLstAll,
   GetUserPermisstionLst,
   UpdateUserPermisstionLst,
-} from "@/api/user";
+} from "@/api/user"
 
-const permissionLst = ref([]);
-const getPermissionLst = (phone) => {
-  GetUserPermisstionLst({ Phone: phone }).then((res) => {
+const permissionLst = ref([])
+
+const getPermissionLst = phone => {
+  GetUserPermisstionLst({ Phone: phone }).then(res => {
     if (res.RespCode == 0) {
       permissionLst.value = res.Data.map((item, index) => {
         return {
           ...item,
           Key: index + 1,
           FeatureName: item.Define,
-        };
-      });
+        }
+      })
     }
-  });
-};
+  })
+}
 
-var inputSearch = ref("");
-var pageNumber = ref(1);
-var rowspPage = ref(1000);
-const totalLength = ref(0);
-var employeeSelect = ref(null);
-var employeeLst = ref([]);
+var inputSearch = ref("")
+var pageNumber = ref(1)
+var rowspPage = ref(1000)
+const totalLength = ref(0)
+var employeeSelect = ref(null)
+var employeeLst = ref([])
+
 const groupBy = [
   // { key: "TableName", order: "asc" },
   { key: "Role", order: "asc" },
-];
+]
+
 var headers = [
   { title: "STT", sortable: false, key: "Key", align: "center" },
   { title: "Type", key: "TableName", sortable: false, align: "left" },
@@ -69,88 +72,94 @@ var headers = [
     align: "center",
     sortable: false,
   },
-];
+]
+
 const getAccountLst = () => {
-  var search = inputSearch.value;
+  var search = inputSearch.value
   GetUserLstAll({
     Search: search,
     PageNumber: pageNumber.value,
     RowspPage: rowspPage.value,
-  }).then((res) => {
+  }).then(res => {
     if (res.RespCode == 0) {
-      var num = (pageNumber.value - 1) * rowspPage.value;
+      var num = (pageNumber.value - 1) * rowspPage.value
       employeeLst.value = res.Data.map((item, index) => {
         return {
           ...item,
           Key: index + 1 + num,
           TextShow: item.FullName + " - " + item.PhoneNumber,
-        };
-      });
+        }
+      })
       if (employeeLst.value.length > 0) {
-        employeeSelect.value = employeeLst.value[0].PhoneNumber;
+        employeeSelect.value = employeeLst.value[0].PhoneNumber
       } else {
-        employeeSelect.value = null;
+        employeeSelect.value = null
       }
-      totalLength.value = res.TotalRows;
+      totalLength.value = res.TotalRows
     }
-  });
-};
-getAccountLst();
+  })
+}
+
+getAccountLst()
+
 const updatePermissions = () => {
   if (employeeSelect.value) {
-    permissionLst.value.forEach((item) => {
-      item.UserName = employeeSelect.value;
-    });
+    permissionLst.value.forEach(item => {
+      item.UserName = employeeSelect.value
+    })
+
     // Call API to update permissions
     // Assuming there's an API function to update permissions
     UpdateUserPermisstionLst({
       Data: permissionLst.value,
       Phone: employeeSelect.value,
-    }).then((res) => {
+    }).then(res => {
       if (res.RespCode == 0) {
         notify({
           type: "success",
           title: "Thành công",
-        });
+        })
       } else {
         notify({
           type: "error",
           title: "Lỗi",
           text: res.RespText,
-        });
+        })
       }
-    });
+    })
   } else {
     notify({
       type: "error",
       title: "Lỗi",
       text: "Vui lòng chọn nhân viên và chi nhánh",
-    });
+    })
   }
-};
+}
 
 watch([employeeSelect], ([newEmployee]) => {
   if (newEmployee) {
-    getPermissionLst(newEmployee);
+    getPermissionLst(newEmployee)
   }
-});
+})
 </script>
 
 <template>
   <VCard>
-    <v-card-title class="px-4">
-      <h6 class="text-h6">DANH SÁCH PHÂN QUYỀN</h6>
-    </v-card-title>
+    <VCardTitle class="px-4">
+      <h6 class="text-h6">
+        DANH SÁCH PHÂN QUYỀN
+      </h6>
+    </VCardTitle>
     <VCardText class="pb-0 px-4">
       <!-- Tích chọn các quyền bạn muốn cấp cho tài khoản. -->
       <!-- <a href="javascript:void(0)">Request Permission</a> -->
       <div class="d-flex">
         <span>
-          <v-autocomplete
+          <VAutocomplete
+            v-model="employeeSelect"
             placeholder="Chọn nhân viên"
             label="Tên nhân viên"
             density="compact"
-            v-model="employeeSelect"
             :items="employeeLst"
             item-value="PhoneNumber"
             item-title="TextShow"
@@ -160,16 +169,16 @@ watch([employeeSelect], ([newEmployee]) => {
             clearable
             filterable
             hide-details
-          ></v-autocomplete>
+          />
         </span>
-        <v-btn
+        <VBtn
           icon="mdi-reload"
           size="small"
           @click="getPermissionLst(employeeSelect, branchSelect)"
-        ></v-btn>
+        />
       </div>
     </VCardText>
-    <v-data-table
+    <VDataTable
       :items-length="permissionLst.length"
       no-data-text="Không có dữ liệu"
       :headers="headers"
@@ -183,83 +192,83 @@ watch([employeeSelect], ([newEmployee]) => {
       hide-default-footer
       :group-by="groupBy"
     >
-      <template
-        v-slot:group-header="{ item, columns, toggleGroup, isGroupOpen }"
-      >
+      <template #group-header="{ item, columns, toggleGroup, isGroupOpen }">
         <tr>
           <td :colspan="columns.length">
             <div class="d-flex align-center">
-              <v-btn
+              <VBtn
                 :icon="isGroupOpen(item) ? '$expand' : '$next'"
                 color="medium-emphasis"
                 density="comfortable"
                 size="small"
                 variant="outlined"
                 @click="toggleGroup(item)"
-              ></v-btn>
+              />
 
               <span class="ms-4">Menu: {{ item.items[0].raw.Define }}</span>
             </div>
           </td>
         </tr>
       </template>
-      <template v-slot:item.CanAccess="{ item }">
+      <template #item.CanAccess="{ item }">
         <div class="d-flex justify-center">
-          <v-checkbox
+          <VCheckbox
             v-model="item.CanAccess"
             color="success"
             :true-value="1"
             :false-value="0"
-          ></v-checkbox>
+          />
         </div>
       </template>
-      <template v-slot:item.CanCreate="{ item }">
+      <template #item.CanCreate="{ item }">
         <div class="d-flex justify-center">
-          <v-checkbox
+          <VCheckbox
+            v-if="item.TableName == 'Tab'"
             v-model="item.CanCreate"
-            v-if="item.TableName == 'Tab'"
             :true-value="1"
             :false-value="0"
-          ></v-checkbox>
+          />
         </div>
       </template>
-      <template v-slot:item.CanRead="{ item }">
+      <template #item.CanRead="{ item }">
         <div class="d-flex justify-center">
-          <v-checkbox
+          <VCheckbox
+            v-if="item.TableName == 'Tab'"
             v-model="item.CanRead"
-            v-if="item.TableName == 'Tab'"
             :true-value="1"
             :false-value="0"
-          ></v-checkbox>
+          />
         </div>
       </template>
-      <template v-slot:item.CanUpdate="{ item }">
+      <template #item.CanUpdate="{ item }">
         <div class="d-flex justify-center">
-          <v-checkbox
+          <VCheckbox
+            v-if="item.TableName == 'Tab'"
             v-model="item.CanUpdate"
-            v-if="item.TableName == 'Tab'"
             :true-value="1"
             :false-value="0"
-          ></v-checkbox>
+          />
         </div>
       </template>
-      <template v-slot:item.CanDelete="{ item }">
+      <template #item.CanDelete="{ item }">
         <div class="d-flex justify-center">
-          <v-checkbox
-            v-model="item.CanDelete"
+          <VCheckbox
             v-if="item.TableName == 'Tab'"
+            v-model="item.CanDelete"
             :true-value="1"
             :false-value="0"
-          ></v-checkbox>
+          />
         </div>
       </template>
-    </v-data-table>
+    </VDataTable>
 
     <VDivider />
 
     <VCardText class="py-2">
       <div class="d-flex flex-wrap gap-2">
-        <VBtn @click="updatePermissions"> Lưu thay đổi </VBtn>
+        <VBtn @click="updatePermissions">
+          Lưu thay đổi
+        </VBtn>
       </div>
     </VCardText>
   </VCard>

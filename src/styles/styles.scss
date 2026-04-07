@@ -27,7 +27,7 @@
   }
 }
 .layout-card {
-  max-height: calc(100vh - 86px);
+  height: calc(100vh - 106px);
   // height: calc(100vh - 112px);
   overflow-y: auto;
   &::-webkit-scrollbar-track-piece {
@@ -46,8 +46,6 @@
   .file-lst {
     display: flex;
     overflow: scroll;
-    padding: 4px 0;
-    margin-bottom: 4px;
     &::-webkit-scrollbar-track-piece {
       background: transparent;
     }
@@ -60,9 +58,6 @@
     &::-webkit-scrollbar-thumb {
       background: #bec5ce;
       border-radius: 20px;
-    }
-    .v-chip {
-      min-width: 60px;
     }
   }
   .file {
@@ -87,4 +82,7 @@
 }
 .v-data-table-footer {
   padding: 0 4px !important;
+}
+p {
+  margin-bottom: 4px !important;
 }

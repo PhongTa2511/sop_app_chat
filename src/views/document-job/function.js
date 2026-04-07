@@ -11,11 +11,15 @@ export function urlUploadFile(data) {
   return `https://sop.idtp.work/api/File/UploadDocumentFile?UserName=${username}&Token=${token}&RowID=${data}`;
 }
 
+export function urlUploadRecurringFile(data) {
+  return `https://sop.idtp.work/api/File/UploadRecurringFile?UserName=${username}&Token=${token}&RowID=${data}`;
+}
+
 export function formatJson(filterVal, jsonData) {
   return jsonData.map((v) =>
     filterVal.map((j) => {
       return v[j.key];
-    })
+    }),
   );
 }
 export function formatHeader(headerData) {
@@ -28,6 +32,7 @@ export function exportExcel(headers) {
   var dataLst = [];
   import("@/vendor/Export2Excel").then((excel) => {
     const data = formatJson(headers, dataLst);
+
     excel.export_json_to_excel({
       header: formatHeader(headers),
       data: data,
@@ -48,13 +53,14 @@ export function excelDateToJSDate(serial) {
   total_seconds -= seconds;
   var hours = Math.floor(total_seconds / (60 * 60));
   var minutes = Math.floor(total_seconds / 60) % 60;
+
   return new Date(
     date_info.getFullYear(),
     date_info.getMonth(),
     date_info.getDate(),
     hours,
     minutes,
-    seconds
+    seconds,
   );
 }
 

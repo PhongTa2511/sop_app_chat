@@ -16,6 +16,7 @@ const router = createRouter({
           path: "tai-khoan",
           component: () => import("../pages/account-settings.vue"),
         },
+
         // {
         //   path: "khu-vuc",
         //   component: () => import("../pages/typography.vue"),
@@ -27,6 +28,10 @@ const router = createRouter({
         {
           path: "cai-dat",
           component: () => import("../pages/setting.vue"),
+        },
+        {
+          path: "viec-dinh-ky",
+          component: () => import("../pages/recurring-job.vue"),
         },
         {
           path: "buoc/:id",
@@ -49,6 +54,10 @@ const router = createRouter({
           component: () => import("@/views/document-job/jobinfo.vue"),
         },
         {
+          path: "cong-viec-dinh-ky/:id",
+          component: () => import("@/views/document-job/recurring-info.vue"),
+        },
+        {
           path: "ho-so",
           component: () => import("../pages/document.vue"),
         },
@@ -60,6 +69,7 @@ const router = createRouter({
           path: "thong-tin/:id",
           component: () => import("@/views/document/docinfo.vue"),
         },
+
         // {
         //   path: "san-pham",
         //   component: () => import("@/views/product/index.vue"),
@@ -80,10 +90,10 @@ const router = createRouter({
           path: "thong-tin-san-pham/:id",
           component: () => import("@/views/product/productInfo.vue"),
         },
-        {
-          path: "phat-sinh",
-          component: () => import("../pages/work-arising.vue"),
-        },
+        // {
+        //   path: "phat-sinh",
+        //   component: () => import("../pages/work-arising.vue"),
+        // },
         {
           path: "quoc-gia",
           component: () => import("@/views/country/law.vue"),

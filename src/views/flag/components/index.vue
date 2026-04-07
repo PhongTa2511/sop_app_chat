@@ -1,54 +1,56 @@
 <template>
-  <v-card>
-    <v-card-title>
+  <VCard>
+    <VCardTitle>
       <div class="d-flex">
-        <h6 class="text-h6 pt-2">Thông tin công ty</h6>
+        <h6 class="text-h6 pt-2">
+          Thông tin công ty
+        </h6>
 
-        <v-btn
+        <VBtn
+          v-if="companyInfo.IsFlag == 4"
           variant="text"
           color="green"
           icon="mdi-flag-variant"
-          v-if="companyInfo.IsFlag == 4"
-        ></v-btn>
-        <v-btn
+        />
+        <VBtn
+          v-if="companyInfo.IsFlag == 2"
           variant="text"
           color="yellow"
           icon="mdi-flag-variant"
-          v-if="companyInfo.IsFlag == 2"
-        ></v-btn>
-        <v-btn
+        />
+        <VBtn
+          v-if="companyInfo.IsFlag == 1"
           variant="text"
           color="grey"
           icon="mdi-flag-variant"
-          v-if="companyInfo.IsFlag == 1"
-        ></v-btn>
+        />
       </div>
-    </v-card-title>
-    <v-card-text>
-      <v-text-field
-        label="Công ty"
+    </VCardTitle>
+    <VCardText>
+      <VTextField
         v-model="companyInfo.CompanyName"
+        label="Công ty"
         class="mb-2"
-      ></v-text-field>
-      <v-text-field
-        label="Nhóm"
+      />
+      <VTextField
         v-model="companyInfo.GroupName"
+        label="Nhóm"
         class="mb-2"
-      ></v-text-field>
+      />
 
-      <v-row>
-        <v-col cols="6">
-          <v-text-field
-            label="Khách hàng"
+      <VRow>
+        <VCol cols="6">
+          <VTextField
             v-model="companyInfo.Delegate"
+            label="Khách hàng"
             class="mb-2"
-          ></v-text-field>
-          <v-text-field
-            label="Phụ trách"
+          />
+          <VTextField
             v-model="companyInfo.EmployeeName"
+            label="Phụ trách"
             readonly
-          ></v-text-field>
-          <v-select
+          />
+          <VSelect
             v-model="companyInfo.Country"
             placeholder="Chọn quốc gia"
             label="Quốc gia"
@@ -57,22 +59,22 @@
             item-value="Country"
             item-title="Country"
             class="my-2"
-          ></v-select>
-        </v-col>
-        <v-col cols="6">
-          <v-text-field
+          />
+        </VCol>
+        <VCol cols="6">
+          <VTextField
+            v-model="companyInfo.Phone"
             label="SĐT"
             class="mb-2"
-            v-model="companyInfo.Phone"
-          ></v-text-field>
+          />
 
-          <v-date-input
-            label="Ngày phụ trách (mm/dd/yyyy)"
+          <VDateInput
             v-model="companyInfo.DateCare"
+            label="Ngày phụ trách (mm/dd/yyyy)"
             readonly
             hide-details
-          ></v-date-input>
-          <v-select
+          />
+          <VSelect
             v-model="companyInfo.RankName"
             placeholder="Level"
             label="Level"
@@ -81,11 +83,16 @@
             item-value="value"
             item-title="value"
             class="my-2"
-          ></v-select>
-        </v-col>
-      </v-row>
-      <v-btn size="small" @click="btShowAddCus">Thêm</v-btn>
-      <v-data-table-server
+          />
+        </VCol>
+      </VRow>
+      <VBtn
+        size="small"
+        @click="btShowAddCus"
+      >
+        Thêm
+      </VBtn>
+      <VDataTableServer
         v-if="companyInfo.Data"
         no-data-text="Không có dữ liệu"
         :headers="headers"
@@ -97,28 +104,30 @@
         :items-per-page="-1"
         class="table-pres"
         style="border: none"
-        :itemsLength="companyInfo.Data.length"
+        :items-length="companyInfo.Data.length"
       >
-        <template v-slot:item.Key="{ item }">
+        <template #item.Key="{ item }">
           {{ item.Key }}
-          <v-icon
+          <VIcon
             v-if="item.IsEdit"
             color="primary"
             size="small"
             class="me-2"
             @click="btShowInfoCustomer(item)"
-            >mdi-pencil
-          </v-icon>
-          <v-icon
+          >
+            mdi-pencil
+          </VIcon>
+          <VIcon
+            v-if="item.IsFlag && item.IsFlag != 4 && companyInfo.IsFlag != 4"
             color="green"
             size="small"
             variant="tonal"
             @click="btCreateCompanyGreen(item)"
-            v-if="item.IsFlag && item.IsFlag != 4 && companyInfo.IsFlag != 4"
-            >mdi-flag-plus
-          </v-icon>
+          >
+            mdi-flag-plus
+          </VIcon>
         </template>
-        <template v-slot:item.CustomerName="{ item }">
+        <template #item.CustomerName="{ item }">
           <div>
             {{ item.CustomerName }}
           </div>
@@ -126,7 +135,7 @@
             {{ item.Position }}
           </div>
         </template>
-        <template v-slot:item.Phone="{ item }">
+        <template #item.Phone="{ item }">
           <div>
             {{ item.Phone }}
           </div>
@@ -137,115 +146,155 @@
             {{ item.Email }}
           </div>
         </template>
-        <template v-slot:item.Action="{ item }">
-          <v-icon
+        <template #item.Action="{ item }">
+          <VIcon
             v-if="item.IsEdit"
             color="error"
             size="small"
             class="me-2"
             @click="removeCustomer(item)"
-            >mdi-delete
-          </v-icon>
+          >
+            mdi-delete
+          </VIcon>
         </template>
-        <template v-slot:item.IsFlag="{ item }">
-          <v-btn
+        <template #item.IsFlag="{ item }">
+          <VBtn
+            v-if="item.IsFlag == 4"
             variant="text"
             color="green"
             icon="mdi-flag-variant"
-            v-if="item.IsFlag == 4"
-          ></v-btn>
-          <v-btn
+          />
+          <VBtn
+            v-if="item.IsFlag == 2"
             variant="text"
             color="yellow"
             icon="mdi-flag-variant"
-            v-if="item.IsFlag == 2"
-          ></v-btn>
-          <v-btn
+          />
+          <VBtn
+            v-if="item.IsFlag == 1"
             variant="text"
             color="grey"
             icon="mdi-flag-variant"
-            v-if="item.IsFlag == 1"
-          ></v-btn>
+          />
         </template>
-      </v-data-table-server>
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer></v-spacer>
-      <v-btn color="blue-darken-1" variant="text" @click="btClose">
+      </VDataTableServer>
+    </VCardText>
+    <VCardActions>
+      <VSpacer />
+      <VBtn
+        color="blue-darken-1"
+        variant="text"
+        @click="btClose"
+      >
         Đóng
-      </v-btn>
+      </VBtn>
 
-      <v-btn @click="updateCompanyInfo"> Lưu thông tin </v-btn>
-    </v-card-actions>
-  </v-card>
-  <v-dialog v-model="isShowCustomer" persistent width="500">
-    <v-card>
-      <v-card-title>
-        <h6 class="text-h6 pt-2">Thông tin khách hàng cá nhân</h6>
-      </v-card-title>
-      <v-card-text>
-        <v-row>
-          <v-col cols="12" lg="6">
-            <v-text-field
+      <VBtn @click="updateCompanyInfo">
+        Lưu thông tin
+      </VBtn>
+    </VCardActions>
+  </VCard>
+  <VDialog
+    v-model="isShowCustomer"
+    persistent
+    width="500"
+  >
+    <VCard>
+      <VCardTitle>
+        <h6 class="text-h6 pt-2">
+          Thông tin khách hàng cá nhân
+        </h6>
+      </VCardTitle>
+      <VCardText>
+        <VRow>
+          <VCol
+            cols="12"
+            lg="6"
+          >
+            <VTextField
               v-model="customerInfo.CustomerName"
               label="Tên khách hàng"
               hide-details
               required
-            ></v-text-field>
-          </v-col>
+            />
+          </VCol>
 
-          <v-col cols="12" lg="6">
-            <v-text-field
-              label="Số điện thoại"
+          <VCol
+            cols="12"
+            lg="6"
+          >
+            <VTextField
               v-model="customerInfo.Phone"
+              label="Số điện thoại"
               hide-details
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" lg="6">
-            <v-text-field
-              label="Email"
+            />
+          </VCol>
+          <VCol
+            cols="12"
+            lg="6"
+          >
+            <VTextField
               v-model="customerInfo.Email"
+              label="Email"
               hide-details
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12" lg="6">
-            <v-text-field
-              label="Chức vụ"
+            />
+          </VCol>
+          <VCol
+            cols="12"
+            lg="6"
+          >
+            <VTextField
               v-model="customerInfo.Position"
+              label="Chức vụ"
               hide-details
-            ></v-text-field>
-          </v-col>
-        </v-row>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
+            />
+          </VCol>
+        </VRow>
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
           color="blue-darken-1"
           variant="text"
           @click="isShowCustomer = false"
         >
           Đóng
-        </v-btn>
+        </VBtn>
 
-        <v-btn @click="addInfoCus"> Lưu thông tin </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-  <v-dialog v-model="isConfirmDelete" persistent width="400">
-    <v-card>
-      <v-card-title>
-        <h6 class="text-h6 pt-2">Xác nhận xóa</h6>
-      </v-card-title>
-      <v-card-text class="mx-2">
+        <VBtn @click="addInfoCus">
+          Lưu thông tin
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
+  <VDialog
+    v-model="isConfirmDelete"
+    persistent
+    width="400"
+  >
+    <VCard>
+      <VCardTitle>
+        <h6 class="text-h6 pt-2">
+          Xác nhận xóa
+        </h6>
+      </VCardTitle>
+      <VCardText class="mx-2">
         Bạn có chắc chắn muốn xóa khách hàng này?
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn @click="isConfirmDelete = false">Hủy</v-btn>
-        <v-btn color="error" @click="confirmRemoveCustomer">Xóa</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn @click="isConfirmDelete = false">
+          Hủy
+        </VBtn>
+        <VBtn
+          color="error"
+          @click="confirmRemoveCustomer"
+        >
+          Xóa
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <script>
@@ -254,14 +303,16 @@ import {
   GetCompanyInfoByID,
   UpdateCompanyGreen,
   UpdateCompanyInfo,
-} from "@/api/companyApi";
-import { formatDateDDMMYY } from "@/helpers/getTime";
-import { getUserName } from "@/utils/auth";
+} from "@/api/companyApi"
+import { formatDateDDMMYY } from "@/helpers/getTime"
+import { getUserName } from "@/utils/auth"
+
 export default {
   props: {
     companyID: Number,
     countryLst: Array,
   },
+  emits: ["btClose"],
   data() {
     return {
       companyInfo: {},
@@ -304,124 +355,129 @@ export default {
       isConfirmDelete: false,
       customerToDelete: null,
       userName: getUserName(),
-    };
+    }
   },
-  emits: ["btClose"],
   watch: {
     "customerInfo.Phone"(value) {
-      this.customerInfo.Phone = value.replace(/\D/g, "");
+      this.customerInfo.Phone = value.replace(/\D/g, "")
     },
+  },
+  created() {
+    if (this.companyID) {
+      this.getCompanyInfoByID()
+    }
   },
   methods: {
     btCreateCompanyGreen(data) {
       UpdateCompanyGreen({
         Data: [{ CompanyID: this.companyID, CustomerID: data.RowID }],
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
           notify({
             type: "success",
             title: "Thành công",
-          });
+          })
         } else {
           notify({
             type: "error",
             title: "Lỗi",
             text: res.RespText,
-          });
+          })
         }
-      });
+      })
     },
     btShowAddCus() {
-      this.isShowCustomer = true;
-      this.customerInfo = {};
+      this.isShowCustomer = true
+      this.customerInfo = {}
     },
 
     updateCompanyInfo() {
       if (this.companyInfo.Country) {
-        UpdateCompanyInfo({ Data: [{ ...this.companyInfo }] }).then((res) => {
+        UpdateCompanyInfo({ Data: [{ ...this.companyInfo }] }).then(res => {
           if (res.RespCode == 0) {
             notify({
               type: "success",
               title: "Thành công",
-            });
+            })
+
             //this.btClose();
           } else {
             notify({
               type: "error",
               title: "Lỗi",
               text: res.RespText,
-            });
+            })
           }
-        });
+        })
       } else {
         notify({
           type: "error",
           title: "Lỗi",
           text: "Chưa chọn quốc gia",
-        });
+        })
       }
     },
     addInfoCus() {
-      this.isShowCustomer = false;
+      this.isShowCustomer = false
       if (!this.companyInfo.Data) {
-        this.companyInfo.Data = [];
+        this.companyInfo.Data = []
       }
       var check = this.companyInfo.Data.find(
-        (p) => p.Key == this.customerInfo.Key
-      );
+        p => p.Key == this.customerInfo.Key,
+      )
       if (!check) {
         this.companyInfo.Data.push({
           ...this.customerInfo,
           IsFlag: this.customerInfo.Phone != "" ? 2 : 1,
-        });
+        })
         this.companyInfo.Data = this.companyInfo.Data.map((item, index) => {
           return {
             ...item,
             Key: index + 1,
-          };
-        });
+          }
+        })
       }
     },
     btShowInfoCustomer(data) {
-      this.customerInfo = data;
-      this.isShowCustomer = true;
+      this.customerInfo = data
+      this.isShowCustomer = true
     },
     removeCustomer(data) {
-      this.customerToDelete = data;
-      this.isConfirmDelete = true;
+      this.customerToDelete = data
+      this.isConfirmDelete = true
     },
     confirmRemoveCustomer() {
-      this.isConfirmDelete = false;
+      this.isConfirmDelete = false
 
       DelCompanyCustomer({
         Data: this.customerToDelete.RowID,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
           this.companyInfo.Data = this.companyInfo.Data.filter(
-            (p) => p.Key != this.customerToDelete.Key
-          );
+            p => p.Key != this.customerToDelete.Key,
+          )
           notify({
             type: "success",
             title: "Thành công",
-          });
-          this.customerToDelete = null;
+          })
+          this.customerToDelete = null
         } else {
           notify({
             type: "error",
             title: "Lỗi",
             text: res.RespText,
-          });
+          })
         }
-      });
+      })
     },
     btClose() {
-      this.$emit("btClose");
+      this.$emit("btClose")
     },
     getCompanyInfoByID() {
       GetCompanyInfoByID({
         CompanyID: this.companyID,
-      }).then((res) => {
-        this.companyInfo = res.CompanyInfo;
+      }).then(res => {
+        this.companyInfo = res.CompanyInfo
 
         this.companyInfo.Data = this.companyInfo.Data.map((item, index) => {
           return {
@@ -434,18 +490,13 @@ export default {
               this.userName == "0827258288"
                 ? true
                 : false,
-          };
-        });
-        console.log("anht", this.companyInfo.Data);
-      });
+          }
+        })
+        console.log("anht", this.companyInfo.Data)
+      })
     },
   },
-  created() {
-    if (this.companyID) {
-      this.getCompanyInfoByID();
-    }
-  },
-};
+}
 </script>
 
 <style></style>

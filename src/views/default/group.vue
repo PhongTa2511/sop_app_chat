@@ -1,11 +1,11 @@
 <template>
-  <v-card>
-    <v-card-title class="text-h6 p-2 pl-4 pr-2 pb-0">
+  <VCard>
+    <VCardTitle class="text-h6 p-2 pl-4 pr-2 pb-0">
       <div class="d-flex justify-space-between">
         <div>DANH SÁCH NHÓM</div>
         <div class="d-flex flex-wrap">
           <span>
-            <v-text-field
+            <VTextField
               v-model="search"
               label="Tìm kiếm"
               class="mx-2"
@@ -15,23 +15,21 @@
               style="width: 250px !important"
               prepend-inner-icon="mdi-magnify"
               clearable
-            ></v-text-field>
+            />
           </span>
 
-          <v-btn
+          <VBtn
             color="blue"
             variant="tonal"
-            @click="btShowCreate"
             icon="mdi-text-box-plus"
             size="small"
-          ></v-btn>
+            @click="btShowCreate"
+          />
         </div>
       </div>
-    </v-card-title>
-    <v-data-table-server
+    </VCardTitle>
+    <VDataTableServer
       :items-length="totalLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="desserts"
@@ -39,89 +37,142 @@
       height="calc(100vh - 270px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
+      @update:itemsPerPage="btRow"
       sort-desc-icon="mdi-menu-down"
+      @update:page="btPage"
       fixed-header
     >
-      <template v-slot:item.Status="{ item }">
-        <v-chip color="success" size="small" v-if="item.Status > 0">
-          Đang dùng
-        </v-chip>
-        <v-chip color="red" size="small" v-if="item.Status == 0"> Xóa </v-chip>
-      </template>
-      <template v-slot:item.Action="{ item }">
-        <v-icon color="red" size="small" @click="btShowDel(item)">
-          mdi-delete
-        </v-icon>
-      </template>
-      <template v-slot:item.Key="{ item }">
-        {{ item.Key }}
-        <v-icon color="orange" size="small" @click="btShowUpdate(item)">
-          mdi-square-edit-outline
-        </v-icon>
-      </template>
-      <template v-slot:item.Procedure="{ item }">
-        <v-chip
-          color="info"
+      <template #item.Status="{ item }">
+        <VChip
+          v-if="item.Status > 0"
+          color="success"
           size="small"
+        >
+          Đang dùng
+        </VChip>
+        <VChip
+          v-if="item.Status == 0"
+          color="red"
+          size="small"
+        >
+          Xóa
+        </VChip>
+      </template>
+      <template #item.Action="{ item }">
+        <VIcon
+          color="red"
+          size="small"
+          @click="btShowDel(item)"
+        >
+          mdi-delete
+        </VIcon>
+      </template>
+      <template #item.Key="{ item }">
+        {{ item.Key }}
+        <VIcon
+          color="orange"
+          size="small"
+          @click="btShowUpdate(item)"
+        >
+          mdi-square-edit-outline
+        </VIcon>
+      </template>
+      <template #item.Procedure="{ item }">
+        <VChip
           v-for="(pro, index) in item.Data"
           :key="index"
+          color="info"
+          size="small"
         >
           {{ pro.ProcedureName }}
-        </v-chip>
+        </VChip>
       </template>
-    </v-data-table-server>
-  </v-card>
-  <v-dialog v-model="isShowCreate" persistent width="400">
-    <v-card>
-      <v-card-title>
-        <h6 class="text-h6 pt-2">Thêm nhóm mới</h6>
-      </v-card-title>
-      <v-card-text>
-        <v-text-field
-          label="Tên nhóm"
+    </VDataTableServer>
+  </VCard>
+  <VDialog
+    v-model="isShowCreate"
+    persistent
+    width="400"
+  >
+    <VCard>
+      <VCardTitle>
+        <h6 class="text-h6 pt-2">
+          Thêm nhóm mới
+        </h6>
+      </VCardTitle>
+      <VCardText>
+        <VTextField
           v-model="teamInfo.TeamName"
+          label="Tên nhóm"
           hide-details=""
-        ></v-text-field>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
+        />
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
           color="blue-darken-1"
           variant="text"
           @click="isShowCreate = false"
         >
           Đóng
-        </v-btn>
-        <v-btn @click="addTeamInfo"> Xác nhận </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-  <v-dialog v-model="isShowDel" width="400">
-    <v-card>
-      <v-toolbar class="pl-2" color="red" title="Xóa" center></v-toolbar>
-      <v-card-text>
-        <div class="text-h5 pt-4">Có chắc bạn muốn xóa nhóm này không?</div>
-      </v-card-text>
-      <v-card-actions class="justify-end">
-        <v-btn color="blue" variant="text" @click="isShowDel = false"
-          >Đóng</v-btn
+        </VBtn>
+        <VBtn @click="addTeamInfo">
+          Xác nhận
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
+  <VDialog
+    v-model="isShowDel"
+    width="400"
+  >
+    <VCard>
+      <VToolbar
+        class="pl-2"
+        color="red"
+        title="Xóa"
+        center
+      />
+      <VCardText>
+        <div class="text-h5 pt-4">
+          Có chắc bạn muốn xóa nhóm này không?
+        </div>
+      </VCardText>
+      <VCardActions class="justify-end">
+        <VBtn
+          color="blue"
+          variant="text"
+          @click="isShowDel = false"
         >
-        <v-btn variant="text" @click="updateTeamInfo()">Xóa</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-  <v-dialog v-model="isShowUpdate" persistent width="400">
-    <v-card>
-      <v-card-title>
-        <h6 class="text-h6 pt-2">Cập nhật nhóm</h6>
-      </v-card-title>
-      <v-card-text>
-        <v-text-field
-          label="Tên nhóm"
+          Đóng
+        </VBtn>
+        <VBtn
+          variant="text"
+          @click="updateTeamInfo"
+        >
+          Xóa
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
+  <VDialog
+    v-model="isShowUpdate"
+    persistent
+    width="400"
+  >
+    <VCard>
+      <VCardTitle>
+        <h6 class="text-h6 pt-2">
+          Cập nhật nhóm
+        </h6>
+      </VCardTitle>
+      <VCardText>
+        <VTextField
           v-model="updateInfo.TeamName"
+          label="Tên nhóm"
           hide-details=""
-        ></v-text-field>
-        <v-select
+        />
+        <VSelect
           v-model="updateInfo.Data"
           placeholder="Nhóm xử lý"
           density="compact"
@@ -132,27 +183,30 @@
           chips
           class="mb-2 mt-2"
           multiple
-        ></v-select>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn
+        />
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
           color="blue-darken-1"
           variant="text"
           @click="isShowUpdate = false"
         >
           Đóng
-        </v-btn>
-        <v-btn @click="updateItem"> Xác nhận </v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
-  <notifications />
+        </VBtn>
+        <VBtn @click="updateItem">
+          Xác nhận
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
+  <Notifications />
 </template>
 
 <script>
-import { GetProcedureLst } from "@/api/procedureApi";
-import { AddTeamInfo, GetTeamLst, UpdateTeamInfo } from "@/api/teamApi";
+import { GetProcedureLst } from "@/api/procedureApi"
+import { AddTeamInfo, GetTeamLst, UpdateTeamInfo } from "@/api/teamApi"
+
 export default {
   data() {
     return {
@@ -171,6 +225,7 @@ export default {
         { title: "Tên nhóm", key: "TeamName", sortable: false },
         { title: "Mã nhóm", key: "TeamID", sortable: false },
         { title: "Quy trình", key: "Procedure", sortable: false },
+
         // { title: "Giá trị 2", key: "ValueName2", sortable: false },
         { title: "Trạng thái", key: "Status", sortable: false, width: 100 },
         { title: "", key: "Action", width: 80 },
@@ -183,33 +238,37 @@ export default {
       updateInfo: {},
       isShowUpdate: false,
       procedureLst: [],
-    };
+    }
   },
   watch: {
     pageNumber() {
-      this.getTeamLst();
+      this.getTeamLst()
     },
     rowspPage() {
-      this.getTeamLst();
+      this.getTeamLst()
     },
     search() {
-      this.pageNumber = 1;
-      this.getTeamLst();
+      this.pageNumber = 1
+      this.getTeamLst()
     },
+  },
+  created() {
+    this.getTeamLst()
+    this.getProcedureLst()
   },
   methods: {
     btShowCreate() {
-      this.isShowCreate = true;
+      this.isShowCreate = true
     },
     btPage(data) {
-      this.pageNumber = data;
+      this.pageNumber = data
     },
     btRow(data) {
-      this.rowspPage = data;
+      this.rowspPage = data
     },
     btShowDel(data) {
-      this.itemDel = { ...data };
-      this.isShowDel = true;
+      this.itemDel = { ...data }
+      this.isShowDel = true
     },
     updateTeamInfo() {
       UpdateTeamInfo({
@@ -217,90 +276,87 @@ export default {
           ...this.itemDel,
           Status: 0,
         },
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          this.isShowDel = false;
-          this.getTeamLst();
+          this.isShowDel = false
+          this.getTeamLst()
           notify({
             type: "success",
             title: "Thành công",
-          });
+          })
         }
-      });
+      })
     },
     addTeamInfo() {
       AddTeamInfo({
         Data: this.teamInfo,
-      }).then((res) => {
+      }).then(res => {
         if (res) {
-          this.isShowCreate = false;
-          this.getTeamLst();
+          this.isShowCreate = false
+          this.getTeamLst()
           notify({
             type: "success",
             title: "Thành công",
-          });
+          })
         }
-      });
+      })
     },
     getProcedureLst() {
-      GetProcedureLst({ PageNumber: 1, RowspPage: 10000 }).then((res) => {
+      GetProcedureLst({ PageNumber: 1, RowspPage: 10000 }).then(res => {
         if (res.RespCode == 0) {
-          this.procedureLst = res.Data;
+          this.procedureLst = res.Data
         }
-      });
+      })
     },
     getTeamLst() {
       GetTeamLst({
         RowspPage: this.rowspPage,
         PageNumber: this.pageNumber,
         Search: this.search,
-      }).then((res) => {
+      }).then(res => {
         if (res) {
           this.desserts = res.Data.map((item, index) => {
-            var num = (this.pageNumber - 1) * this.rowspPage;
+            var num = (this.pageNumber - 1) * this.rowspPage
+            
             return {
               ...item,
               Key: index + 1 + num,
-            };
-          });
-          this.totalLength = res.TotalRows;
+            }
+          })
+          this.totalLength = res.TotalRows
         }
-      });
+      })
     },
 
     btShowUpdate(item) {
-      this.updateInfo = { ...item };
-      this.isShowUpdate = true;
+      this.updateInfo = { ...item }
+      this.isShowUpdate = true
     },
     updateItem() {
       UpdateTeamInfo({
         TeamInfo: {
           ...this.updateInfo,
           Status: 2,
-          Data: this.updateInfo.Data.map((item) => {
+          Data: this.updateInfo.Data.map(item => {
             return {
               ...item,
               TeamID: this.updateInfo.TeamID,
-            };
+            }
           }),
         },
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          this.isShowUpdate = false;
-          this.getTeamLst();
+          this.isShowUpdate = false
+          this.getTeamLst()
           notify({
             type: "success",
             title: "Thành công",
-          });
+          })
         }
-      });
+      })
     },
   },
-  created() {
-    this.getTeamLst();
-    this.getProcedureLst();
-  },
-};
+}
 </script>
 
 <style>

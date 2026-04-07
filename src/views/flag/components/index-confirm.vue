@@ -1,48 +1,50 @@
 <template>
-  <v-card>
-    <v-card-title>
+  <VCard>
+    <VCardTitle>
       <div class="d-flex">
-        <h6 class="text-h6 pt-2">Phê duyệt cờ xanh công ty</h6>
+        <h6 class="text-h6 pt-2">
+          Phê duyệt cờ xanh công ty
+        </h6>
 
-        <v-btn
+        <VBtn
+          v-if="companyInfo.IsFlag == 4"
           variant="text"
           color="green"
           icon="mdi-flag-variant"
-          v-if="companyInfo.IsFlag == 4"
-        ></v-btn>
-        <v-btn
+        />
+        <VBtn
+          v-if="companyInfo.IsFlag == 2"
           variant="text"
           color="yellow"
           icon="mdi-flag-variant"
-          v-if="companyInfo.IsFlag == 2"
-        ></v-btn>
-        <v-btn
+        />
+        <VBtn
+          v-if="companyInfo.IsFlag == 1"
           variant="text"
           color="grey"
           icon="mdi-flag-variant"
-          v-if="companyInfo.IsFlag == 1"
-        ></v-btn>
+        />
       </div>
-    </v-card-title>
-    <v-card-text>
-      <v-text-field
-        label="Công ty"
+    </VCardTitle>
+    <VCardText>
+      <VTextField
         v-model="companyInfo.CompanyName"
+        label="Công ty"
         class="mb-2"
-      ></v-text-field>
-      <v-text-field
-        label="Nhóm"
+      />
+      <VTextField
         v-model="companyInfo.GroupName"
+        label="Nhóm"
         class="mb-2"
-      ></v-text-field>
-      <v-row>
-        <v-col cols="6">
-          <v-text-field
-            label="Phụ trách"
+      />
+      <VRow>
+        <VCol cols="6">
+          <VTextField
             v-model="companyInfo.EmployeeName"
+            label="Phụ trách"
             readonly
-          ></v-text-field>
-          <v-select
+          />
+          <VSelect
             v-model="companyInfo.Country"
             placeholder="Chọn quốc gia"
             label="Quốc gia"
@@ -51,16 +53,16 @@
             item-value="Country"
             item-title="Country"
             class="my-2"
-          ></v-select>
-        </v-col>
-        <v-col cols="6">
-          <v-date-input
-            label="Ngày phụ trách (mm/dd/yyyy)"
+          />
+        </VCol>
+        <VCol cols="6">
+          <VDateInput
             v-model="companyInfo.DateCare"
+            label="Ngày phụ trách (mm/dd/yyyy)"
             readonly
             hide-details
-          ></v-date-input>
-          <v-select
+          />
+          <VSelect
             v-model="companyInfo.RankName"
             placeholder="Level"
             label="Level"
@@ -69,11 +71,11 @@
             item-value="value"
             item-title="value"
             class="my-2"
-          ></v-select>
-        </v-col>
-      </v-row>
+          />
+        </VCol>
+      </VRow>
       <!-- <v-btn size="small" @click="btShowAddCus">Thêm</v-btn> -->
-      <v-data-table-server
+      <VDataTableServer
         no-data-text="Không có dữ liệu"
         :headers="headers"
         :items="companyInfo.Data"
@@ -85,17 +87,19 @@
         class="table-pres"
         style="border: none"
       >
-        <template v-slot:item.Key="{ item }">
+        <template #item.Key="{ item }">
           {{ item.Key }}
-          <!-- <v-icon
+          <!--
+            <v-icon
             color="primary"
             size="small"
             class="me-2"
             @click="btShowInfoCustomer(item)"
             >mdi-pencil
-          </v-icon> -->
+            </v-icon> 
+          -->
         </template>
-        <template v-slot:item.CustomerName="{ item }">
+        <template #item.CustomerName="{ item }">
           <div>
             {{ item.CustomerName }}
           </div>
@@ -103,7 +107,7 @@
             {{ item.Position }}
           </div>
         </template>
-        <template v-slot:item.Phone="{ item }">
+        <template #item.Phone="{ item }">
           <div>
             {{ item.Phone }}
           </div>
@@ -111,57 +115,75 @@
             {{ item.Email }}
           </div>
         </template>
-        <!-- <template v-slot:item.Action="{ item }">
+        <!--
+          <template v-slot:item.Action="{ item }">
           <v-icon
-            color="error"
-            size="small"
-            class="me-2"
-            @click="removeCustomer(item)"
-            >mdi-delete
+          color="error"
+          size="small"
+          class="me-2"
+          @click="removeCustomer(item)"
+          >mdi-delete
           </v-icon>
-        </template> -->
-        <template v-slot:item.IsFlag="{ item }">
-          <v-btn
+          </template> 
+        -->
+        <template #item.IsFlag="{ item }">
+          <VBtn
+            v-if="item.IsFlag == 4"
             variant="text"
             color="green"
             icon="mdi-flag-variant"
-            v-if="item.IsFlag == 4"
-          ></v-btn>
-          <v-btn
+          />
+          <VBtn
+            v-if="item.IsFlag == 2"
             variant="text"
             color="yellow"
             icon="mdi-flag-variant"
-            v-if="item.IsFlag == 2"
-          ></v-btn>
-          <v-btn
+          />
+          <VBtn
+            v-if="item.IsFlag == 1"
             variant="text"
             color="grey"
             icon="mdi-flag-variant"
-            v-if="item.IsFlag == 1"
-          ></v-btn>
+          />
         </template>
-      </v-data-table-server>
-    </v-card-text>
-    <v-card-actions>
-      <v-spacer />
-      <v-btn color="blue-darken-1" variant="text" @click="btClose">
+      </VDataTableServer>
+    </VCardText>
+    <VCardActions>
+      <VSpacer />
+      <VBtn
+        color="blue-darken-1"
+        variant="text"
+        @click="btClose"
+      >
         Đóng
-      </v-btn>
+      </VBtn>
 
-      <v-btn color="red" @click="updateCompanyInfo(0)"> Từ chối </v-btn>
-      <v-btn color="green" @click="updateCompanyInfo(4)"> Duyệt cờ xanh </v-btn>
-      <v-spacer />
-    </v-card-actions>
-  </v-card>
+      <VBtn
+        color="red"
+        @click="updateCompanyInfo(0)"
+      >
+        Từ chối
+      </VBtn>
+      <VBtn
+        color="green"
+        @click="updateCompanyInfo(4)"
+      >
+        Duyệt cờ xanh
+      </VBtn>
+      <VSpacer />
+    </VCardActions>
+  </VCard>
 </template>
 
 <script>
-import { ApproveCompanyGreen, GetCompanyInfoByID } from "@/api/companyApi";
+import { ApproveCompanyGreen, GetCompanyInfoByID } from "@/api/companyApi"
+
 export default {
   props: {
     companyID: String,
     rowID: Number,
   },
+  emits: ["btClose"],
   data() {
     return {
       companyInfo: {},
@@ -193,51 +215,51 @@ export default {
       isShowCustomer: false,
       isConfirmDelete: false,
       customerToDelete: null,
-    };
+    }
   },
-  emits: ["btClose"],
+  created() {
+    this.getCompanyInfoByID()
+  },
 
   methods: {
     btClose() {
-      this.$emit("btClose");
+      this.$emit("btClose")
     },
     getCompanyInfoByID() {
       GetCompanyInfoByID({
         CompanyID: this.companyID,
-      }).then((res) => {
-        this.companyInfo = res.CompanyInfo;
+      }).then(res => {
+        this.companyInfo = res.CompanyInfo
 
         this.companyInfo.Data = this.companyInfo.Data.map((item, index) => {
           return {
             ...item,
             Key: index + 1,
-          };
-        });
-      });
+          }
+        })
+      })
     },
     updateCompanyInfo(status) {
-      const rowID = this.rowID; // Assuming RowID is part of companyInfo
-      ApproveCompanyGreen({ Data: rowID, Status: status }).then((res) => {
+      const rowID = this.rowID // Assuming RowID is part of companyInfo
+
+      ApproveCompanyGreen({ Data: rowID, Status: status }).then(res => {
         if (res.RespCode == 0) {
           notify({
             type: "success",
             title: "Thành công",
-          });
-          this.btClose();
+          })
+          this.btClose()
         } else {
           notify({
             type: "error",
             title: "Lỗi",
             text: res.RespText,
-          });
+          })
         }
-      });
+      })
     },
   },
-  created() {
-    this.getCompanyInfoByID();
-  },
-};
+}
 </script>
 
 <style></style>

@@ -14,21 +14,26 @@
         :rules="rules"
         append-inner-icon="mdi-calendar"
         :density="props.density"
-        @click="menu = !readonly"
-        @click:append-inner="menu = !readonly"
         :style="'width:' + props.width"
         :disabled="disabled"
         :class="className"
+        @click="menu = !readonly"
+        @click:append-inner="menu = !readonly"
       />
     </template>
 
-    <VDatePicker2 v-model="selectedDate" mode="date" locale="vi" />
+    <VDatePicker2
+      v-model="selectedDate"
+      mode="date"
+      locale="vi"
+    />
   </VMenu>
 </template>
 
 <script setup>
-import { useDate } from "@/utils/date";
-import { computed, ref, watch } from "vue";
+import { useDate } from "@/utils/date"
+import { computed, ref, watch } from "vue"
+
 const props = defineProps({
   modelValue: {
     type: Date,
@@ -60,35 +65,35 @@ const props = defineProps({
     type: Object,
     default: {},
   },
-});
+})
 
-const emit = defineEmits(["update:modelValue", "change"]);
-const date = useDate();
-const menu = ref(null);
+const emit = defineEmits(["update:modelValue", "change"])
+const date = useDate()
+const menu = ref(null)
 
 const selectedDate = computed({
   get() {
     if (props.modelValue) {
-      return props.modelValue;
+      return props.modelValue
     } else {
-      return null;
+      return null
     }
   },
-  set: (value) => {
-    emit("update:modelValue", value);
-    emit("change", value);
+  set: value => {
+    emit("update:modelValue", value)
+    emit("change", value)
   },
-});
+})
 
 watch(selectedDate, (newValue, oldValue) => {
-  menu.value = false;
-});
+  menu.value = false
+})
 
 const dateStr = computed(() => {
   if (props.modelValue) {
-    return date.formatDate(new Date(props.modelValue), "DD/MM/yyyy");
+    return date.formatDate(new Date(props.modelValue), "DD/MM/yyyy")
   }
 
-  return null;
-});
+  return null
+})
 </script>

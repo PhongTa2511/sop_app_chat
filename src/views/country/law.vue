@@ -1,6 +1,6 @@
 <template>
-  <v-card class="pt-2">
-    <v-data-table
+  <VCard class="pt-2">
+    <VDataTable
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="productLst"
@@ -18,10 +18,10 @@
       fixed-header
       hide-default-footer
     >
-      <template v-slot:top>
+      <template #top>
         <div class="d-flex flex-wrap gap-2 px-2">
           <span>
-            <v-autocomplete
+            <VAutocomplete
               v-model="country"
               label="Quốc gia"
               :items="countryLst"
@@ -29,183 +29,204 @@
               style="width: 400px !important"
               item-title="Title"
               item-value="Country"
-            ></v-autocomplete>
+            />
           </span>
 
-          <v-btn
+          <VBtn
             color="green"
             variant="tonal"
             icon="mdi-reload"
             size="small"
             @click="getCountryLawLst"
-          ></v-btn>
-          <v-btn
+          />
+          <VBtn
             color="blue"
             variant="tonal"
             icon="mdi-plus"
             size="small"
             @click="btShowAddLaw"
-          ></v-btn>
+          />
         </div>
       </template>
-      <template v-slot:item.Key="{ item }">
+      <template #item.Key="{ item }">
         {{ item.Key }}
-        <v-icon
+        <VIcon
           color="orange"
           class="me-2"
           size="small"
           style="cursor: pointer"
           @click="btShowInfo(item)"
-          >mdi-note-edit</v-icon
         >
+          mdi-note-edit
+        </VIcon>
       </template>
-    </v-data-table>
-  </v-card>
-  <v-dialog
+    </VDataTable>
+  </VCard>
+  <VDialog
     v-model="isShowAddLaw"
     max-width="450px"
     scrollable
     transition="slide-y-transition"
   >
-    <v-card>
-      <v-card-title class="text-h6"
-        >Thêm Law mới cho - {{ country }}</v-card-title
-      >
-      <v-card-text>
-        <v-row>
-          <v-col cols="12">
-            <v-text-field
+    <VCard>
+      <VCardTitle class="text-h6">
+        Thêm Law mới cho - {{ country }}
+      </VCardTitle>
+      <VCardText>
+        <VRow>
+          <VCol cols="12">
+            <VTextField
               v-model="lawInfo.CustomerName"
               label="Khách hàng"
               required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-autocomplete
+            />
+          </VCol>
+          <VCol cols="12">
+            <VAutocomplete
               v-model="lawInfo.ProductType"
               label="Phân loại"
               :items="productTypeLst"
               hide-details
               item-title="ValueName"
               item-value="ValueName"
-            ></v-autocomplete>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
               v-model="lawInfo.DocumentName"
               label="Tên hồ sơ"
               required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
               v-model="lawInfo.DocumentType"
               label="Loại hồ sơ"
               required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
               v-model="lawInfo.ContentLast"
               label="Nội dung thống nhất"
               required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
               v-model="lawInfo.LinkFile"
               label="Link tài liệu"
               required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue" variant="text" @click="isShowAddLaw = false"
-          >Đóng</v-btn
+            />
+          </VCol>
+        </VRow>
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
+          color="blue"
+          variant="text"
+          @click="isShowAddLaw = false"
         >
-        <v-btn color="green" variant="text" @click="updateCountryLawLst"
-          >Cập nhật</v-btn
+          Đóng
+        </VBtn>
+        <VBtn
+          color="green"
+          variant="text"
+          @click="updateCountryLawLst"
         >
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+          Cập nhật
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 
-  <v-dialog
+  <VDialog
     v-model="isShowInfo"
     max-width="450px"
     persistent
     scrollable
     transition="slide-y-transition"
   >
-    <v-card>
-      <v-card-title class="text-h6"
-        >Cập nhật Law cho - {{ country }}</v-card-title
-      >
-      <v-card-text>
-        <v-row>
-          <v-col cols="12">
-            <v-text-field
+    <VCard>
+      <VCardTitle class="text-h6">
+        Cập nhật Law cho - {{ country }}
+      </VCardTitle>
+      <VCardText>
+        <VRow>
+          <VCol cols="12">
+            <VTextField
               v-model="lawInfo.CustomerName"
               label="Khách hàng"
               required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-autocomplete
+            />
+          </VCol>
+          <VCol cols="12">
+            <VAutocomplete
               v-model="lawInfo.ProductType"
               label="Phân loại"
               :items="productTypeLst"
               hide-details
               item-title="ValueName"
               item-value="ValueName"
-            ></v-autocomplete>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
               v-model="lawInfo.DocumentName"
               label="Tên hồ sơ"
               required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
               v-model="lawInfo.DocumentType"
               label="Loại hồ sơ"
               required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
               v-model="lawInfo.ContentLast"
               label="Nội dung thống nhất"
               required
-            ></v-text-field>
-          </v-col>
-          <v-col cols="12">
-            <v-text-field
+            />
+          </VCol>
+          <VCol cols="12">
+            <VTextField
               v-model="lawInfo.LinkFile"
               label="Link tài liệu"
               required
-            ></v-text-field>
-          </v-col>
-        </v-row>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="blue" variant="text" @click="isShowInfo = false"
-          >Đóng</v-btn
+            />
+          </VCol>
+        </VRow>
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
+          color="blue"
+          variant="text"
+          @click="isShowInfo = false"
         >
-        <v-btn color="red" variant="text" @click="updateCountryLawLst(0)"
-          >Xóa</v-btn
+          Đóng
+        </VBtn>
+        <VBtn
+          color="red"
+          variant="text"
+          @click="updateCountryLawLst(0)"
         >
-        <v-btn color="green" variant="text" @click="updateCountryLawLst(2)"
-          >Cập nhật</v-btn
+          Xóa
+        </VBtn>
+        <VBtn
+          color="green"
+          variant="text"
+          @click="updateCountryLawLst(2)"
         >
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+          Cập nhật
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <script>
@@ -213,9 +234,10 @@ import {
   GetCountryLawLst,
   GetCountryLstNumber,
   UpdateCountryLawLst,
-} from "@/api/countryApi";
-import { GetDefaultValue } from "@/api/default";
-import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
+} from "@/api/countryApi"
+import { GetDefaultValue } from "@/api/default"
+import { formatDateDisplayDDMMYY } from "@/helpers/getTime"
+
 export default {
   data() {
     return {
@@ -251,82 +273,87 @@ export default {
       isShowInfo: false,
       countryLst: [],
       country: null,
-    };
+    }
   },
   watch: {
     country(newVal) {
-      if (!newVal) return;
+      if (!newVal) return
       this.$router.push({
         path: this.$route.path,
         query: { country: newVal }, // Chuyển đổi searchParams thành đối tượng
-      });
-      this.getCountryLawLst();
+      })
+      this.getCountryLawLst()
     },
+  },
+
+  created() {
+    this.getCountryLstNumber()
+    this.getDefaultValue()
   },
 
   methods: {
     btShowInfo(data) {
-      this.isShowInfo = true;
+      this.isShowInfo = true
       this.lawInfo = {
         ...data,
-      };
+      }
     },
     btShowAddLaw() {
-      this.isShowAddLaw = true;
+      this.isShowAddLaw = true
       this.lawInfo = {
         Country: this.country,
-      };
+      }
     },
     getCountryLstNumber() {
-      GetCountryLstNumber({ Country: this.country }).then((res) => {
+      GetCountryLstNumber({ Country: this.country }).then(res => {
         if (res.RespCode == 0) {
-          this.countryLst = res.Data.map((item) => {
+          this.countryLst = res.Data.map(item => {
             return {
               ...item,
               Title: item.Country + " - SL Law: " + item.Quantity,
-            };
-          });
+            }
+          })
           if (this.$route.query.country) {
-            this.country = this.$route.query.country;
-            this.getCountryLawLst();
+            this.country = this.$route.query.country
+            this.getCountryLawLst()
           } else {
             this.country =
-              this.countryLst.length > 0 ? this.countryLst[0].Country : null;
+              this.countryLst.length > 0 ? this.countryLst[0].Country : null
             this.$router.push({
               path: this.$route.path,
               query: { country: this.country }, // Chuyển đổi searchParams thành đối tượng
-            });
-            this.getCountryLawLst();
+            })
+            this.getCountryLawLst()
           }
         }
-      });
+      })
     },
     btSelectCountry(data) {
-      this.country = data;
-      this.getCountryLawLst();
+      this.country = data
+      this.getCountryLawLst()
     },
     getCountryLawLst() {
-      this.loadding = true;
+      this.loadding = true
 
-      GetCountryLawLst({ Country: this.country }).then((res) => {
+      GetCountryLawLst({ Country: this.country }).then(res => {
         if (res.RespCode == 0) {
           this.productLst = res.Data.map((item, index) => {
             return {
               ...item,
               Key: index + 1,
               ExpDateShow: formatDateDisplayDDMMYY(item.TimeCreate),
-            };
-          });
+            }
+          })
         }
-        this.loadding = false;
-      });
+        this.loadding = false
+      })
     },
     getDefaultValue() {
-      GetDefaultValue({ Table: "Phân loại đối tượng" }).then((res) => {
+      GetDefaultValue({ Table: "Phân loại đối tượng" }).then(res => {
         if (res.RespCode == 0) {
-          this.productTypeLst = res.DefaultValueLst;
+          this.productTypeLst = res.DefaultValueLst
         }
-      });
+      })
     },
     updateCountryLawLst(status) {
       UpdateCountryLawLst({
@@ -336,32 +363,28 @@ export default {
           DocumentID: this.$route.query.DocumentID || null,
           StepID: this.$route.query.StepID || null,
         },
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          this.isShowAddLaw = false;
-          this.isShowInfo = false;
-          this.getCountryLawLst();
+          this.isShowAddLaw = false
+          this.isShowInfo = false
+          this.getCountryLawLst()
           notify({
             type: "success",
             title: "Thành công",
-          });
+          })
         } else {
           notify({
             type: "error",
             title: "Lỗi",
             text: res.RespText,
-          });
+          })
         }
-      });
+      })
     },
   },
-
-  created() {
-    this.getCountryLstNumber();
-    this.getDefaultValue();
-  },
-};
+}
 </script>
+
 <style lang="scss" scoped>
 .number-flag {
   border: 1px solid #ccc;

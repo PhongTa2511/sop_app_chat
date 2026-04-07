@@ -1,7 +1,7 @@
 <script setup>
-import logo from "@/assets/images/logos/dtp-logo.png";
-import { PerfectScrollbar } from "vue3-perfect-scrollbar";
-import { useDisplay } from "vuetify";
+import logo from "@images/logos/dtp-logo.png"
+import { PerfectScrollbar } from "vue3-perfect-scrollbar"
+import { useDisplay } from "vuetify"
 
 const props = defineProps({
   tag: {
@@ -17,26 +17,27 @@ const props = defineProps({
     type: Function,
     required: true,
   },
-});
+})
 
-const { mdAndDown } = useDisplay();
-const refNav = ref();
-const route = useRoute();
+const { mdAndDown } = useDisplay()
+const refNav = ref()
+const route = useRoute()
 
 watch(
   () => route.path,
   () => {
-    props.toggleIsOverlayNavActive(false);
-  }
-);
+    props.toggleIsOverlayNavActive(false)
+  },
+)
 
-const isVerticalNavScrolled = ref(false);
-const updateIsVerticalNavScrolled = (val) =>
-  (isVerticalNavScrolled.value = val);
+const isVerticalNavScrolled = ref(false)
 
-const handleNavScroll = (evt) => {
-  isVerticalNavScrolled.value = evt.target.scrollTop > 0;
-};
+const updateIsVerticalNavScrolled = val =>
+  (isVerticalNavScrolled.value = val)
+
+const handleNavScroll = evt => {
+  isVerticalNavScrolled.value = evt.target.scrollTop > 0
+}
 </script>
 
 <template>
@@ -58,8 +59,14 @@ const handleNavScroll = (evt) => {
           to="/"
           class="app-logo d-flex align-center gap-x-3 app-title-wrapper"
         >
-          <img :src="logo" alt="" style="height: 40px" />
-          <h4 class="leading-normal">Quản lý quy trình</h4>
+          <img
+            :src="logo"
+            alt=""
+            style="height: 40px"
+          >
+          <h4 class="leading-normal">
+            Quản lý quy trình
+          </h4>
         </RouterLink>
       </slot>
     </div>

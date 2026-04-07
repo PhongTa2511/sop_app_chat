@@ -1,4 +1,4 @@
-export const staticPrimaryColor = "#7367f0";
+export const staticPrimaryColor = "#7367f0"
 
 const theme = {
   defaultTheme: "light",
@@ -60,10 +60,12 @@ const theme = {
         "table-header-background": "#fff",
         "high-emphasis-opacity": 0.78,
         "medium-emphasis-opacity": 0.78,
+
         // Shadows
         "shadow-key-umbra-opacity": "rgba(20, 21, 33, 0.06)",
         "shadow-key-penumbra-opacity": "rgba(20, 21, 33, 0.04)",
         "shadow-key-ambient-opacity": "rgba(20, 21, 33, 0.02)",
+
         // "disabled-opacity": 0.25,
       },
     },
@@ -130,6 +132,6 @@ const theme = {
       },
     },
   },
-};
+}
 
-export default theme;
+export default theme

@@ -1,59 +1,65 @@
 <template>
-  <v-card>
-    <v-dialog v-model="isShowCreatePhase" max-width="800px">
-      <v-card>
-        <v-card-title>Thêm bước</v-card-title>
-        <v-card-text>
-          <v-form v-model="valid" ref="form">
-            <v-text-field
+  <VCard>
+    <VDialog
+      v-model="isShowCreatePhase"
+      max-width="800px"
+    >
+      <VCard>
+        <VCardTitle>Thêm bước</VCardTitle>
+        <VCardText>
+          <VForm
+            ref="form"
+            v-model="valid"
+          >
+            <VTextField
               v-model="createPhase.ProcedureName"
               label="Quy trình xử lý"
               :disabled="true"
               class="mb-2"
-            ></v-text-field>
-            <v-row>
-              <v-col lg="10">
-                <v-text-field
+            />
+            <VRow>
+              <VCol lg="10">
+                <VTextField
                   v-model="createPhase.StepName"
                   label="Tên bước"
                   class="mb-2"
-                ></v-text-field>
-              </v-col>
-              <v-col lg="2">
-                <v-text-field
+                />
+              </VCol>
+              <VCol lg="2">
+                <VTextField
                   v-model="createPhase.StepOrder"
                   label="Thứ tự"
                   type="number"
                   :min="1"
                   :max="1000"
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-textarea
+                />
+              </VCol>
+            </VRow>
+            <VTextarea
               v-model="createPhase.Description"
               label="Mô tả"
               class="mb-2"
-            ></v-textarea>
-            <v-checkbox
-              label="Các công việc trong bước có độc lập"
+            />
+            <VCheckbox
               v-model="createPhase.IsContinueJob"
+              label="Các công việc trong bước có độc lập"
               :true-value="1"
               :false-value="0"
               color="primary"
               hide-details=""
-            ></v-checkbox>
-            <v-checkbox
-              label="Có từ chối các bước cùng cấp"
+            />
+            <VCheckbox
               v-model="createPhase.IsBackCurrent"
+              label="Có từ chối các bước cùng cấp"
               :true-value="1"
               :false-value="0"
               color="primary"
               hide-details=""
-            ></v-checkbox>
-            <v-row>
-              <v-col cols="6">
+            />
+            <VRow>
+              <VCol cols="6">
                 <span>Khi bị từ chối</span>
-                <v-select
+                <VSelect
                   v-model="createPhase.StepBack"
                   :items="phaseLst"
                   item-title="StepName"
@@ -61,11 +67,11 @@
                   label="Chọn bước khi bị từ chối"
                   class="mt-2"
                   clearable
-                ></v-select>
-              </v-col>
-              <v-col cols="6">
+                />
+              </VCol>
+              <VCol cols="6">
                 <span>Khi tiếp tục</span>
-                <v-select
+                <VSelect
                   v-model="createPhase.StepNext"
                   :items="phaseLst"
                   item-title="StepName"
@@ -73,68 +79,81 @@
                   label="Chọn bước tiếp theo"
                   class="mt-2"
                   clearable
-                ></v-select>
-              </v-col>
-            </v-row>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="isShowCreatePhase = false">Cancel</v-btn>
-          <v-btn color="green" @click="btCreatePhase">Xác nhận</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+                />
+              </VCol>
+            </VRow>
+          </VForm>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="isShowCreatePhase = false">
+            Cancel
+          </VBtn>
+          <VBtn
+            color="green"
+            @click="btCreatePhase"
+          >
+            Xác nhận
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
 
-    <v-dialog v-model="isShowEditPhase" max-width="800px">
-      <v-card>
-        <v-card-title>Chỉnh sửa bước</v-card-title>
-        <v-card-text>
-          <v-form v-model="validEdit" ref="editForm">
-            <v-row>
-              <v-col lg="10">
-                <v-text-field
+    <VDialog
+      v-model="isShowEditPhase"
+      max-width="800px"
+    >
+      <VCard>
+        <VCardTitle>Chỉnh sửa bước</VCardTitle>
+        <VCardText>
+          <VForm
+            ref="editForm"
+            v-model="validEdit"
+          >
+            <VRow>
+              <VCol lg="10">
+                <VTextField
                   v-model="editPhase.StepName"
                   label="Tên bước"
                   class="mb-2"
-                ></v-text-field>
-              </v-col>
-              <v-col lg="2">
-                <v-text-field
+                />
+              </VCol>
+              <VCol lg="2">
+                <VTextField
                   v-model="editPhase.StepOrder"
                   label="Thứ tự"
                   type="number"
                   :min="1"
                   :max="1000"
-                ></v-text-field>
-              </v-col>
-            </v-row>
+                />
+              </VCol>
+            </VRow>
 
-            <v-textarea
+            <VTextarea
               v-model="editPhase.Description"
               label="Mô tả"
               class="mb-2"
-            ></v-textarea>
-            <v-checkbox
-              label="Các công việc trong bước có độc lập"
+            />
+            <VCheckbox
               v-model="editPhase.IsContinueJob"
+              label="Các công việc trong bước có độc lập"
               :true-value="1"
               :false-value="0"
               color="primary"
               hide-details=""
-            ></v-checkbox>
-            <v-checkbox
-              label="Có từ chối các bước cùng cấp"
+            />
+            <VCheckbox
               v-model="editPhase.IsBackCurrent"
+              label="Có từ chối các bước cùng cấp"
               :true-value="1"
               :false-value="0"
               color="primary"
               hide-details=""
-            ></v-checkbox>
-            <v-row>
-              <v-col cols="6">
+            />
+            <VRow>
+              <VCol cols="6">
                 <span>Khi bị từ chối</span>
-                <v-select
+                <VSelect
                   v-model="editPhase.StepBack"
                   :items="phaseLst"
                   item-title="StepName"
@@ -142,11 +161,11 @@
                   label="Chọn bước khi bị từ chối"
                   class="mt-2"
                   clearable
-                ></v-select>
-              </v-col>
-              <v-col cols="6">
+                />
+              </VCol>
+              <VCol cols="6">
                 <span>Khi tiếp tục</span>
-                <v-select
+                <VSelect
                   v-model="editPhase.StepNext"
                   :items="phaseLst"
                   item-title="StepName"
@@ -154,72 +173,123 @@
                   label="Chọn bước tiếp theo"
                   class="mt-2"
                   clearable
-                ></v-select>
-              </v-col>
-            </v-row>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="isShowEditPhase = false">Cancel</v-btn>
-          <v-btn color="green" @click="btEditPhase">Xác nhận</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+                />
+              </VCol>
+            </VRow>
+          </VForm>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn @click="isShowEditPhase = false">
+            Cancel
+          </VBtn>
+          <VBtn
+            color="green"
+            @click="btEditPhase"
+          >
+            Xác nhận
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
 
-    <v-card-title>
-      <div class="d-flex" style="justify-content: space-between">
+    <VCardTitle>
+      <div
+        class="d-flex"
+        style="justify-content: space-between"
+      >
         <h6 class="text-h5 py-2">
           <div>Quy trình: {{ procedureInfo.ProcedureName }}</div>
-          <div class="text-subtitle-1 py-1 px-2" style="white-space: normal">
+          <div
+            class="text-subtitle-1 py-1 px-2"
+            style="white-space: normal"
+          >
             Mô tả: {{ procedureInfo.Description }}
           </div>
         </h6>
         <div class="d-flex">
-          <v-btn
+          <VBtn
             color="green"
             icon="mdi-playlist-plus"
             size="small"
             class="mr-1"
             @click="btShowCreatePhase"
-          ></v-btn>
+          />
         </div>
       </div>
-    </v-card-title>
-    <v-data-table :headers="headers" :items="phaseLst">
-      <template v-slot:item.Key="{ item }">
+    </VCardTitle>
+    <VDataTable
+      :headers="headers"
+      :items="phaseLst"
+    >
+      <template #item.Key="{ item }">
         {{ item.Key }}
-        <v-icon color="orange" @click="btShowEditPhase(item)"
-          >mdi-square-edit-outline</v-icon
+        <VIcon
+          color="orange"
+          @click="btShowEditPhase(item)"
         >
-        <v-icon color="red" class="me-2" @click="btShowDel(item)"
-          >mdi-trash-can
-        </v-icon>
-      </template>
-      <template v-slot:item.action="{ item }">
-        <v-icon color="green" @click="btPushToWork(item)"
-          >mdi-format-list-numbered</v-icon
+          mdi-square-edit-outline
+        </VIcon>
+        <VIcon
+          color="red"
+          class="me-2"
+          @click="btShowDel(item)"
         >
+          mdi-trash-can
+        </VIcon>
       </template>
-      <template v-slot:item.Status="{ item }">
-        <v-chip color="green" v-if="item.Status == 1">Hoạt động</v-chip>
-      </template>
-    </v-data-table>
-  </v-card>
-  <v-dialog v-model="isShowDel" width="400">
-    <v-card>
-      <v-toolbar class="pl-1" color="red" title="Xóa bước" center></v-toolbar>
-      <v-card-text>
-        <div class="text-h5 pt-4">Có chắc bạn muốn xóa bước này không?</div>
-      </v-card-text>
-      <v-card-actions class="justify-end">
-        <v-btn color="blue" variant="text" @click="isShowDel = false"
-          >Đóng</v-btn
+      <template #item.action="{ item }">
+        <VIcon
+          color="green"
+          @click="btPushToWork(item)"
         >
-        <v-btn color="red" variant="text" @click="btDelStep()">Xóa</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+          mdi-format-list-numbered
+        </VIcon>
+      </template>
+      <template #item.Status="{ item }">
+        <VChip
+          v-if="item.Status == 1"
+          color="green"
+        >
+          Hoạt động
+        </VChip>
+      </template>
+    </VDataTable>
+  </VCard>
+  <VDialog
+    v-model="isShowDel"
+    width="400"
+  >
+    <VCard>
+      <VToolbar
+        class="pl-1"
+        color="red"
+        title="Xóa bước"
+        center
+      />
+      <VCardText>
+        <div class="text-h5 pt-4">
+          Có chắc bạn muốn xóa bước này không?
+        </div>
+      </VCardText>
+      <VCardActions class="justify-end">
+        <VBtn
+          color="blue"
+          variant="text"
+          @click="isShowDel = false"
+        >
+          Đóng
+        </VBtn>
+        <VBtn
+          color="red"
+          variant="text"
+          @click="btDelStep"
+        >
+          Xóa
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <script>
@@ -229,7 +299,8 @@ import {
   GetProcedureByID,
   GetStepByProcedure,
   UpdateStep,
-} from "@/api/procedureApi";
+} from "@/api/procedureApi"
+
 // import { CreateStep, GetStepByProcedure } from "@/api/phaseApi";
 export default {
   data() {
@@ -267,42 +338,47 @@ export default {
         StepName: "",
         Description: "",
         StepOrder: 1,
+
         // Add other fields as necessary
       },
       itemDel: {},
-    };
+    }
+  },
+  created() {
+    this.getProcedureByID()
+    this.getPhaseLst()
   },
   methods: {
     btShowDel(data) {
-      this.itemDel = data;
-      this.isShowDel = true;
+      this.itemDel = data
+      this.isShowDel = true
     },
     btDelStep() {
       DelStep({
         StepID: this.itemDel.StepID,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
           notify({
             type: "success",
             title: "Thành công",
             text: "Xóa thành thành công",
-          });
-          this.getProcedureByID();
+          })
+          this.getProcedureByID()
         } else {
           notify({
             type: "error",
             title: "Lỗi",
             text: res.RespText,
-          });
+          })
         }
-      });
+      })
     },
     getProcedureByID() {
-      GetProcedureByID({ ProcedureID: this.$route.params.id }).then((res) => {
+      GetProcedureByID({ ProcedureID: this.$route.params.id }).then(res => {
         if (res.RespCode == 0) {
-          this.procedureInfo = res.Data;
+          this.procedureInfo = res.Data
         }
-      });
+      })
     },
     btCreatePhase() {
       if (
@@ -314,36 +390,36 @@ export default {
           StepInfo: {
             ...this.createPhase,
           },
-        }).then((res) => {
+        }).then(res => {
           if (res.RespCode == 0) {
-            this.getPhaseLst();
+            this.getPhaseLst()
             this.isShowCreatePhase = false;
             ((this.createPhase = {
               Status: 1,
               StepOrder: 1,
             }),
-              notify({
-                title: "Thành công",
-                text: "Thêm Bước thành công",
-                type: "success",
-              }));
+            notify({
+              title: "Thành công",
+              text: "Thêm Bước thành công",
+              type: "success",
+            }))
           }
-        });
+        })
       } else {
         notify({
           title: "Lỗi",
           text: res.RespText,
           type: "error",
-        });
+        })
       }
     },
     btShowCreatePhase() {
-      this.createPhase.ProcedureID = this.procedureInfo.ProcedureID;
-      this.createPhase.ProcedureName = this.procedureInfo.ProcedureName;
-      this.isShowCreatePhase = true;
+      this.createPhase.ProcedureID = this.procedureInfo.ProcedureID
+      this.createPhase.ProcedureName = this.procedureInfo.ProcedureName
+      this.isShowCreatePhase = true
     },
     btPushToWork(data) {
-      this.$router.push("/cong-viec/" + data.StepID);
+      this.$router.push("/cong-viec/" + data.StepID)
     },
     getPhaseLst() {
       GetStepByProcedure({
@@ -351,21 +427,21 @@ export default {
         RowspPage: 1000,
         Search: "",
         ProcedureID: this.$route.params.id,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
           this.phaseLst = res.Data.map((item, index) => {
             return {
               ...item,
               Key: index + 1,
-            };
-          });
-          this.updateUI++;
+            }
+          })
+          this.updateUI++
         }
-      });
+      })
     },
     btShowEditPhase(item) {
-      this.editPhase = { ...item }; // Populate editPhase with the selected item's data
-      this.isShowEditPhase = true; // Show the edit dialog
+      this.editPhase = { ...item } // Populate editPhase with the selected item's data
+      this.isShowEditPhase = true // Show the edit dialog
     },
     btEditPhase() {
       if (this.editPhase.StepName && this.editPhase.Description) {
@@ -373,37 +449,33 @@ export default {
           StepInfo: {
             ...this.editPhase,
           },
-        }).then((res) => {
+        }).then(res => {
           if (res.RespCode == 0) {
-            this.getPhaseLst(); // Refresh the phase list after successful update
-            this.isShowEditPhase = false; // Close the edit dialog
+            this.getPhaseLst() // Refresh the phase list after successful update
+            this.isShowEditPhase = false // Close the edit dialog
             notify({
               title: "Thành công",
               text: "Cập nhật Bước thành công",
               type: "success",
-            });
+            })
           } else {
             notify({
               title: "Lỗi",
               text: "Cập nhật Bước thất bại",
               type: "error",
-            });
+            })
           }
-        });
+        })
       } else {
         notify({
           title: "Lỗi",
           text: "Vui lòng điền đầy đủ thông tin",
           type: "error",
-        });
+        })
       }
     },
   },
-  created() {
-    this.getProcedureByID();
-    this.getPhaseLst();
-  },
-};
+}
 </script>
 
 <style lang="scss" scoped></style>

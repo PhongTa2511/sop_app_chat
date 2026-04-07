@@ -1,11 +1,11 @@
-import request from "@/utils/request";
+import request from "@/utils/request"
 
 export function GetProductLst(data) {
   return request({
     url: "Product/GetProductLst",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetProductLst2(data) {
@@ -13,7 +13,7 @@ export function GetProductLst2(data) {
     url: "Product/GetProductLst2",
     method: "post",
     data,
-  });
+  })
 }
 
 export function CreateProduct(data) {
@@ -21,19 +21,19 @@ export function CreateProduct(data) {
     url: "Product/CreateProduct",
     method: "post",
     data,
-  });
+  })
 }
 export function UpdateProduct(data) {
   return request({
     url: "Product/UpdateProduct",
     method: "post",
     data,
-  });
+  })
 }
 export function DelProduct(data) {
   return request({
     url: "Product/DelProduct",
     method: "post",
     data,
-  });
+  })
 }

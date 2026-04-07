@@ -1,10 +1,8 @@
 <template>
-  <v-card class="py-2 pb-0">
-    <v-data-table-server
+  <VCard class="py-2 pb-0">
+    <VDataTableServer
       :items-per-page="pageSize"
       :items-length="totalLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="productLst"
@@ -20,23 +18,24 @@
       ]"
       :loading="loadding"
       fixed-header
+      @update:itemsPerPage="btRow"
+      @update:page="btPage"
     >
-      <template v-slot:top>
+      <template #top>
         <div class="d-flex flex-wrap gap-1 px-2">
           <span>
-            <v-menu :close-on-content-click="false">
-              <template v-slot:activator="{ props }">
-                <v-btn
+            <VMenu :close-on-content-click="false">
+              <template #activator="{ props }">
+                <VBtn
                   color="blue"
                   size="small"
                   icon=" mdi-filter"
                   v-bind="props"
-                >
-                </v-btn>
+                />
               </template>
-              <v-list>
-                <v-list-item>
-                  <v-text-field
+              <VList>
+                <VListItem>
+                  <VTextField
                     v-model="product"
                     label="Sản phẩm"
                     hide-details
@@ -44,9 +43,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="name2"
                     label="Số đăng ký"
                     hide-details
@@ -54,9 +53,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="area"
                     label="Khu vực"
                     hide-details
@@ -64,8 +63,8 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
-                  <v-text-field
+                  />
+                  <VTextField
                     v-model="storeType"
                     label="Phân loại"
                     hide-details
@@ -73,41 +72,45 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
-                  <v-select
-                    label="Trạng thái"
+                  />
+                  <VSelect
                     v-model="statusProduct"
+                    label="Trạng thái"
                     :items="statusLst"
                     item-value="value"
                     item-title="text"
                     class="mt-2"
-                  ></v-select>
-                  <v-btn block class="rounded mt-2" @click="getProductLst2"
-                    >Tìm kiếm</v-btn
-                  >
-                </v-list-item>
-              </v-list>
-            </v-menu>
+                  />
+                  <VBtn
+                    block
+                    class="rounded mt-2"
+                    @click="getProductLst2"
+                  >Tìm kiếm</VBtn>
+                </VListItem>
+              </VList>
+            </VMenu>
           </span>
 
-          <v-btn
+          <VBtn
             color="green"
             variant="tonal"
             icon="mdi-reload"
             size="small"
             @click="getProductLst2"
-          ></v-btn>
-          <!-- <v-btn
+          />
+          <!--
+            <v-btn
             color="blue"
             variant="tonal"
             icon="mdi-plus"
             size="small"
             @click="openCreateProductDialog"
-          ></v-btn> -->
+            ></v-btn> 
+          -->
         </div>
       </template>
 
-      <template v-slot:item.ProductID="{ item }">
+      <template #item.ProductID="{ item }">
         <div>
           {{ item.Key }}.
           <strong>
@@ -115,29 +118,58 @@
           </strong>
         </div>
         <div>
-          <v-chip size="x-small" color="primary">{{ item.ProductID }}</v-chip>
-          <v-chip size="x-small" color="green">{{ item.StoreType }}</v-chip>
+          <VChip
+            size="x-small"
+            color="primary"
+          >
+            {{ item.ProductID }}
+          </VChip>
+          <VChip
+            size="x-small"
+            color="green"
+          >
+            {{ item.StoreType }}
+          </VChip>
         </div>
         <div>
           {{ item.DangBaoChe }}
         </div>
       </template>
-      <template v-slot:item.TieuChuanChatLuong="{ item }">
+      <template #item.TieuChuanChatLuong="{ item }">
         <div>
-          <strong>
-            {{ item.TieuChuanChatLuong }}
-          </strong>
-          <v-chip size="x-small" color="red" v-if="item.HanDung">
+          <VTooltip
+            v-if="item.TieuChuanChatLuong"
+            location="top"
+            :max-width="700"
+          >
+            <template #activator="{ props }">
+              <div
+                class="clamp-text dtp-tooltip-activator dtp-cell-bold"
+                v-bind="props"
+              >
+                {{ item.TieuChuanChatLuong }}
+              </div>
+            </template>
+
+            <div class="dtp-tooltip-content">
+              {{ item.TieuChuanChatLuong }}
+            </div>
+          </VTooltip>
+          <VChip
+            v-if="item.HanDung"
+            size="x-small"
+            color="red"
+          >
             {{ item.HanDung }}
-          </v-chip>
+          </VChip>
         </div>
       </template>
-      <template v-slot:item.ProductExport="{ item }">
+      <template #item.ProductExport="{ item }">
         <div>
           {{ item.ProductExport }}
         </div>
         <div style="color: green">
-          {{ formatDateDisplayDDMMYY(item.NgayCapSoDangKy) }}
+          {{ item.NgayCapSoDangKy }}
         </div>
         <div style="color: red">
           {{
@@ -147,51 +179,132 @@
           }}
         </div>
         <div v-if="item.DotCap">
-          <v-chip size="x-small" color="orange"
-            >Đợt cấp: {{ item.DotCap }}</v-chip
+          <VChip
+            size="x-small"
+            color="orange"
           >
+            Đợt cấp: {{ item.DotCap }}
+          </VChip>
         </div>
       </template>
-      <template v-slot:item.Action="{ item }">
+
+      <template #item.HoatChat="{ item }">
+        <VTooltip
+          v-if="item.HoatChat"
+          location="top"
+          :max-width="700"
+        >
+          <template #activator="{ props }">
+            <div
+              class="clamp-text dtp-tooltip-activator"
+              v-bind="props"
+            >
+              {{ item.HoatChat }}
+            </div>
+          </template>
+
+          <div class="dtp-tooltip-content">
+            {{ item.HoatChat }}
+          </div>
+        </VTooltip>
+      </template>
+
+      <template #item.NongDoHamLuong="{ item }">
+        <VTooltip
+          v-if="item.NongDoHamLuong"
+          location="top"
+          :max-width="700"
+        >
+          <template #activator="{ props }">
+            <div
+              class="clamp-text dtp-tooltip-activator"
+              v-bind="props"
+            >
+              {{ item.NongDoHamLuong }}
+            </div>
+          </template>
+
+          <div class="dtp-tooltip-content">
+            {{ item.NongDoHamLuong }}
+          </div>
+        </VTooltip>
+      </template>
+
+      <template #item.QuyCachDongGoi="{ item }">
+        <VTooltip
+          v-if="item.QuyCachDongGoi"
+          location="top"
+          :max-width="700"
+        >
+          <template #activator="{ props }">
+            <div
+              class="clamp-text dtp-tooltip-activator"
+              v-bind="props"
+            >
+              {{ item.QuyCachDongGoi }}
+            </div>
+          </template>
+
+          <div class="dtp-tooltip-content">
+            {{ item.QuyCachDongGoi }}
+          </div>
+        </VTooltip>
+      </template>
+
+      <template #item.Action="{ item }">
         <div class="flex">
-          <v-btn
+          <VBtn
             color="orange"
             size="x-small"
             style="cursor: pointer"
-            @click="btShowInfo(item)"
             icon="mdi-note-edit"
             class="mr-1"
-          ></v-btn>
-          <v-btn
+            @click="btShowInfo(item)"
+          />
+          <VBtn
             color="red"
             size="x-small"
             style="cursor: pointer"
             icon="mdi-delete"
             @click="openDeleteDialog(item)"
-          ></v-btn>
+          />
         </div>
       </template>
-    </v-data-table-server>
-  </v-card>
-  <v-dialog v-model="isDeleteDialog" max-width="500px">
-    <v-card>
-      <v-card-title>
+    </VDataTableServer>
+  </VCard>
+  <VDialog
+    v-model="isDeleteDialog"
+    max-width="500px"
+  >
+    <VCard>
+      <VCardTitle>
         <span class="headline">Xóa sản phẩm</span>
-      </v-card-title>
-      <v-card-text> Bạn có chắc chắn muốn xóa sản phẩm này? </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn color="grey" @click="isDeleteDialog = false">Hủy</v-btn>
-        <v-btn color="red" @click="confirmDelete">Xóa</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
+      </VCardTitle>
+      <VCardText> Bạn có chắc chắn muốn xóa sản phẩm này? </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn
+          color="grey"
+          @click="isDeleteDialog = false"
+        >
+          Hủy
+        </VBtn>
+        <VBtn
+          color="red"
+          @click="confirmDelete"
+        >
+          Xóa
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <script>
-import { GetDefaultValue } from "@/api/default";
-import { DelProduct, GetProductLst2 } from "@/api/productApi";
-import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
+import { GetDefaultValue } from "@/api/default"
+import { DelProduct, GetProductLst2 } from "@/api/productApi"
+import { formatDateDisplayDDMMYY } from "@/helpers/getTime"
+
 export default {
   data() {
     return {
@@ -243,58 +356,63 @@ export default {
       statusProduct: 100,
       isDeleteDialog: false,
       productToDelete: null,
-    };
+    }
   },
   watch: {
     pageSize(value) {
-      this.getProductLst2();
+      this.getProductLst2()
     },
     currentPage(value) {
-      this.getProductLst2();
+      this.getProductLst2()
     },
+  },
+  created() {
+    this.getProductLst2()
+    this.getDefaultValue()
   },
   methods: {
     delProduct(data) {
       DelProduct({
         ProductID: data.ProductID,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
           notify({
             title: "Thành công",
             type: "success",
-          });
-          this.getProductLst();
+          })
+          this.getProductLst()
         } else {
           notify({
             title: "Thất bại",
             text: res.RespText,
             type: "error",
-          });
+          })
         }
-      });
+      })
     },
     confirmDelete() {
-      this.delProduct(this.productToDelete);
-      this.isDeleteDialog = false;
-      this.productToDelete = null;
+      this.delProduct(this.productToDelete)
+      this.isDeleteDialog = false
+      this.productToDelete = null
     },
     openDeleteDialog(item) {
-      this.productToDelete = item;
-      this.isDeleteDialog = true;
+      this.productToDelete = item
+      this.isDeleteDialog = true
     },
     btShowInfo(data) {
-      this.$router.push("/thong-tin-san-pham/" + data.ProductID);
+      this.$router.push("/thong-tin-san-pham/" + data.ProductID)
     },
 
     btPage(data) {
-      this.currentPage = data;
+      this.currentPage = data
     },
     btRow(data) {
-      this.pageSize = data;
+      this.pageSize = data
     },
     formatDateDisplayDDMMYY,
     getProductLst2() {
-      this.loadding = true;
+      this.loadding = true
+
       const searchString = [
         this.product,
         this.name2,
@@ -302,26 +420,28 @@ export default {
         this.area,
         this.storeType,
         this.statusProduct,
-      ].join("|");
+      ].join("|")
+
       const requestData = {
         PageNumber: this.currentPage,
         RowspPage: this.pageSize,
         Search: searchString,
-      };
-      GetProductLst2(requestData).then((res) => {
+      }
+
+      GetProductLst2(requestData).then(res => {
         if (res.RespCode == 0) {
           this.productLst = res.Data.map((item, index) => {
-            var num = this.pageSize * (this.currentPage - 1);
+            var num = this.pageSize * (this.currentPage - 1)
+
             return {
               ...item,
               Key: index + 1 + num,
-              ExpDateShow: formatDateDisplayDDMMYY(item.ExpDate),
-            };
-          });
-          this.totalLength = res.TotalRows;
+            }
+          })
+          this.totalLength = res.TotalRows
         }
-        this.loadding = false;
-      });
+        this.loadding = false
+      })
     },
     getDefaultValue() {
       // GetDefaultValue({
@@ -329,26 +449,35 @@ export default {
       // }).then((res) => {
       //   this.areaLst = res.DefaultValueLst;
       // });
-      GetDefaultValue({ Table: "Phân loại đối tượng" }).then((res) => {
+      GetDefaultValue({ Table: "Phân loại đối tượng" }).then(res => {
         if (res.RespCode == 0) {
-          this.typeStorageLst = res.DefaultValueLst;
+          this.typeStorageLst = res.DefaultValueLst
         }
-      });
-      GetDefaultValue({ Table: "Sản phẩm" }).then((res) => {
+      })
+      GetDefaultValue({ Table: "Sản phẩm" }).then(res => {
         if (res.RespCode == 0) {
-          this.productDefaultLst = res.DefaultValueLst;
+          this.productDefaultLst = res.DefaultValueLst
         }
-      });
+      })
     },
     openCreateProductDialog() {
-      this.isCreateProductDialog = true;
+      this.isCreateProductDialog = true
     },
   },
-  created() {
-    this.getProductLst2();
-    this.getDefaultValue();
-  },
-};
+}
 </script>
 
-<style></style>
+<style scoped>
+.dtp-tooltip-activator {
+  cursor: help;
+  max-inline-size: 100%;
+}
+
+.dtp-tooltip-content {
+  white-space: pre-wrap;
+}
+
+.dtp-cell-bold {
+  font-weight: 600;
+}
+</style>

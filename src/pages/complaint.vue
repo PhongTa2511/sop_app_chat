@@ -1,19 +1,40 @@
 <template>
-  <v-card class="pa-4 mx-auto" style="max-width: 600px">
+  <VCard
+    class="pa-4 mx-auto"
+    style="max-width: 600px"
+  >
     <div class="d-flex justify-center">
-      <img :src="logoC" alt="" style="height: 48px" />
+      <img
+        :src="logoC"
+        alt=""
+        style="height: 48px"
+      >
     </div>
 
     <div class="text-center my-4">
-      <h4 class="mb-2" style="color: #cf1111">
+      <h4
+        class="mb-2"
+        style="color: #cf1111"
+      >
         HỆ SINH THÁI DTP - QUẢN LÝ QUY TRÌNH
       </h4>
-      <h5 class="mb-2">KHIẾU NẠI SẢN PHẨM CPC1 HÀ NỘI</h5>
+      <h5 class="mb-2">
+        KHIẾU NẠI SẢN PHẨM CPC1 HÀ NỘI
+      </h5>
     </div>
-    <h4 class="my-2">{{ dataForm.NameForm }}</h4>
-    <v-form ref="form" v-if="formFields.length">
-      <div v-for="field in formFields" :key="field.RowID" class="mb-2">
-        <v-text-field
+    <h4 class="my-2">
+      {{ dataForm.NameForm }}
+    </h4>
+    <VForm
+      v-if="formFields.length"
+      ref="form"
+    >
+      <div
+        v-for="field in formFields"
+        :key="field.RowID"
+        class="mb-2"
+      >
+        <VTextField
           v-if="field.Type === 1"
           v-model="field.TextResult"
           :label="field.Parameter"
@@ -25,7 +46,7 @@
           "
         />
 
-        <v-select
+        <VSelect
           v-else-if="field.Type === 2"
           v-model="field.TextResult"
           :label="field.Parameter"
@@ -41,17 +62,22 @@
           hide-details
         />
       </div>
-    </v-form>
-    <v-btn block rounded="md" :loading="loading" @click="uploadForm"
-      >Gửi khiếu nại</v-btn
+    </VForm>
+    <VBtn
+      block
+      rounded="md"
+      :loading="loading"
+      @click="uploadForm"
     >
-  </v-card>
+      Gửi khiếu nại
+    </VBtn>
+  </VCard>
 </template>
 
 <script>
-import logoC from "@/assets/images/logo-box.png";
-import { GetFormByIDPublic } from "@/api/procedureApi";
-import { UpdateDocumentFormPublic } from "@/api/documentFormApi";
+import logoC from "@images/logo-box.png"
+import { GetFormByIDPublic } from "@/api/procedureApi"
+import { UpdateDocumentFormPublic } from "@/api/documentFormApi"
 
 export default {
   data() {
@@ -62,28 +88,33 @@ export default {
       formData: {},
       nonValidatedFields: [1, 2, 3],
       loading: false,
-    };
+    }
+  },
+  created() {
+    this.getFormByIDPublic()
   },
   methods: {
     async uploadForm() {
-      const { valid } = await this.$refs.form.validate();
+      const { valid } = await this.$refs.form.validate()
       if (!valid) {
         notify({
           title: "Lỗi",
           text: "Vui lòng nhập đầy đủ thông tin bắt buộc!",
           type: "error",
-        });
-        return;
+        })
+        
+        return
       }
 
-      this.loading = true;
-      const IDForm = this.dataForm.IDForm;
-      const ProcedureID = this.dataForm.ProcedureID;
-      const NameForm = this.dataForm.NameForm;
-      const Description = this.dataForm.Description;
-      const TypeForm = this.dataForm.TypeForm;
+      this.loading = true
 
-      const DocumentFormLineLst = this.formFields.map((field) => {
+      const IDForm = this.dataForm.IDForm
+      const ProcedureID = this.dataForm.ProcedureID
+      const NameForm = this.dataForm.NameForm
+      const Description = this.dataForm.Description
+      const TypeForm = this.dataForm.TypeForm
+
+      const DocumentFormLineLst = this.formFields.map(field => {
         return {
           RowID: field.RowID,
           IDFormLine: 0,
@@ -95,8 +126,8 @@ export default {
           DateResult: "",
           TextResult: field.TextResult || "",
           OptionAnswer: field.OptionAnswer,
-        };
-      });
+        }
+      })
 
       const payload = {
         DocumentID: this.documentID,
@@ -107,46 +138,45 @@ export default {
         TypeForm,
         IsPublic: 1,
         DocumentFormLineLst,
-      };
+      }
 
-      UpdateDocumentFormPublic({ DocumentFormInfo: payload }).then((res) => {
+      UpdateDocumentFormPublic({ DocumentFormInfo: payload }).then(res => {
         if (res.RespCode === 0) {
-          this.$toast.success("Gửi khiếu nại thành công!");
+          this.$toast.success("Gửi khiếu nại thành công!")
           notify({
             title: "Thành công",
             type: "success",
-          });
+          })
         } else {
           notify({
             title: "Lỗi",
             text: res.RespText,
             type: "error",
-          });
+          })
         }
-        this.loading = false;
-      });
+        this.loading = false
+      })
     },
     getFormByIDPublic() {
-      GetFormByIDPublic({ IDForm: "F002056" }).then((res) => {
+      GetFormByIDPublic({ IDForm: "F002056" }).then(res => {
         if (res.RespCode === 0) {
-          this.dataForm = res.Data;
+          this.dataForm = res.Data
+
           const sortedFields = res.Data.FormLineLst.sort(
-            (a, b) => a.Required - b.Required
-          );
-          this.formFields = sortedFields;
+            (a, b) => a.Required - b.Required,
+          )
+
+          this.formFields = sortedFields
         }
-      });
+      })
     },
     parseOptions(optionsStr) {
       try {
-        return JSON.parse(optionsStr || "[]");
+        return JSON.parse(optionsStr || "[]")
       } catch (e) {
-        return [];
+        return []
       }
     },
   },
-  created() {
-    this.getFormByIDPublic();
-  },
-};
+}
 </script>

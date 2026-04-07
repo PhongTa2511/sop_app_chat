@@ -1,4 +1,5 @@
 import moment from "moment";
+
 export function getTimeYesterday() {
   return moment(new Date()).format("yyyy-MM-DD 06:00:00");
 }
@@ -7,16 +8,26 @@ export function getTimeLastDay() {
 }
 export function getTimeDayBefore() {
   const currentTime = new Date().setDate(new Date().getDate() - 1);
+
   return moment(currentTime).format("yyyy-MM-DD 00:00:00");
 }
+
 export function getDateCurrent() {
   const timeCurrent = new Date();
+
   return moment(timeCurrent).format("yyyy-MM-DD HH:mm:ss");
 }
 
 export function formatDate(date) {
   if (date) {
     return moment(date).format("yyyy-MM-DD HH:mm:ss");
+  } else {
+    return date;
+  }
+}
+export function formatDate00(date) {
+  if (date) {
+    return moment(date).format("yyyy-MM-DD 00:00:00");
   } else {
     return date;
   }

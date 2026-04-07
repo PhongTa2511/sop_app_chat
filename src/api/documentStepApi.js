@@ -1,11 +1,11 @@
-import request from "@/utils/request";
+import request from "@/utils/request"
 
 export function GetStepArisingLstByDoc(data) {
   return request({
     url: "GSPDocumentStep/GetStepArisingLstByDoc",
     method: "post",
     data,
-  });
+  })
 }
 
 export function UpdateStepArising(data) {
@@ -13,7 +13,7 @@ export function UpdateStepArising(data) {
     url: "GSPDocumentStep/UpdateStepArising",
     method: "post",
     data,
-  });
+  })
 }
 
 export function UpdateStepStatus(data) {
@@ -21,7 +21,7 @@ export function UpdateStepStatus(data) {
     url: "GSPDocumentStep/UpdateStepStatus",
     method: "post",
     data,
-  });
+  })
 }
 
 export function StartStepArising(data) {
@@ -29,5 +29,5 @@ export function StartStepArising(data) {
     url: "GSPDocumentStep/StartStepArising",
     method: "post",
     data,
-  });
+  })
 }

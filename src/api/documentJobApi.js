@@ -1,18 +1,18 @@
-import request from "@/utils/request";
+import request from "@/utils/request"
 
 export function UpdateDocumentJob(data) {
   return request({
     url: "GSPDocumentJob/UpdateDocumentJob",
     method: "post",
     data,
-  });
+  })
 }
 export function GetDocumentJobByDocID(data) {
   return request({
     url: "GSPDocumentJob/GetDocumentJobByDocID",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetDocumentJobInfo(data) {
@@ -20,7 +20,7 @@ export function GetDocumentJobInfo(data) {
     url: "GSPDocumentJob/GetDocumentJobInfo",
     method: "post",
     data,
-  });
+  })
 }
 
 export function AddAssignLst(data) {
@@ -28,7 +28,7 @@ export function AddAssignLst(data) {
     url: "GSPDocumentJob/AddAssignLst",
     method: "post",
     data,
-  });
+  })
 }
 
 export function SendMailAddAssignLst(data) {
@@ -36,7 +36,7 @@ export function SendMailAddAssignLst(data) {
     url: "GSPDocumentJob/SendMailAddAssignLst",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetDocumentJobByEm(data) {
@@ -44,7 +44,7 @@ export function GetDocumentJobByEm(data) {
     url: "GSPDocumentJob/GetDocumentJobByEm",
     method: "post",
     data,
-  });
+  })
 }
 
 export function ReportDocumentJob(data) {
@@ -52,7 +52,7 @@ export function ReportDocumentJob(data) {
     url: "GSPDocumentJob/ReportDocumentJobV2",
     method: "post",
     data,
-  });
+  })
 }
 
 export function ApproveDocumentJob(data) {
@@ -60,7 +60,7 @@ export function ApproveDocumentJob(data) {
     url: "GSPDocumentJob/ApproveDocumentJobV2",
     method: "post",
     data,
-  });
+  })
 }
 
 export function ProcessDocument(data) {
@@ -68,7 +68,7 @@ export function ProcessDocument(data) {
     url: "GSPDocumentJob/GSPProcessDocument",
     method: "post",
     data,
-  });
+  })
 }
 
 export function CancelDocumentJob(data) {
@@ -76,7 +76,7 @@ export function CancelDocumentJob(data) {
     url: "GSPDocumentJob/CancelDocumentJob",
     method: "post",
     data,
-  });
+  })
 }
 
 export function CancelDocument(data) {
@@ -84,7 +84,7 @@ export function CancelDocument(data) {
     url: "GSPDocumentJob/CancelDocumentJob",
     method: "post",
     data,
-  });
+  })
 }
 
 export function StartDocument(data) {
@@ -92,12 +92,12 @@ export function StartDocument(data) {
     url: "GSPDocumentJob/StartDocumentV2",
     method: "post",
     data,
-  });
+  })
 }
 export function StartJob(data) {
   return request({
     url: "GSPDocumentJob/StartJobV2",
     method: "post",
     data,
-  });
+  })
 }

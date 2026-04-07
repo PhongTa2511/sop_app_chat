@@ -1,10 +1,8 @@
 <template>
-  <v-card class="py-2 pb-0">
-    <v-data-table-server
+  <VCard class="py-2 pb-0">
+    <VDataTableServer
       :items-per-page="pageSize"
       :items-length="totalLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="productLst"
@@ -12,31 +10,32 @@
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
       sort-desc-icon="mdi-menu-down"
+      @update:itemsPerPage="btRow"
       :items-per-page-options="[
         { value: 10, title: '10' },
         { value: 50, title: '50' },
         { value: 100, title: '100' },
         { value: 10000, title: 'All' },
       ]"
+      @update:page="btPage"
       :loading="loadding"
       fixed-header
     >
-      <template v-slot:top>
+      <template #top>
         <div class="d-flex flex-wrap gap-1 px-2">
           <span>
-            <v-menu :close-on-content-click="false">
-              <template v-slot:activator="{ props }">
-                <v-btn
+            <VMenu :close-on-content-click="false">
+              <template #activator="{ props }">
+                <VBtn
                   color="blue"
                   size="small"
                   icon=" mdi-filter"
                   v-bind="props"
-                >
-                </v-btn>
+                />
               </template>
-              <v-list>
-                <v-list-item>
-                  <v-text-field
+              <VList>
+                <VListItem>
+                  <VTextField
                     v-model="product"
                     label="Sản phẩm"
                     hide-details
@@ -44,9 +43,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="name2"
                     label="Tên xuất khẩu"
                     hide-details
@@ -54,9 +53,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="country"
                     label="Nước xk"
                     hide-details
@@ -64,9 +63,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="area"
                     label="Khu vực"
                     hide-details
@@ -74,8 +73,8 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
-                  <v-text-field
+                  />
+                  <VTextField
                     v-model="storeType"
                     label="Phân loại"
                     hide-details
@@ -83,77 +82,82 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-btn block class="rounded mt-2" @click="getProductLst"
-                    >Tìm kiếm</v-btn
-                  >
-                </v-list-item>
-              </v-list>
-            </v-menu>
+                  <VBtn
+                    block
+                    class="rounded mt-2"
+                    @click="getProductLst"
+                  >Tìm kiếm</VBtn>
+                </VListItem>
+              </VList>
+            </VMenu>
           </span>
 
-          <v-btn
+          <VBtn
             color="green"
             variant="tonal"
             icon="mdi-reload"
             size="small"
             @click="getProductLst"
-          ></v-btn>
-          <v-btn
+          />
+          <VBtn
             color="blue"
             variant="tonal"
             icon="mdi-plus"
             size="small"
             @click="openCreateProductDialog"
-          ></v-btn>
+          />
         </div>
       </template>
 
-      <template v-slot:item.Key="{ item }">
+      <template #item.Key="{ item }">
         {{ item.Key }}
       </template>
-      <template v-slot:item.Action="{ item }">
+      <template #item.Action="{ item }">
         <div class="flex">
-          <v-btn
+          <VBtn
             color="orange"
             size="x-small"
             style="cursor: pointer"
-            @click="btShowInfo(item)"
             icon="mdi-note-edit"
             class="mr-1"
-          ></v-btn>
-          <v-btn
+            @click="btShowInfo(item)"
+          />
+          <VBtn
             color="red"
             size="x-small"
             style="cursor: pointer"
             icon="mdi-delete"
             @click="openDeleteDialog(item)"
-          ></v-btn>
+          />
         </div>
       </template>
-    </v-data-table-server>
+    </VDataTableServer>
 
-    <v-dialog v-model="isCreateProductDialog" max-width="500px">
-      <v-card>
-        <v-card-title>
+    <VDialog
+      v-model="isCreateProductDialog"
+      max-width="500px"
+    >
+      <VCard>
+        <VCardTitle>
           <span class="headline">Tạo sản phẩm mới</span>
-        </v-card-title>
-        <v-card-text class="py-2">
-          <v-row>
-            <v-col
-              cols="12"
+        </VCardTitle>
+        <VCardText class="py-2">
+          <VRow>
+            <VCol
               v-for="(line, indexline) in newProduct.FormLineLst"
               :key="indexline"
+              cols="12"
             >
-              <v-text-field
+              <VTextField
                 v-if="line.Type == 1"
-                :label="line.Parameter"
                 v-model="line.TextResult"
+                :label="line.Parameter"
                 :class="{ 'blur-text': line.IsPrivate == 1 }"
                 :readonly="line.IsPrivate == 1"
-              ></v-text-field>
-              <v-autocomplete
+              />
+              <VAutocomplete
                 v-if="line.Type == 2"
                 v-model="line.TextResult"
                 :label="line.Parameter"
@@ -164,8 +168,8 @@
                 hide-details
                 :class="{ 'blur-text': line.IsPrivate == 1 }"
                 :readonly="line.IsPrivate == 1"
-              ></v-autocomplete>
-              <v-autocomplete
+              />
+              <VAutocomplete
                 v-if="line.Type == 3"
                 v-model="line.TextResult"
                 :label="line.Parameter"
@@ -176,48 +180,72 @@
                 hide-details
                 :class="{ 'blur-text': line.IsPrivate == 1 }"
                 :readonly="line.IsPrivate == 1"
-              ></v-autocomplete>
+              />
               <div v-if="line.Type == 4">
-                <V-DateField
+                <VDateField
                   v-model:modelValue="line.TextResult"
                   :label="line.Parameter"
                   width="100%"
-                  :className="{ 'blur-text': line.IsPrivate == 1 }"
+                  :class-name="{ 'blur-text': line.IsPrivate == 1 }"
                   :readonly="line.IsPrivate == 1"
                 />
               </div>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="grey" @click="isCreateProductDialog = false">Hủy</v-btn>
-          <v-btn color="green" @click="createProduct">Xác nhận</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog v-model="isDeleteDialog" max-width="500px">
-      <v-card>
-        <v-card-title>
+            </VCol>
+          </VRow>
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn
+            color="grey"
+            @click="isCreateProductDialog = false"
+          >
+            Hủy
+          </VBtn>
+          <VBtn
+            color="green"
+            @click="createProduct"
+          >
+            Xác nhận
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+    <VDialog
+      v-model="isDeleteDialog"
+      max-width="500px"
+    >
+      <VCard>
+        <VCardTitle>
           <span class="headline">Xóa sản phẩm</span>
-        </v-card-title>
-        <v-card-text> Bạn có chắc chắn muốn xóa sản phẩm này? </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="grey" @click="isDeleteDialog = false">Hủy</v-btn>
-          <v-btn color="red" @click="confirmDelete">Xóa</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-card>
+        </VCardTitle>
+        <VCardText> Bạn có chắc chắn muốn xóa sản phẩm này? </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn
+            color="grey"
+            @click="isDeleteDialog = false"
+          >
+            Hủy
+          </VBtn>
+          <VBtn
+            color="red"
+            @click="confirmDelete"
+          >
+            Xóa
+          </VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
+  </VCard>
 </template>
 
 <script>
-import { GetDefaultValue } from "@/api/default";
-import { UpdateDocumentForm } from "@/api/documentFormApi";
-import { GetFormByID } from "@/api/procedureApi";
-import { CreateProduct, DelProduct, GetProductLst } from "@/api/productApi";
-import { formatDateDisplayDDMMYY } from "@/helpers/getTime";
+import { GetDefaultValue } from "@/api/default"
+import { UpdateDocumentForm } from "@/api/documentFormApi"
+import { GetFormByID } from "@/api/procedureApi"
+import { CreateProduct, DelProduct, GetProductLst } from "@/api/productApi"
+import { formatDateDisplayDDMMYY } from "@/helpers/getTime"
+
 export default {
   data() {
     return {
@@ -266,51 +294,55 @@ export default {
       idCreateProduct: "",
       isDeleteDialog: false,
       productToDelete: null,
-    };
+    }
   },
   watch: {
     pageSize(value) {
-      this.getProductLst();
+      this.getProductLst()
     },
     currentPage(value) {
-      this.getProductLst();
+      this.getProductLst()
     },
     "newProduct.Country"(value) {
       this.newProduct.Area = this.areaLst.find(
-        (p) => p.ValueName == value,
-      ).ValueName2;
+        p => p.ValueName == value,
+      ).ValueName2
     },
+  },
+  created() {
+    this.getProductLst()
+    this.getDefaultValue2()
   },
   methods: {
     async getDefaultValue(table) {
       const res = await GetDefaultValue({
         Table: table,
-      });
+      })
 
       if (res.RespCode == 0) {
-        return res.DefaultValueLst.map((item) => ({
+        return res.DefaultValueLst.map(item => ({
           ...item,
           value: item.ValueName,
           text: item.ValueName,
-        }));
+        }))
       }
 
-      return [];
+      return []
     },
     btShowInfo(data) {
-      this.$router.push("/thong-tin-san-pham/" + data.ProductID);
+      this.$router.push("/thong-tin-san-pham/" + data.ProductID)
     },
     async createProduct() {
       try {
         // 1️⃣ Lấy giá trị "Quốc gia"
         const country = this.newProduct.FormLineLst.find(
-          (p) => p.Parameter === "Quốc gia",
-        )?.TextResult;
+          p => p.Parameter === "Quốc gia",
+        )?.TextResult
 
         // 2️⃣ Gọi GetDefaultValue và chờ kết quả
         const resDefault = await GetDefaultValue({
           Table: `${country}|Khu vực`,
-        });
+        })
 
         // 3️⃣ Nếu có data thì gán vào "Khu vực"
         if (
@@ -318,10 +350,11 @@ export default {
           resDefault.DefaultValueLst.length > 0
         ) {
           const areaField = this.newProduct.FormLineLst.find(
-            (p) => p.Parameter === "Khu vực",
-          );
+            p => p.Parameter === "Khu vực",
+          )
+
           if (areaField) {
-            areaField.TextResult = resDefault.DefaultValueLst[0].ValueName2;
+            areaField.TextResult = resDefault.DefaultValueLst[0].ValueName2
           }
         }
 
@@ -329,136 +362,140 @@ export default {
         const productData = {
           ...this.newProduct,
           ProductName: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter === "Tên sản phẩm",
+            p => p.Parameter === "Tên sản phẩm",
           )?.TextResult,
           ProductExport: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter === "Tên xuất khẩu",
+            p => p.Parameter === "Tên xuất khẩu",
           )?.TextResult,
           Country: country,
           StoreType: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter === "Phân loại",
+            p => p.Parameter === "Phân loại",
           )?.TextResult,
           Area: this.newProduct.FormLineLst.find(
-            (p) => p.Parameter === "Khu vực",
+            p => p.Parameter === "Khu vực",
           )?.TextResult,
-        };
+        }
 
         // 5️⃣ Chờ CreateProduct hoàn thành
-        const res = await CreateProduct({ Data: productData });
+        const res = await CreateProduct({ Data: productData })
 
         // 6️⃣ Xử lý kết quả
         if (res.RespCode === 0) {
-          notify({ title: "Thành công", type: "success" });
+          notify({ title: "Thành công", type: "success" })
 
-          this.newProduct.ReferenceID = res.Data;
-          this.updateDocumentForm(this.newProduct);
-          this.newProduct.IsContinue = null;
-          this.getProductLst();
+          this.newProduct.ReferenceID = res.Data
+          this.updateDocumentForm(this.newProduct)
+          this.newProduct.IsContinue = null
+          this.getProductLst()
         } else if (res.RespCode === 2) {
-          this.newProduct.IsContinue = 1;
+          this.newProduct.IsContinue = 1
         } else {
-          notify({ title: "Thất bại", text: res.RespText, type: "error" });
+          notify({ title: "Thất bại", text: res.RespText, type: "error" })
         }
       } catch (err) {
-        console.error(err);
+        console.error(err)
         notify({
           title: "Lỗi",
           text: "Không thể tạo sản phẩm",
           type: "error",
-        });
+        })
       }
     },
     delProduct(data) {
       DelProduct({
         ProductID: data.ProductID,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
           notify({
             title: "Thành công",
             type: "success",
-          });
-          this.getProductLst();
+          })
+          this.getProductLst()
         } else {
           notify({
             title: "Thất bại",
             text: res.RespText,
             type: "error",
-          });
+          })
         }
-      });
+      })
     },
     btPage(data) {
-      this.currentPage = data;
+      this.currentPage = data
     },
     btRow(data) {
-      this.pageSize = data;
+      this.pageSize = data
     },
     getProductLst() {
-      this.loadding = true;
+      this.loadding = true
+
       const searchString = [
         this.product,
         this.name2,
         this.country,
         this.area,
         this.storeType,
-      ].join("|");
+      ].join("|")
+
       const requestData = {
         PageNumber: this.currentPage,
         RowspPage: this.pageSize,
         Search: searchString,
-      };
-      GetProductLst(requestData).then((res) => {
+      }
+
+      GetProductLst(requestData).then(res => {
         if (res.RespCode == 0) {
           this.productLst = res.Data.map((item, index) => {
-            var num = this.pageSize * (this.currentPage - 1);
+            var num = this.pageSize * (this.currentPage - 1)
+            
             return {
               ...item,
               Key: index + 1 + num,
               ExpDateShow: formatDateDisplayDDMMYY(item.ExpDate),
-            };
-          });
-          this.totalLength = res.TotalRows;
+            }
+          })
+          this.totalLength = res.TotalRows
         }
-        this.loadding = false;
-      });
+        this.loadding = false
+      })
     },
     getDefaultValue2() {
-      GetDefaultValue({ Table: "Tạo sản phẩm" }).then((res) => {
+      GetDefaultValue({ Table: "Tạo sản phẩm" }).then(res => {
         if (res.RespCode == 0) {
-          this.idCreateProduct = res.DefaultValueLst[0]?.ValueName || "";
+          this.idCreateProduct = res.DefaultValueLst[0]?.ValueName || ""
         }
-      });
+      })
     },
     async openCreateProductDialog() {
-      const res = await GetFormByID({ IDForm: this.idCreateProduct });
+      const res = await GetFormByID({ IDForm: this.idCreateProduct })
       if (res.RespCode == 0) {
-        this.newProduct = res.Data;
+        this.newProduct = res.Data
         if (this.newProduct.TypeForm == 1) {
-          const newLines = [];
+          const newLines = []
           for (const ele of this.newProduct.FormLineLst) {
-            let options = [];
+            let options = []
 
             if (ele.OptionAnswer) {
-              options = JSON.parse(ele.OptionAnswer);
+              options = JSON.parse(ele.OptionAnswer)
             }
 
             if (ele.Type == 3) {
               if (ele.OptionLine == 1) {
-                options = await this.getUserLstByTeamID2(ele.OptionText);
+                options = await this.getUserLstByTeamID2(ele.OptionText)
               }
               if (ele.OptionLine == 2) {
-                options = await this.getDefaultValue(ele.OptionText);
+                options = await this.getDefaultValue(ele.OptionText)
               }
             }
 
             newLines.push({
               ...ele,
               Options: options,
-            });
+            })
           }
-          this.newProduct.FormLineLst = newLines;
+          this.newProduct.FormLineLst = newLines
         }
-        this.isCreateProductDialog = true;
+        this.isCreateProductDialog = true
       }
     },
     async getUserLstByTeamID2(teamID) {
@@ -467,62 +504,65 @@ export default {
         RowspPage: 10000,
         Search: "",
         TeamID: teamID,
-      });
+      })
 
       if (res.RespCode == 0) {
-        return res.Data.map((item) => ({
+        return res.Data.map(item => ({
           ...item,
           value: item.UserName,
           text: item.FullName,
-        }));
+        }))
       }
-      return [];
+      
+      return []
     },
     updateDocumentForm(data) {
-      if (this.isLoadingFile) return;
-      this.isLoadingFile = true;
+      if (this.isLoadingFile) return
+      this.isLoadingFile = true
       var docForm = {
         ...data,
         IDForm: data.IDForm,
         NameForm: data.NameForm,
         Description: data.Description,
         TypeForm: data.TypeForm,
-      };
+      }
 
       if (data.TypeForm == 1) {
-        docForm.DocumentFormLineLst = data.FormLineLst.map((item) => {
+        docForm.DocumentFormLineLst = data.FormLineLst.map(item => {
           if (item.Type == 2 || item.Type == 3) {
-            let textArr = [];
+            let textArr = []
 
             if (Array.isArray(item.TextResult)) {
               // trường hợp TextResult là mảng thật
-              textArr = item.TextResult;
+              textArr = item.TextResult
             } else if (
               typeof item.TextResult === "string" &&
               item.TextResult !== ""
             ) {
               try {
                 // parse string -> array
-                textArr = JSON.parse(item.TextResult);
+                textArr = JSON.parse(item.TextResult)
               } catch (e) {
                 // fallback: tách theo dấu phẩy nếu JSON sai format
-                textArr = item.TextResult.split(",");
+                textArr = item.TextResult.split(",")
               }
             }
+            
             return {
               ...item,
               TextResult: textArr.join(" | "),
-            };
+            }
           } else if (item.Type == 4) {
             return {
               ...item,
               TextResult: item.TextResult ? formatDate(item.TextResult) : null,
-            };
+            }
           } else {
-            return { ...item };
+            return { ...item }
           }
-        });
+        })
       }
+
       // ------------------------------------------------------------------
       // 🔥 CHECK BẮT BUỘC: Nếu IsValue == 1 thì TextResult phải có giá trị
       // ------------------------------------------------------------------
@@ -551,36 +591,32 @@ export default {
       UpdateDocumentForm({
         DocumentFormInfo: docForm,
       })
-        .then((res) => {
-          this.isLoadingFile = false;
+        .then(res => {
+          this.isLoadingFile = false
           if (res.RespCode == 0) {
             notify({
               title: "Thành công",
               text: "Lưu thông tin thành công",
               type: "success",
-            });
-            this.getProductLst();
+            })
+            this.getProductLst()
           }
         })
         .catch(() => {
-          this.isLoadingFile = false;
-        });
+          this.isLoadingFile = false
+        })
     },
     openDeleteDialog(item) {
-      this.productToDelete = item;
-      this.isDeleteDialog = true;
+      this.productToDelete = item
+      this.isDeleteDialog = true
     },
     confirmDelete() {
-      this.delProduct(this.productToDelete);
-      this.isDeleteDialog = false;
-      this.productToDelete = null;
+      this.delProduct(this.productToDelete)
+      this.isDeleteDialog = false
+      this.productToDelete = null
     },
   },
-  created() {
-    this.getProductLst();
-    this.getDefaultValue2();
-  },
-};
+}
 </script>
 
 <style></style>

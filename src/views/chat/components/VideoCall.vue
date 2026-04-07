@@ -1,8 +1,8 @@
 <template>
   <div
     id="video-call-window"
-    class="floating-video"
     ref="videoWindow"
+    class="floating-video"
     :class="{ fullscreen: isFullscreen }"
   >
     <div class="header">
@@ -10,45 +10,49 @@
 
       <div class="video-controls">
         <!-- Chia sẻ màn hình -->
-        <v-tooltip
-          :text="isSharingScreen ? 'Dừng chia sẻ' : 'Chia sẻ màn hình'"
-        >
-          <template v-slot:activator="{ props }">
-            <v-btn
+        <VTooltip :text="isSharingScreen ? 'Dừng chia sẻ' : 'Chia sẻ màn hình'">
+          <template #activator="{ props }">
+            <VBtn
               v-bind="props"
               :icon="isSharingScreen ? 'mdi-radiobox-marked' : 'mdi-monitor'"
               :color="isSharingScreen ? 'red' : 'green'"
-              @click="shareScreen"
               size="x-small"
               class="mr-1"
-            ></v-btn>
+              @click="shareScreen"
+            />
           </template>
-        </v-tooltip>
+        </VTooltip>
 
         <!-- Phóng to / thu nhỏ -->
-        <v-tooltip :text="isFullscreen ? 'Thu nhỏ' : 'Phóng to'">
-          <template v-slot:activator="{ props }">
-            <v-btn
+        <VTooltip :text="isFullscreen ? 'Thu nhỏ' : 'Phóng to'">
+          <template #activator="{ props }">
+            <VBtn
               v-bind="props"
               :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
-              @click="toggleFullscreen"
               size="x-small"
-            ></v-btn>
+              @click="toggleFullscreen"
+            />
           </template>
-        </v-tooltip>
+        </VTooltip>
       </div>
     </div>
 
-    <div class="videos" :class="{ sharing: isSharingScreen }">
+    <div
+      class="videos"
+      :class="{ sharing: isSharingScreen }"
+    >
       <!-- Nếu đang chia sẻ màn hình thì phóng to video màn hình -->
-      <div v-if="isSharingScreen" class="shared-screen">
+      <div
+        v-if="isSharingScreen"
+        class="shared-screen"
+      >
         <video
           ref="localScreen"
           :srcObject="screenStream"
           autoplay
           playsinline
           muted
-        ></video>
+        />
       </div>
 
       <!-- Danh sách user (thu nhỏ khi chia sẻ màn hình) -->
@@ -61,7 +65,7 @@
           autoplay
           muted
           playsinline
-        ></video>
+        />
 
         <!-- Khi chia sẻ màn hình thì video mình cũng vào danh sách nhỏ -->
         <video
@@ -72,7 +76,7 @@
           muted
           playsinline
           class="small"
-        ></video>
+        />
 
         <!-- Video của các user khác -->
         <video
@@ -82,74 +86,73 @@
           autoplay
           playsinline
           :class="isSharingScreen ? 'small' : ''"
-        ></video>
+        />
       </div>
     </div>
 
     <div class="actions">
-      <v-menu
+      <VMenu
         transition="scale-transition"
         location="top"
         :attach="false"
         content-class="menu-fix"
       >
-        <template v-slot:activator="{ props }">
-          <v-btn
+        <template #activator="{ props }">
+          <VBtn
             size="small"
             color="primary"
             v-bind="props"
             icon="mdi-microphone"
-          >
-          </v-btn>
+          />
         </template>
 
-        <v-list style="z-index: 10000000">
-          <v-list-item
+        <VList style="z-index: 10000000">
+          <VListItem
             v-for="(item, i) in microphones"
             :key="i"
             :value="i"
             style="z-index: 10000000"
           >
-            <v-list-item-title>{{ item.label }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+            <VListItemTitle>{{ item.label }}</VListItemTitle>
+          </VListItem>
+        </VList>
+      </VMenu>
       <!-- Bật/Tắt Micro -->
-      <v-tooltip :text="isMicOn ? 'Tắt micro' : 'Bật micro'">
-        <template v-slot:activator="{ props }">
-          <v-btn
+      <VTooltip :text="isMicOn ? 'Tắt micro' : 'Bật micro'">
+        <template #activator="{ props }">
+          <VBtn
             v-bind="props"
             :icon="isMicOn ? 'mdi-microphone' : 'mdi-microphone-off'"
             :color="isMicOn ? 'green' : 'grey'"
             size="small"
             @click="toggleMicrophone"
-          ></v-btn>
+          />
         </template>
-      </v-tooltip>
+      </VTooltip>
 
-      <v-tooltip :text="isCamOn ? 'Tắt camera' : 'Bật camera'">
-        <template v-slot:activator="{ props }">
-          <v-btn
+      <VTooltip :text="isCamOn ? 'Tắt camera' : 'Bật camera'">
+        <template #activator="{ props }">
+          <VBtn
             v-bind="props"
             :icon="isCamOn ? 'mdi-video' : 'mdi-video-off'"
             :color="isCamOn ? 'green' : 'grey'"
             size="small"
             @click="toggleCamera"
-          ></v-btn>
+          />
         </template>
-      </v-tooltip>
-      <v-btn
+      </VTooltip>
+      <VBtn
         icon="mdi-phone-hangup"
         color="red"
         size="small"
         @click="handleCloseCall"
-      ></v-btn>
+      />
     </div>
   </div>
 </template>
 
 <script>
-import interact from "interactjs";
+import interact from "interactjs"
 
 export default {
   props: ["targetUserId", "currentUserId"],
@@ -165,66 +168,69 @@ export default {
       selectedMicId: null,
       isMicOn: true,
       isCamOn: true,
-    };
+    }
   },
   async mounted() {
-    await this.startCamera();
-    await this.loadMicrophones();
-    this.enableDragAndResize();
+    await this.startCamera()
+    await this.loadMicrophones()
+    this.enableDragAndResize()
   },
   methods: {
     /* -------------------- 🎤 BẬT / TẮT MICRO -------------------- */
     toggleMicrophone() {
-      if (!this.localStream) return;
-      const audioTrack = this.localStream.getAudioTracks()[0];
+      if (!this.localStream) return
+      const audioTrack = this.localStream.getAudioTracks()[0]
       if (audioTrack) {
-        this.isMicOn = !this.isMicOn;
-        audioTrack.enabled = this.isMicOn;
+        this.isMicOn = !this.isMicOn
+        audioTrack.enabled = this.isMicOn
       }
     },
 
     /* -------------------- 🎦 BẬT / TẮT CAMERA -------------------- */
     toggleCamera() {
-      if (!this.localStream) return;
-      const videoTrack = this.localStream.getVideoTracks()[0];
+      if (!this.localStream) return
+      const videoTrack = this.localStream.getVideoTracks()[0]
       if (videoTrack) {
-        this.isCamOn = !this.isCamOn;
-        videoTrack.enabled = this.isCamOn;
+        this.isCamOn = !this.isCamOn
+        videoTrack.enabled = this.isCamOn
       }
     },
+
     /* -------------------- 🧠 DI CHUYỂN & PHÓNG TO -------------------- */
     enableDragAndResize() {
-      const target = this.$refs.videoWindow;
-      target.style.position = "fixed";
-      target.style.left = "calc(50% - 200px)";
-      target.style.top = "calc(50% - 150px)";
+      const target = this.$refs.videoWindow
 
-      const defaultWidth = 400;
-      const defaultHeight = 300;
-      if (!target.style.width) target.style.width = `${defaultWidth}px`;
-      if (!target.style.height) target.style.height = `${defaultHeight}px`;
+      target.style.position = "fixed"
+      target.style.left = "calc(50% - 200px)"
+      target.style.top = "calc(50% - 150px)"
+
+      const defaultWidth = 400
+      const defaultHeight = 300
+      if (!target.style.width) target.style.width = `${defaultWidth}px`
+      if (!target.style.height) target.style.height = `${defaultHeight}px`
 
       interact(target)
         .draggable({
           inertia: true,
           listeners: {
             start() {
-              document.body.classList.add("dragging");
+              document.body.classList.add("dragging")
               if (!target.dataset.x) {
-                target.dataset.x = 20;
-                target.dataset.y = 20;
+                target.dataset.x = 20
+                target.dataset.y = 20
               }
             },
             move(event) {
-              if (target.classList.contains("fullscreen")) return;
-              const x = (parseFloat(target.dataset.x) || 0) + event.dx;
-              const y = (parseFloat(target.dataset.y) || 0) + event.dy;
-              target.style.transform = `translate(${x}px, ${y}px)`;
-              target.dataset.x = x;
-              target.dataset.y = y;
+              if (target.classList.contains("fullscreen")) return
+              const x = (parseFloat(target.dataset.x) || 0) + event.dx
+              const y = (parseFloat(target.dataset.y) || 0) + event.dy
+
+              target.style.transform = `translate(${x}px, ${y}px)`
+              target.dataset.x = x
+              target.dataset.y = y
             },
             end() {
-              document.body.classList.remove("dragging");
+              document.body.classList.remove("dragging")
             },
           },
         })
@@ -239,19 +245,19 @@ export default {
           ],
           listeners: {
             move(event) {
-              if (target.classList.contains("fullscreen")) return;
-              let x = parseFloat(target.dataset.x) || 0;
-              let y = parseFloat(target.dataset.y) || 0;
-              target.style.width = `${event.rect.width}px`;
-              target.style.height = `${event.rect.height}px`;
-              x += event.deltaRect.left;
-              y += event.deltaRect.top;
-              target.style.transform = `translate(${x}px, ${y}px)`;
-              target.dataset.x = x;
-              target.dataset.y = y;
+              if (target.classList.contains("fullscreen")) return
+              let x = parseFloat(target.dataset.x) || 0
+              let y = parseFloat(target.dataset.y) || 0
+              target.style.width = `${event.rect.width}px`
+              target.style.height = `${event.rect.height}px`
+              x += event.deltaRect.left
+              y += event.deltaRect.top
+              target.style.transform = `translate(${x}px, ${y}px)`
+              target.dataset.x = x
+              target.dataset.y = y
             },
           },
-        });
+        })
     },
 
     /* -------------------- 🎥 CAMERA & MICRO -------------------- */
@@ -259,50 +265,53 @@ export default {
       this.localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
-      });
-      this.$refs.localVideo.srcObject = this.localStream;
+      })
+      this.$refs.localVideo.srcObject = this.localStream
     },
 
     async loadMicrophones() {
       try {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        const devices = await navigator.mediaDevices.enumerateDevices();
+        await navigator.mediaDevices.getUserMedia({ audio: true })
+
+        const devices = await navigator.mediaDevices.enumerateDevices()
+
         this.microphones = devices
-          .filter((d) => d.kind === "audioinput")
-          .map((d) => ({
+          .filter(d => d.kind === "audioinput")
+          .map(d => ({
             label: d.label || `Micro ${d.deviceId.slice(0, 5)}`,
             deviceId: d.deviceId,
-          }));
+          }))
 
         if (this.microphones.length > 0 && !this.selectedMicId)
-          this.selectedMicId = this.microphones[0].deviceId;
+          this.selectedMicId = this.microphones[0].deviceId
       } catch (err) {
-        console.error("Không thể lấy danh sách micro:", err);
+        console.error("Không thể lấy danh sách micro:", err)
       }
     },
 
     async changeMicrophone() {
       try {
-        if (!this.selectedMicId) return;
+        if (!this.selectedMicId) return
+
         const newStream = await navigator.mediaDevices.getUserMedia({
           audio: { deviceId: { exact: this.selectedMicId } },
-        });
+        })
 
-        const newTrack = newStream.getAudioTracks()[0];
-        const oldTrack = this.localStream?.getAudioTracks()[0];
-        if (oldTrack) oldTrack.stop();
+        const newTrack = newStream.getAudioTracks()[0]
+        const oldTrack = this.localStream?.getAudioTracks()[0]
+        if (oldTrack) oldTrack.stop()
 
-        this.localStream.removeTrack(oldTrack);
-        this.localStream.addTrack(newTrack);
+        this.localStream.removeTrack(oldTrack)
+        this.localStream.addTrack(newTrack)
 
-        Object.values(this.peerConnections).forEach((pc) => {
-          const sender = pc.getSenders().find((s) => s.track?.kind === "audio");
-          if (sender) sender.replaceTrack(newTrack);
-        });
+        Object.values(this.peerConnections).forEach(pc => {
+          const sender = pc.getSenders().find(s => s.track?.kind === "audio")
+          if (sender) sender.replaceTrack(newTrack)
+        })
 
-        console.log("🎙️ Đã chuyển sang micro:", newTrack.label);
+        console.log("🎙️ Đã chuyển sang micro:", newTrack.label)
       } catch (err) {
-        console.error("Lỗi khi đổi micro:", err);
+        console.error("Lỗi khi đổi micro:", err)
       }
     },
 
@@ -313,148 +322,155 @@ export default {
           const screenStream = await navigator.mediaDevices.getDisplayMedia({
             video: { cursor: "always" },
             audio: false,
-          });
+          })
 
-          this.screenStream = screenStream;
-          this.isSharingScreen = true;
+          this.screenStream = screenStream
+          this.isSharingScreen = true
 
-          const screenTrack = screenStream.getVideoTracks()[0];
-          Object.values(this.peerConnections).forEach((pc) => {
+          const screenTrack = screenStream.getVideoTracks()[0]
+
+          Object.values(this.peerConnections).forEach(pc => {
             const sender = pc
               .getSenders()
-              .find((s) => s.track?.kind === "video");
-            if (sender) sender.replaceTrack(screenTrack);
-          });
+              .find(s => s.track?.kind === "video")
 
-          screenTrack.onended = () => this.stopShareScreen();
-          screenTrack.oninactive = () => this.stopShareScreen();
+            if (sender) sender.replaceTrack(screenTrack)
+          })
+
+          screenTrack.onended = () => this.stopShareScreen()
+          screenTrack.oninactive = () => this.stopShareScreen()
         } else {
-          this.stopShareScreen();
+          this.stopShareScreen()
         }
       } catch (err) {
-        console.error("Lỗi chia sẻ màn hình:", err);
+        console.error("Lỗi chia sẻ màn hình:", err)
       }
     },
 
     stopShareScreen() {
-      if (!this.isSharingScreen) return;
-      this.isSharingScreen = false;
+      if (!this.isSharingScreen) return
+      this.isSharingScreen = false
       if (this.screenStream) {
-        this.screenStream.getTracks().forEach((t) => t.stop());
-        this.screenStream = null;
+        this.screenStream.getTracks().forEach(t => t.stop())
+        this.screenStream = null
       }
 
-      const localVideoTrack = this.localStream?.getVideoTracks()[0];
-      if (!localVideoTrack) return this.restartCamera();
+      const localVideoTrack = this.localStream?.getVideoTracks()[0]
+      if (!localVideoTrack) return this.restartCamera()
 
-      Object.values(this.peerConnections).forEach((pc) => {
-        const sender = pc.getSenders().find((s) => s.track?.kind === "video");
-        if (sender) sender.replaceTrack(localVideoTrack);
-      });
+      Object.values(this.peerConnections).forEach(pc => {
+        const sender = pc.getSenders().find(s => s.track?.kind === "video")
+        if (sender) sender.replaceTrack(localVideoTrack)
+      })
     },
 
     async restartCamera() {
       this.localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
-      });
-      const videoTrack = this.localStream.getVideoTracks()[0];
-      Object.values(this.peerConnections).forEach((pc) => {
-        const sender = pc.getSenders().find((s) => s.track?.kind === "video");
-        if (sender) sender.replaceTrack(videoTrack);
-      });
+      })
+
+      const videoTrack = this.localStream.getVideoTracks()[0]
+
+      Object.values(this.peerConnections).forEach(pc => {
+        const sender = pc.getSenders().find(s => s.track?.kind === "video")
+        if (sender) sender.replaceTrack(videoTrack)
+      })
     },
 
     /* -------------------- 🔲 PHÓNG TO / THU NHỎ -------------------- */
     toggleFullscreen() {
-      const target = this.$refs.videoWindow;
-      this.isFullscreen = !this.isFullscreen;
+      const target = this.$refs.videoWindow
+
+      this.isFullscreen = !this.isFullscreen
 
       if (this.isFullscreen) {
-        target.classList.add("fullscreen");
-        target.style.transform = "none";
-        target.removeAttribute("data-x");
-        target.removeAttribute("data-y");
+        target.classList.add("fullscreen")
+        target.style.transform = "none"
+        target.removeAttribute("data-x")
+        target.removeAttribute("data-y")
       } else {
-        target.classList.remove("fullscreen");
-        target.style.width = "400px";
-        target.style.height = "300px";
+        target.classList.remove("fullscreen")
+        target.style.width = "400px"
+        target.style.height = "300px"
       }
     },
 
     async cleanupCall() {
       try {
-        console.log("🧹 Dọn toàn bộ tài nguyên cuộc gọi...");
+        console.log("🧹 Dọn toàn bộ tài nguyên cuộc gọi...")
 
         // 1️⃣ Dừng tất cả track trong localStream (mic + cam)
         if (this.localStream) {
-          this.localStream.getTracks().forEach((track) => {
-            track.stop();
-            this.localStream.removeTrack(track);
-          });
-          this.localStream = null;
+          this.localStream.getTracks().forEach(track => {
+            track.stop()
+            this.localStream.removeTrack(track)
+          })
+          this.localStream = null
         }
 
         // 2️⃣ Dừng tất cả track chia sẻ màn hình
         if (this.screenStream) {
-          this.screenStream.getTracks().forEach((track) => {
-            track.stop();
-            this.screenStream.removeTrack(track);
-          });
-          this.screenStream = null;
+          this.screenStream.getTracks().forEach(track => {
+            track.stop()
+            this.screenStream.removeTrack(track)
+          })
+          this.screenStream = null
         }
 
         // 3️⃣ Gỡ mọi track khỏi các PeerConnection trước khi đóng
-        Object.values(this.peerConnections).forEach((pc) => {
+        Object.values(this.peerConnections).forEach(pc => {
           try {
-            pc.getSenders().forEach((sender) => {
+            pc.getSenders().forEach(sender => {
               try {
-                if (sender.track) pc.removeTrack(sender);
+                if (sender.track) pc.removeTrack(sender)
               } catch (e) {}
-            });
-            pc.close();
+            })
+            pc.close()
           } catch (e) {
-            console.warn("Lỗi đóng peer:", e);
+            console.warn("Lỗi đóng peer:", e)
           }
-        });
-        this.peerConnections = {};
+        })
+        this.peerConnections = {}
 
         // 4️⃣ Ngắt toàn bộ video element (ngăn Chrome giữ kết nối)
         if (this.$refs.localVideo) {
-          this.$refs.localVideo.pause();
-          this.$refs.localVideo.srcObject = null;
+          this.$refs.localVideo.pause()
+          this.$refs.localVideo.srcObject = null
         }
         if (this.$refs.localScreen) {
-          this.$refs.localScreen.pause();
-          this.$refs.localScreen.srcObject = null;
+          this.$refs.localScreen.pause()
+          this.$refs.localScreen.srcObject = null
         }
-        const vids = document.querySelectorAll("video");
-        vids.forEach((v) => {
-          v.pause();
-          v.srcObject = null;
-        });
+        const vids = document.querySelectorAll("video")
+
+        vids.forEach(v => {
+          v.pause()
+          v.srcObject = null
+        })
 
         // 5️⃣ Hủy quyền truy cập để Chrome tắt biểu tượng sớm
         await navigator.mediaDevices
           .getUserMedia({ audio: false, video: false })
-          .catch(() => {});
-        await navigator.mediaDevices.enumerateDevices(); // ép Chrome refresh trạng thái
+          .catch(() => {})
+        await navigator.mediaDevices.enumerateDevices() // ép Chrome refresh trạng thái
 
-        this.isSharingScreen = false;
-        this.isFullscreen = false;
+        this.isSharingScreen = false
+        this.isFullscreen = false
 
-        console.log("✅ Đã cleanup hoàn toàn media và peer");
+        console.log("✅ Đã cleanup hoàn toàn media và peer")
       } catch (err) {
-        console.error("❌ Lỗi cleanupCall:", err);
+        console.error("❌ Lỗi cleanupCall:", err)
       }
     },
     handleCloseCall() {
-      this.cleanupCall();
-      this.$emit("closeCall"); // Gửi sự kiện ra ngoài nếu cần đóng UI
+      this.cleanupCall()
+      this.$emit("closeCall") // Gửi sự kiện ra ngoài nếu cần đóng UI
     },
   },
-};
+}
 </script>
+
 <style lang="scss">
 .menu-fix {
   //   position: absolute !important;

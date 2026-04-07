@@ -1,37 +1,40 @@
-import { hexToRgb } from "@layouts/utils";
+import { hexToRgb } from "@layouts/utils"
 
 // 👉 Colors variables
-const colorVariables = (themeColors) => {
+const colorVariables = themeColors => {
   const themeSecondaryTextColor = `rgba(${hexToRgb(
-    themeColors.colors["on-surface"]
-  )},${themeColors.variables["medium-emphasis-opacity"]})`;
+    themeColors.colors["on-surface"],
+  )},${themeColors.variables["medium-emphasis-opacity"]})`
+
   const themeDisabledTextColor = `rgba(${hexToRgb(
-    themeColors.colors["on-surface"]
-  )},${themeColors.variables["disabled-opacity"]})`;
+    themeColors.colors["on-surface"],
+  )},${themeColors.variables["disabled-opacity"]})`
+
   const themeBorderColor = `rgba(${hexToRgb(
-    String(themeColors.variables["border-color"])
-  )},${themeColors.variables["border-opacity"]})`;
+    String(themeColors.variables["border-color"]),
+  )},${themeColors.variables["border-opacity"]})`
+
   const themePrimaryTextColor = `rgba(${hexToRgb(
-    themeColors.colors["on-surface"]
-  )},${themeColors.variables["high-emphasis-opacity"]})`;
+    themeColors.colors["on-surface"],
+  )},${themeColors.variables["high-emphasis-opacity"]})`
 
   return {
     themeSecondaryTextColor,
     themeDisabledTextColor,
     themeBorderColor,
     themePrimaryTextColor,
-  };
-};
+  }
+}
 
-export const getScatterChartConfig = (themeColors) => {
+export const getScatterChartConfig = themeColors => {
   const scatterColors = {
     series1: "#ff9f43",
     series2: "#7367f0",
     series3: "#28c76f",
-  };
+  }
 
   const { themeSecondaryTextColor, themeBorderColor, themeDisabledTextColor } =
-    colorVariables(themeColors);
+    colorVariables(themeColors)
 
   return {
     chart: {
@@ -77,14 +80,14 @@ export const getScatterChartConfig = (themeColors) => {
       },
       labels: {
         style: { colors: themeDisabledTextColor },
-        formatter: (val) => parseFloat(val).toFixed(1),
+        formatter: val => parseFloat(val).toFixed(1),
       },
     },
-  };
-};
-export const getLineChartSimpleConfig = (themeColors) => {
+  }
+}
+export const getLineChartSimpleConfig = themeColors => {
   const { themeBorderColor, themeDisabledTextColor } =
-    colorVariables(themeColors);
+    colorVariables(themeColors)
 
   return {
     chart: {
@@ -112,7 +115,7 @@ export const getLineChartSimpleConfig = (themeColors) => {
       custom(data) {
         return `<div class='bar-chart pa-2'>
           <span>${data.series[data.seriesIndex][data.dataPointIndex]}%</span>
-        </div>`;
+        </div>`
       },
     },
     yaxis: {
@@ -147,11 +150,11 @@ export const getLineChartSimpleConfig = (themeColors) => {
         "21/12",
       ],
     },
-  };
-};
-export const getBarChartConfig = (themeColors) => {
+  }
+}
+export const getBarChartConfig = themeColors => {
   const { themeBorderColor, themeDisabledTextColor } =
-    colorVariables(themeColors);
+    colorVariables(themeColors)
 
   return {
     chart: {
@@ -198,16 +201,16 @@ export const getBarChartConfig = (themeColors) => {
         style: { colors: themeDisabledTextColor },
       },
     },
-  };
-};
-export const getCandlestickChartConfig = (themeColors) => {
+  }
+}
+export const getCandlestickChartConfig = themeColors => {
   const candlestickColors = {
     series1: "#28c76f",
     series2: "#ea5455",
-  };
+  }
 
   const { themeBorderColor, themeDisabledTextColor } =
-    colorVariables(themeColors);
+    colorVariables(themeColors)
 
   return {
     chart: {
@@ -250,19 +253,19 @@ export const getCandlestickChartConfig = (themeColors) => {
         style: { colors: themeDisabledTextColor },
       },
     },
-  };
-};
-export const getRadialBarChartConfig = (themeColors) => {
+  }
+}
+export const getRadialBarChartConfig = themeColors => {
   const radialBarColors = {
     series1: "#fdd835",
     series2: "#32baff",
     series3: "#00d4bd",
     series4: "#7367f0",
     series5: "#FFA1A1",
-  };
+  }
 
   const { themeSecondaryTextColor, themePrimaryTextColor } =
-    colorVariables(themeColors);
+    colorVariables(themeColors)
 
   return {
     stroke: { lineCap: "round" },
@@ -310,11 +313,11 @@ export const getRadialBarChartConfig = (themeColors) => {
             formatter(w) {
               const totalValue =
                 w.globals.seriesTotals.reduce((a, b) => {
-                  return a + b;
-                }, 0) / w.globals.series.length;
+                  return a + b
+                }, 0) / w.globals.series.length
 
-              if (totalValue % 1 === 0) return `${totalValue}%`;
-              else return `${totalValue.toFixed(2)}%`;
+              if (totalValue % 1 === 0) return `${totalValue}%`
+              else return `${totalValue.toFixed(2)}%`
             },
           },
         },
@@ -326,19 +329,19 @@ export const getRadialBarChartConfig = (themeColors) => {
         bottom: -25,
       },
     },
-  };
-};
-export const getDonutChartConfig = (themeColors) => {
+  }
+}
+export const getDonutChartConfig = themeColors => {
   const donutColors = {
     series1: "#fdd835",
     series2: "#00d4bd",
     series3: "#826bf8",
     series4: "#32baff",
     series5: "#ffa1a1",
-  };
+  }
 
   const { themeSecondaryTextColor, themePrimaryTextColor } =
-    colorVariables(themeColors);
+    colorVariables(themeColors)
 
   return {
     stroke: { width: 0 },
@@ -351,7 +354,7 @@ export const getDonutChartConfig = (themeColors) => {
     ],
     dataLabels: {
       enabled: true,
-      formatter: (val) => `${parseInt(val, 10)}%`,
+      formatter: val => `${parseInt(val, 10)}%`,
     },
     legend: {
       position: "bottom",
@@ -373,7 +376,7 @@ export const getDonutChartConfig = (themeColors) => {
             value: {
               fontSize: "1.5rem",
               color: themeSecondaryTextColor,
-              formatter: (val) => `${parseInt(val, 10)}`,
+              formatter: val => `${parseInt(val, 10)}`,
             },
             total: {
               show: true,
@@ -425,17 +428,17 @@ export const getDonutChartConfig = (themeColors) => {
         },
       },
     ],
-  };
-};
-export const getAreaChartSplineConfig = (themeColors) => {
+  }
+}
+export const getAreaChartSplineConfig = themeColors => {
   const areaColors = {
     series3: "#e0cffe",
     series2: "#b992fe",
     series1: "#ab7efd",
-  };
+  }
 
   const { themeSecondaryTextColor, themeBorderColor, themeDisabledTextColor } =
-    colorVariables(themeColors);
+    colorVariables(themeColors)
 
   return {
     chart: {
@@ -503,17 +506,17 @@ export const getAreaChartSplineConfig = (themeColors) => {
         "19/12",
       ],
     },
-  };
-};
-export const getColumnChartConfig = (themeColors) => {
+  }
+}
+export const getColumnChartConfig = themeColors => {
   const columnColors = {
     series1: "#826af9",
     series2: "#d2b0ff",
     bg: "#f8d3ff",
-  };
+  }
 
   const { themeSecondaryTextColor, themeBorderColor, themeDisabledTextColor } =
-    colorVariables(themeColors);
+    colorVariables(themeColors)
 
   return {
     chart: {
@@ -601,11 +604,11 @@ export const getColumnChartConfig = (themeColors) => {
         },
       },
     ],
-  };
-};
-export const getHeatMapChartConfig = (themeColors) => {
+  }
+}
+export const getHeatMapChartConfig = themeColors => {
   const { themeSecondaryTextColor, themeDisabledTextColor } =
-    colorVariables(themeColors);
+    colorVariables(themeColors)
 
   return {
     chart: {
@@ -660,16 +663,16 @@ export const getHeatMapChartConfig = (themeColors) => {
       axisTicks: { show: false },
       axisBorder: { show: false },
     },
-  };
-};
-export const getRadarChartConfig = (themeColors) => {
+  }
+}
+export const getRadarChartConfig = themeColors => {
   const radarColors = {
     series1: "#9b88fa",
     series2: "#ffa1a1",
-  };
+  }
 
   const { themeSecondaryTextColor, themeBorderColor, themeDisabledTextColor } =
-    colorVariables(themeColors);
+    colorVariables(themeColors)
 
   return {
     chart: {
@@ -744,5 +747,5 @@ export const getRadarChartConfig = (themeColors) => {
         },
       },
     },
-  };
-};
+  }
+}

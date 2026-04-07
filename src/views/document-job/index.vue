@@ -1,10 +1,8 @@
 <template>
-  <v-card class="pt-2">
-    <v-data-table-server
+  <VCard class="pt-2">
+    <VDataTableServer
       :items-per-page="rowspPage"
       :items-length="totalLength"
-      @update:itemsPerPage="btRow"
-      @update:page="btPage"
       no-data-text="Không có dữ liệu"
       :headers="headers"
       :items="jobLst"
@@ -12,7 +10,9 @@
       height="calc(100vh - 270px)"
       items-per-page-text="Số dòng 1 trang"
       sort-asc-icon="mdi-menu-up"
+      @update:itemsPerPage="btRow"
       sort-desc-icon="mdi-menu-down"
+      @update:page="btPage"
       :items-per-page-options="[
         { value: 10, title: '10' },
         { value: 50, title: '50' },
@@ -22,22 +22,21 @@
       fixed-header=""
       :loading="loadding"
     >
-      <template v-slot:top>
+      <template #top>
         <div class="d-flex flex-wrap gap-2 px-2">
           <span>
-            <v-menu :close-on-content-click="false">
-              <template v-slot:activator="{ props }">
-                <v-btn
+            <VMenu :close-on-content-click="false">
+              <template #activator="{ props }">
+                <VBtn
                   color="blue"
                   size="small"
                   icon=" mdi-filter"
                   v-bind="props"
-                >
-                </v-btn>
+                />
               </template>
-              <v-list>
-                <v-list-item>
-                  <v-text-field
+              <VList>
+                <VListItem>
+                  <VTextField
                     v-model="proName"
                     label="Hồ sơ"
                     hide-details
@@ -45,9 +44,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="workName"
                     label="Công việc"
                     hide-details
@@ -55,9 +54,9 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
+                  />
 
-                  <v-text-field
+                  <VTextField
                     v-model="note"
                     label="Ghi chú"
                     hide-details
@@ -65,8 +64,8 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="pt-2"
-                  ></v-text-field>
-                  <v-text-field
+                  />
+                  <VTextField
                     v-model="employeeName"
                     label="Nhân viên"
                     hide-details
@@ -74,57 +73,62 @@
                     prepend-inner-icon="mdi-magnify"
                     clearable
                     class="py-2"
-                  ></v-text-field>
-                  <V-DateField
+                  />
+                  <VDateField
                     v-model:modelValue="timeOver"
                     label="Thời gian"
                     width="100%"
                   />
-                  <v-select
-                    class="pt-2"
+                  <VSelect
                     v-model="workOver"
+                    class="pt-2"
                     label="Tình trạng"
                     density="compact"
                     :items="workOverLst"
                     item-value="value"
                     item-title="value"
-                  ></v-select>
-                  <v-btn block class="rounded mt-2" @click="getDocumentJobByEm"
-                    >Tìm kiếm</v-btn
-                  >
-                </v-list-item>
-              </v-list>
-            </v-menu>
+                  />
+                  <VBtn
+                    block
+                    class="rounded mt-2"
+                    @click="getDocumentJobByEm"
+                  >Tìm kiếm</VBtn>
+                </VListItem>
+              </VList>
+            </VMenu>
           </span>
-          <v-btn
+          <VBtn
             color="green"
             variant="tonal"
             icon="mdi-reload"
             size="small"
             @click="getDocumentJobByEm"
-          ></v-btn>
+          />
         </div>
       </template>
-      <template v-slot:item.Status="{ item }">
-        <v-chip :color="getStatus(item.Status).color" size="x-small">
-          {{ getStatus(item.Status).text }}</v-chip
+      <template #item.Status="{ item }">
+        <VChip
+          :color="getStatus(item.Status).color"
+          size="x-small"
         >
+          {{ getStatus(item.Status).text }}
+        </VChip>
         <div style="font-size: 12px">
           {{ item.FullName }}
         </div>
       </template>
 
-      <template v-slot:item.Key="{ item }">
-        <v-btn
+      <template #item.Key="{ item }">
+        <VBtn
           color="orange"
           class="me-2"
           size="x-small"
           style="cursor: pointer"
-          @click="btPushToDocinfo(item)"
           icon="mdi-note-edit"
-        ></v-btn>
+          @click="btPushToDocinfo(item)"
+        />
       </template>
-      <template v-slot:item.Time="{ item }">
+      <template #item.Time="{ item }">
         <div style="color: green">
           {{ item.TimeStartShow }}
         </div>
@@ -132,7 +136,7 @@
           {{ item.TimeEndShow }}
         </div>
       </template>
-      <template v-slot:item.ProcedureName="{ item }">
+      <template #item.ProcedureName="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.Key }}. {{ item.ProcedureName }}
         </div>
@@ -140,45 +144,45 @@
           <span style="color: blue">{{ item.DocumentID }}</span>
         </div>
       </template>
-      <template v-slot:item.StepName="{ item }">
+      <template #item.StepName="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.StepName }}
         </div>
       </template>
-      <template v-slot:item.JobName="{ item }">
+      <template #item.JobName="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.JobName }}
         </div>
         <div style="font-size: 12px">
           <span style="color: blue">{{ item.RowID }}</span>
-          <v-tooltip interactive>
-            <template v-slot:activator="{ props: activatorProps }">
-              <v-btn
+          <VTooltip interactive>
+            <template #activator="{ props: activatorProps }">
+              <VBtn
                 size="mini"
                 icon="mdi-information-outline"
                 v-bind="activatorProps"
                 color="info"
-              ></v-btn>
+              />
             </template>
             <div>
               <a class="text-info font-weight-medium"> Người giao </a>
               {{ item.AssignName }}
             </div>
-          </v-tooltip>
+          </VTooltip>
         </div>
       </template>
-      <template v-slot:item.Note="{ item }">
+      <template #item.Note="{ item }">
         <div :class="itemRowBackground(item)">
           {{ item.Note }}
         </div>
       </template>
-    </v-data-table-server>
-  </v-card>
+    </VDataTableServer>
+  </VCard>
 </template>
 
 <script>
-import { GetDocumentJobByEm } from "@/api/documentJobApi";
-import { formatDate, formatDateDisplayDDMMYY } from "@/helpers/getTime";
+import { GetDocumentJobByEm } from "@/api/documentJobApi"
+import { formatDate, formatDateDisplayDDMMYY } from "@/helpers/getTime"
 
 export default {
   data() {
@@ -236,58 +240,65 @@ export default {
       employeeName: "",
       inputSearch: "",
       timeOver: "",
-    };
+    }
   },
   watch: {
     search() {
-      this.getDocumentJobByEm();
+      this.getDocumentJobByEm()
     },
     pageNumber() {
-      this.getDocumentJobByEm();
+      this.getDocumentJobByEm()
     },
     rowspPage() {
-      this.getDocumentJobByEm();
+      this.getDocumentJobByEm()
     },
+  },
+  created() {
+    this.getDocumentJobByEm()
   },
   methods: {
     itemRowBackground(item) {
-      const endDate = new Date(item.TimeEnd);
-      endDate.setHours(0, 0, 0, 0);
+      const endDate = new Date(item.TimeEnd)
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      endDate.setHours(0, 0, 0, 0)
+
+      const today = new Date()
+
+      today.setHours(0, 0, 0, 0)
 
       if (endDate.getTime() < today.getTime()) {
-        return "wilExpired365";
+        return "wilExpired365"
       }
-      return "";
+      
+      return ""
     },
     btPushToDocinfo(data) {
-      this.$router.push("/thong-tin-cong-viec/" + data.RowID);
+      this.$router.push("/thong-tin-cong-viec/" + data.RowID)
     },
     btPage(data) {
-      this.pageNumber = data;
+      this.pageNumber = data
     },
     btRow(data) {
-      this.rowspPage = data;
+      this.rowspPage = data
     },
     getStatus(status) {
       if (status == 0) {
-        return { text: "Hủy", color: "error" };
+        return { text: "Hủy", color: "error" }
       }
 
       if (status == 1 || status == 2) {
-        return { text: "Đang làm", color: "blue" };
+        return { text: "Đang làm", color: "blue" }
       }
       if (status == 3) {
-        return { text: "Đã báo cáo", color: "blue" };
+        return { text: "Đã báo cáo", color: "blue" }
       }
       if (status == 4) {
-        return { text: "Hoàn thành", color: "green" };
+        return { text: "Hoàn thành", color: "green" }
       }
     },
     getDocumentJobByEm() {
-      this.loadding = true;
+      this.loadding = true
+
       const searchParams = {
         proName: this.proName,
         workName: this.workName,
@@ -295,11 +306,12 @@ export default {
         employeeName: this.employeeName,
         workOver: this.workOver,
         timeOver: this.timeOver,
-      };
+      }
+
       this.$router.push({
         path: this.$route.path,
         query: searchParams, // Chuyển đổi searchParams thành đối tượng
-      });
+      })
       GetDocumentJobByEm({
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
@@ -316,30 +328,28 @@ export default {
           (this.workOver ?? "") +
           "||||" +
           (this.timeOver ? formatDate(this.timeOver) : ""),
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
           this.jobLst = res.DocumentJobLst.map((item, index) => {
-            var dateStart = new Date(item.TimeStart);
-            var num = (this.pageNumber - 1) * this.rowspPage;
-            dateStart.setDate(dateStart.getDate() + item.QuotaTime ?? 0);
+            var dateStart = new Date(item.TimeStart)
+            var num = (this.pageNumber - 1) * this.rowspPage
+            dateStart.setDate(dateStart.getDate() + item.QuotaTime ?? 0)
+            
             return {
               ...item,
               Key: index + 1 + num,
               TimeStartShow: formatDateDisplayDDMMYY(item.TimeStart),
               TimeEndShow: formatDateDisplayDDMMYY(dateStart),
               TimeEnd: formatDate(dateStart),
-            };
-          });
-          this.totalLength = res.TotalRows;
+            }
+          })
+          this.totalLength = res.TotalRows
         }
-        this.loadding = false;
-      });
+        this.loadding = false
+      })
     },
   },
-  created() {
-    this.getDocumentJobByEm();
-  },
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -401,6 +411,7 @@ export default {
   }
 }
 </style>
+
 <style>
 .wilExpired365 {
   color: red;

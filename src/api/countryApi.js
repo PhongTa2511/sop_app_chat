@@ -1,11 +1,11 @@
-import request from "@/utils/request";
+import request from "@/utils/request"
 
 export function GetCountryLawLst(data) {
   return request({
     url: "RDCountry/GetCountryLawLst",
     method: "post",
     data,
-  });
+  })
 }
 
 export function GetCountryLstNumber(data) {
@@ -13,7 +13,7 @@ export function GetCountryLstNumber(data) {
     url: "RDCountry/GetCountryLstNumber",
     method: "post",
     data,
-  });
+  })
 }
 
 export function UpdateCountryLawLst(data) {
@@ -21,5 +21,5 @@ export function UpdateCountryLawLst(data) {
     url: "RDCountry/UpdateCountryLawLst",
     method: "post",
     data,
-  });
+  })
 }
