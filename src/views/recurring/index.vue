@@ -973,7 +973,14 @@ export default {
     },
     getJobStatusMeta(status) {
       const s = Number(status);
-
+      if (s === 5) {
+        return {
+          key: "error",
+          label: "Từ chối",
+          color: "red",
+          icon: "mdi-check-circle-outline",
+        };
+      }
       if (s === 4) {
         return {
           key: "success",
@@ -982,19 +989,19 @@ export default {
           icon: "mdi-check-circle-outline",
         };
       }
-      if (s === 2) {
+      if (s === 3) {
         return {
           key: "progress",
-          label: "Đang làm",
-          color: "",
+          label: "Đã báo cáo",
+          color: "orange",
           icon: "mdi-account-edit",
         };
       }
       if (s === 1) {
         return {
           key: "report",
-          label: "Đã báo cáo",
-          color: "",
+          label: "Đang làm",
+          color: "blue",
           icon: "mdi-file-document-outline",
         };
       }
