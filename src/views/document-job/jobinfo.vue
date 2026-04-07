@@ -1,14 +1,7 @@
 <template>
   <div>
-    <VRow
-      class="pr-3"
-      style="height: calc(100vh - 112px)"
-    >
-      <VCol
-        :lg="8"
-        cols="12"
-        class=""
-      >
+    <VRow class="pr-3" style="height: calc(100vh - 112px)">
+      <VCol :lg="8" cols="12" class="">
         <VCard class="layout-card">
           <VCardTitle class="text-h6 py-2 pl-4 pr-0">
             <div class="d-flex justify-sm-space-between">
@@ -23,44 +16,23 @@
               />
             </div>
             <div class="text-subtitle-1">
-              <VChip color="blue">
-                Quy trình
-              </VChip>
+              <VChip color="blue"> Quy trình </VChip>
               {{ dataJobInfo.ProcedureName }}
             </div>
-            <div
-              v-if="dataJobInfo.StepOrder"
-              class="mt-2 text-subtitle-1"
-            >
-              <VChip color="red">
-                Bước {{ dataJobInfo.StepOrder }}
-              </VChip>
+            <div v-if="dataJobInfo.StepOrder" class="mt-2 text-subtitle-1">
+              <VChip color="red"> Bước {{ dataJobInfo.StepOrder }} </VChip>
               {{ dataJobInfo.StepName }}
             </div>
-            <div
-              v-if="dataJobInfo.JobName"
-              class="mt-2 text-subtitle-1"
-            >
-              <VChip color="green">
-                Công việc
-              </VChip>
+            <div v-if="dataJobInfo.JobName" class="mt-2 text-subtitle-1">
+              <VChip color="green"> Công việc </VChip>
               {{ dataJobInfo.JobName }}
             </div>
-            <div
-              v-if="dataJobInfo.Note"
-              class="mt-2 text-subtitle-1"
-            >
-              <VChip color="orange">
-                Hồ sơ
-              </VChip>
+            <div v-if="dataJobInfo.Note" class="mt-2 text-subtitle-1">
+              <VChip color="orange"> Hồ sơ </VChip>
               {{ dataJobInfo.Note }}
             </div>
           </VCardTitle>
-          <VTabs
-            v-if="formTabLst.length > 0"
-            v-model="tab"
-            grow
-          >
+          <VTabs v-if="formTabLst.length > 0" v-model="tab" grow>
             <VTab
               v-for="(item, index) in formTabLst"
               :key="index"
@@ -70,19 +42,13 @@
             />
           </VTabs>
 
-          <VTabsWindow
-            v-if="formTabLst.length > 0"
-            v-model="tab"
-          >
+          <VTabsWindow v-if="formTabLst.length > 0" v-model="tab">
             <VTabsWindowItem
               v-for="(item, index) in formTabLst"
               :key="index"
               :value="item"
             >
-              <VCard
-                v-if="tab.TypeForm == 2"
-                flat
-              >
+              <VCard v-if="tab.TypeForm == 2" flat>
                 <VDataTable
                   no-data-text="Không có dữ liệu"
                   :headers="headers"
@@ -114,8 +80,8 @@
                             class="mx-2"
                             v-bind="props"
                           >
-Thêm Excel
-</VBtn>
+                            Thêm Excel
+                          </VBtn>
                         </template>
                         <VList>
                           <VListItem>
@@ -155,14 +121,15 @@ Thêm Excel
                         color="green"
                         rounded="md"
                         @click="updateDocumentForm(tab)"
-                      >
-                      <v-btn class="ml-2"
+                      ></VBtn>
+                      <v-btn
+                        class="ml-2"
                         size="small"
                         color="green"
                         rounded="md"
                         @click="btExportExcel"
                       >
-                      Xuất excel
+                        Xuất excel
                       </v-btn>
                     </div>
                   </template>
@@ -188,10 +155,7 @@ Thêm Excel
                   </template>
                 </VDataTable>
               </VCard>
-              <VCard
-                v-if="tab.TypeForm == 1"
-                flat
-              >
+              <VCard v-if="tab.TypeForm == 1" flat>
                 <div class="d-flex justify-center mt-2">
                   <VBtn
                     rounded="4"
@@ -303,9 +267,9 @@ Thêm Excel
                             (file) => handleFileUploadForm(file, line)
                           "
                         >
-<template #selection="{}">
-                          {{ line.DateResult ?? line.Parameter }}
-                        </template>
+                          <template #selection="{}">
+                            {{ line.DateResult ?? line.Parameter }}
+                          </template>
                         </VFileInput>
                       </div>
                     </div>
@@ -317,23 +281,11 @@ Thêm Excel
           <VDivider />
           <div class="px-2 py-2 pb-2">
             <div class="mt-2 px-2 text-subtitle-2">
-              <VIcon
-                color="blue"
-                class=""
-                size="small"
-              >
-                mdi-clock
-              </VIcon>
+              <VIcon color="blue" class="" size="small"> mdi-clock </VIcon>
               Bắt đầu: {{ dataJobInfo.TimeStart }}
             </div>
             <div class="mt-2 px-2 text-subtitle-2">
-              <VIcon
-                color="blue"
-                class=""
-                size="small"
-              >
-                mdi-file
-              </VIcon>
+              <VIcon color="blue" class="" size="small"> mdi-file </VIcon>
 
               Mô tả: {{ dataJobInfo.DesJob }}
             </div>
@@ -341,47 +293,28 @@ Thêm Excel
           <div
             v-if="
               userJob &&
-                userJob.FullName &&
-                userJob.UserID &&
-                dataJobInfo.Status == 1 &&
-                userJob.UserID == userName
+              userJob.FullName &&
+              userJob.UserID &&
+              dataJobInfo.Status == 1 &&
+              userJob.UserID == userName
             "
             class="px-4 pb-4"
           >
             <VRow>
-              <VCol
-                lg="8"
-                md="8"
-                cols="12"
-              >
-                <div class="text-h6">
-                  Nội dung báo cáo
-                </div>
+              <VCol lg="8" md="8" cols="12">
+                <div class="text-h6">Nội dung báo cáo</div>
                 <div class="pb-1 text-subtitle-2">
-                  <VIcon
-                    color="blue"
-                    size="small"
-                  >
-                    mdi-account-edit
-                  </VIcon>
+                  <VIcon color="blue" size="small"> mdi-account-edit </VIcon>
                   {{ userJob.FullName }}
                 </div>
                 <div class="pb-1 text-subtitle-2">
-                  <VIcon
-                    color="green"
-                    size="small"
-                  >
+                  <VIcon color="green" size="small">
                     mdi-clock-time-four-outline
                   </VIcon>
                   {{ userJob.TimeCreate }}
                 </div>
                 <div class="pb-1 text-subtitle-2">
-                  <VIcon
-                    color="orange"
-                    size="small"
-                  >
-                    mdi-timer-sand
-                  </VIcon>
+                  <VIcon color="orange" size="small"> mdi-timer-sand </VIcon>
                   Định mức:
                   {{ userJob.QuotaTime }} Ngày
                 </div>
@@ -395,11 +328,7 @@ Thêm Excel
                   />
                 </div>
               </VCol>
-              <VCol
-                lg="4"
-                md="4"
-                cols="12"
-              >
+              <VCol lg="4" md="4" cols="12">
                 <div class="d-flex justify-sm-space-between">
                   <div>Tệp đính kèm</div>
                   <VBtn
@@ -415,7 +344,7 @@ Thêm Excel
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.png,.jpg,.jpeg,.rar"
                     style="display: none"
                     @change="handleFileUpload"
-                  >
+                  />
                 </div>
                 <VDivider class="my-2" />
                 <VChipGroup
@@ -431,10 +360,7 @@ Thêm Excel
                     location="end"
                   >
                     <template #activator="{ props }">
-                      <VChip
-color="orange"
-                             v-bind="props"
->
+                      <VChip color="orange" v-bind="props">
                         {{ item.NameFile }}
                       </VChip>
                     </template>
@@ -488,15 +414,8 @@ color="orange"
                     </VList>
                   </VMenu>
                 </VChipGroup>
-                <div
-                  v-else
-                  class="text-center py-4"
-                >
-                  <VIcon
-                    color="red"
-                    class="my-2"
-                    size="large"
-                  >
+                <div v-else class="text-center py-4">
+                  <VIcon color="red" class="my-2" size="large">
                     mdi-note-search
                   </VIcon>
                   <p>Chưa có file nào</p>
@@ -516,16 +435,9 @@ color="orange"
             </div>
           </div>
           <div v-else>
-            <div
-              v-if="dataJobInfo.Report"
-              class="px-4"
-            >
+            <div v-if="dataJobInfo.Report" class="px-4">
               <VRow>
-                <VCol
-                  lg="8"
-                  md="8"
-                  cols="12"
-                >
+                <VCol lg="8" md="8" cols="12">
                   <div class="text-h6">
                     Nội dung báo cáo
                     <VChip
@@ -536,30 +448,17 @@ color="orange"
                     </VChip>
                   </div>
                   <div class="pb-1 text-subtitle-2">
-                    <VIcon
-                      color="blue"
-                      size="small"
-                    >
-                      mdi-account-edit
-                    </VIcon>
+                    <VIcon color="blue" size="small"> mdi-account-edit </VIcon>
                     {{ userJob.FullName }}
                   </div>
                   <div class="pb-1 text-subtitle-2">
-                    <VIcon
-                      color="green"
-                      size="small"
-                    >
+                    <VIcon color="green" size="small">
                       mdi-clock-time-four-outline
                     </VIcon>
                     {{ dataJobInfo.TimeModify }}
                   </div>
                   <div class="pb-1 text-subtitle-2">
-                    <VIcon
-                      color="orange"
-                      size="small"
-                    >
-                      mdi-timer-sand
-                    </VIcon>
+                    <VIcon color="orange" size="small"> mdi-timer-sand </VIcon>
                     Định mức:
                     {{ userJob.QuotaTime }} Ngày
                   </div>
@@ -568,11 +467,7 @@ color="orange"
                     v-html="dataJobInfo.Report"
                   />
                 </VCol>
-                <VCol
-                  lg="4"
-                  md="4"
-                  cols="12"
-                >
+                <VCol lg="4" md="4" cols="12">
                   <div class="d-flex justify-sm-space-between">
                     <div>Tệp đính kèm</div>
                   </div>
@@ -590,10 +485,7 @@ color="orange"
                       location="end"
                     >
                       <template #activator="{ props }">
-                        <VChip
-color="orange"
-                               v-bind="props"
->
+                        <VChip color="orange" v-bind="props">
                           {{ item.NameFile }}
                         </VChip>
                       </template>
@@ -631,15 +523,8 @@ color="orange"
                       </VList>
                     </VMenu>
                   </VChipGroup>
-                  <div
-                    v-else
-                    class="text-center py-4"
-                  >
-                    <VIcon
-                      color="red"
-                      class="my-2"
-                      size="large"
-                    >
+                  <div v-else class="text-center py-4">
+                    <VIcon color="red" class="my-2" size="large">
                       mdi-note-search
                     </VIcon>
                     <p>Chưa có file nào</p>
@@ -651,48 +536,29 @@ color="orange"
           <div
             v-if="
               userMana &&
-                userMana.FullName &&
-                userMana.UserID &&
-                (dataJobInfo.Status == 3 || dataJobInfo.Status == 1) &&
-                userMana.UserID == userName
+              userMana.FullName &&
+              userMana.UserID &&
+              (dataJobInfo.Status == 3 || dataJobInfo.Status == 1) &&
+              userMana.UserID == userName
             "
             class="px-4 pb-4"
           >
             <VRow>
-              <VCol
-                lg="8"
-                md="8"
-                cols="12"
-              >
-                <div class="text-h6">
-                  Nội dung phê duyệt
-                </div>
+              <VCol lg="8" md="8" cols="12">
+                <div class="text-h6">Nội dung phê duyệt</div>
                 <div v-if="userMana">
                   <div class="pb-1 text-subtitle-2">
-                    <VIcon
-                      color="red"
-                      size="small"
-                    >
-                      mdi-account-check
-                    </VIcon>
+                    <VIcon color="red" size="small"> mdi-account-check </VIcon>
                     {{ userMana.FullName }}
                   </div>
                   <div class="pb-1 text-subtitle-2">
-                    <VIcon
-                      color="green"
-                      size="small"
-                    >
+                    <VIcon color="green" size="small">
                       mdi-clock-time-four-outline
                     </VIcon>
                     {{ userMana.TimeCreate }}
                   </div>
                   <div class="pb-1 text-subtitle-2">
-                    <VIcon
-                      color="orange"
-                      size="small"
-                    >
-                      mdi-timer-sand
-                    </VIcon>
+                    <VIcon color="orange" size="small"> mdi-timer-sand </VIcon>
                     Định mức:
                     {{ userMana.QuotaTime }} Ngày
                   </div>
@@ -708,11 +574,7 @@ color="orange"
                   />
                 </div>
               </VCol>
-              <VCol
-                lg="4"
-                md="4"
-                cols="12"
-              >
+              <VCol lg="4" md="4" cols="12">
                 <div class="d-flex justify-sm-space-between">
                   <div>Tệp đính kèm</div>
                   <VBtn
@@ -728,7 +590,7 @@ color="orange"
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.png,.jpg,.jpeg,.rar"
                     style="display: none"
                     @change="handleFileUpload2"
-                  >
+                  />
                 </div>
                 <VDivider class="my-2" />
                 <VChipGroup
@@ -744,10 +606,7 @@ color="orange"
                     location="end"
                   >
                     <template #activator="{ props }">
-                      <VChip
-color="orange"
-                             v-bind="props"
->
+                      <VChip color="orange" v-bind="props">
                         {{ item.NameFile }}
                       </VChip>
                     </template>
@@ -801,15 +660,8 @@ color="orange"
                     </VList>
                   </VMenu>
                 </VChipGroup>
-                <div
-                  v-else
-                  class="text-center py-4"
-                >
-                  <VIcon
-                    color="red"
-                    class="my-2"
-                    size="large"
-                  >
+                <div v-else class="text-center py-4">
+                  <VIcon color="red" class="my-2" size="large">
                     mdi-note-search
                   </VIcon>
                   <p>Chưa có file nào</p>
@@ -826,66 +678,36 @@ color="orange"
               >
                 Phê duyệt
               </VBtn>
-              <VBtn
-                color="red"
-                rounded="8"
-                @click="openStepDialog(5)"
-              >
+              <VBtn color="red" rounded="8" @click="openStepDialog(5)">
                 Từ chối
               </VBtn>
             </div>
           </div>
           <div v-else>
-            <div
-              v-if="dataJobInfo.NoteApprove"
-              class="px-4"
-            >
+            <div v-if="dataJobInfo.NoteApprove" class="px-4">
               <VRow>
-                <VCol
-                  lg="8"
-                  md="8"
-                  cols="12"
-                >
+                <VCol lg="8" md="8" cols="12">
                   <div class="text-h6">
                     Nội dung phê duyệt
-                    <VChip
-                      v-if="dataJobInfo.Status == 4"
-                      color="green"
-                    >
+                    <VChip v-if="dataJobInfo.Status == 4" color="green">
                       Đã duyệt
                     </VChip>
-                    <VChip
-                      v-if="dataJobInfo.Status == 5"
-                      color="red"
-                    >
+                    <VChip v-if="dataJobInfo.Status == 5" color="red">
                       Đã từ chối
                     </VChip>
                   </div>
                   <div class="pb-1 text-subtitle-2">
-                    <VIcon
-                      color="red"
-                      size="small"
-                    >
-                      mdi-account-edit
-                    </VIcon>
+                    <VIcon color="red" size="small"> mdi-account-edit </VIcon>
                     {{ userMana.FullName }}
                   </div>
                   <div class="pb-1 text-subtitle-2">
-                    <VIcon
-                      color="green"
-                      size="small"
-                    >
+                    <VIcon color="green" size="small">
                       mdi-clock-time-four-outline
                     </VIcon>
                     {{ dataJobInfo.TimeApprove }}
                   </div>
                   <div class="pb-1 text-subtitle-2">
-                    <VIcon
-                      color="orange"
-                      size="small"
-                    >
-                      mdi-timer-sand
-                    </VIcon>
+                    <VIcon color="orange" size="small"> mdi-timer-sand </VIcon>
                     Định mức:
                     {{ userMana.QuotaTime }} Ngày
                   </div>
@@ -894,11 +716,7 @@ color="orange"
                     v-html="dataJobInfo.NoteApprove"
                   />
                 </VCol>
-                <VCol
-                  lg="4"
-                  md="4"
-                  cols="12"
-                >
+                <VCol lg="4" md="4" cols="12">
                   <div class="d-flex justify-sm-space-between">
                     <div>Tệp đính kèm</div>
                   </div>
@@ -906,8 +724,8 @@ color="orange"
                   <VChipGroup
                     v-if="
                       userMana &&
-                        userMana.FileLst &&
-                        userMana.FileLst.length > 0
+                      userMana.FileLst &&
+                      userMana.FileLst.length > 0
                     "
                     color="green"
                     column
@@ -918,10 +736,7 @@ color="orange"
                       location="end"
                     >
                       <template #activator="{ props }">
-                        <VChip
-color="orange"
-                               v-bind="props"
->
+                        <VChip color="orange" v-bind="props">
                           {{ item.NameFile }}
                         </VChip>
                       </template>
@@ -959,15 +774,8 @@ color="orange"
                       </VList>
                     </VMenu>
                   </VChipGroup>
-                  <div
-                    v-else
-                    class="text-center py-4"
-                  >
-                    <VIcon
-                      color="red"
-                      class="my-2"
-                      size="large"
-                    >
+                  <div v-else class="text-center py-4">
+                    <VIcon color="red" class="my-2" size="large">
                       mdi-note-search
                     </VIcon>
                     <p>Chưa có file nào</p>
@@ -978,16 +786,10 @@ color="orange"
           </div>
         </VCard>
       </VCol>
-      <VCol
-        :lg="4"
-        cols="12"
-        class="px-0"
-      >
+      <VCol :lg="4" cols="12" class="px-0">
         <VCard class="py-2 px-4 layout-card">
           <div class="d-flex justify-space-between">
-            <div class="text-h6">
-              Quá trình thực hiện
-            </div>
+            <div class="text-h6">Quá trình thực hiện</div>
           </div>
           <VDivider class="my-2" />
           <div
@@ -1046,60 +848,30 @@ color="orange"
                   mdi-close-circle-outline
                 </VIcon>
               </div>
-              <div
-                v-for="(ass, indass) in job.AssignLst"
-                :key="indass"
-              >
-                <div
-                  v-if="ass.UserRole == 'Xử lý'"
-                  class="text-caption"
-                >
+              <div v-for="(ass, indass) in job.AssignLst" :key="indass">
+                <div v-if="ass.UserRole == 'Xử lý'" class="text-caption">
                   <div>
-                    <VIcon
-                      color="blue"
-                      size="small"
-                    >
-                      mdi-account-edit
-                    </VIcon>
+                    <VIcon color="blue" size="small"> mdi-account-edit </VIcon>
                     {{ ass.FullName }}
-                    <VIcon
-                      v-if="job.TimeModifyShow"
-                      color="blue"
-                      size="small"
-                    >
+                    <VIcon v-if="job.TimeModifyShow" color="blue" size="small">
                       mdi-clock
                     </VIcon>
                     {{ job.TimeModifyShow }}
                   </div>
                   <div v-html="job.Report" />
                 </div>
-                <div
-                  v-if="ass.UserRole == 'Phê duyệt'"
-                  class="text-caption"
-                >
+                <div v-if="ass.UserRole == 'Phê duyệt'" class="text-caption">
                   <div>
-                    <VIcon
-                      color="red"
-                      size="small"
-                    >
-                      mdi-account-check
-                    </VIcon>
+                    <VIcon color="red" size="small"> mdi-account-check </VIcon>
                     {{ ass.FullName }}
-                    <VIcon
-                      v-if="job.TimeApproveShow"
-                      color="red"
-                      size="small"
-                    >
+                    <VIcon v-if="job.TimeApproveShow" color="red" size="small">
                       mdi-clock
                     </VIcon>
                     {{ job.TimeApproveShow }}
                   </div>
                   <div v-html="job.NoteApprove" />
                 </div>
-                <div
-                  v-if="ass.FileLst.length > 0"
-                  class="file-lst"
-                >
+                <div v-if="ass.FileLst.length > 0" class="file-lst">
                   <VMenu
                     v-for="(file, indfile) in ass.FileLst"
                     :key="indfile"
@@ -1153,10 +925,7 @@ color="orange"
                 </div>
               </div>
             </VSheet>
-            <VDivider
-              class="my-2"
-              color="blue"
-            />
+            <VDivider class="my-2" color="blue" />
           </div>
         </VCard>
       </VCol>
@@ -1167,26 +936,20 @@ color="orange"
       accept=".xls,.xlsx"
       style="display: none"
       @change="handleFileUploadExcel"
-    >
+    />
   </div>
 
-  <VDialog
-    v-model="isShowFile"
-    persistent
-    width="800"
-  >
+  <VDialog v-model="isShowFile" persistent width="800">
     <VCard>
       <VCardItem>
-        <div v-if="isLoading">
-          Đang tải...
-        </div>
+        <div v-if="isLoading">Đang tải...</div>
         <div v-else>
           <strong>{{ nameFile }}</strong>
           <div v-if="fileMine == '.pdf'">
             <iframe
               :src="
                 'https://docs.google.com/gview?embedded=true&url=' +
-                  encodeURIComponent(fileUrl)
+                encodeURIComponent(fileUrl)
               "
               width="100%"
               height="600px"
@@ -1201,16 +964,11 @@ color="orange"
         </div>
       </VCardItem>
       <VCardActions>
-        <VBtn @click="isShowFile = false">
-          Đóng
-        </VBtn>
+        <VBtn @click="isShowFile = false"> Đóng </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
-  <VDialog
-    v-model="isShowEdit"
-    max-width="600px"
-  >
+  <VDialog v-model="isShowEdit" max-width="600px">
     <VCard>
       <VCardTitle>
         <span class="text-h5">Chỉnh sửa thông tin</span>
@@ -1261,22 +1019,12 @@ color="orange"
         </VRow>
       </VCardText>
       <VCardActions>
-        <VBtn @click="isShowEdit = false">
-          Hủy
-        </VBtn>
-        <VBtn
-          color="green"
-          @click="updateDocument"
-        >
-          Lưu
-        </VBtn>
+        <VBtn @click="isShowEdit = false"> Hủy </VBtn>
+        <VBtn color="green" @click="updateDocument"> Lưu </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
-  <VDialog
-    v-model="isShowAddNew"
-    max-width="600px"
-  >
+  <VDialog v-model="isShowAddNew" max-width="600px">
     <VCard>
       <VCardTitle>
         <span class="text-h5">Thêm mới thông tin</span>
@@ -1309,30 +1057,17 @@ color="orange"
         </VRow>
       </VCardText>
       <VCardActions>
-        <VBtn @click="isShowAddNew = false">
-          Hủy
-        </VBtn>
-        <VBtn
-          color="green"
-          @click="addNewDocument"
-        >
-          Lưu
-        </VBtn>
+        <VBtn @click="isShowAddNew = false"> Hủy </VBtn>
+        <VBtn color="green" @click="addNewDocument"> Lưu </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
-  <VDialog
-    v-model="isShowSteps"
-    width="600"
-  >
+  <VDialog v-model="isShowSteps" width="600">
     <VCard>
       <VCardTitle>Danh sách các bước thực hiện</VCardTitle>
       <VCardText style="margin-top: -24px">
         <VList>
-          <VListItem
-            v-for="(step, index) in stepLst"
-            :key="index"
-          >
+          <VListItem v-for="(step, index) in stepLst" :key="index">
             <VCheckbox
               v-model="step.Checked"
               :label="step.StepOrder + '. ' + step.StepName"
@@ -1344,46 +1079,23 @@ color="orange"
         </VList>
       </VCardText>
       <VCardActions>
-        <VBtn @click="isShowSteps = false">
-          Đóng
-        </VBtn>
-        <VBtn
-          color="green"
-          @click="btConfirm"
-        >
-          Xác nhận
-        </VBtn>
+        <VBtn @click="isShowSteps = false"> Đóng </VBtn>
+        <VBtn color="green" @click="btConfirm"> Xác nhận </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
-  <VDialog
-    v-model="isPreview"
-    max-width="600"
-  >
+  <VDialog v-model="isPreview" max-width="600">
     <VCard>
       <VCardTitle>Hình ảnh đã upload</VCardTitle>
       <VCardText class="text-center">
-        <VImg
-          :src="previewImage"
-          max-height="400"
-          contain
-        />
+        <VImg :src="previewImage" max-height="400" contain />
       </VCardText>
       <VCardActions>
         <VSpacer />
-        <VBtn
-          color="green"
-          text
-          @click="btDownloadFile(previewFile)"
-        >
+        <VBtn color="green" text @click="btDownloadFile(previewFile)">
           Tải ảnh
         </VBtn>
-        <VBtn
-          text
-          @click="isPreview = false"
-        >
-          Đóng
-        </VBtn>
+        <VBtn text @click="isPreview = false"> Đóng </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
@@ -1395,30 +1107,29 @@ import {
   GetDocumentJobInfo,
   ProcessDocument,
   ReportDocumentJob,
-} from "@/api/documentJobApi"
-import { formatDateHHDDMM } from "@/helpers/getTime"
-import { getUserName } from "@/utils/auth"
-import Editor from "@tinymce/tinymce-vue"
-import Axios from "axios"
-import { urlUploadFile, exportExcel, urlUploadFileFormLine } from "./function"
+} from "@/api/documentJobApi";
+import { formatDateHHDDMM } from "@/helpers/getTime";
+import { getUserName } from "@/utils/auth";
+import Editor from "@tinymce/tinymce-vue";
+import Axios from "axios";
+import { exportExcel, urlUploadFile, urlUploadFileFormLine } from "./function";
 
-import { GetDefaultValue } from "@/api/default"
-import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi"
+import { GetDefaultValue } from "@/api/default";
+import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi";
 import {
   GetDocumentFormByDocID,
   UpdateDocumentForm,
-} from "@/api/documentFormApi"
-import { GetProductLst } from "@/api/productApi"
-import { GetUserLstByTeamID } from "@/api/user"
-import logo from "@images/logos/dtp-logo.png"
+} from "@/api/documentFormApi";
+import { GetProductLst } from "@/api/productApi";
+import { GetUserLstByTeamID } from "@/api/user";
 import {
   downloadFile,
   fetchDoc,
   fetchXlsxContent,
   isPreviewSupported,
-} from "@/utils/function"
-import XLSX from "xlsx"
-
+} from "@/utils/function";
+import logo from "@images/logos/dtp-logo.png";
+import XLSX from "xlsx";
 
 export default {
   components: {
@@ -1451,93 +1162,93 @@ export default {
       logo: logo,
       isPreview: false,
       previewImage: "",
-    }
+    };
   },
   watch: {
     tab(value) {
       if (value.headers && value.desserts) {
-        this.headers = value.headers
-        var lengthMax = 0
+        this.headers = value.headers;
+        var lengthMax = 0;
         this.desserts = value.desserts.map((item, index) => {
-          var line = ""
+          var line = "";
           for (var header = 0; header < this.headers.length; header++) {
-            line = item[this.headers[header].key]
+            line = item[this.headers[header].key];
             if (header > 0) {
-              var checkText = this.checkNumberTypeOrPhone(line)
-              item["Line" + header] = checkText.value
+              var checkText = this.checkNumberTypeOrPhone(line);
+              item["Line" + header] = checkText.value;
               if (!checkText.isValid) {
                 if (checkText.value) {
                   if (
                     checkText.value.length > lengthMax &&
                     checkText.value.length < 80
                   ) {
-                    lengthMax = checkText.value.length
-                    this.headers[header].minWidth = 200
+                    lengthMax = checkText.value.length;
+                    this.headers[header].minWidth = 200;
                   }
                   if (
                     checkText.value.length > lengthMax &&
                     checkText.value.length >= 80
                   ) {
-                    this.headers[header].minWidth = 300
-                    lengthMax = checkText.value.length
+                    this.headers[header].minWidth = 300;
+                    lengthMax = checkText.value.length;
                   }
                 }
               }
             }
           }
-          
+
           return {
             ...item,
-          }
-        })
+          };
+        });
       }
     },
   },
   created() {
-    this.getDocumentJobInfo()
+    this.getDocumentJobInfo();
   },
   methods: {
     btDownloadFile(url) {
-      if (!url) return
-      window.open(url, "_blank", "noopener,noreferrer")
+      if (!url) return;
+      window.open(url, "_blank", "noopener,noreferrer");
     },
     btShowImage(link) {
-      this.previewImage = link
-      this.isPreview = true
+      this.previewImage = link;
+      this.isPreview = true;
     },
     handleFileUploadForm(file, line) {
-      if (!file) return
+      if (!file) return;
 
-      const formData = new FormData()
+      const formData = new FormData();
 
-      formData.append("file", file)
+      formData.append("file", file);
 
       Axios.post(
         urlUploadFileFormLine(line.IDForm, this.docInfo.DocumentID),
         formData,
-      ).then(res => {
+      ).then((res) => {
         if (res.data.RespCode === 0) {
-          line.TextResult = res.data.FileID
-          line.OptionText = res.data.LinkFile
-          line.DateResult = res.data.FileName
+          line.TextResult = res.data.FileID;
+          line.OptionText = res.data.LinkFile;
+          line.DateResult = res.data.FileName;
 
           notify({
             title: "File",
             text: "Thêm file hồ sơ thành công",
             type: "success",
-          })
+          });
         } else {
           notify({
             title: "File",
             text: res.data.RespText,
             type: "error",
-          })
+          });
         }
-      })
+      });
     },
     updateDocumentForm(data) {
-      if (this.isLoadingFile) return
-      this.isLoadingFile = true
+      if (this.isLoadingFile) return;
+      this.isLoadingFile = true;
       var docForm = {
         ...data,
         DocumentID: this.dataJobInfo.DocumentID,
@@ -1546,11 +1257,11 @@ export default {
         NameForm: data.NameForm,
         Description: data.Description,
         TypeForm: data.TypeForm,
-      }
-      var docFormLine = []
+      };
+      var docFormLine = [];
       if (data.TypeForm == 2) {
         this.desserts.forEach((item, ind) => {
-          var len = this.headers.filter(p => p.title != "STT").length
+          var len = this.headers.filter((p) => p.title != "STT").length;
           for (let index = 1; index <= len; index++) {
             var line = {
               DocumentID: this.dataJobInfo.DocumentID,
@@ -1563,70 +1274,70 @@ export default {
               Required: index,
               TextResult: item["Line" + index],
               IDFormLine: ind,
-            }
-            docFormLine.push(line)
+            };
+            docFormLine.push(line);
           }
-        })
-        docForm.DocumentFormLineLst = docFormLine
+        });
+        docForm.DocumentFormLineLst = docFormLine;
       }
       if (data.TypeForm == 1) {
-        docForm.DocumentFormLineLst = data.DocumentFormLineLst.map(item => {
+        docForm.DocumentFormLineLst = data.DocumentFormLineLst.map((item) => {
           if (item.Type == 2 || item.Type == 3) {
-            let textArr = []
+            let textArr = [];
 
             if (Array.isArray(item.TextResult)) {
               // trường hợp TextResult là mảng thật
-              textArr = item.TextResult
+              textArr = item.TextResult;
             } else if (
               typeof item.TextResult === "string" &&
               item.TextResult !== ""
             ) {
               try {
                 // parse string -> array
-                textArr = JSON.parse(item.TextResult)
+                textArr = JSON.parse(item.TextResult);
               } catch (e) {
                 // fallback: tách theo dấu phẩy nếu JSON sai format
-                textArr = item.TextResult.split(",")
+                textArr = item.TextResult.split(",");
               }
             }
-            
+
             return {
               ...item,
               TextResult: textArr.join(" | "),
-            }
+            };
           } else if (item.Type == 4) {
             return {
               ...item,
               TextResult: item.TextResult ? formatDate(item.TextResult) : null,
-            }
+            };
           } else {
-            return { ...item }
+            return { ...item };
           }
-        })
+        });
       }
 
       // ------------------------------------------------------------------
       // 🔥 CHECK BẮT BUỘC: Nếu IsValue == 1 thì TextResult phải có giá trị
       // ------------------------------------------------------------------
-      let invalid = docForm.DocumentFormLineLst.some(line => {
-        const value = line.TextResult
+      let invalid = docForm.DocumentFormLineLst.some((line) => {
+        const value = line.TextResult;
 
         // ép về string để trim an toàn
         const safeValue =
-          value === null || value === undefined ? "" : String(value).trim()
+          value === null || value === undefined ? "" : String(value).trim();
 
-        return line.IsValue == 1 && safeValue === ""
-      })
+        return line.IsValue == 1 && safeValue === "";
+      });
 
       if (invalid) {
-        this.isLoadingFile = false
+        this.isLoadingFile = false;
         notify({
           title: "Thiếu dữ liệu",
           text: "Các trường bắt buộc chưa nhập đầy đủ",
           type: "error",
-        })
-        
-        return // ⛔ Không gọi API
+        });
+
+        return; // ⛔ Không gọi API
       }
 
       // ------------------------------------------------------------------
@@ -1635,46 +1346,46 @@ export default {
       UpdateDocumentForm({
         DocumentFormInfo: docForm,
       })
-        .then(res => {
+        .then((res) => {
           if (res.RespCode == 0) {
             notify({
               title: "Thành công",
               text: "Lưu thông tin thành công",
               type: "success",
-            })
-            this.getDocumentFormByDocID()
+            });
+            this.getDocumentFormByDocID();
           }
         })
         .catch(() => {
-          this.isLoadingFile = false
-        })
+          this.isLoadingFile = false;
+        });
     },
     checkNumberTypeOrPhone(str) {
       // Nếu chứa ký tự chữ → Text
       if (/[^0-9.,+\s]/.test(str)) {
-        return { isValid: true, type: "Text", value: str }
+        return { isValid: true, type: "Text", value: str };
       }
 
       // Nếu là số điện thoại
-      const isPhone = /^[+]?[0-9]{9,15}$/.test(str)
+      const isPhone = /^[+]?[0-9]{9,15}$/.test(str);
       if (isPhone) {
-        return { isValid: true, type: "Text", value: str }
+        return { isValid: true, type: "Text", value: str };
       }
 
       // Nếu có dấu . hoặc , → giữ nguyên
       if (/[.,]/.test(str)) {
-        return { isValid: true, type: "Text", value: str }
+        return { isValid: true, type: "Text", value: str };
       }
 
       // Nếu bắt đầu bằng 0 → giữ nguyên
       if (/^0\d+/.test(str)) {
-        return { isValid: true, type: "Text", value: str }
+        return { isValid: true, type: "Text", value: str };
       }
 
-      const num = parseFloat(str)
+      const num = parseFloat(str);
 
       if (isNaN(num)) {
-        return { isValid: false, type: null, value: str }
+        return { isValid: false, type: null, value: str };
       }
 
       if (Number.isInteger(num)) {
@@ -1682,166 +1393,166 @@ export default {
           isValid: true,
           type: "Int",
           value: new Intl.NumberFormat("en-US").format(num),
-        }
+        };
       }
 
       return {
         isValid: true,
         type: "Float",
         value: new Intl.NumberFormat("en-US").format(num),
-      }
+      };
     },
     btExportExcel() {
-      exportExcel(this.headers)
+      exportExcel(this.headers);
     },
     handleFileUploadExcel(event) {
-      const file = event.target.files[0]
+      const file = event.target.files[0];
       if (file) {
-        const reader = new FileReader()
+        const reader = new FileReader();
 
-        reader.onload = e => {
-          const bstr = e.target.result
-          const wb = XLSX.read(bstr, { type: "binary" })
-          const wsname = wb.SheetNames[0]
-          const ws = wb.Sheets[wsname]
-          const data = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false })
+        reader.onload = (e) => {
+          const bstr = e.target.result;
+          const wb = XLSX.read(bstr, { type: "binary" });
+          const wsname = wb.SheetNames[0];
+          const ws = wb.Sheets[wsname];
+          const data = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false });
 
           this.desserts = this.convertToReq(data).map((item, index) => {
             return {
               ...item,
               Key: index + 1,
               Status: 1,
-            }
-          })
-        }
-        reader.readAsBinaryString(file)
+            };
+          });
+        };
+        reader.readAsBinaryString(file);
       }
     },
     convertToReq(data) {
-      var lstReq = []
+      var lstReq = [];
       for (var i = 1; i < data.length; i++) {
         if (data[i][1]) {
-          var req = {}
+          var req = {};
           this.headers.forEach((ele, index) => {
-            let value = data[i][index]
+            let value = data[i][index];
             if (typeof value === "number") {
               if (Number.isInteger(value)) {
-                value = Math.round(value)
+                value = Math.round(value);
               } else {
-                value = parseFloat(value.toFixed(2))
+                value = parseFloat(value.toFixed(2));
               }
             }
 
-            req["Line" + index] = value
-          })
+            req["Line" + index] = value;
+          });
 
-          lstReq.push(req)
+          lstReq.push(req);
         }
       }
-      
-      return lstReq
+
+      return lstReq;
     },
     addNewDocument() {
-      this.isShowAddNew = false
-      this.desserts.push(this.newDocument)
+      this.isShowAddNew = false;
+      this.desserts.push(this.newDocument);
       this.desserts = this.desserts.map((item, index) => {
         return {
           ...item,
           Key: index + 1,
           Status: 1,
-        }
-      })
+        };
+      });
     },
     btShowAdd() {
-      this.isShowAddNew = true
+      this.isShowAddNew = true;
     },
     openEditDialog(item) {
-      this.isShowEdit = true
-      this.editDocument = { ...item }
+      this.isShowEdit = true;
+      this.editDocument = { ...item };
     },
     updateDocument() {
-      this.isShowEdit = false
+      this.isShowEdit = false;
 
       const index = this.desserts.findIndex(
-        p => p.Key === this.editDocument.Key,
-      )
+        (p) => p.Key === this.editDocument.Key,
+      );
 
       if (index !== -1) {
-        this.desserts[index] = { ...this.editDocument }
+        this.desserts[index] = { ...this.editDocument };
       }
     },
     deleteDessert(data) {
-      data.Status = 0
+      data.Status = 0;
     },
     isPreviewSupported(fileExtension) {
-      return isPreviewSupported(fileExtension)
+      return isPreviewSupported(fileExtension);
     },
     downloadFile(file) {
-      downloadFile(file)
+      downloadFile(file);
     },
     async previewFile(file) {
       if (!this.isPreviewSupported(file.MineFile)) {
-        alert("File này không hỗ trợ xem trước.")
-        
-        return
+        alert("File này không hỗ trợ xem trước.");
+
+        return;
       }
-      this.isLoading = true
-      this.nameFile = file.NameFile.toUpperCase()
-      this.docContent = ""
+      this.isLoading = true;
+      this.nameFile = file.NameFile.toUpperCase();
+      this.docContent = "";
 
-      const fileExtension = file.MineFile.toLowerCase()
+      const fileExtension = file.MineFile.toLowerCase();
 
-      this.fileMine = fileExtension
+      this.fileMine = fileExtension;
 
-      const previewUrl = `https://sop.idtp.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`
+      const previewUrl = `https://sop.idtp.work/api/File/GetDocumentFile?FileName=${file.LinkFile}`;
       if (fileExtension === ".pdf") {
-        this.fileUrl = previewUrl
+        this.fileUrl = previewUrl;
         window.open(
           "https://docs.google.com/gview?embedded=true&url=" + previewUrl,
-        )
+        );
       } else if (fileExtension === ".docx") {
-        this.fileUrl = previewUrl
-        this.isShowFile = true
-        this.docContent = await fetchDoc(this.fileUrl)
+        this.fileUrl = previewUrl;
+        this.isShowFile = true;
+        this.docContent = await fetchDoc(this.fileUrl);
       } else if (fileExtension === ".xlsx") {
-        this.fileUrl = previewUrl
-        this.isShowFile = true
-        this.docContent = await fetchXlsxContent(this.fileUrl)
+        this.fileUrl = previewUrl;
+        this.isShowFile = true;
+        this.docContent = await fetchXlsxContent(this.fileUrl);
       } else if ([".png", ".jpg", ".jpeg"].includes(fileExtension)) {
-        this.isShowFile = true
-        this.docContent = `<img lazy src="${previewUrl}" alt="Image preview" width="100%" />`
+        this.isShowFile = true;
+        this.docContent = `<img lazy src="${previewUrl}" alt="Image preview" width="100%" />`;
       }
-      this.isLoading = false
+      this.isLoading = false;
     },
     deleteFile(file) {
       DelDocumentFile({
         Data: file.RowID,
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
           this.userJob.FileLst = this.userJob.FileLst.filter(
-            p => p.RowID != file.RowID,
-          )
+            (p) => p.RowID != file.RowID,
+          );
           this.userMana.FileLst = this.userMana.FileLst.filter(
-            p => p.RowID != file.RowID,
-          )
+            (p) => p.RowID != file.RowID,
+          );
           notify({
             title: "Thành công",
             text: "Xóa file thành công",
             type: "success",
-          })
+          });
         } else {
           notify({
             title: "Lỗi",
             text: res.RespText,
             type: "error",
-          })
+          });
         }
-      })
+      });
     },
     processDocument(docID) {
       ProcessDocument({
         DocumentID: docID,
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
           this.processLst = res.DocumentJobLst.map((item, index) => {
             item.StepLst = item.StepLst.map((job, indjob) => {
@@ -1849,72 +1560,72 @@ export default {
                 ...job,
                 TimeModifyShow: formatDateHHDDMM(job.TimeModify),
                 TimeApproveShow: formatDateHHDDMM(job.TimeApprove),
-              }
-            })
-            
+              };
+            });
+
             return {
               ...item,
-            }
-          })
+            };
+          });
         }
-      })
+      });
     },
     handleFileUpload(event) {
-      const file = event.target.files[0]
+      const file = event.target.files[0];
       if (file) {
-        const params = new FormData()
+        const params = new FormData();
 
-        params.append("file", file)
+        params.append("file", file);
 
-        Axios.post(urlUploadFile(this.$route.params.id), params).then(res => {
+        Axios.post(urlUploadFile(this.$route.params.id), params).then((res) => {
           if (res.data.RespCode == 0) {
             this.getDocumentFile(
               this.dataJobInfo.DocumentID,
               this.userJob.UserID,
-            )
+            );
 
             notify({
               title: "File",
               text: "Thêm file hồ sơ thành công",
               type: "success",
-            })
+            });
           } else {
             notify({
               title: "File",
               text: res.data.RespText,
               type: "error",
-            })
+            });
           }
-        })
+        });
       }
     },
     handleFileUpload2(event) {
-      const file = event.target.files[0]
+      const file = event.target.files[0];
       if (file) {
-        const params = new FormData()
+        const params = new FormData();
 
-        params.append("file", file)
+        params.append("file", file);
 
-        Axios.post(urlUploadFile(this.$route.params.id), params).then(res => {
+        Axios.post(urlUploadFile(this.$route.params.id), params).then((res) => {
           if (res.data.RespCode == 0) {
             this.getDocumentFile2(
               this.dataJobInfo.DocumentID,
               this.userMana.UserID,
-            )
+            );
 
             notify({
               title: "File",
               text: "Thêm file hồ sơ thành công",
               type: "success",
-            })
+            });
           } else {
             notify({
               title: "File",
               text: res.data.RespText,
               type: "error",
-            })
+            });
           }
-        })
+        });
       }
     },
     getDocumentFile(docID, UserID) {
@@ -1922,67 +1633,67 @@ export default {
         DocumentID: docID,
         RowID: this.$route.params.id,
         UserID: UserID,
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
-          this.userJob.FileLst = res.Data
+          this.userJob.FileLst = res.Data;
         }
-      })
+      });
     },
     getDocumentFile2(docID, UserID) {
       GetDocumentFile({
         DocumentID: docID,
         RowID: this.$route.params.id,
         UserID: UserID,
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
-          this.userMana.FileLst = res.Data
+          this.userMana.FileLst = res.Data;
         }
-      })
+      });
     },
     getDocumentJobInfo() {
-      GetDocumentJobInfo({ RowID: this.$route.params.id }).then(res => {
+      GetDocumentJobInfo({ RowID: this.$route.params.id }).then((res) => {
         if (res.RespCode == 0) {
-          this.dataJobInfo = res.Data
+          this.dataJobInfo = res.Data;
           this.userJob = this.dataJobInfo.AssignLst.find(
-            p => p.UserRole == "Xử lý",
-          )
+            (p) => p.UserRole == "Xử lý",
+          );
           this.userMana = this.dataJobInfo.AssignLst.find(
-            p => p.UserRole == "Phê duyệt",
-          )
-          this.processDocument(this.dataJobInfo.DocumentID)
-          this.getDocumentFormByDocID(this.dataJobInfo.DocumentID)
+            (p) => p.UserRole == "Phê duyệt",
+          );
+          this.processDocument(this.dataJobInfo.DocumentID);
+          this.getDocumentFormByDocID(this.dataJobInfo.DocumentID);
         }
-      })
+      });
     },
     reportDocumentJob() {
       if (this.dataJobInfo.Report && this.dataJobInfo.Report != "") {
         ReportDocumentJob({
           ID: this.$route.params.id,
           Note: this.dataJobInfo.Report,
-          Data: this.stepLst.filter(p => p.Checked),
-        }).then(res => {
+          Data: this.stepLst.filter((p) => p.Checked),
+        }).then((res) => {
           if (res.RespCode == 0) {
-            this.getDocumentJobInfo()
-            this.isShowSteps = false
+            this.getDocumentJobInfo();
+            this.isShowSteps = false;
             notify({
               title: "Thành công",
               text: "Báo cáo thành công",
               type: "success",
-            })
+            });
           } else {
             notify({
               title: "Lỗi",
               text: res.RespText,
               type: "error",
-            })
+            });
           }
-        })
+        });
       } else {
         notify({
           title: "Lỗi",
           text: "Chưa nhập nội dung báo cáo",
           type: "error",
-        })
+        });
       }
     },
     approveDocumentJob(status) {
@@ -1991,58 +1702,58 @@ export default {
           ID: this.$route.params.id,
           Status: status,
           NoteApprove: this.dataJobInfo.NoteApprove,
-          Data: this.stepLst.filter(p => p.Checked),
-        }).then(res => {
+          Data: this.stepLst.filter((p) => p.Checked),
+        }).then((res) => {
           if (res.RespCode == 0) {
-            this.getDocumentJobInfo()
-            this.isShowSteps = false
+            this.getDocumentJobInfo();
+            this.isShowSteps = false;
             notify({
               title: "Thành công",
               text: "Phê duyệt thành công",
               type: "success",
-            })
+            });
           } else {
             notify({
               title: "Lỗi",
               text: res.RespText,
               type: "error",
-            })
+            });
           }
-        })
+        });
       } else {
         notify({
           title: "Lỗi",
           text: "Chưa nhập nội dung phê duyệt",
           type: "error",
-        })
+        });
       }
     },
     openStepDialog(status) {
       var proStepLst = this.processLst.filter(
         (item, index, self) =>
-          index === self.findIndex(el => el.StepID === item.StepID),
-      )
+          index === self.findIndex((el) => el.StepID === item.StepID),
+      );
       if (status == 4) {
         this.stepLst = proStepLst
           .filter(
-            p => parseInt(p.StepOrder) > parseInt(this.dataJobInfo.StepOrder),
+            (p) => parseInt(p.StepOrder) > parseInt(this.dataJobInfo.StepOrder),
           )
           .map((item, index) => {
             return {
               ...item,
               Key: index + 1,
               Checked: index == 0 ? true : false,
-            }
-          })
+            };
+          });
 
         if (this.dataJobInfo.StepNext && this.dataJobInfo.StepNext != "") {
-          this.approveDocumentJob(4)
+          this.approveDocumentJob(4);
         } else {
           if (this.stepLst.length == 0) {
-            this.approveDocumentJob(4)
+            this.approveDocumentJob(4);
           } else {
-            this.isShowSteps = true
-            this.statusJob = status
+            this.isShowSteps = true;
+            this.statusJob = status;
           }
         }
       }
@@ -2052,42 +1763,42 @@ export default {
             ...item,
             Key: index + 1,
             Checked: index == 0 ? true : false,
-          }
-        })
+          };
+        });
         if (this.dataJobInfo.StepBack && this.dataJobInfo.StepBack != "") {
-          this.approveDocumentJob(5)
+          this.approveDocumentJob(5);
         } else {
           if (this.stepLst.length == 0) {
-            this.approveDocumentJob(5)
+            this.approveDocumentJob(5);
           } else {
-            this.isShowSteps = true
-            this.statusJob = status
+            this.isShowSteps = true;
+            this.statusJob = status;
           }
         }
       }
       if (status == 0) {
         this.stepLst = proStepLst
           .filter(
-            p => parseInt(p.StepOrder) > parseInt(this.dataJobInfo.StepOrder),
+            (p) => parseInt(p.StepOrder) > parseInt(this.dataJobInfo.StepOrder),
           )
           .map((item, index) => {
             return {
               ...item,
               Key: index + 1,
               Checked: index == 0 ? true : false,
-            }
-          })
+            };
+          });
         if (this.dataJobInfo.AssignLst.length > 1) {
-          this.reportDocumentJob()
+          this.reportDocumentJob();
         } else {
           if (this.dataJobInfo.StepNext && this.dataJobInfo.StepNext != "") {
-            this.reportDocumentJob()
+            this.reportDocumentJob();
           } else {
             if (this.stepLst.length == 0) {
-              this.reportDocumentJob()
+              this.reportDocumentJob();
             } else {
-              this.isShowSteps = true
-              this.statusJob = status
+              this.isShowSteps = true;
+              this.statusJob = status;
             }
           }
         }
@@ -2095,57 +1806,57 @@ export default {
     },
     btConfirm() {
       if (this.statusJob == 4 || this.statusJob == 5) {
-        this.approveDocumentJob(this.statusJob)
+        this.approveDocumentJob(this.statusJob);
       } else {
-        this.reportDocumentJob()
+        this.reportDocumentJob();
       }
     },
     async getDocumentFormByDocID(data) {
       const res = await GetDocumentFormByDocID({
         DocumentID: data,
-      })
+      });
 
       if (res.RespCode == 0) {
-        this.formTabLst = []
+        this.formTabLst = [];
 
         for (const item of res.DocumentFormLst) {
           if (item.TypeForm == 1) {
-            const newLines = []
+            const newLines = [];
 
             // duyệt qua DNFormLineLst (cấu hình form gốc)
             for (const ele of item.DNFormLineLst) {
-              let options = []
+              let options = [];
 
               if (ele.OptionAnswer) {
-                options = JSON.parse(ele.OptionAnswer)
+                options = JSON.parse(ele.OptionAnswer);
               }
 
               // tìm bản ghi đã lưu trong DocumentFormLineLst
               const check = item.DocumentFormLineLst.find(
-                p => p.Required == ele.Required,
-              )
+                (p) => p.Required == ele.Required,
+              );
 
               if (check) {
                 // ưu tiên lấy từ DocumentFormLineLst
-                let text = ""
+                let text = "";
                 if (check.Type == 2 || check.Type == 3) {
                   text =
                     check.TextResult && check.TextResult !== ""
                       ? check.TextResult.split(" | ")
-                      : []
+                      : [];
                 } else {
-                  text = check.TextResult
+                  text = check.TextResult;
                 }
 
                 if (check.Type == 3) {
                   if (check.OptionLine == 1) {
-                    options = await this.getUserLstByTeamID(check.OptionText)
+                    options = await this.getUserLstByTeamID(check.OptionText);
                   }
                   if (check.OptionLine == 2) {
-                    options = await this.getDefaultValue(check.OptionText)
+                    options = await this.getDefaultValue(check.OptionText);
                   }
                   if (check.OptionLine == 3) {
-                    options = await this.getProductLst()
+                    options = await this.getProductLst();
                   }
                 }
 
@@ -2153,36 +1864,36 @@ export default {
                   ...check,
                   Options: options,
                   TextResult: text,
-                })
+                });
               } else {
                 // nếu DocumentFormLineLst không có thì fallback DNFormLineLst
                 if (ele.Type == 3) {
                   if (ele.OptionLine == 1) {
-                    options = await this.getUserLstByTeamID(ele.OptionText)
+                    options = await this.getUserLstByTeamID(ele.OptionText);
                   }
                   if (ele.OptionLine == 2) {
-                    options = await this.getDefaultValue(ele.OptionText)
+                    options = await this.getDefaultValue(ele.OptionText);
                   }
                   if (ele.OptionLine == 3) {
-                    options = await this.getProductLst()
+                    options = await this.getProductLst();
                   }
                 }
 
                 newLines.push({
                   ...ele,
                   Options: options,
-                })
+                });
               }
             }
 
-            item.DocumentFormLineLst = newLines
+            item.DocumentFormLineLst = newLines;
           }
 
           // giữ nguyên xử lý TypeForm == 2 (table)
           if (item.TypeForm == 2) {
             item.headers = [
               { title: "STT", sortable: false, key: "Key", align: "center" },
-            ]
+            ];
 
             for (const line of item.DNFormLineLst) {
               if (line.IsPrivate == 0) {
@@ -2193,38 +1904,38 @@ export default {
                   align: "left",
                   type: line.Type,
                   options: line.Type == 2 ? JSON.parse(line.OptionAnswer) : [],
-                })
+                });
               }
             }
 
             const len = item.DocumentFormLineLst.filter(
               (obj, index, self) =>
                 index ===
-                self.findIndex(o => o.IDFormLine === obj.IDFormLine),
-            )
+                self.findIndex((o) => o.IDFormLine === obj.IDFormLine),
+            );
 
             item.desserts = len.map((l, i) => {
               const itemlst = item.DocumentFormLineLst.filter(
-                p => p.IDFormLine == l.IDFormLine && p.IsPrivate == 0,
-              )
+                (p) => p.IDFormLine == l.IDFormLine && p.IsPrivate == 0,
+              );
 
-              const itemde = {}
+              const itemde = {};
 
               itemlst.forEach((ele, inle) => {
-                itemde["Line" + (inle + 1)] = ele.TextResult
-              })
+                itemde["Line" + (inle + 1)] = ele.TextResult;
+              });
 
-              return { ...itemde, Key: i + 1, Status: 1 }
-            })
+              return { ...itemde, Key: i + 1, Status: 1 };
+            });
           }
 
-          this.formTabLst.push(item)
+          this.formTabLst.push(item);
         }
 
         if (this.formTabLst.length > 0) {
-          this.tab = this.formTabLst[0]
+          this.tab = this.formTabLst[0];
         }
-        this.isLoadingFile = false
+        this.isLoadingFile = false;
       }
     },
     async getUserLstByTeamID(teamID) {
@@ -2233,26 +1944,26 @@ export default {
         RowspPage: 10000,
         Search: "",
         TeamID: teamID,
-      })
+      });
 
       if (res.RespCode == 0) {
-        return res.Data.map(item => ({
+        return res.Data.map((item) => ({
           ...item,
           value: item.UserName,
           text: item.FullName,
-        }))
+        }));
       }
-      
-      return []
+
+      return [];
     },
     async getProductLst() {
       const requestData = {
         PageNumber: 1,
         RowspPage: 1000000,
         Search: "||||",
-      }
+      };
 
-      const res = await GetProductLst(requestData)
+      const res = await GetProductLst(requestData);
 
       if (res.RespCode == 0) {
         this.productLst = res.Data.map((item, index) => ({
@@ -2260,39 +1971,39 @@ export default {
           Key: index + 1,
           value: item.WarehouseID,
           text: item.WarehouseName,
-        }))
-        
-        return this.productLst
+        }));
+
+        return this.productLst;
       }
 
-      return []
+      return [];
     },
     async getDefaultValue(table) {
       const res = await GetDefaultValue({
         Table: table,
-      })
+      });
 
       if (res.RespCode == 0) {
-        return res.DefaultValueLst.map(item => ({
+        return res.DefaultValueLst.map((item) => ({
           ...item,
           value: item.ValueName,
           text: item.ValueName,
-        }))
+        }));
       }
 
-      return []
+      return [];
     },
     deleteDessert(key) {
-      this.desserts = this.desserts.filter(item => item.Key !== key)
+      this.desserts = this.desserts.filter((item) => item.Key !== key);
     },
     triggerFileInputClick() {
-      this.$refs.fileInput.click()
+      this.$refs.fileInput.click();
     },
     triggerFileInputClickExcel() {
-      this.$refs.fileInputExcel.click()
+      this.$refs.fileInputExcel.click();
     },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
