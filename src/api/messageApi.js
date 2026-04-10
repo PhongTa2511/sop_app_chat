@@ -73,6 +73,22 @@ export function GetMemberLstByGroupID(data) {
   })
 }
 
+export function GetReactionsByMessageIDs(data) {
+  return request({
+    url: "messages/GetReactionsByMessageIDs",
+    method: "post",
+    data,
+  })
+}
+
+export function ReactMessage(data) {
+  return request({
+    url: "messages/ReactMessage",
+    method: "post",
+    data,
+  })
+}
+
 export function urlUploadImageGroup(ID) {
   return `https://sop.idtp.work/api/File/UploadAvatarGroup?UserName=${getUserName()}&Token=${getToken()}&GroupID=${ID}`
 }

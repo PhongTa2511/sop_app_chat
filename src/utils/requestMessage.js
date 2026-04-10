@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios from "axios";
 
 // import { useGlobalStore } from '@/stores/global-store'
 import {
@@ -9,52 +9,51 @@ import {
   removePhoneNumber,
   removeToken,
   removeUserName,
-} from "@/utils/auth"
+} from "@/utils/auth";
 
 // create an axios instance
-import { useNotification } from "@kyvg/vue3-notification"
+import { useNotification } from "@kyvg/vue3-notification";
 
-const notification = useNotification()
+const notification = useNotification();
 
 const service = axios.create({
   baseURL: "https://sop.idtp.work/mes/",
 
-  // baseURL: "http://localhost:3009/",
+  baseURL: "http://localhost:3009/",
   withCredentials: true, // send cookies when cross-domain requests
   timeout: 20000, // request timeout
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
   },
-})
-
+});
 
 // request interceptor
 service.interceptors.request.use(
-  config => {
+  (config) => {
     // do something before request is sent
-    const token = getToken()
+    const token = getToken();
 
     if (token != "" && token) {
-      config.data.Token = getToken()
-      config.data.UserName = getUserName()
+      config.data.Token = getToken();
+      config.data.UserName = getUserName();
     }
 
-    return config
+    return config;
   },
-  error => {
+  (error) => {
     // do something with request error
-    return Promise.reject(error)
+    return Promise.reject(error);
   },
-)
+);
 
 // response interceptor
 service.interceptors.response.use(
-  response => {
+  (response) => {
     if (response.data == null) {
-      response.data = {}
+      response.data = {};
     }
-    const res = response.data
+    const res = response.data;
 
     // if the custom code is not 20000, it is judged as an error.
     if (res.RespCode !== 0) {
@@ -63,30 +62,30 @@ service.interceptors.response.use(
           type: "error",
           title: "Hết hạn",
           text: "Phiên đăng nhập hết hạn",
-        })
-        removeToken()
-        removeUserName()
-        removeFullName()
-        removePhoneNumber()
-        removeEmployCode()
-        store.dispatch("user/resetToken").then(() => {})
-        location.reload()
+        });
+        removeToken();
+        removeUserName();
+        removeFullName();
+        removePhoneNumber();
+        removeEmployCode();
+        store.dispatch("user/resetToken").then(() => {});
+        location.reload();
       } else {
         notification.notify({
           type: "error",
           title: "Lỗi",
           text: res.RespText,
-        })
-        
-        return null
+        });
+
+        return null;
       }
     } else {
-      return res
+      return res;
     }
   },
-  error => {
-    return Promise.reject(error)
+  (error) => {
+    return Promise.reject(error);
   },
-)
+);
 
-export default service
+export default service;
