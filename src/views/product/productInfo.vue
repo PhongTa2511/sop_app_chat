@@ -327,7 +327,7 @@
           class="mb-2"
         />
 
-        <VSelect
+        <VAutocomplete
           v-model="newDocument.TypeDoc"
           label="Loại hồ sơ"
           placeholder="Nhập thông tin"
