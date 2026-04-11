@@ -695,52 +695,30 @@
               </div>
               <div v-html="job.Report" />
             </div>
-            <div v-if="job.DataAssign.length > 0" class="file-lst">
-              <VMenu
-                v-for="(file, indfile) in job.DataAssign"
-                :key="indfile"
-                location="end"
-              >
-                <template #activator="{ props }">
-                  <VTooltip location="top">
-                    <template #activator="{ props: tooltipProps }">
-                      <VChip
-                        color="gray"
-                        class="mr-1"
-                        v-bind="{ ...props, ...tooltipProps }"
-                      >
-                        {{ file.MineFile }}
-                      </VChip>
-                    </template>
+            <div v-if="job.DataAssign.length > 0" class="file-scroll">
+              <div class="d-inline-flex">
+                <VMenu
+                  v-for="(file, indfile) in job.DataAssign"
+                  :key="indfile"
+                  location="end"
+                >
+                  <template #activator="{ props }">
+                    <VTooltip location="top">
+                      <template #activator="{ props: tooltipProps }">
+                        <VChip
+                          color="gray"
+                          class="mr-1 flex-shrink-0"
+                          v-bind="{ ...props, ...tooltipProps }"
+                        >
+                          {{ file.MineFile }}
+                        </VChip>
+                      </template>
 
-                    <span>{{ file.NameFile }}</span>
-                  </VTooltip>
-                </template>
-
-                <VList>
-                  <VListItem v-if="isPreviewSupported(file.MineFile)">
-                    <VListItemTitle>
-                      <VBtn size="small" @click="previewFile(file)" rounded="8">
-                        <VIcon class="mr-1">mdi-file-eye</VIcon> Xem trước
-                      </VBtn>
-                    </VListItemTitle>
-                  </VListItem>
-
-                  <VListItem>
-                    <VListItemTitle>
-                      <VBtn
-                        size="small"
-                        @click="downloadFile(file)"
-                        rounded="8"
-                        color="green"
-                        block
-                      >
-                        <VIcon class="mr-1">mdi-file-download</VIcon> Tải ngay
-                      </VBtn>
-                    </VListItemTitle>
-                  </VListItem>
-                </VList>
-              </VMenu>
+                      <span>{{ file.NameFile }}</span>
+                    </VTooltip>
+                  </template>
+                </VMenu>
+              </div>
             </div>
             <div class="text-caption">
               <div>
@@ -753,7 +731,7 @@
               </div>
               <div v-html="job.NoteApprove" />
             </div>
-            <div v-if="job.DataApprove.length > 0" class="file-lst">
+            <div v-if="job.DataApprove.length > 0" class="file-scroll">
               <VMenu
                 v-for="(file, indfile) in job.DataApprove"
                 :key="indfile"
@@ -1171,5 +1149,21 @@ table {
 <style lang="scss">
 .ql-toolbar.ql-snow {
   border: none !important;
+}
+.file-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap; 
+  padding-bottom: 4px;
+  margin-top: 8px;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+  }
 }
 </style>
