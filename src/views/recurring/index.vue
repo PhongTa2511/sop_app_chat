@@ -136,18 +136,20 @@
               </VTooltip>
             </div>
             <VSpacer />
-            <VTooltip text="Cập nhật thông tin công việc định kỳ" location="top">
-              <template #activator="{ props }">
-                <VBtn v-bind="props" variant="tonal" rounded="sm" size="x-small" color="green" icon="mdi-update"
-                  aria-label="Cập nhật thông tin công việc định kỳ" @click="openDialog(item)" />
-              </template>
-            </VTooltip>
-            <VTooltip text="Quá trình thực hiện" location="top">
-              <template #activator="{ props }">
-                <VBtn v-bind="props" variant="tonal" rounded="sm" size="x-small" color="green" icon="mdi-progress-check"
-                  aria-label="Quá trình thực hiện" @click="btShowProgress(item)" />
-              </template>
-            </VTooltip>
+            <div class="d-flex align-center gap-1">
+              <VTooltip text="Cập nhật thông tin công việc định kỳ" location="top">
+                <template #activator="{ props }">
+                  <VBtn v-bind="props" variant="tonal" rounded="sm" size="x-small" color="green" icon="mdi-update"
+                    aria-label="Cập nhật thông tin công việc định kỳ" @click="openDialog(item)" />
+                </template>
+              </VTooltip>
+              <VTooltip text="Quá trình thực hiện" location="top">
+                <template #activator="{ props }">
+                  <VBtn v-bind="props" variant="tonal" rounded="sm" size="x-small" color="green" icon="mdi-progress-check"
+                    aria-label="Quá trình thực hiện" @click="btShowProgress(item)" />
+                </template>
+              </VTooltip>
+            </div>
           </VCardActions>
         </VCard>
       </VCol>
