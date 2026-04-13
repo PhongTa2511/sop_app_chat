@@ -121,7 +121,9 @@
                         color="green"
                         rounded="md"
                         @click="updateDocumentForm(tab)"
-                      />
+                      >
+                        Lưu thông tin
+                      </VBtn>
                       <VBtn
                         class="ml-2"
                         size="small"
