@@ -527,6 +527,13 @@
                 </VCol>
               </VRow>
             </div> -->
+            <div v-if="dataJobInfo.ApproveName" class="px-4">
+              <VIcon color="red" size="small"> mdi-account-check </VIcon>
+              {{ dataJobInfo.ApproveName }}
+              <span v-if="dataJobInfo.TimeApprove" class="ml-2 text-caption">
+                ({{ formatDateDisplay(dataJobInfo.TimeApprove) }})
+              </span>
+            </div>
             <div v-if="dataJobInfo.NoteApprove" class="px-4">
               <VRow>
                 <VCol lg="8" md="8" cols="12">
@@ -538,16 +545,6 @@
                     <VChip v-if="dataJobInfo.Status == 5" color="red">
                       Đã từ chối
                     </VChip>
-                  </div>
-                  <div class="pb-1 text-subtitle-2">
-                    <VIcon color="red" size="small"> mdi-account-edit </VIcon>
-                    {{ dataJobInfo.ApproveName }}
-                  </div>
-                  <div class="pb-1 text-subtitle-2">
-                    <VIcon color="green" size="small">
-                      mdi-clock-time-four-outline
-                    </VIcon>
-                    Duyệt lúc: {{ formatDateDisplay(dataJobInfo.TimeApprove) }}
                   </div>
                   <div
                     class="border-md px-2 py-1 rounded report-content"
@@ -723,24 +720,38 @@
                 </VMenu>
               </div>
             </div>
-            <div v-if="job.Status == 4 || job.Status == 5" class="text-caption">
+            <div v-if="job.ApproveName" class="text-caption mt-1">
               <div>
-                <VIcon :color="job.Status == 4 ? 'green' : 'red'" size="small">
-                  {{
-                    job.Status == 4 ? "mdi-account-check" : "mdi-account-cancel"
-                  }}
+                <VIcon
+                  :color="
+                    job.Status == 4
+                      ? 'green'
+                      : job.Status == 5
+                        ? 'red'
+                        : 'orange'
+                  "
+                  size="small"
+                >
+                  mdi-account-check
                 </VIcon>
                 {{ job.ApproveName }}
                 <VIcon
                   v-if="job.TimeApprove"
                   :color="job.Status == 4 ? 'green' : 'red'"
                   size="small"
+                  class="ml-1"
                 >
                   mdi-clock
                 </VIcon>
-                {{ formatDateDisplay(job.TimeApprove) }}
+                {{ job.TimeApprove ? formatDateDisplay(job.TimeApprove) : '' }}
               </div>
-              <div class="report-content" style="overflow: auto" v-html="job.NoteApprove" @click="handleContentImageClick" />
+              <div
+                v-if="job.NoteApprove"
+                class="report-content"
+                style="overflow: auto"
+                v-html="job.NoteApprove"
+                @click="handleContentImageClick"
+              />
             </div>
             <div v-if="job.DataApprove.length > 0" class="file-scroll">
               <VMenu
