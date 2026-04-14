@@ -842,6 +842,7 @@
 import {
   ApproveRecurringJobInfo,
   GetProgressByRecID,
+  GetRecurringFileByUserID,
   GetRecurringTaskByID,
   ReportRecurringJobInfo,
 } from "@/api/recurringJobApi";
@@ -1153,7 +1154,7 @@ table {
 .file-scroll {
   overflow-x: auto;
   overflow-y: hidden;
-  white-space: nowrap; 
+  white-space: nowrap;
   padding-bottom: 4px;
   margin-top: 8px;
 
