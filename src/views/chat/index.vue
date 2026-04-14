@@ -143,6 +143,7 @@
             v-if="messageLst.length > 0"
             ref="chatList"
             :class="replyingTo ? 'custome-content-reply' : 'custome-content'"
+            :style="chatListStyle"
             @scroll="handleScroll"
           >
             <div v-if="loadingMore" class="loading-indicator">
@@ -383,7 +384,8 @@
           </div>
 
           <div
-            class="position-absolute bottom-0 bg-white border-t d-flex flex-column"
+            class="position-absolute bottom-0 bg-white border-t d-flex flex-column composer-bar"
+            ref="composerBar"
             :style="{
               left: drawerLeft ? '300px' : '0',
               right: drawerRight ? '300px' : '0',
@@ -427,12 +429,40 @@
                 />
               </div>
             </VExpandTransition>
+
             <div
-              class="d-flex align-center px-1"
-              style="
-                background: rgb(var(--v-theme-background-overlay-multiplier));
-              "
+              v-if="pendingAttachments.length > 0"
+              class="composer-attachments-bar px-3 pt-2"
             >
+              <div class="composer-attachments">
+                <div
+                  v-for="(att, idx) in pendingAttachments"
+                  :key="att.id"
+                  class="composer-attachment"
+                >
+                  <div v-if="att.isImage" class="composer-attachment-img">
+                    <img :src="att.previewUrl" :alt="att.name" />
+                  </div>
+                  <div v-else class="composer-attachment-file">
+                    <VIcon size="small" class="mr-1"
+                      >mdi-file-document-outline</VIcon
+                    >
+                    <span class="composer-attachment-name">{{ att.name }}</span>
+                  </div>
+
+                  <button
+                    class="composer-attachment-remove"
+                    type="button"
+                    @click="removePendingAttachment(idx)"
+                    aria-label="Remove"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex align-center px-1 composer-row">
               <VBtn
                 icon="mdi-link-variant"
                 rounded="pill"
@@ -501,6 +531,7 @@
                   rows="1"
                   rounded="xl"
                   @input="handleMessageInput"
+                  @paste="onComposerPaste"
                   @keydown="handleKeyPress"
                 />
               </div>
@@ -509,6 +540,7 @@
                 rounded="pill"
                 color="blue"
                 variant="text"
+                :disabled="isSending"
                 @click="sendMessageHandler"
               />
             </div>
@@ -589,8 +621,16 @@
               :key="g.GroupID"
               @click="forwardToGroup(g)"
             >
+              <template #prepend>
+                <VAvatar>
+                  <VImg v-if="g.Avatar" :src="g.Avatar" />
+                  <VIcon v-else> mdi-account-supervisor </VIcon>
+                </VAvatar>
+              </template>
               <template #title>
-                {{ g.GroupName ? g.GroupName : g.DocumentID }}
+                <div class="text-bold" style="font-weight: 700">
+                  {{ g.GroupName ? g.GroupName : g.DocumentID }}
+                </div>
               </template>
               <template #subtitle>
                 {{ g.NewMessage ?? g.LastMessage ?? "" }}
@@ -780,6 +820,8 @@ export default {
       allLoaded: false, // Đã tải hết sạch dữ liệu chưa
       timeout: null, // Dùng để debounce tìm kiếm
       replyingTo: null,
+      pendingAttachments: [],
+      isSending: false,
 
       // mentions
       memberLst: [],
@@ -810,6 +852,15 @@ export default {
     };
   },
   computed: {
+    chatListStyle() {
+      // Bình thường không thêm khoảng trống.
+      // Khi có ảnh/file paste (thanh preview cao hơn), cần chừa thêm để tin cuối không bị che.
+      const hasAttachments = (this.pendingAttachments || []).length > 0;
+      if (!hasAttachments) return null;
+
+      // 86px thumb + padding/bar + safe area
+      return { paddingBottom: "140px" };
+    },
     mentionSuggestions() {
       if (!this.showMentionPicker) return [];
 
@@ -881,12 +932,21 @@ export default {
   },
   watch: {
     groupInfo() {
-      this.currentGroupID = this.groupInfo?.GroupID ?? null;
+      const groupID = this.groupInfo?.GroupID ?? null;
+      this.currentGroupID = groupID;
+
+      // Reset UI state khi chuyển đoạn chat
+      this.typingUsers = {};
+      this.loadingMore = false;
+      this.currentPage = 1;
+      this.messageLst = [];
+      this.scrollBottom();
+
+      if (!groupID) return;
+
       this.getMessageByGoupID();
       this.getMemberLstByGroupID();
-      socket.emit("join:group", {
-        GroupID: this.groupInfo.GroupID,
-      });
+      socket.emit("join:group", { GroupID: groupID });
     },
     searchGroup() {
       this.getGroupLstByUserID();
@@ -1588,90 +1648,162 @@ export default {
       if (!this.groupInfo?.GroupID) return;
 
       files.forEach((file) => {
-        const sizeFile = file.size;
-        const isImage = (file.type || "").toLowerCase().startsWith("image/");
-        const isAttachment = isImage ? 1 : 2;
-        const params = new FormData();
-
-        params.append("file", file);
-
-        var req = {
-          SenderID: this.senderID,
-          GroupID: this.groupInfo.GroupID,
-          RecipientID: null,
-          TextContent: isImage ? "" : file.name,
-          IsAttachment: isAttachment,
-          IsMine: true,
-          ReplyID: null,
-          SizeFile: sizeFile,
-          MineFile: file.name,
-          Avatar: getAvatar(),
-        };
-
-        // Fallback cho backend validate chặt (vd SOP): gửi schema cũ tối giản
-        const reqCompat = {
-          SenderID: req.SenderID,
-          GroupID: req.GroupID,
-          RecipientID: req.RecipientID,
-          IsAttachment: 1,
-          IsMine: req.IsMine,
-          SizeFile: req.SizeFile,
-          Avatar: req.Avatar,
-        };
-
-        const doUpload = (messageID, socketPayload) => {
-          Axios.post(urlUploadMessageFile(messageID), params)
-            .then((resfile) => {
-              if (resfile.data.RespCode == 0) {
-                socket.emit("sendMessage", socketPayload);
-                this.newMessage = "";
-                this.replyingTo = null;
-              } else {
-                notify({
-                  title: "Lỗi",
-                  text: resfile?.data?.RespText || "Upload file thất bại",
-                  type: "error",
-                });
-              }
-            })
-            .catch((err) => {
-              notify({
-                title: "Lỗi",
-                text:
-                  err?.response?.data?.RespText ||
-                  err?.message ||
-                  "Upload file thất bại",
-                type: "error",
-              });
-            });
-        };
-
-        SendMessage({ Data: req })
-          .then((res) => {
-            if (res?.RespCode == 0) {
-              doUpload(res.Data.MessageID, res.Data);
-            }
-          })
-          .catch(() => {
-            SendMessage({ Data: reqCompat })
-              .then((res) => {
-                if (res?.RespCode == 0) {
-                  doUpload(res.Data.MessageID, res.Data);
-                }
-              })
-              .catch((err) => {
-                notify({
-                  title: "Lỗi",
-                  text:
-                    err?.response?.data?.RespText ||
-                    err?.response?.data?.error ||
-                    err?.message ||
-                    "Gửi tin nhắn file thất bại",
-                  type: "error",
-                });
-              });
-          });
+        this.sendSingleAttachment(file);
       });
+    },
+    onComposerPaste(event) {
+      try {
+        const dt = event?.clipboardData;
+        if (!dt || !dt.items) return;
+
+        const items = Array.from(dt.items || []);
+        const imageItems = items.filter(
+          (it) => it.kind === "file" && (it.type || "").startsWith("image/"),
+        );
+        if (imageItems.length === 0) return;
+
+        const files = imageItems
+          .map((it) => (it.getAsFile ? it.getAsFile() : null))
+          .filter(Boolean)
+          .map((f) => {
+            const ext = (f.type || "image/png").split("/")[1] || "png";
+            const safeName = f.name && f.name !== "image.png" ? f.name : "";
+            const name = safeName || `clipboard-${Date.now()}.${ext}`;
+            return new File([f], name, { type: f.type || "image/png" });
+          });
+
+        if (files.length === 0) return;
+
+        const pastedText = (dt.getData && dt.getData("text/plain")) || "";
+        if (!pastedText) event.preventDefault();
+
+        this.queuePendingAttachments(files);
+      } catch (_) {
+        // ignore
+      }
+    },
+    queuePendingAttachments(files) {
+      if (!Array.isArray(files) || files.length === 0) return;
+
+      files.forEach((file) => {
+        const isImage = (file?.type || "").toLowerCase().startsWith("image/");
+        const id = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+        const previewUrl = isImage ? URL.createObjectURL(file) : null;
+
+        this.pendingAttachments.push({
+          id,
+          file,
+          isImage,
+          name: file?.name || "file",
+          previewUrl,
+        });
+      });
+    },
+    removePendingAttachment(idx) {
+      const att = this.pendingAttachments[idx];
+      if (att?.previewUrl) URL.revokeObjectURL(att.previewUrl);
+      this.pendingAttachments.splice(idx, 1);
+    },
+    clearPendingAttachments() {
+      for (let i = this.pendingAttachments.length - 1; i >= 0; i--) {
+        this.removePendingAttachment(i);
+      }
+    },
+    async sendPendingAttachments() {
+      if (!this.pendingAttachments.length) return true;
+
+      const items = this.pendingAttachments.slice();
+      let allOk = true;
+
+      for (const att of items) {
+        const ok = await this.sendSingleAttachment(att.file);
+        if (!ok) allOk = false;
+
+        if (ok) {
+          const idx = this.pendingAttachments.findIndex((x) => x.id === att.id);
+          if (idx >= 0) this.removePendingAttachment(idx);
+        }
+      }
+
+      return allOk;
+    },
+    async sendSingleAttachment(file) {
+      if (!file) return false;
+      if (!this.groupInfo?.GroupID) return false;
+
+      const sizeFile = file.size;
+      const isImage = (file.type || "").toLowerCase().startsWith("image/");
+      const isAttachment = isImage ? 1 : 2;
+      const params = new FormData();
+      params.append("file", file);
+
+      const req = {
+        SenderID: this.senderID,
+        GroupID: this.groupInfo.GroupID,
+        RecipientID: null,
+        TextContent: isImage ? "" : file.name,
+        IsAttachment: isAttachment,
+        IsMine: true,
+        ReplyID: this.replyingTo ? this.replyingTo.MessageID : null,
+        SizeFile: sizeFile,
+        MineFile: file.name,
+        Avatar: getAvatar(),
+      };
+
+      // Fallback cho backend validate chặt (vd SOP): gửi schema cũ tối giản
+      const reqCompat = {
+        SenderID: req.SenderID,
+        GroupID: req.GroupID,
+        RecipientID: req.RecipientID,
+        IsAttachment: 1,
+        IsMine: req.IsMine,
+        SizeFile: req.SizeFile,
+        Avatar: req.Avatar,
+      };
+
+      const doUpload = async (messageID, socketPayload) => {
+        const resfile = await Axios.post(
+          urlUploadMessageFile(messageID),
+          params,
+        );
+        if (resfile?.data?.RespCode === 0) {
+          socket.emit("sendMessage", socketPayload);
+          return true;
+        }
+
+        notify({
+          title: "Lỗi",
+          text: resfile?.data?.RespText || "Upload file thất bại",
+          type: "error",
+        });
+        return false;
+      };
+
+      try {
+        const res = await SendMessage({ Data: req });
+        if (res?.RespCode === 0)
+          return await doUpload(res.Data.MessageID, res.Data);
+      } catch (_) {
+        // ignore and fallback
+      }
+
+      try {
+        const res2 = await SendMessage({ Data: reqCompat });
+        if (res2?.RespCode === 0)
+          return await doUpload(res2.Data.MessageID, res2.Data);
+      } catch (err) {
+        notify({
+          title: "Lỗi",
+          text:
+            err?.response?.data?.RespText ||
+            err?.response?.data?.error ||
+            err?.message ||
+            "Gửi tin nhắn file thất bại",
+          type: "error",
+        });
+      }
+
+      return false;
     },
     getGroupLstByUserID() {
       GetGroupLstByUserID({
@@ -1723,10 +1855,14 @@ export default {
 
       return `${hours}h${parseInt(minutes)}p`;
     },
-    sendMessageHandler() {
-      if (!this.newMessage.trim()) return;
+    async sendMessageHandler() {
+      if (this.isSending) return;
 
-      const text = this.newMessage.trim();
+      const text = (this.newMessage || "").trim();
+      if (!text && this.pendingAttachments.length === 0) return;
+      if (!this.groupInfo?.GroupID) return;
+
+      this.isSending = true;
       const hasRich =
         this.richEnabled &&
         (this.pendingMentionAll ||
@@ -1743,7 +1879,7 @@ export default {
           }
         : text;
 
-      var req = {
+      const req = {
         SenderID: this.senderID,
         GroupID: this.groupInfo.GroupID,
         RecipientID: null,
@@ -1757,44 +1893,52 @@ export default {
       const onSent = (res) => {
         if (res?.RespCode == 0) {
           socket.emit("sendMessage", res.Data);
-          this.newMessage = "";
-          this.replyingTo = null;
-          this.pendingMentions = [];
-          this.pendingMentionAll = false;
-          this.showMentionPicker = false;
+          return true;
         }
+        return false;
       };
 
-      SendMessage({ Data: req })
-        .then(onSent)
-        .catch(() => {
-          if (!hasRich) {
-            notify({
-              title: "Lỗi",
-              text: "Gửi tin nhắn thất bại",
-              type: "error",
-            });
-            return;
-          }
+      try {
+        // Pasted ảnh/file: gửi khi bấm Send (giống Messenger)
+        if (this.pendingAttachments.length > 0) {
+          const okAtt = await this.sendPendingAttachments();
+          if (!okAtt) return;
+        }
 
-          // Fallback: backend không hỗ trợ rich payload → gửi plain text
-          this.richEnabled = false;
-          SendMessage({
-            Data: { ...req, TextContent: text },
-          })
-            .then(onSent)
-            .catch((err) => {
-              notify({
-                title: "Lỗi",
-                text:
-                  err?.response?.data?.RespText ||
-                  err?.response?.data?.error ||
-                  err?.message ||
-                  "Gửi tin nhắn thất bại",
-                type: "error",
-              });
+        if (text) {
+          try {
+            const res = await SendMessage({ Data: req });
+            onSent(res);
+          } catch (err) {
+            if (!hasRich) throw err;
+
+            // Fallback: backend không hỗ trợ rich payload → gửi plain text
+            this.richEnabled = false;
+            const res2 = await SendMessage({
+              Data: { ...req, TextContent: text },
             });
+            onSent(res2);
+          }
+        }
+
+        this.newMessage = "";
+        this.replyingTo = null;
+        this.pendingMentions = [];
+        this.pendingMentionAll = false;
+        this.showMentionPicker = false;
+      } catch (err) {
+        notify({
+          title: "Lỗi",
+          text:
+            err?.response?.data?.RespText ||
+            err?.response?.data?.error ||
+            err?.message ||
+            "Gửi tin nhắn thất bại",
+          type: "error",
         });
+      } finally {
+        this.isSending = false;
+      }
     },
     selectGroup(groupInfo) {
       this.groupInfo = groupInfo;
@@ -1804,6 +1948,7 @@ export default {
       this.pendingMentions = [];
       this.pendingMentionAll = false;
       this.showMentionPicker = false;
+      this.clearPendingAttachments();
       this.markAsRead(groupInfo.GroupID);
     },
     getMemberLstByGroupID() {
@@ -1817,16 +1962,24 @@ export default {
         }
       });
     },
-    getMessageByGoupID() {
-      GetMessageByGoupID({
-        GroupID: this.groupInfo.GroupID,
-        PageNumber: 1,
-        RowspPage: this.rowspPage,
-        Search: "",
-        ComID: "",
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.messageLst = res.Data.map((item) =>
+    async getMessageByGoupID() {
+      const groupID = this.groupInfo?.GroupID;
+      if (!groupID) return;
+
+      try {
+        const res = await GetMessageByGoupID({
+          GroupID: groupID,
+          PageNumber: 1,
+          RowspPage: this.rowspPage,
+          Search: "",
+          ComID: "",
+        });
+
+        // Nếu user đổi group trong lúc đang load → bỏ kết quả cũ
+        if (this.groupInfo?.GroupID !== groupID) return;
+
+        if (res?.RespCode === 0) {
+          this.messageLst = (res.Data || []).map((item) =>
             this.decorateMessageForUI(item),
           );
           this.messageLst = this.markLatestMessages(this.messageLst);
@@ -1836,7 +1989,9 @@ export default {
             this.messageLst.slice(-80).map((m) => m.MessageID),
           );
         }
-      });
+      } catch (_) {
+        // ignore
+      }
     },
     formatFileSize(sizeInBytes) {
       if (sizeInBytes < 1024 * 1024) {
@@ -1858,10 +2013,19 @@ export default {
     },
     scrollBottom() {
       this.$nextTick(() => {
-        if (this.$refs.chatList) {
-          this.$refs.chatList.$el.scrollTop =
-            this.$refs.chatList.$el.scrollHeight;
-        }
+        const list = this.$refs.chatList;
+        const el = list?.$el || list;
+        if (!el) return;
+
+        const scroll = () => {
+          el.scrollTop = el.scrollHeight;
+        };
+
+        scroll();
+        requestAnimationFrame(() => {
+          scroll();
+          requestAnimationFrame(scroll);
+        });
       });
     },
     addEmoji(emoji) {
@@ -2088,6 +2252,103 @@ export default {
 .mention-input {
   position: relative;
   flex: 1;
+}
+
+.composer-bar {
+  z-index: 20;
+  background: #fff;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.composer-row {
+  background: #fff;
+}
+
+.composer-attachments-bar {
+  background: #fff;
+  border-bottom: 1px solid #e4e6eb;
+}
+
+.composer-attachments {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  align-items: center;
+  overflow-x: auto;
+  padding-bottom: 10px;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #bec5ce;
+    border-radius: 20px;
+  }
+}
+
+.composer-attachment {
+  position: relative;
+  width: 86px;
+  height: 86px;
+  border-radius: 12px;
+  border: 1px solid #e4e6eb;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.composer-attachment-img {
+  width: 100%;
+  height: 100%;
+}
+
+.composer-attachment-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.composer-attachment-file {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  color: #050505;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.composer-attachment-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+.composer-attachment-remove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  cursor: pointer;
+  line-height: 22px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.composer-attachment-remove:hover {
+  background: rgba(0, 0, 0, 0.72);
 }
 
 .mention-suggest {
@@ -2467,6 +2728,16 @@ export default {
 }
 .customText {
   background: rgb(var(--v-theme-grey-50));
+
+  .v-field {
+    background: rgb(var(--v-theme-grey-50));
+    opacity: 1;
+  }
+
+  .v-field__overlay {
+    opacity: 0 !important;
+  }
+
   .v-field__input {
     margin-right: 4px;
 
