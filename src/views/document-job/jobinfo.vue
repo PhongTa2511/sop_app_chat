@@ -121,7 +121,9 @@
                         color="green"
                         rounded="md"
                         @click="updateDocumentForm(tab)"
-                      />
+                      >
+                        Lưu thông tin
+                      </VBtn>
                       <VBtn
                         class="ml-2"
                         size="small"
@@ -318,7 +320,7 @@
                   Định mức:
                   {{ userJob.QuotaTime }} Ngày
                 </div>
-                <div class="quill">
+                <div class="quill" @click="handleContentImageClick">
                   <QuillEditor
                     v-model:content="dataJobInfo.Report"
                     content-type="html"
@@ -470,8 +472,9 @@
                     {{ userJob.QuotaTime }} Ngày
                   </div>
                   <div
-                    class="border-md px-2 py-1 rounded"
+                    class="border-md px-2 py-1 rounded report-content"
                     v-html="dataJobInfo.Report"
+                    @click="handleContentImageClick"
                   />
                 </VCol>
                 <VCol lg="4" md="4" cols="12">
@@ -578,7 +581,7 @@
                   </div>
                 </div>
 
-                <div class="quill">
+                <div class="quill" @click="handleContentImageClick">
                   <QuillEditor
                     v-model:content="dataJobInfo.NoteApprove"
                     content-type="html"
@@ -733,8 +736,9 @@
                     {{ userMana.QuotaTime }} Ngày
                   </div>
                   <div
-                    class="border-md px-2 py-1 rounded"
+                    class="border-md px-2 py-1 rounded report-content"
                     v-html="dataJobInfo.NoteApprove"
+                    @click="handleContentImageClick"
                   />
                 </VCol>
                 <VCol lg="4" md="4" cols="12">
@@ -886,7 +890,7 @@
                     </VIcon>
                     {{ job.TimeModifyShow }}
                   </div>
-                  <div v-html="job.Report" />
+                  <div class="report-content" v-html="job.Report" @click="handleContentImageClick" />
                 </div>
                 <div v-if="ass.UserRole == 'Phê duyệt'" class="text-caption">
                   <div>
@@ -897,7 +901,7 @@
                     </VIcon>
                     {{ job.TimeApproveShow }}
                   </div>
-                  <div v-html="job.NoteApprove" />
+                  <div class="report-content" v-html="job.NoteApprove" @click="handleContentImageClick" />
                 </div>
                 <div v-if="ass.FileLst.length > 0" class="file-lst">
                   <VMenu
@@ -1116,17 +1120,19 @@
       </VCardActions>
     </VCard>
   </VDialog>
-  <VDialog v-model="isPreview" max-width="600">
+  <VDialog v-model="isPreview" max-width="900">
     <VCard>
-      <VCardTitle>Hình ảnh đã upload</VCardTitle>
-      <VCardText class="text-center">
-        <VImg :src="previewImage" max-height="400" contain />
+      <VCardTitle class="d-flex align-center justify-space-between">
+        <span>Hình ảnh chi tiết</span>
+      </VCardTitle>
+      <VCardText class="text-center overflow-hidden py-4">
+        <VImg :src="previewImage" max-height="80vh" contain class="mx-auto" />
       </VCardText>
       <VCardActions>
         <VSpacer />
-        <VBtn color="green" text @click="btDownloadFile(previewFile)">
+        <!-- <VBtn color="blue" variant="tonal" @click="handleImageDownload(previewImage)">
           Tải ảnh
-        </VBtn>
+        </VBtn> -->
         <VBtn text @click="isPreview = false"> Đóng </VBtn>
       </VCardActions>
     </VCard>
@@ -1248,6 +1254,18 @@ export default {
     btShowImage(link) {
       this.previewImage = link;
       this.isPreview = true;
+    },
+    handleImageDownload(url) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "download_image.png";
+      link.click();
+    },
+    handleContentImageClick(event) {
+      if (event.target.tagName === "IMG") {
+        this.previewImage = event.target.src;
+        this.isPreview = true;
+      }
     },
     handleFileUploadForm(file, line) {
       if (!file) return;
@@ -2041,18 +2059,96 @@ export default {
 
 <style lang="scss" scoped>
 .layout-card {
+  overflow-y: auto;
+  max-height: 100%;
+
   .quill {
     border: 2px solid rgb(var(--v-theme-grey));
     border-radius: 8px;
-    block-size: 200px;
+    height: auto !important;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+
+    :deep(.ql-container) {
+      height: auto !important;
+      min-height: 151px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border: none !important;
+    }
+
+    :deep(.ql-editor) {
+      height: auto !important;
+      min-height: 151px;
+      max-height: 450px;
+      overflow-y: auto !important;
+
+      img {
+        max-height: 150px;
+        width: auto;
+        cursor: zoom-in;
+        border-radius: 4px;
+        transition: transform 0.2s;
+        margin-block: 8px;
+        display: block;
+
+        &:hover {
+          transform: scale(1.02);
+        } 
+      }
+    }
   }
 }
 
-table {
-  border-radius: 8px;
-  border-collapse: collapse;
-  font-family: arial, sans-serif;
-  inline-size: 100%;
+:deep(.report-content),
+:deep(.ql-editor) {
+  overflow-x: auto;
+  max-width: 100%;
+
+  ul,
+  ol {
+    padding-left: 40px !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    list-style-position: outside;
+  }
+
+  ul {
+    list-style-type: disc !important;
+  }
+
+  ol {
+    list-style-type: decimal !important;
+  }
+
+  li {
+    margin-bottom: 6px;
+    line-height: 1.6;
+  }
+
+  table {
+    border-radius: 8px;
+    border-collapse: collapse;
+    font-family: arial, sans-serif;
+    inline-size: 100%;
+    margin-block: 10px;
+  }
+
+  img {
+    max-height: 150px;
+    width: auto;
+    cursor: zoom-in;
+    border-radius: 4px;
+    transition: transform 0.2s;
+    margin-block: 8px;
+    display: block;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
 }
 </style>
 
