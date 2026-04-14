@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <VRow class="pr-3" style="height: calc(100vh - 112px)">
+  <div style="padding-bottom: 100px">
+    <VRow class="pr-3">
       <VCol :lg="8" cols="12" class="">
         <VCard class="layout-card">
           <VCardTitle class="text-h6 py-2 pl-4 pr-0">
@@ -72,7 +72,7 @@
                   Hạn:
                   {{ formatDateDDMMYY(dataJobInfo.TimeQuotaAssign) }}
                 </div>
-                <div class="quill">
+                <div class="quill" @click="handleContentImageClick">
                   <QuillEditor
                     v-model:content="dataJobInfo.Report"
                     content-type="html"
@@ -219,8 +219,9 @@
                     {{ formatDateDisplay(dataJobInfo.TimeQuotaAssign) }}
                   </div>
                   <div
-                    class="border-md px-2 py-1 rounded"
+                    class="border-md px-2 py-1 rounded report-content"
                     v-html="dataJobInfo.Report"
+                    @click="handleContentImageClick"
                   />
                 </VCol>
                 <VCol lg="4" md="4" cols="12">
@@ -312,7 +313,7 @@
                   </div>
                 </div>
 
-                <div class="quill">
+                <div class="quill" @click="handleContentImageClick">
                   <QuillEditor
                     v-model:content="dataJobInfo.NoteApprove"
                     content-type="html"
@@ -548,7 +549,7 @@
                     Duyệt lúc: {{ formatDateDisplay(dataJobInfo.TimeApprove) }}
                   </div>
                   <div
-                    class="border-md px-2 py-1 rounded"
+                    class="border-md px-2 py-1 rounded report-content"
                     v-html="dataJobInfo.NoteApprove"
                   />
                 </VCol>
@@ -693,7 +694,7 @@
                 </VIcon>
                 {{ formatDateDisplay(job.TimeModify) }}
               </div>
-              <div v-html="job.Report" />
+              <div class="report-content" v-html="job.Report" @click="handleContentImageClick" />
             </div>
             <div v-if="job.DataAssign.length > 0" class="file-scroll">
               <div class="d-inline-flex">
@@ -720,16 +721,24 @@
                 </VMenu>
               </div>
             </div>
-            <div class="text-caption">
+            <div v-if="job.Status == 4 || job.Status == 5" class="text-caption">
               <div>
-                <VIcon color="red" size="small"> mdi-account-check </VIcon>
+                <VIcon :color="job.Status == 4 ? 'green' : 'red'" size="small">
+                  {{
+                    job.Status == 4 ? "mdi-account-check" : "mdi-account-cancel"
+                  }}
+                </VIcon>
                 {{ job.ApproveName }}
-                <VIcon v-if="job.TimeApprove" color="red" size="small">
+                <VIcon
+                  v-if="job.TimeApprove"
+                  :color="job.Status == 4 ? 'green' : 'red'"
+                  size="small"
+                >
                   mdi-clock
                 </VIcon>
                 {{ formatDateDisplay(job.TimeApprove) }}
               </div>
-              <div v-html="job.NoteApprove" />
+              <div class="report-content" v-html="job.NoteApprove" @click="handleContentImageClick" />
             </div>
             <div v-if="job.DataApprove.length > 0" class="file-scroll">
               <VMenu
@@ -821,17 +830,17 @@
     </VCard>
   </VDialog>
 
-  <VDialog v-model="isPreview" max-width="600">
+  <VDialog v-model="isPreview" max-width="9 00">
     <VCard>
       <VCardTitle>Hình ảnh đã upload</VCardTitle>
       <VCardText class="text-center">
-        <VImg :src="previewImage" max-height="400" contain />
+        <VImg :src="previewImage" max-height="600" contain />
       </VCardText>
       <VCardActions>
         <VSpacer />
-        <VBtn color="green" text @click="btDownloadFile(previewFile)">
+        <!-- <VBtn color="green" text @click="btDownloadFile(previewFile)">
           Tải ảnh
-        </VBtn>
+        </VBtn> -->
         <VBtn text @click="isPreview = false"> Đóng </VBtn>
       </VCardActions>
     </VCard>
@@ -980,7 +989,7 @@ export default {
         Axios.post(urlUploadRecurringFile(this.$route.params.id), params).then(
           (res) => {
             if (res.data.RespCode == 0) {
-              this.getDocumentFile(this.dataJobInfo.AssignID);
+              this.getRecurringTaskByID();
 
               notify({
                 title: "File",
@@ -1008,7 +1017,7 @@ export default {
         Axios.post(urlUploadRecurringFile(this.$route.params.id), params).then(
           (res) => {
             if (res.data.RespCode == 0) {
-              this.getDocumentFile2(this.dataJobInfo.ApproveID);
+              this.getRecurringTaskByID();
 
               notify({
                 title: "File",
@@ -1025,26 +1034,6 @@ export default {
           },
         );
       }
-    },
-    getDocumentFile(UserID) {
-      GetRecurringFileByUserID({
-        RowID: this.$route.params.id,
-        UserID: UserID,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.dataJobInfo.DataAssign = res.Data;
-        }
-      });
-    },
-    getDocumentFile2(UserID) {
-      GetRecurringFileByUserID({
-        RowID: this.$route.params.id,
-        UserID: UserID,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.dataJobInfo.DataApprove = res.Data;
-        }
-      });
     },
     getRecurringTaskByID() {
       GetRecurringTaskByID({ RecurringID: this.$route.params.id }).then(
@@ -1115,6 +1104,12 @@ export default {
         });
       }
     },
+    handleContentImageClick(event) {
+      if (event.target.tagName === "IMG") {
+        this.previewImage = event.target.src;
+        this.isPreview = true;
+      }
+    },
     openStepDialog(status) {
       if (status == 4) {
         this.approveRecurringJobInfo(4);
@@ -1132,17 +1127,54 @@ export default {
 
 <style lang="scss" scoped>
 .layout-card {
+  overflow-y: auto; /* Bật cuộn Card để tránh bị đè nút khi ô soạn thảo giãn ra và tránh tràn footer */
+
   .quill {
-    height: 200px;
+    min-height: 200px;
+    height: auto !important;
     border: 2px solid rgb(var(--v-theme-grey));
     border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+
+    :deep(.ql-container) {
+      height: auto !important;
+      min-height: 150px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border: none !important;
+    }
+
+    :deep(.ql-editor) {
+      height: auto !important;
+      min-height: 150px;
+      max-height: 450px;
+      overflow-y: auto !important;
+    }
   }
 }
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-  border-radius: 8px;
+.report-content, .ql-editor {
+  :deep(img), img {
+    max-height: 150px;
+    width: auto;
+    cursor: zoom-in;
+    border-radius: 4px;
+    transition: transform 0.2s;
+    display: block;
+    margin-block: 8px;
+
+    &:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+  }
+
+  table {
+    overflow-x: auto;
+    max-width: 100%;
+    display: block;
+  }
 }
 </style>
 
@@ -1164,6 +1196,20 @@ table {
   &::-webkit-scrollbar-thumb {
     background-color: #cbd5e1;
     border-radius: 4px;
+  }
+}
+.report-content {
+  overflow-x: auto;
+  max-width: 100%;
+  ul,
+  ol {
+    padding-left: 20px !important;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    list-style-type: disc !important;
+  }
+  li {
+    margin-bottom: 2px;
   }
 }
 </style>

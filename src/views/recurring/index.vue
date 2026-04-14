@@ -42,7 +42,11 @@
         <VCard class="dtp-recurring-card mx-auto h-100 d-flex flex-column" :border="getJobBorder(item.Status)">
           <VCardItem class="px-4 pt-2 pb-0">
             <template #title>
-              <span class="dtp-recurring-title">{{ item.Title }}</span>
+              <VTooltip :text="item.Title" location="top start" offset="10" max-width="300">
+                <template #activator="{ props }">
+                  <span v-bind="props" class="dtp-recurring-title">{{ item.Title }}</span>
+                </template>
+              </VTooltip>
             </template>
             <template #subtitle>
               <div class="d-flex align-center gap-2">
@@ -1222,6 +1226,11 @@ export default {
 .dtp-recurring-title {
   font-weight: 650;
   line-height: 1.25;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
 }
 
 .dtp-recurring-metrics {
