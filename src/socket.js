@@ -1,14 +1,14 @@
-import { io } from "socket.io-client"
+import { io } from "socket.io-client";
 
-const socket = io("https://sop.idtp.work/", {
-  path: "/mes/socket.io",
+// const url = import.meta.env.VITE_MESSAGE_SOCKET_URL || "http://localhost:3009/";
+// const path = import.meta.env.VITE_MESSAGE_SOCKET_PATH || "/socket.io";
+const url = "https://sop.idtp.work/";
+const path = "/mes/socket.io";
+
+const socket = io(url, {
+  path,
   withCredentials: true,
   transports: ["websocket", "polling"],
-})
+});
 
-// const socket = io("http://localhost:3009/", {
-//   withCredentials: true,
-//   transports: ["websocket", "polling"], // Thử websocket trước, fallback về polling
-// });
-
-export default socket
+export default socket;
