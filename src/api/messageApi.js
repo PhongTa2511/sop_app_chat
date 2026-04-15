@@ -49,6 +49,22 @@ export function DelMemberGroup(data) {
   })
 }
 
+export function LeaveGroup(data) {
+  return request({
+    url: "groups/LeaveGroup",
+    method: "post",
+    data,
+  })
+}
+
+export function DeleteGroup(data) {
+  return request({
+    url: "groups/DeleteGroup",
+    method: "post",
+    data,
+  })
+}
+
 export function SendMessage(data) {
   return request({
     url: "messages/SendMessage",
@@ -84,6 +100,22 @@ export function GetReactionsByMessageIDs(data) {
 export function ReactMessage(data) {
   return request({
     url: "messages/ReactMessage",
+    method: "post",
+    data,
+  })
+}
+
+export function PinMessage(data) {
+  return request({
+    url: "messages/PinMessage",
+    method: "post",
+    data,
+  })
+}
+
+export function GetPinnedMessages(data) {
+  return request({
+    url: "messages/GetPinnedMessages",
     method: "post",
     data,
   })

@@ -161,7 +161,7 @@
       <VCardActions>
         <VBtn
           text
-          @click="membersDialog = false"
+          @click="closeMembersDialog"
         >
           Đóng
         </VBtn>
@@ -245,15 +245,59 @@
       </VCardActions>
     </VCard>
   </VDialog>
+
+  <VDialog
+    v-model="pinnedDialog"
+    max-width="420px"
+  >
+    <VCard>
+      <VCardTitle>
+        <span class="headline">Tin nhắn đã ghim</span>
+      </VCardTitle>
+      <VCardText style="padding: 4px">
+        <VList>
+          <VListItem
+            v-for="pin in pinnedMessages"
+            :key="pin.MessageID"
+            style="cursor: pointer"
+            @click="jumpPinned(pin)"
+          >
+            <template #prepend>
+              <VIcon size="small">mdi-pin</VIcon>
+            </template>
+            <template #title>
+              {{ pinnedPreview(pin) }}
+            </template>
+            <template #subtitle>
+              #{{ pin.MessageID }}
+            </template>
+          </VListItem>
+          <div
+            v-if="pinnedMessages.length === 0"
+            class="text-center text-grey-darken-1 py-4"
+          >
+            Chưa có tin nhắn ghim
+          </div>
+        </VList>
+      </VCardText>
+      <VCardActions>
+        <VBtn text @click="pinnedDialog = false">Đóng</VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <script>
 import {
   AddMemberGroup,
+  DeleteGroup,
   DelMemberGroup,
+  GetPinnedMessages,
   GetMemberLstByGroupID,
+  LeaveGroup,
   UpdateGroup,
 } from "@/api/messageApi"
+import { notify } from "@kyvg/vue3-notification"
 
 export default {
   props: {
@@ -276,6 +320,14 @@ export default {
             {
               text: "Xem tin nhắn đã ghim",
               icon: "mdi-pin",
+            },
+            {
+              text: "Rời nhóm",
+              icon: "mdi-logout",
+            },
+            {
+              text: "Xóa nhóm chat",
+              icon: "mdi-trash-can-outline",
             },
           ],
         },
@@ -344,12 +396,20 @@ export default {
       updateAvatar: 0,
       renameGroupDialog: false,
       newGroupName: "",
+      pinnedDialog: false,
+      pinnedMessages: [],
     }
   },
   created() {
     this.newGroupName = this.groupInfo ? this.groupInfo.GroupName : ""
   },
   methods: {
+    closeMembersDialog() {
+      this.membersDialog = false
+      this.isEditing = false
+      this.addEditDialog = false
+      this.newMember = {}
+    },
     handleFileUpload(event) {
       const file = event.target.files?.[0]
       if (!file) return
@@ -443,8 +503,18 @@ export default {
     },
     openMembersDialog(line) {
       if (line.text == "Danh sách thành viên") {
+        this.isEditing = false
         this.membersDialog = true
         this.getMemberLstByGroupID()
+      }
+      if (line.text == "Xem tin nhắn đã ghim") {
+        this.openPinnedDialog()
+      }
+      if (line.text == "Rời nhóm") {
+        this.leaveGroup()
+      }
+      if (line.text == "Xóa nhóm chat") {
+        this.deleteGroup()
       }
       if (line.text == "Đổi ảnh đoạn chat") {
         this.$refs.fileInput.click()
@@ -459,6 +529,59 @@ export default {
         this.getMemberLstByGroupID()
       }
     },
+    async openPinnedDialog() {
+      if (!this.groupInfo?.GroupID) return
+      this.pinnedDialog = true
+      try {
+        const res = await GetPinnedMessages({ GroupID: this.groupInfo.GroupID })
+        if (res?.RespCode === 0) {
+          this.pinnedMessages = Array.isArray(res.Data) ? res.Data : []
+        }
+      } catch (_) {
+        this.pinnedMessages = []
+      }
+    },
+    pinnedPreview(pin) {
+      const attach = Number(pin?.IsAttachment || 0)
+      if (attach === 1) return "[Hình ảnh]"
+      if (attach > 1) return `[Tệp] ${pin?.MineFile || ""}`.trim()
+
+      const text = (pin?.TextContent || "").toString()
+      // cố gắng parse rich json
+      try {
+        const obj = JSON.parse(text)
+        if (obj && obj.v === 1 && typeof obj.text === "string") return obj.text
+      } catch (_) {}
+
+      return text.length > 80 ? `${text.slice(0, 77)}...` : text
+    },
+    jumpPinned(pin) {
+      const id = pin?.MessageID
+      this.pinnedDialog = false
+      this.$emit("jump-message", { MessageID: id })
+    },
+    async leaveGroup() {
+      if (!this.groupInfo?.GroupID) return
+      const ok = window.confirm("Bạn muốn rời khỏi nhóm chat này?")
+      if (!ok) return
+
+      const res = await LeaveGroup({ GroupID: this.groupInfo.GroupID })
+      if (res?.RespCode === 0) {
+        notify({ type: "success", title: "Đã rời nhóm" })
+        this.$emit("group-left", { GroupID: this.groupInfo.GroupID })
+      }
+    },
+    async deleteGroup() {
+      if (!this.groupInfo?.GroupID) return
+      const ok = window.confirm("Xóa nhóm chat? (Chỉ chủ nhóm được phép)")
+      if (!ok) return
+
+      const res = await DeleteGroup({ GroupID: this.groupInfo.GroupID })
+      if (res?.RespCode === 0) {
+        notify({ type: "success", title: "Đã xóa nhóm" })
+        this.$emit("group-deleted", { GroupID: this.groupInfo.GroupID })
+      }
+    },
     openAddMemberDialog() {
       this.addEditDialog = true
       this.isEditing = false
@@ -471,7 +594,7 @@ export default {
     removeMember(data) {
       DelMemberGroup({
         UserID: data.UserID,
-        GroupID: data.GroupID,
+        GroupID: this.groupInfo.GroupID,
       }).then(res => {
         if (res.RespCode == 0) {
           this.getMemberLstByGroupID()
