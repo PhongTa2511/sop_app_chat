@@ -2,9 +2,7 @@
   <VCard>
     <VCardTitle>
       <div class="d-flex">
-        <h6 class="text-h6 pt-2">
-          Phê duyệt cờ xanh công ty
-        </h6>
+        <h6 class="text-h6 pt-2">Phê duyệt cờ xanh công ty</h6>
 
         <VBtn
           v-if="companyInfo.IsFlag == 4"
@@ -32,11 +30,7 @@
         label="Công ty"
         class="mb-2"
       />
-      <VTextField
-        v-model="companyInfo.GroupName"
-        label="Nhóm"
-        class="mb-2"
-      />
+      <VTextField v-model="companyInfo.GroupName" label="Nhóm" class="mb-2" />
       <VRow>
         <VCol cols="6">
           <VTextField
@@ -56,11 +50,19 @@
           />
         </VCol>
         <VCol cols="6">
-          <VDateInput
+          <!--
+            <VDateInput
             v-model="companyInfo.DateCare"
             label="Ngày phụ trách (mm/dd/yyyy)"
             readonly
             hide-details
+            /> 
+          -->
+          <DateField
+            v-model:modelValue="companyInfo.DateCare"
+            width="100%"
+            disabled="true"
+            label="Ngày phụ trách (mm/dd/yyyy)"
           />
           <VSelect
             v-model="companyInfo.RankName"
@@ -150,35 +152,23 @@
     </VCardText>
     <VCardActions>
       <VSpacer />
-      <VBtn
-        color="blue-darken-1"
-        variant="text"
-        @click="btClose"
-      >
-        Đóng
-      </VBtn>
+      <VBtn color="blue-darken-1" variant="text" @click="btClose"> Đóng </VBtn>
 
-      <VBtn
-        color="red"
-        @click="updateCompanyInfo(0)"
-      >
-        Từ chối
-      </VBtn>
-      <VBtn
-        color="green"
-        @click="updateCompanyInfo(4)"
-      >
-        Duyệt cờ xanh
-      </VBtn>
+      <VBtn color="red" @click="updateCompanyInfo(0)"> Từ chối </VBtn>
+      <VBtn color="green" @click="updateCompanyInfo(4)"> Duyệt cờ xanh </VBtn>
       <VSpacer />
     </VCardActions>
   </VCard>
 </template>
 
 <script>
-import { ApproveCompanyGreen, GetCompanyInfoByID } from "@/api/companyApi"
+import { ApproveCompanyGreen, GetCompanyInfoByID } from "@/api/companyApi";
+import DateField from "@/components/DateField.vue";
 
 export default {
+  components: {
+    DateField,
+  },
   props: {
     companyID: String,
     rowID: Number,
@@ -215,51 +205,51 @@ export default {
       isShowCustomer: false,
       isConfirmDelete: false,
       customerToDelete: null,
-    }
+    };
   },
   created() {
-    this.getCompanyInfoByID()
+    this.getCompanyInfoByID();
   },
 
   methods: {
     btClose() {
-      this.$emit("btClose")
+      this.$emit("btClose");
     },
     getCompanyInfoByID() {
       GetCompanyInfoByID({
         CompanyID: this.companyID,
-      }).then(res => {
-        this.companyInfo = res.CompanyInfo
+      }).then((res) => {
+        this.companyInfo = res.CompanyInfo;
 
         this.companyInfo.Data = this.companyInfo.Data.map((item, index) => {
           return {
             ...item,
             Key: index + 1,
-          }
-        })
-      })
+          };
+        });
+      });
     },
     updateCompanyInfo(status) {
-      const rowID = this.rowID // Assuming RowID is part of companyInfo
+      const rowID = this.rowID; // Assuming RowID is part of companyInfo
 
-      ApproveCompanyGreen({ Data: rowID, Status: status }).then(res => {
+      ApproveCompanyGreen({ Data: rowID, Status: status }).then((res) => {
         if (res.RespCode == 0) {
           notify({
             type: "success",
             title: "Thành công",
-          })
-          this.btClose()
+          });
+          this.btClose();
         } else {
           notify({
             type: "error",
             title: "Lỗi",
             text: res.RespText,
-          })
+          });
         }
-      })
+      });
     },
   },
-}
+};
 </script>
 
 <style></style>

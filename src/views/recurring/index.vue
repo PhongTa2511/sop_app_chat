@@ -1,34 +1,50 @@
 <template>
   <VCard class="py-2">
     <div class="d-flex flex-wrap align-center gap-2 px-3 pt-1">
-      <VTextField v-model="searchJob" class="dtp-recurring-search" label="Tìm kiếm" placeholder="Tìm theo tiêu đề…"
-        variant="outlined" density="compact" prepend-inner-icon="mdi-magnify" hide-details clearable
-        @keyup.enter="getRecurringJobLst" />
+      <VTextField
+        v-model="searchJob"
+        class="dtp-recurring-search"
+        label="Tìm kiếm"
+        placeholder="Tìm theo tiêu đề…"
+        variant="outlined"
+        density="compact"
+        prepend-inner-icon="mdi-magnify"
+        hide-details
+        clearable
+        @keyup.enter="getRecurringJobLst"
+      />
       <VSpacer />
       <VTooltip text="Tải lại" location="top">
         <template #activator="{ props }">
-          <VBtn v-bind="props" color="green" variant="tonal" icon="mdi-reload" size="small" aria-label="Tải lại"
-            @click="getRecurringJobLst" />
+          <VBtn
+            v-bind="props"
+            color="green"
+            variant="tonal"
+            icon="mdi-reload"
+            size="small"
+            aria-label="Tải lại"
+            @click="getRecurringJobLst"
+          />
         </template>
       </VTooltip>
-      <VTooltip
-        text="Tạo mới"
-        location="top"
-      >
+      <VTooltip text="Tạo mới" location="top">
         <template #activator="{ props }">
-          <VBtn v-bind="props" color="green" variant="tonal" icon="mdi-plus" size="small"
-            aria-label="Tạo công việc định kỳ" @click="openDialog" />
+          <VBtn
+            v-bind="props"
+            color="green"
+            variant="tonal"
+            icon="mdi-plus"
+            size="small"
+            aria-label="Tạo công việc định kỳ"
+            @click="openDialog"
+          />
         </template>
       </VTooltip>
     </div>
     <VRow class="mx-2 my-0" dense>
       <VCol v-if="!dataRecurringLst || dataRecurringLst.length === 0" cols="12">
         <div class="dtp-empty-state text-center py-8">
-          <VIcon
-            icon="mdi-calendar-sync"
-            size="44"
-            class="mb-2"
-          />
+          <VIcon icon="mdi-calendar-sync" size="44" class="mb-2" />
           <div class="text-body-1 font-weight-medium">
             Chưa có công việc định kỳ
           </div>
@@ -37,16 +53,29 @@
           </div>
         </div>
       </VCol>
-      <VCol v-for="(item, index) in dataRecurringLst" :key="item.RowID ?? item.TemplateID ?? index" cols="12" sm="6"
-        md="4" lg="3">
-        <VCard class="dtp-recurring-card mx-auto h-100 d-flex flex-column" :border="getJobBorder(item.Status)">
+      <VCol
+        v-for="(item, index) in dataRecurringLst"
+        :key="item.RowID ?? item.TemplateID ?? index"
+        cols="12"
+        sm="6"
+        md="4"
+        lg="3"
+      >
+        <VCard
+          class="dtp-recurring-card mx-auto h-100 d-flex flex-column"
+          :border="getJobBorder(item.Status)"
+        >
           <VCardItem class="px-4 pt-2 pb-0">
             <template #title>
               <span class="dtp-recurring-title">{{ item.Title }}</span>
             </template>
             <template #subtitle>
               <div class="d-flex align-center gap-2">
-                <VIcon icon="mdi-calendar-start" size="16" class="text-medium-emphasis" />
+                <VIcon
+                  icon="mdi-calendar-start"
+                  size="16"
+                  class="text-medium-emphasis"
+                />
                 <span class="text-body-2 text-medium-emphasis">
                   Bắt đầu: {{ formatDateDDMMYY(item.StartDate) }}
                 </span>
@@ -55,22 +84,34 @@
           </VCardItem>
           <VCardText class="pt-0 pb-2 px-4">
             <div class="d-flex flex-wrap gap-2">
-              <VTooltip
-                :text="getRecurrenceTooltip(item)"
-                location="top"
-              >
+              <VTooltip :text="getRecurrenceTooltip(item)" location="top">
                 <template #activator="{ props }">
-                  <VChip v-bind="props" size="small" color="blue" variant="tonal">
+                  <VChip
+                    v-bind="props"
+                    size="small"
+                    color="blue"
+                    variant="tonal"
+                  >
                     <VIcon start icon="mdi-sync" />
                     {{ getRecurrenceLabel(item) }}
                   </VChip>
                 </template>
               </VTooltip>
-              <VChip v-if="Number(item.RecurrenceType) === 2" size="small" variant="outlined" color="primary">
+              <VChip
+                v-if="Number(item.RecurrenceType) === 2"
+                size="small"
+                variant="outlined"
+                color="primary"
+              >
                 <VIcon start icon="mdi-calendar-week" />
                 Thứ {{ item.WeekdaysCsv }}
               </VChip>
-              <VChip v-if="Number(item.RecurrenceType) === 3" size="small" variant="outlined" color="primary">
+              <VChip
+                v-if="Number(item.RecurrenceType) === 3"
+                size="small"
+                variant="outlined"
+                color="primary"
+              >
                 <VIcon start icon="mdi-calendar-month" />
                 Ngày {{ item.DayOfMonth }}
               </VChip>
@@ -80,7 +121,11 @@
               </VChip>
             </div>
             <div class="dtp-recurring-metrics mt-3">
-              <div v-for="card in progressSummaryCards" :key="card.key" class="dtp-recurring-metric">
+              <div
+                v-for="card in progressSummaryCards"
+                :key="card.key"
+                class="dtp-recurring-metric"
+              >
                 <VIcon :icon="card.icon" :color="card.color" size="18" />
                 <div class="dtp-recurring-metric-value">
                   {{ item[card.key] ?? 0 }}
@@ -89,20 +134,27 @@
             </div>
             <div class="dtp-recurring-section mt-3">
               <div class="dtp-section-title">
-                <VIcon
-                  size="18"
-                  color="blue"
-                  icon="mdi-account-multiple"
-                />
+                <VIcon size="18" color="blue" icon="mdi-account-multiple" />
                 <span>Thực hiện</span>
-                <span class="text-medium-emphasis">({{ item.Data?.length ?? 0 }})</span>
+                <span class="text-medium-emphasis"
+                  >({{ item.Data?.length ?? 0 }})</span
+                >
               </div>
-              <div v-if="item.Data && item.Data.length > 0" class="dtp-recurring-avatars">
+              <div
+                v-if="item.Data && item.Data.length > 0"
+                class="dtp-recurring-avatars"
+              >
                 <template v-for="(user, i) in item.Data.slice(0, 8)" :key="i">
                   <VTooltip location="top">
                     <template #activator="{ props }">
-                      <VAvatar v-bind="props" size="28" :color="user.UserRole === 'Phê duyệt' ? 'green' : 'orange'
-                        " class="text-white">
+                      <VAvatar
+                        v-bind="props"
+                        size="28"
+                        :color="
+                          user.UserRole === 'Phê duyệt' ? 'green' : 'orange'
+                        "
+                        class="text-white"
+                      >
                         <span class="text-caption">
                           {{ getInitials(user.AssignName) }}
                         </span>
@@ -111,23 +163,20 @@
                     <span>{{ user.AssignName }}</span>
                   </VTooltip>
                 </template>
-                <VChip v-if="item.Data.length > 8" size="x-small" variant="outlined">
+                <VChip
+                  v-if="item.Data.length > 8"
+                  size="x-small"
+                  variant="outlined"
+                >
                   +{{ item.Data.length - 8 }}
                 </VChip>
               </div>
-              <div
-                v-else
-                class="text-caption text-medium-emphasis"
-              >
+              <div v-else class="text-caption text-medium-emphasis">
                 Chưa có người thực hiện
               </div>
             </div>
             <div class="d-flex align-center gap-2 mt-2">
-              <VIcon
-                size="18"
-                color="error"
-                icon="mdi-account-check"
-              />
+              <VIcon size="18" color="error" icon="mdi-account-check" />
               <span class="text-body-2">Người duyệt:</span>
               <span class="text-body-2 font-weight-medium">
                 {{ item.ApproveName || "—" }}
@@ -137,37 +186,92 @@
           <VDivider class="mx-4 my-1" />
           <VCardActions class="px-4 pt-1 pb-3 mt-auto">
             <div class="d-flex align-center gap-1">
-              <VTooltip v-if="item.Status == 1 || item.Status == 2" text="Hoàn thành" location="top">
+              <VTooltip
+                v-if="item.Status == 1 || item.Status == 2"
+                text="Hoàn thành"
+                location="top"
+              >
                 <template #activator="{ props }">
-                  <VBtn v-bind="props" variant="tonal" rounded="sm" size="x-small" color="green" icon="mdi-check"
-                    aria-label="Hoàn thành" @click="showConfirm('success', item)" />
+                  <VBtn
+                    v-bind="props"
+                    variant="tonal"
+                    rounded="sm"
+                    size="x-small"
+                    color="green"
+                    icon="mdi-check"
+                    aria-label="Hoàn thành"
+                    @click="showConfirm('success', item)"
+                  />
                 </template>
               </VTooltip>
-              <VTooltip v-if="item.Status == 1" text="Bắt đầu ngay" location="top">
+              <VTooltip
+                v-if="item.Status == 1"
+                text="Bắt đầu ngay"
+                location="top"
+              >
                 <template #activator="{ props }">
-                  <VBtn v-bind="props" variant="tonal" rounded="sm" size="x-small" color="purple"
-                    icon="mdi-cursor-pointer" aria-label="Bắt đầu ngay" @click="showConfirm('start', item)" />
+                  <VBtn
+                    v-bind="props"
+                    variant="tonal"
+                    rounded="sm"
+                    size="x-small"
+                    color="purple"
+                    icon="mdi-cursor-pointer"
+                    aria-label="Bắt đầu ngay"
+                    @click="showConfirm('start', item)"
+                  />
                 </template>
               </VTooltip>
-              <VTooltip v-if="item.Status == 1 || item.Status == 2" text="Xóa" location="top">
+              <VTooltip
+                v-if="item.Status == 1 || item.Status == 2"
+                text="Xóa"
+                location="top"
+              >
                 <template #activator="{ props }">
-                  <VBtn v-bind="props" variant="tonal" rounded="sm" size="x-small" color="red" icon="mdi-delete"
-                    aria-label="Xóa" @click="showConfirm('delete', item)" />
+                  <VBtn
+                    v-bind="props"
+                    variant="tonal"
+                    rounded="sm"
+                    size="x-small"
+                    color="red"
+                    icon="mdi-delete"
+                    aria-label="Xóa"
+                    @click="showConfirm('delete', item)"
+                  />
                 </template>
               </VTooltip>
             </div>
             <VSpacer />
             <div class="d-flex align-center gap-1">
-              <VTooltip text="Cập nhật thông tin công việc định kỳ" location="top">
+              <VTooltip
+                text="Cập nhật thông tin công việc định kỳ"
+                location="top"
+              >
                 <template #activator="{ props }">
-                  <VBtn v-bind="props" variant="tonal" rounded="sm" size="x-small" color="green" icon="mdi-update"
-                    aria-label="Cập nhật thông tin công việc định kỳ" @click="openDialog(item)" />
+                  <VBtn
+                    v-bind="props"
+                    variant="tonal"
+                    rounded="sm"
+                    size="x-small"
+                    color="green"
+                    icon="mdi-update"
+                    aria-label="Cập nhật thông tin công việc định kỳ"
+                    @click="openDialog(item)"
+                  />
                 </template>
               </VTooltip>
               <VTooltip text="Quá trình thực hiện" location="top">
                 <template #activator="{ props }">
-                  <VBtn v-bind="props" variant="tonal" rounded="sm" size="x-small" color="green" icon="mdi-progress-check"
-                    aria-label="Quá trình thực hiện" @click="btShowProgress(item)" />
+                  <VBtn
+                    v-bind="props"
+                    variant="tonal"
+                    rounded="sm"
+                    size="x-small"
+                    color="green"
+                    icon="mdi-progress-check"
+                    aria-label="Quá trình thực hiện"
+                    @click="btShowProgress(item)"
+                  />
                 </template>
               </VTooltip>
             </div>
@@ -192,15 +296,11 @@
       @update:itemsPerPage="btRow"
       @update:page="btPage"
     >
-      <template #thead></template>
-      <template #tbody></template>
+      <template #thead />
+      <template #tbody />
     </VDataTableServer>
   </VCard>
-  <VDialog
-    v-model="isShowAddNew"
-    max-width="450px"
-    persistent
-  >
+  <VDialog v-model="isShowAddNew" max-width="450px" persistent>
     <VCard>
       <VCardTitle class="pt-4">
         <span class="text-h6 text-primary">
@@ -210,71 +310,162 @@
       <VCardText class="py-0">
         <VRow>
           <VCol cols="12" class="pb-0">
-            <VTextarea v-model="recurringInfo.Title" label="Nhập nội dung công việc" />
+            <VTextarea
+              v-model="recurringInfo.Title"
+              label="Nhập nội dung công việc"
+            />
           </VCol>
           <VCol cols="12" class="pb-0">
-            <VDateField v-model.modelValue="recurringInfo.StartDate" label="Ngày bắt đầu nhắc việc" width="100%" />
+            <VDateField
+              v-model.modelValue="recurringInfo.StartDate"
+              label="Ngày bắt đầu nhắc việc"
+              width="100%"
+            />
           </VCol>
           <VCol cols="12" class="pb-0">
-            <VSelect v-model="recurringInfo.RecurrenceType" label="Chọn kiểu lặp lại" :items="[
-              { label: 'Không lặp lại', value: 0 },
-              { label: 'Hàng ngày', value: 1 },
-              { label: 'Hàng tuần', value: 2 },
-              { label: 'Hàng tháng', value: 3 },
-            ]" item-title="label" item-value="value" chips closable-chips />
+            <VSelect
+              v-model="recurringInfo.RecurrenceType"
+              label="Chọn kiểu lặp lại"
+              :items="[
+                { label: 'Không lặp lại', value: 0 },
+                { label: 'Hàng ngày', value: 1 },
+                { label: 'Hàng tuần', value: 2 },
+                { label: 'Hàng tháng', value: 3 },
+              ]"
+              item-title="label"
+              item-value="value"
+              chips
+              closable-chips
+            />
           </VCol>
           <VCol v-if="recurringInfo.RecurrenceType == 2" cols="12" class="pb-0">
-            <VSelect v-model="recurringInfo.WeekdaysCsv" label="Chọn thứ" :items="[
-              { label: 'Thứ 2', value: 2 },
-              { label: 'Thứ 3', value: 3 },
-              { label: 'Thứ 4', value: 4 },
-              { label: 'Thứ 5', value: 5 },
-              { label: 'Thứ 6', value: 6 },
-              { label: 'Thứ 7', value: 7 },
-              { label: 'Chủ nhật', value: 8 },
-            ]" item-title="label" item-value="value" chips closable-chips multiple="" />
+            <VSelect
+              v-model="recurringInfo.WeekdaysCsv"
+              label="Chọn thứ"
+              :items="[
+                { label: 'Thứ 2', value: 2 },
+                { label: 'Thứ 3', value: 3 },
+                { label: 'Thứ 4', value: 4 },
+                { label: 'Thứ 5', value: 5 },
+                { label: 'Thứ 6', value: 6 },
+                { label: 'Thứ 7', value: 7 },
+                { label: 'Chủ nhật', value: 8 },
+              ]"
+              item-title="label"
+              item-value="value"
+              chips
+              closable-chips
+              multiple=""
+            />
           </VCol>
           <VCol v-if="recurringInfo.RecurrenceType == 3" cols="12" class="pb-0">
-            <VTextField v-model="recurringInfo.DayOfMonth" label="Ngày giao việc" type="number" variant="outlined" dense
-              prefix="Ngày" />
+            <VTextField
+              v-model="recurringInfo.DayOfMonth"
+              label="Ngày giao việc"
+              type="number"
+              variant="outlined"
+              dense
+              prefix="Ngày"
+            />
           </VCol>
           <VCol v-if="recurringInfo.RecurrenceType != 0" cols="12" class="pb-0">
-            <VTextField v-model="recurringInfo.IntervalN" label="Chu kỳ" type="number" variant="outlined" dense :suffix="recurringInfo.RecurrenceType == 1
-              ? 'ngày'
-              : recurringInfo.RecurrenceType == 2
-                ? 'tuần'
-                : 'tháng'
-              " />
+            <VTextField
+              v-model="recurringInfo.IntervalN"
+              label="Chu kỳ"
+              type="number"
+              variant="outlined"
+              dense
+              :suffix="
+                recurringInfo.RecurrenceType == 1
+                  ? 'ngày'
+                  : recurringInfo.RecurrenceType == 2
+                    ? 'tuần'
+                    : 'tháng'
+              "
+            />
           </VCol>
           <VCol cols="12" class="pt-2">
             <div>
-              <VBtn prepend-icon="mdi-user-edit" append-icon="mdi-plus" size="small" color="orange" rounded="8"
-                variant="flat" @click="addUserJob">
-                Thực hiện
-              </VBtn>
-              <div v-if="
-                recurringInfo.UserJobLst &&
-                recurringInfo.UserJobLst.length > 0
-              " class="pt-2">
-                <VChip v-for="(item, index) in recurringInfo.UserJobLst" :key="index" class="mr-1 mb-1 rounded"
-                  color="orange" variant="tonal">
+              <div class="d-flex justify-space-between">
+                <VBtn
+                  prepend-icon="mdi-user-edit"
+                  append-icon="mdi-plus"
+                  size="small"
+                  color="orange"
+                  rounded="8"
+                  variant="flat"
+                  @click="addUserJob"
+                >
+                  Thực hiện
+                </VBtn>
+
+                <VTooltip text="Xóa nhiều" location="top">
+                  <template #activator="{ props }">
+                    <VBtn
+                      v-bind="props"
+                      size="small"
+                      color="red"
+                      rounded="8"
+                      variant="flat"
+                      @click="deleteMultipleUserJob"
+                    >
+                      <VIcon icon="mdi-delete" />
+                    </VBtn>
+                  </template>
+                </VTooltip>
+              </div>
+
+              <div
+                v-if="
+                  recurringInfo.UserJobLst &&
+                  recurringInfo.UserJobLst.length > 0
+                "
+                class="pt-2"
+              >
+                <VChip
+                  v-for="(item, index) in recurringInfo.UserJobLst"
+                  :key="index"
+                  class="mr-1 mb-1 rounded"
+                  color="orange"
+                  variant="tonal"
+                >
                   <VIcon icon="mdi-account-circle-outline" start />
                   {{ item.FullName }}
-                  <VIcon icon="mdi-close" end @click="removeUserJob(item.UserID)" />
+                  <VIcon
+                    icon="mdi-close"
+                    end
+                    @click="removeUserJob(item.UserID)"
+                  />
                 </VChip>
               </div>
             </div>
             <div class="mt-1">
-              <VBtn prepend-icon="mdi-user-check" append-icon="mdi-plus" size="small" color="green" rounded="8"
-                variant="flat" @click="addUserMana">
+              <VBtn
+                prepend-icon="mdi-user-check"
+                append-icon="mdi-plus"
+                size="small"
+                color="green"
+                rounded="8"
+                variant="flat"
+                @click="addUserMana"
+              >
                 Phê duyệt
               </VBtn>
               <div class="pt-2">
-                <VChip v-for="(item, index) in recurringInfo.UserManaLst" :key="index" class="mr-1 rounded"
-                  color="green" variant="tonal">
+                <VChip
+                  v-for="(item, index) in recurringInfo.UserManaLst"
+                  :key="index"
+                  class="mr-1 rounded"
+                  color="green"
+                  variant="tonal"
+                >
                   <VIcon icon="mdi-account-circle-outline" start />
                   {{ item.FullName }}
-                  <VIcon icon="mdi-close" end @click="removeUserMana(item.UserID)" />
+                  <VIcon
+                    icon="mdi-close"
+                    end
+                    @click="removeUserMana(item.UserID)"
+                  />
                 </VChip>
               </div>
             </div>
@@ -283,105 +474,54 @@
       </VCardText>
       <VCardActions>
         <VSpacer />
-        <VBtn
-          text="Hủy"
-          @click="isShowAddNew = false"
-        />
-        <VBtn
-          color="green"
-          text="Lưu"
-          @click="updateStepArising"
-        />
+        <VBtn text="Hủy" @click="isShowAddNew = false" />
+        <VBtn color="green" text="Lưu" @click="updateStepArising" />
       </VCardActions>
     </VCard>
   </VDialog>
-  <VDialog
-    v-model="isShowAddUserJob"
-    max-width="400px"
-  >
+  <VDialog v-model="isShowAddUserJob" max-width="400px">
     <VCard>
       <VCardTitle>Thêm người thực hiện</VCardTitle>
       <VCardText class="py-0">
         <VRow>
           <VCol cols="7" class="pr-0">
-            <VSelect v-model="selectedTeam" :items="teamOptions" label="Nhóm thực hiện" item-title="TeamName"
-              item-value="TeamID" clearable class="mb-2" />
-          </VCol>
-          <VCol cols="5">
-            <VTextField
-              v-model="quotaTime"
-              suffix="ngày"
-              label="Hạn"
+            <VSelect
+              v-model="selectedTeam"
+              :items="teamOptions"
+              label="Nhóm thực hiện"
+              item-title="TeamName"
+              item-value="TeamID"
+              clearable
+              class="mb-2"
             />
           </VCol>
-        </VRow>
-        <VAutocomplete v-model="selectedUser" :items="userOptions" label="Chọn người thực hiện" item-title="FullName"
-          item-value="UserName" clearable multiple hide-details>
-          <template v-slot:chip="{ props, item }">
-            <VChip v-bind="props"
-              :text="`${item.raw.FullName} - ${item.raw.EmployeeCode || item.raw.UserName || ''}`" />
-          </template>
-          <template v-slot:item="{ props, item }">
-            <VListItem v-bind="props">
-              <template v-slot:title>
-                <div class="d-flex justify-space-between align-center">
-                  <span>{{ item.raw.FullName }}</span>
-                  <span class="text-caption text-grey font-weight-bold ml-2">{{ item.raw.EmployeeCode ||
-                    item.raw.UserName || '' }}</span>
-                </div>
-              </template>
-            </VListItem>
-          </template>
-        </VAutocomplete>
-      </VCardText>
-      <VCardActions>
-        <VSpacer />
-        <VBtn
-          text="Hủy"
-          @click="isShowAddUserJob = false"
-        />
-        <VBtn
-          color="green"
-          text="Thêm"
-          @click="confirmAddUserJob"
-        />
-      </VCardActions>
-    </VCard>
-  </VDialog>
-  <VDialog
-    v-model="isShowAddUserMana"
-    max-width="400px"
-  >
-    <VCard>
-      <VCardTitle>Thêm người phê duyệt</VCardTitle>
-      <VCardText class="py-0">
-        <VRow>
-          <VCol cols="7" class="pr-0">
-            <VSelect v-model="selectedTeam" :items="teamOptions" label="Nhóm phê duyệt" item-title="TeamName"
-              item-value="TeamID" clearable class="mb-2" />
-          </VCol>
           <VCol cols="5">
-            <VTextField
-              v-model="quotaTime"
-              suffix="ngày"
-              label="Hạn"
-            />
+            <VTextField v-model="quotaTime" suffix="ngày" label="Hạn" />
           </VCol>
         </VRow>
-        <VAutocomplete v-model="selectedUser" :items="userOptions" label="Chọn người phê duyệt" item-title="FullName"
-          item-value="UserName" clearable hide-details>
-          <template v-slot:selection="{ props, item }">
-            <div class="v-select__selection-text d-flex justify-space-between w-100">
-              <span>{{ item.raw.FullName }}</span>
-              <span class="ml-2 text-grey">{{ item.raw.EmployeeCode || item.raw.UserName || '' }}</span>
-            </div>
+        <VAutocomplete
+          v-model="selectedUser"
+          :items="userOptions"
+          label="Chọn người thực hiện"
+          item-title="FullName"
+          item-value="UserName"
+          clearable
+          multiple
+          hide-details
+        >
+          <template #chip="{ props, item }">
+            <VChip
+              v-bind="props"
+              :text="`${item.raw.FullName} - ${item.raw.EmployeeCode || item.raw.UserName || ''}`"
+            />
           </template>
-          <template v-slot:item="{ props, item }">
+          <template #item="{ props, item }">
             <VListItem v-bind="props">
-              <template v-slot:title>
+              <template #title>
                 <div class="d-flex justify-space-between align-center">
                   <span>{{ item.raw.FullName }}</span>
-                  <span class="text-caption text-grey ml-2">{{ item.raw.EmployeeCode || item.raw.UserName || ''
+                  <span class="text-caption text-grey font-weight-bold ml-2">{{
+                    item.raw.EmployeeCode || item.raw.UserName || ""
                   }}</span>
                 </div>
               </template>
@@ -391,42 +531,108 @@
       </VCardText>
       <VCardActions>
         <VSpacer />
-        <VBtn
-          text="Hủy"
-          @click="isShowAddUserMana = false"
-        />
-        <VBtn
-          color="green"
-          text="Thêm"
-          @click="confirmAddUserMana"
-        />
+        <VBtn text="Chọn tất cả" @click="toggleSelectAllUsers" />
+        <VBtn text="Hủy" @click="isShowAddUserJob = false" />
+        <VBtn color="green" text="Thêm" @click="confirmAddUserJob" />
+      </VCardActions>
+    </VCard>
+  </VDialog>
+  <VDialog v-model="isShowAddUserMana" max-width="400px">
+    <VCard>
+      <VCardTitle>Thêm người phê duyệt</VCardTitle>
+      <VCardText class="py-0">
+        <VRow>
+          <VCol cols="7" class="pr-0">
+            <VSelect
+              v-model="selectedTeam"
+              :items="teamOptions"
+              label="Nhóm phê duyệt"
+              item-title="TeamName"
+              item-value="TeamID"
+              clearable
+              class="mb-2"
+            />
+          </VCol>
+          <VCol cols="5">
+            <VTextField v-model="quotaTime" suffix="ngày" label="Hạn" />
+          </VCol>
+        </VRow>
+        <VAutocomplete
+          v-model="selectedUser"
+          :items="userOptions"
+          label="Chọn người phê duyệt"
+          item-title="FullName"
+          item-value="UserName"
+          clearable
+          hide-details
+        >
+          <template #selection="{ props, item }">
+            <div
+              class="v-select__selection-text d-flex justify-space-between w-100"
+            >
+              <span>{{ item.raw.FullName }}</span>
+              <span class="ml-2 text-grey">{{
+                item.raw.EmployeeCode || item.raw.UserName || ""
+              }}</span>
+            </div>
+          </template>
+          <template #item="{ props, item }">
+            <VListItem v-bind="props">
+              <template #title>
+                <div class="d-flex justify-space-between align-center">
+                  <span>{{ item.raw.FullName }}</span>
+                  <span class="text-caption text-grey ml-2">{{
+                    item.raw.EmployeeCode || item.raw.UserName || ""
+                  }}</span>
+                </div>
+              </template>
+            </VListItem>
+          </template>
+        </VAutocomplete>
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+
+        <VBtn text="Hủy" @click="isShowAddUserMana = false" />
+        <VBtn color="green" text="Thêm" @click="confirmAddUserMana" />
       </VCardActions>
     </VCard>
   </VDialog>
   <!-- Progress dialog: shows detailed status and participant list -->
-  <VDialog
-    v-model="progressDialog.show"
-    max-width="920px"
-    scrollable
-  >
+  <VDialog v-model="progressDialog.show" max-width="920px" scrollable>
     <VCard class="dtp-progress-dialog">
       <VCardTitle class="dtp-progress-title">
         <div class="d-flex align-center justify-space-between w-100">
           <div>
-            <div class="text-h6">
-              Quá trình thực hiện
-            </div>
+            <div class="text-h6">Quá trình thực hiện</div>
           </div>
-          <VBtn icon="mdi-close" variant="text" density="comfortable" @click="progressDialog.show = false" />
+          <VBtn
+            icon="mdi-close"
+            variant="text"
+            density="comfortable"
+            @click="progressDialog.show = false"
+          />
         </div>
       </VCardTitle>
       <VDivider />
       <VCardText class="dtp-progress-body">
         <div v-if="progressDialog.item">
           <VRow dense class="mb-1">
-            <VCol v-for="card in progressSummaryCards" :key="card.key" cols="6" sm="6" md="3">
-              <VCard variant="tonal" :color="card.color" class="dtp-summary-card">
-                <VCardText class="d-flex align-center justify-space-between py-3">
+            <VCol
+              v-for="card in progressSummaryCards"
+              :key="card.key"
+              cols="6"
+              sm="6"
+              md="3"
+            >
+              <VCard
+                variant="tonal"
+                :color="card.color"
+                class="dtp-summary-card"
+              >
+                <VCardText
+                  class="d-flex align-center justify-space-between py-3"
+                >
                   <div class="d-flex flex-column">
                     <div class="text-caption text-medium-emphasis">
                       {{ card.label }}
@@ -435,96 +641,139 @@
                       {{ progressDialog.job?.[card.key] || 0 }}
                     </div>
                   </div>
-                  <VIcon
-                    :icon="card.icon"
-                    size="28"
-                  />
+                  <VIcon :icon="card.icon" size="28" />
                 </VCardText>
               </VCard>
             </VCol>
           </VRow>
-          <VChip v-if="progressDialog.job?.Title" color="purple" class="text-caption text-medium-emphasis rounded mb-2">
+          <VChip
+            v-if="progressDialog.job?.Title"
+            color="purple"
+            class="text-caption text-medium-emphasis rounded mb-2"
+          >
             JOB: {{ progressDialog.job.Title }}
           </VChip>
-          <VAlert v-if="!progressDialog.item.length" type="info" variant="tonal" class="mb-2" title="Không có lịch sử"
-            text="Chưa có bước nào được ghi nhận cho công việc này." />
+          <VAlert
+            v-if="!progressDialog.item.length"
+            type="info"
+            variant="tonal"
+            class="mb-2"
+            title="Không có lịch sử"
+            text="Chưa có bước nào được ghi nhận cho công việc này."
+          />
           <div v-else class="d-flex flex-column gap-2">
-            <VSheet v-for="(job, gi) in progressDialog.item" :key="gi" class="dtp-progress-item" rounded="lg"
-              :border="getJobBorder(job.Status)">
+            <VSheet
+              v-for="(job, gi) in progressDialog.item"
+              :key="gi"
+              class="dtp-progress-item"
+              rounded="lg"
+              :border="getJobBorder(job.Status)"
+            >
               {{ console.log("job:", job) }}
               <div class="d-flex justify-space-between">
                 <div class="d-flex align-center gap-2">
-                  <VChip v-if="job.TimeRepeat" variant="tonal" color="purple" class="rounded">
+                  <VChip
+                    v-if="job.TimeRepeat"
+                    variant="tonal"
+                    color="purple"
+                    class="rounded"
+                  >
                     {{ job.TimeRepeat }}
                   </VChip>
-                  <VChip class="text-caption text-medium-emphasis d-flex align-center flex-wrap gap-2 rounded"
-                    color="purple">
+                  <VChip
+                    class="text-caption text-medium-emphasis d-flex align-center flex-wrap gap-2 rounded"
+                    color="purple"
+                  >
                     <span class="d-flex align-center gap-1 text">
-                      <VIcon color="purple" size="small">mdi-calendar-clock</VIcon>
+                      <VIcon color="purple" size="small"
+                        >mdi-calendar-clock</VIcon
+                      >
                       Tạo lúc: {{ formatDateDDMMYY(job.TimeCreate) }}
                     </span>
                   </VChip>
                 </div>
                 <div class="text-right">
-                  <VChip size="small" class="rounded" variant="tonal" :color="getJobStatusMeta(job.Status).color">
+                  <VChip
+                    size="small"
+                    class="rounded"
+                    variant="tonal"
+                    :color="getJobStatusMeta(job.Status).color"
+                  >
                     {{ getJobStatusMeta(job.Status).label }}
                   </VChip>
                 </div>
               </div>
               <div class="dtp-progress-meta">
                 <div class="dtp-section-title">
-                  <VIcon
-                    size="22"
-                    icon="mdi-account-edit"
-                    color="blue"
-                  />
+                  <VIcon size="22" icon="mdi-account-edit" color="blue" />
                   {{ job.AssignName }}
-                  <span
-                    v-if="job.TimeModify"
-                    class="d-flex align-center gap-1"
-                  >
-                    <VIcon
-                      color="blue"
-                      size="small"
-                    >mdi-clock</VIcon>
+                  <span v-if="job.TimeModify" class="d-flex align-center gap-1">
+                    <VIcon color="blue" size="small">mdi-clock</VIcon>
                     {{ formatDateDisplay(job.TimeModify) }}
                   </span>
                 </div>
-                <VSheet v-if="job.Report" class="dtp-html-box mt-2" rounded="lg" border>
+                <VSheet
+                  v-if="job.Report"
+                  class="dtp-html-box mt-2"
+                  rounded="lg"
+                  border
+                >
                   <div v-html="job.Report" />
                 </VSheet>
-                <div
-                  v-else
-                  class="text-caption text-medium-emphasis mt-2"
-                >
+                <div v-else class="text-caption text-medium-emphasis mt-2">
                   Chưa có báo cáo.
                 </div>
               </div>
               <div v-if="job.DataAssign?.length" class="dtp-progress-section">
                 <div class="dtp-section-title">
                   <VIcon size="16" color="orange" icon="mdi-paperclip" />
-                  <span class="text-caption font-weight-medium">File báo cáo</span>
+                  <span class="text-caption font-weight-medium"
+                    >File báo cáo</span
+                  >
                 </div>
                 <div class="dtp-file-chips">
-                  <VMenu v-for="(file, indfile) in job.DataAssign" :key="indfile" location="end">
+                  <VMenu
+                    v-for="(file, indfile) in job.DataAssign"
+                    :key="indfile"
+                    location="end"
+                  >
                     <template #activator="{ props }">
-                      <VChip color="orange" variant="tonal" class="dtp-file-chip" :title="file.NameFile" v-bind="props">
-                        <VIcon start size="14">mdi-file-outline</VIcon>
+                      <VChip
+                        color="orange"
+                        variant="tonal"
+                        class="dtp-file-chip"
+                        :title="file.NameFile"
+                        v-bind="props"
+                      >
+                        <VIcon start size="14"> mdi-file-outline </VIcon>
                         {{ file.NameFile || file.MineFile }}
                       </VChip>
                     </template>
                     <VList>
                       <VListItem v-if="isPreviewSupported(file.MineFile)">
                         <VListItemTitle>
-                          <VBtn size="small" rounded="8" class="mb-1" @click="previewFile(file)">
-                            <VIcon class="mr-1">mdi-file-eye</VIcon> Xem trước
+                          <VBtn
+                            size="small"
+                            rounded="8"
+                            class="mb-1"
+                            @click="previewFile(file)"
+                          >
+                            <VIcon class="mr-1"> mdi-file-eye </VIcon> Xem trước
                           </VBtn>
                         </VListItemTitle>
                       </VListItem>
                       <VListItem>
                         <VListItemTitle>
-                          <VBtn size="small" rounded="8" color="green" block class="mb-1" @click="downloadFile(file)">
-                            <VIcon class="mr-1">mdi-file-download</VIcon> Tải ngay
+                          <VBtn
+                            size="small"
+                            rounded="8"
+                            color="green"
+                            block
+                            class="mb-1"
+                            @click="downloadFile(file)"
+                          >
+                            <VIcon class="mr-1"> mdi-file-download </VIcon> Tải
+                            ngay
                           </VBtn>
                         </VListItemTitle>
                       </VListItem>
@@ -534,46 +783,75 @@
               </div>
               <div v-if="job.ApproveID" class="dtp-progress-section">
                 <div class="dtp-section-title">
-                  <VIcon
-                    size="22"
-                    icon="mdi-account-check"
-                    color="red"
-                  />
+                  <VIcon size="22" icon="mdi-account-check" color="red" />
                   {{ job.ApproveName }}
-                  <span v-if="job.TimeApprove" class="d-flex align-center gap-1">
+                  <span
+                    v-if="job.TimeApprove"
+                    class="d-flex align-center gap-1"
+                  >
                     <VIcon color="red" size="small">mdi-clock</VIcon>
                     {{ formatDateDisplay(job.TimeApprove) }}
                   </span>
                 </div>
-                <VSheet v-if="job.NoteApprove" class="dtp-html-box mt-2" rounded="lg" border>
+                <VSheet
+                  v-if="job.NoteApprove"
+                  class="dtp-html-box mt-2"
+                  rounded="lg"
+                  border
+                >
                   <div v-html="job.NoteApprove" />
                 </VSheet>
               </div>
               <div v-if="job.DataApprove?.length" class="dtp-progress-section">
                 <div class="dtp-section-title">
                   <VIcon size="16" color="green" icon="mdi-paperclip" />
-                  <span class="text-caption font-weight-medium">File phê duyệt</span>
+                  <span class="text-caption font-weight-medium"
+                    >File phê duyệt</span
+                  >
                 </div>
                 <div class="dtp-file-chips">
-                  <VMenu v-for="(file, indfile) in job.DataApprove" :key="indfile" location="end">
+                  <VMenu
+                    v-for="(file, indfile) in job.DataApprove"
+                    :key="indfile"
+                    location="end"
+                  >
                     <template #activator="{ props }">
-                      <VChip color="green" variant="tonal" class="dtp-file-chip" :title="file.NameFile" v-bind="props">
-                        <VIcon start size="14">mdi-file-outline</VIcon>
+                      <VChip
+                        color="green"
+                        variant="tonal"
+                        class="dtp-file-chip"
+                        :title="file.NameFile"
+                        v-bind="props"
+                      >
+                        <VIcon start size="14"> mdi-file-outline </VIcon>
                         {{ file.NameFile || file.MineFile }}
                       </VChip>
                     </template>
                     <VList>
                       <VListItem v-if="isPreviewSupported(file.MineFile)">
                         <VListItemTitle>
-                          <VBtn size="small" rounded="8" class="mb-1" @click="previewFile(file)">
-                            <VIcon class="mr-1">mdi-file-eye</VIcon> Xem trước
+                          <VBtn
+                            size="small"
+                            rounded="8"
+                            class="mb-1"
+                            @click="previewFile(file)"
+                          >
+                            <VIcon class="mr-1"> mdi-file-eye </VIcon> Xem trước
                           </VBtn>
                         </VListItemTitle>
                       </VListItem>
                       <VListItem>
                         <VListItemTitle>
-                          <VBtn size="small" rounded="8" color="green" block class="mb-1" @click="downloadFile(file)">
-                            <VIcon class="mr-1">mdi-file-download</VIcon> Tải ngay
+                          <VBtn
+                            size="small"
+                            rounded="8"
+                            color="green"
+                            block
+                            class="mb-1"
+                            @click="downloadFile(file)"
+                          >
+                            <VIcon class="mr-1"> mdi-file-download </VIcon> Tải
+                            ngay
                           </VBtn>
                         </VListItemTitle>
                       </VListItem>
@@ -588,12 +866,7 @@
       <VDivider />
       <VCardActions>
         <VSpacer />
-        <VBtn
-          variant="tonal"
-          @click="progressDialog.show = false"
-        >
-          Đóng
-        </VBtn>
+        <VBtn variant="tonal" @click="progressDialog.show = false"> Đóng </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
@@ -604,24 +877,22 @@
         <div v-if="isLoading">Đang tải...</div>
         <div v-else>
           <strong>{{ nameFile }}</strong>
-          <div style="height: calc(100vh - 200px); overflow: auto; margin-top: 8px" v-html="docContent" />
+          <div
+            style="height: calc(100vh - 200px); overflow: auto; margin-top: 8px"
+            v-html="docContent"
+          />
         </div>
       </VCardItem>
       <VCardActions>
         <VSpacer />
-        <VBtn @click="isShowFile = false">Đóng</VBtn>
+        <VBtn @click="isShowFile = false"> Đóng </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
   <!-- Dialog xác nhận -->
-  <VDialog
-    v-model="confirmDialog.show"
-    max-width="400px"
-  >
+  <VDialog v-model="confirmDialog.show" max-width="400px">
     <VCard>
-      <VCardTitle class="text-h6">
-        Xác nhận
-      </VCardTitle>
+      <VCardTitle class="text-h6"> Xác nhận </VCardTitle>
       <VCardText>
         {{
           confirmDialog.type === "success"
@@ -634,15 +905,29 @@
       <VCardActions>
         <VSpacer />
         <VBtn text="Hủy" @click="confirmDialog.show = false" />
-        <VBtn v-if="confirmDialog.type === 'success'" color="green" text="Xác nhận"
-          @click="updateStepStatus(4, confirmDialog.item)" />
-        <VBtn v-if="confirmDialog.type === 'start'" color="purple" text="Xác nhận" @click="startStepArisingConfirm" />
-        <VBtn v-if="confirmDialog.type === 'delete'" color="red" text="Xác nhận"
-          @click="updateStepStatus(0, confirmDialog.item)" />
+        <VBtn
+          v-if="confirmDialog.type === 'success'"
+          color="green"
+          text="Xác nhận"
+          @click="updateStepStatus(4, confirmDialog.item)"
+        />
+        <VBtn
+          v-if="confirmDialog.type === 'start'"
+          color="purple"
+          text="Xác nhận"
+          @click="startStepArisingConfirm"
+        />
+        <VBtn
+          v-if="confirmDialog.type === 'delete'"
+          color="red"
+          text="Xác nhận"
+          @click="updateStepStatus(0, confirmDialog.item)"
+        />
       </VCardActions>
     </VCard>
   </VDialog>
 </template>
+
 <script>
 import {
   GetProgressByRecID,
@@ -664,6 +949,7 @@ import {
   isPreviewSupported,
 } from "@/utils/function";
 import { notify } from "@kyvg/vue3-notification";
+
 export default {
   data() {
     return {
@@ -723,7 +1009,7 @@ export default {
           icon: "mdi-close-circle-outline",
         },
       ],
-    }
+    };
   },
   computed: {
     areAllUsersSelected() {
@@ -731,7 +1017,14 @@ export default {
         Array.isArray(this.selectedUser) &&
         this.userOptions.length > 0 &&
         this.selectedUser.length === this.userOptions.length
-      )
+      );
+    },
+  },
+  computed: {
+    totalPage() {
+      if (!this.totalLength || this.totalLength === 0) return 1;
+
+      return Math.ceil(this.totalLength / this.rowspPage);
     },
   },
   watch: {
@@ -745,7 +1038,7 @@ export default {
     },
     "recurringInfo.WeekdaysCsv"(newVal) {
       if (this.recurringInfo.RecurrenceType === 2 && newVal.length > 0) {
-        this.recurringInfo.WeekdaysCsv = newVal.sort((a, b) => a - b)
+        this.recurringInfo.WeekdaysCsv = newVal.sort((a, b) => a - b);
       }
     },
     selectedTeam(value) {
@@ -754,13 +1047,13 @@ export default {
           PageNumber: 1,
           RowspPage: 150,
           TeamID: value,
-        }).then(res => {
+        }).then((res) => {
           if (res.RespCode === 0) {
-            this.userOptions = res.Data
+            this.userOptions = res.Data;
           }
-        })
+        });
       } else {
-        this.userOptions = []
+        this.userOptions = [];
       }
     },
     pageNumber(value) {
@@ -770,16 +1063,21 @@ export default {
       this.getRecurringJobLst();
     },
   },
-  computed: {
-    totalPage() {
-      if (!this.totalLength || this.totalLength === 0) return 1;
-      return Math.ceil(this.totalLength / this.rowspPage);
-    },
-  },
   created() {
-    this.getRecurringJobLst()
+    this.getRecurringJobLst();
   },
   methods: {
+    // toggleSelectAllUsers() {
+    //   if (!this.userOptions.length) return;
+    //   if (this.areAllUsersSelected) {
+    //     this.selectedUser = [];
+    //   } else {
+    //     this.selectedUser = this.userOptions.map((user) => user.UserName);
+    //   }
+    // },
+    deleteMultipleUserJob() {
+      this.recurringInfo.UserJobLst = [];
+    },
     formatDateDisplay,
     getProgressByRecID(templateID) {
       GetProgressByRecID({
@@ -787,30 +1085,31 @@ export default {
         PageNumber: 1,
         RowspPage: 100,
         Search: "",
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode === 0) {
           console.error("DEBUG PROGRESS DATA:", res.Data);
           this.progressDialog.item = res.Data;
           this.progressDialog.show = true;
         }
-      })
+      });
     },
     formatDateDDMMYY,
     formatDateTime(value) {
       if (!value) return "";
       const d = new Date(value);
       if (isNaN(d)) return String(value);
+
       return d.toLocaleString();
     },
     getJobStatusMeta(status) {
-      const s = Number(status)
+      const s = Number(status);
       if (s === 5) {
         return {
           key: "error",
           label: "Từ chối",
           color: "red",
           icon: "mdi-check-circle-outline",
-        }
+        };
       }
       if (s === 4) {
         return {
@@ -818,7 +1117,7 @@ export default {
           label: "Đã duyệt",
           color: "green",
           icon: "mdi-check-circle-outline",
-        }
+        };
       }
       if (s === 3) {
         return {
@@ -826,7 +1125,7 @@ export default {
           label: "Đã báo cáo",
           color: "orange",
           icon: "mdi-account-edit",
-        }
+        };
       }
       if (s === 1) {
         return {
@@ -834,17 +1133,19 @@ export default {
           label: "Đang làm",
           color: "blue",
           icon: "mdi-file-document-outline",
-        }
+        };
       }
+
       return {
         key: "pending",
         label: "Chưa xử lý",
         color: "",
         icon: "mdi-clock-outline",
-      }
+      };
     },
     getJobBorder(status) {
       const meta = this.getJobStatusMeta(status);
+
       return meta.color === "" ? "md" : `${meta.color} md`;
     },
     getRecurrenceLabel(item) {
@@ -853,16 +1154,18 @@ export default {
       if (type === 1) return `Mỗi ${interval || 1} ngày`;
       if (type === 2) return `Mỗi ${interval || 1} tuần`;
       if (type === 3) return `Mỗi ${interval || 1} tháng`;
+
       return "Không lặp";
     },
     getRecurrenceTooltip(item) {
-      const type = Number(item?.RecurrenceType)
+      const type = Number(item?.RecurrenceType);
       if (type === 2 && item?.WeekdaysCsv) {
-        return `Chu kỳ lặp • Thứ ${item.WeekdaysCsv}`
+        return `Chu kỳ lặp • Thứ ${item.WeekdaysCsv}`;
       }
       if (type === 3 && item?.DayOfMonth) {
-        return `Chu kỳ lặp • Ngày ${item.DayOfMonth}`
+        return `Chu kỳ lặp • Ngày ${item.DayOfMonth}`;
       }
+
       return "Chu kỳ lặp";
     },
     getInitials(name) {
@@ -870,6 +1173,7 @@ export default {
       if (!raw) return "—";
       const parts = raw.split(/\s+/).filter(Boolean);
       if (parts.length === 1) return parts[0].slice(0, 1).toUpperCase();
+
       return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
     },
     updateStepArising() {
@@ -880,6 +1184,7 @@ export default {
           text: "Vui lòng nhập nội dung công việc",
           type: "error",
         });
+
         return;
       }
       if (!this.recurringInfo.StartDate) {
@@ -888,11 +1193,14 @@ export default {
           text: "Vui lòng chọn ngày bắt đầu",
           type: "error",
         });
+
         return;
       }
+
       const payload = {
         RowID: this.recurringInfo.RowID || 0,
-        TemplateID: this.recurringInfo.TemplateID || this.recurringInfo.RowID || 0,
+        TemplateID:
+          this.recurringInfo.TemplateID || this.recurringInfo.RowID || 0,
         Title: this.recurringInfo.Title,
         StartDate: formatDate(this.recurringInfo.StartDate),
         RecurrenceType: this.recurringInfo.RecurrenceType,
@@ -920,65 +1228,74 @@ export default {
         JobProgress: this.recurringInfo.JobProgress || 0,
         JobReport: this.recurringInfo.JobReport || 0,
       };
+
       UpdateRecurringJobInfo({ Data: payload }).then((res) => {
         if (res && res.RespCode === 0) {
           notify({
             title: "Thành công",
             text: "Lưu công việc định kỳ thành công",
             type: "success",
-          })
-          this.getRecurringJobLst()
-          this.isShowAddNew = false
+          });
+          this.getRecurringJobLst();
+          this.isShowAddNew = false;
         } else {
           notify({
             title: "Lỗi",
             text: (res && res.Message) || "Lưu thất bại",
             type: "error",
-          })
+          });
         }
-      })
+      });
     },
     updateStepStatus(status, item) {
       if (!item) return;
+
       const payload = {
         RecurringJobID: item.RowID,
         Status: status,
       };
+
       UpdateRecurringJobStatus(payload).then((res) => {
         if (res && res.RespCode === 0) {
           notify({
             title: "Thành công",
             text: "Cập nhật trạng thái thành công",
             type: "success",
-          })
-          this.getRecurringJobLst()
-          this.confirmDialog.show = false
+          });
+          this.getRecurringJobLst();
+          this.confirmDialog.show = false;
         } else {
           notify({
             title: "Lỗi",
             text: (res && res.Message) || "Cập nhật thất bại",
             type: "error",
-          })
+          });
         }
-      })
+      });
     },
     getRecurringJobLst() {
       GetRecurringJobLst({
         PageNumber: this.pageNumber,
         RowspPage: this.rowspPage,
         Search: this.searchJob,
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
-          this.totalLength = Number(res.TotalRows || res.TotalLength || res.TotalRow || (res.Data ? res.Data.length : 0));
+          this.totalLength = Number(
+            res.TotalRows ||
+              res.TotalLength ||
+              res.TotalRow ||
+              (res.Data ? res.Data.length : 0),
+          );
           this.dataRecurringLst = res.Data.map((item, index) => {
             const num = (this.pageNumber - 1) * this.rowspPage;
+
             return {
               ...item,
               Key: index + 1 + num,
             };
           });
         }
-      })
+      });
     },
     btPage(data) {
       this.pageNumber = data;
@@ -987,80 +1304,89 @@ export default {
       this.rowspPage = data;
     },
     showConfirm(type, item) {
-      this.confirmDialog.type = type
-      this.confirmDialog.item = item
-      this.confirmDialog.show = true
+      this.confirmDialog.type = type;
+      this.confirmDialog.item = item;
+      this.confirmDialog.show = true;
     },
     startStepArisingConfirm() {
-      this.startStepArising()
+      this.startStepArising();
     },
     startStepArising() {
       const item = this.confirmDialog.item;
       if (!item) return;
       const id = item.RowID;
+
       UpdateRecurringJobStatus({ RecurringJobID: id, Status: 2 }).then(
-        res => {
+        (res) => {
           if (res && res.RespCode === 0) {
             notify({
               title: "Thành công",
               text: "Bắt đầu công việc",
               type: "success",
-            })
-            this.getRecurringJobLst()
-            this.confirmDialog.show = false
+            });
+            this.getRecurringJobLst();
+            this.confirmDialog.show = false;
           } else {
             notify({
               title: "Lỗi",
               text: (res && res.Message) || "Bắt đầu thất bại",
               type: "error",
-            })
+            });
           }
         },
-      )
+      );
     },
     btShowProgress(item) {
-      this.getProgressByRecID(item.RowID)
-      this.progressDialog.job = item
+      this.getProgressByRecID(item.RowID);
+      this.progressDialog.job = item;
     },
     toggleSelectAllUsers() {
-      if (!this.userOptions.length) return
+      if (!this.userOptions.length) return;
       if (!Array.isArray(this.selectedUser)) {
-        this.selectedUser = []
+        this.selectedUser = [];
       }
 
       if (this.areAllUsersSelected) {
-        this.selectedUser = []
-        
-        return
+        this.selectedUser = [];
+
+        return;
       }
 
-      this.selectedUser = this.userOptions.map(user => user.UserName)
+      this.selectedUser = this.userOptions.map((user) => user.UserName);
     },
     openDialog(item = null) {
       if (item && item.Title) {
-        // cập nhật 
+        // cập nhật
         this.recurringInfo = {
           RowID: item.RowID || item.TemplateID,
           Title: item.Title,
           StartDate: item.StartDate,
           RecurrenceType: Number(item.RecurrenceType) || 0,
           IntervalN: Number(item.IntervalN) || 1,
-          WeekdaysCsv: item.WeekdaysCsv ? item.WeekdaysCsv.split(',').map(Number) : [],
+          WeekdaysCsv: item.WeekdaysCsv
+            ? item.WeekdaysCsv.split(",").map(Number)
+            : [],
           DayOfMonth: Number(item.DayOfMonth) || 1,
+
           // lấy danh sách người thực hiện từ item.Data
-          UserJobLst: (item.Data || []).map(u => ({
+          UserJobLst: (item.Data || []).map((u) => ({
             FullName: u.AssignName || u.FullName,
             UserID: u.AssignID || u.UserID,
             TeamID: u.TeamID,
-            UserRole: u.UserRole || 'Xử lý',
+            UserRole: u.UserRole || "Xử lý",
           })),
+
           // lấy danh sách người duyệt từ item.ApproveID
-          UserManaLst: item.ApproveID ? [{
-            FullName: item.ApproveName,
-            UserID: item.ApproveID,
-            UserRole: 'Phê duyệt',
-            TeamID: item.TeamApproveID
-          }] : [],
+          UserManaLst: item.ApproveID
+            ? [
+                {
+                  FullName: item.ApproveName,
+                  UserID: item.ApproveID,
+                  UserRole: "Phê duyệt",
+                  TeamID: item.TeamApproveID,
+                },
+              ]
+            : [],
           Status: item.Status,
           JobSuccess: item.JobSuccess,
           JobError: item.JobError,
@@ -1070,6 +1396,7 @@ export default {
         this.isShowAddNew = true;
       } else {
         const date = new Date();
+
         date.setDate(date.getDate() + 1);
         this.recurringInfo = {
           StartDate: formatDate00(date),
@@ -1078,44 +1405,44 @@ export default {
           DayOfMonth: 1,
           WeekdaysCsv: [],
           UserJobLst: [],
-          UserManaLst: []
+          UserManaLst: [],
         };
         this.isShowAddNew = true;
       }
     },
     getTeamLstUserID() {
-      if (this.teamOptions.length > 0) return
-      GetTeamLstUserID({}).then(res => {
+      if (this.teamOptions.length > 0) return;
+      GetTeamLstUserID({}).then((res) => {
         if (res.RespCode === 0) {
           this.teamOptions = res.Data;
           if (!this.selectedTeam && this.teamOptions.length > 0) {
-            this.selectedTeam = this.teamOptions[0].TeamID
+            this.selectedTeam = this.teamOptions[0].TeamID;
           }
         }
-      })
+      });
     },
     addUserJob() {
-      this.isShowAddUserJob = true
-      this.quotaTime = 1
-      this.getTeamLstUserID()
+      this.isShowAddUserJob = true;
+      this.quotaTime = 1;
+      this.getTeamLstUserID();
     },
     addUserMana() {
-      this.isShowAddUserMana = true
-      this.quotaTime = 1
-      this.getTeamLstUserID()
+      this.isShowAddUserMana = true;
+      this.quotaTime = 1;
+      this.getTeamLstUserID();
     },
     confirmAddUserJob() {
       if (this.selectedUser && this.selectedTeam) {
         if (!this.recurringInfo.UserJobLst) {
-          this.recurringInfo.UserJobLst = []
+          this.recurringInfo.UserJobLst = [];
         }
-        var userLst = this.userOptions || []
+        var userLst = this.userOptions || [];
         for (let index = 0; index < this.selectedUser.length; index++) {
-          const element = this.selectedUser[index]
-          var userInfo = userLst.find(p => p.UserName == element)
+          const element = this.selectedUser[index];
+          var userInfo = userLst.find((p) => p.UserName == element);
           var exist = this.recurringInfo.UserJobLst.find(
-            p => p.UserID == element,
-          )
+            (p) => p.UserID == element,
+          );
           if (!exist) {
             this.recurringInfo.UserJobLst.push({
               FullName: userInfo.FullName,
@@ -1123,7 +1450,7 @@ export default {
               UserID: userInfo.UserName,
               UserRole: "Xử lý",
               TeamID: this.selectedTeam,
-            })
+            });
           }
         }
         this.selectedUser = null;
@@ -1134,7 +1461,7 @@ export default {
           title: "Lỗi",
           text: "Vui lòng nhập đầy đủ thông tin bắt buộc!",
           type: "error",
-        })
+        });
       }
     },
     removeUserJob(userId) {
@@ -1162,7 +1489,7 @@ export default {
           title: "Lỗi",
           text: "Vui lòng nhập đầy đủ thông tin bắt buộc!",
           type: "error",
-        })
+        });
       }
     },
     removeUserMana(userId) {
@@ -1175,23 +1502,27 @@ export default {
     },
     downloadFile(file) {
       const url = `https://sop.idtp.work/api/File/GetRecurringFile?FileName=${file.LinkFile}`;
+
       window.open(url, "_blank", "noopener,noreferrer");
     },
     async previewFile(file) {
       if (!isPreviewSupported(file.MineFile)) {
         this.downloadFile(file);
+
         return;
       }
       this.isLoading = true;
       this.nameFile = file.NameFile || file.MineFile;
       this.docContent = "";
       this.fileMine = (file.MineFile || "").trim().toLowerCase();
+
       const previewUrl = `https://sop.idtp.work/api/File/GetRecurringFile?FileName=${file.LinkFile}`;
+
       this.fileUrl = previewUrl;
       if (this.fileMine === ".pdf") {
         window.open(
           "https://docs.google.com/gview?embedded=true&url=" +
-          encodeURIComponent(previewUrl),
+            encodeURIComponent(previewUrl),
           "_blank",
         );
       } else if (this.fileMine === ".docx") {
@@ -1207,8 +1538,9 @@ export default {
       this.isLoading = false;
     },
   },
-}
+};
 </script>
+
 <style scoped>
 .dtp-recurring-search {
   inline-size: min(420px, 100%);
@@ -1357,7 +1689,7 @@ export default {
 
 .dtp-pagination-table {
   background: transparent !important;
-  
+
   :deep(.v-table__wrapper) {
     display: none;
   }
