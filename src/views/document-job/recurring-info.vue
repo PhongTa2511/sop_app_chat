@@ -1,5 +1,5 @@
 <template>
-  <div style="padding-bottom: 100px">
+  <div>
     <VRow class="pr-3">
       <VCol :lg="8" cols="12" class="">
         <VCard class="layout-card">
@@ -220,6 +220,7 @@
                   </div>
                   <div
                     class="border-md px-2 py-1 rounded report-content"
+                    style="overflow: auto"
                     v-html="dataJobInfo.Report"
                     @click="handleContentImageClick"
                   />
@@ -526,6 +527,13 @@
                 </VCol>
               </VRow>
             </div> -->
+            <div v-if="dataJobInfo.ApproveName" class="px-4">
+              <VIcon color="red" size="small"> mdi-account-check </VIcon>
+              {{ dataJobInfo.ApproveName }}
+              <span v-if="dataJobInfo.TimeApprove" class="ml-2 text-caption">
+                ({{ formatDateDisplay(dataJobInfo.TimeApprove) }})
+              </span>
+            </div>
             <div v-if="dataJobInfo.NoteApprove" class="px-4">
               <VRow>
                 <VCol lg="8" md="8" cols="12">
@@ -538,18 +546,9 @@
                       Đã từ chối
                     </VChip>
                   </div>
-                  <div class="pb-1 text-subtitle-2">
-                    <VIcon color="red" size="small"> mdi-account-edit </VIcon>
-                    {{ dataJobInfo.ApproveName }}
-                  </div>
-                  <div class="pb-1 text-subtitle-2">
-                    <VIcon color="green" size="small">
-                      mdi-clock-time-four-outline
-                    </VIcon>
-                    Duyệt lúc: {{ formatDateDisplay(dataJobInfo.TimeApprove) }}
-                  </div>
                   <div
                     class="border-md px-2 py-1 rounded report-content"
+                    style="overflow: auto"
                     v-html="dataJobInfo.NoteApprove"
                   />
                 </VCol>
@@ -694,7 +693,7 @@
                 </VIcon>
                 {{ formatDateDisplay(job.TimeModify) }}
               </div>
-              <div class="report-content" v-html="job.Report" @click="handleContentImageClick" />
+              <div class="report-content" style="overflow: auto" v-html="job.Report" @click="handleContentImageClick" />
             </div>
             <div v-if="job.DataAssign.length > 0" class="file-scroll">
               <div class="d-inline-flex">
@@ -721,24 +720,38 @@
                 </VMenu>
               </div>
             </div>
-            <div v-if="job.Status == 4 || job.Status == 5" class="text-caption">
+            <div v-if="job.ApproveName" class="text-caption mt-1">
               <div>
-                <VIcon :color="job.Status == 4 ? 'green' : 'red'" size="small">
-                  {{
-                    job.Status == 4 ? "mdi-account-check" : "mdi-account-cancel"
-                  }}
+                <VIcon
+                  :color="
+                    job.Status == 4
+                      ? 'green'
+                      : job.Status == 5
+                        ? 'red'
+                        : 'orange'
+                  "
+                  size="small"
+                >
+                  mdi-account-check
                 </VIcon>
                 {{ job.ApproveName }}
                 <VIcon
                   v-if="job.TimeApprove"
                   :color="job.Status == 4 ? 'green' : 'red'"
                   size="small"
+                  class="ml-1"
                 >
                   mdi-clock
                 </VIcon>
-                {{ formatDateDisplay(job.TimeApprove) }}
+                {{ job.TimeApprove ? formatDateDisplay(job.TimeApprove) : '' }}
               </div>
-              <div class="report-content" v-html="job.NoteApprove" @click="handleContentImageClick" />
+              <div
+                v-if="job.NoteApprove"
+                class="report-content"
+                style="overflow: auto"
+                v-html="job.NoteApprove"
+                @click="handleContentImageClick"
+              />
             </div>
             <div v-if="job.DataApprove.length > 0" class="file-scroll">
               <VMenu
@@ -830,18 +843,20 @@
     </VCard>
   </VDialog>
 
-  <VDialog v-model="isPreview" max-width="9 00">
+  <VDialog v-model="isPreview" max-width="900">
     <VCard>
-      <VCardTitle>Hình ảnh đã upload</VCardTitle>
-      <VCardText class="text-center">
-        <VImg :src="previewImage" max-height="600" contain />
+      <VCardTitle class="d-flex align-center justify-space-between">
+        <span>Hình ảnh chi tiết</span>
+      </VCardTitle>
+      <VCardText class="text-center overflow-hidden py-4">
+        <VImg :src="previewImage" max-height="80vh" contain class="mx-auto" />
       </VCardText>
       <VCardActions>
         <VSpacer />
-        <!-- <VBtn color="green" text @click="btDownloadFile(previewFile)">
+        <!-- <VBtn color="blue" variant="tonal" @click="handleDownload(previewImage)">
           Tải ảnh
         </VBtn> -->
-        <VBtn text @click="isPreview = false"> Đóng </VBtn>
+        <VBtn variant="text" @click="isPreview = false"> Đóng </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
@@ -1105,6 +1120,12 @@ export default {
         });
       }
     },
+    handleDownload(url) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "image.png";
+      link.click();
+    },
     handleContentImageClick(event) {
       if (event.target.tagName === "IMG") {
         this.previewImage = event.target.src;
@@ -1158,7 +1179,8 @@ export default {
 .report-content, .ql-editor {
   :deep(img), img {
     max-height: 150px;
-    width: auto;
+    max-width: 100% !important;
+    height: auto !important;
     cursor: zoom-in;
     border-radius: 4px;
     transition: transform 0.2s;
@@ -1199,18 +1221,54 @@ export default {
     border-radius: 4px;
   }
 }
-.report-content {
+.report-content,
+.ql-editor {
   overflow-x: auto;
   max-width: 100%;
+  word-break: break-word;
+
   ul,
   ol {
-    padding-left: 20px !important;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    padding-left: 40px !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    list-style-position: outside;
+  }
+
+  ul {
     list-style-type: disc !important;
   }
+
+  ol {
+    list-style-type: decimal !important;
+  }
+
   li {
-    margin-bottom: 2px;
+    margin-bottom: 6px;
+    line-height: 1.6;
+  }
+
+  table {
+    border-radius: 8px;
+    border-collapse: collapse;
+    font-family: arial, sans-serif;
+    inline-size: 100%;
+    margin-block: 10px;
+  }
+
+  img {
+    max-height: 150px;
+    max-width: 100% !important;
+    height: auto !important;
+    cursor: zoom-in;
+    border-radius: 4px;
+    transition: transform 0.2s;
+    margin-block: 8px;
+    display: block;
+
+    &:hover {
+      transform: scale(1.02);
+    }
   }
 }
 </style>
