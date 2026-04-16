@@ -65,6 +65,14 @@ export function DeleteGroup(data) {
   })
 }
 
+export function SetMuteGroup(data) {
+  return request({
+    url: "groups/SetMuteGroup",
+    method: "post",
+    data,
+  })
+}
+
 export function SendMessage(data) {
   return request({
     url: "messages/SendMessage",
