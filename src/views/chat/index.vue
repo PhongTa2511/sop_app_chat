@@ -10,81 +10,14 @@
     />
     <VCard>
       <VLayout>
-        <VNavigationDrawer v-model="drawerLeft" :width="300" class="py-4">
-          <div
-            class="mx-4 text-lg d-flex justify-space-between align-center mb-2"
-          >
-            <div class="text-lg">Đoạn chat</div>
-            <VBtn
-              icon="mdi-square-edit-outline"
-              size="x-small"
-              @click="openCreateGroupDialog"
-            />
-          </div>
-          <VTextField
-            v-model="searchGroup"
-            append-inner-icon="mdi-magnify"
-            density="compact"
-            label="Tìm kiếm"
-            hide-details
-            single-line
-            class="mx-4 my-0"
-          />
-          <VList>
-            <VListItem
-              v-for="folder in groupLst"
-              :key="folder.GroupID"
-              :subtitle="folder.TextContent"
-              :value="folder"
-              color="blue"
-              variant="text"
-              class="py-4"
-              :active="folder.GroupID == groupInfo.GroupID"
-              @click="selectGroup(folder)"
-            >
-              <template #prepend>
-                <VAvatar
-                  :color="
-                    folder.GroupID == groupInfo.GroupID ? 'blue' : 'secondary'
-                  "
-                >
-                  <VImg v-if="folder.Avatar" :src="folder.Avatar" />
-                  <VIcon v-else> mdi-account-supervisor </VIcon>
-                </VAvatar>
-              </template>
-              <template #title>
-                <div class="text-bold" style="font-weight: 700">
-                  {{ folder.GroupName ? folder.GroupName : folder.DocumentID }}
-                </div>
-              </template>
-              <template #subtitle>
-                <div class="text-xs text-gray-700">
-                  {{
-                    folder.NewMessage ??
-                    folder.LastMessage ??
-                    "Hãy bắt đầu cuộc trò chuyện"
-                  }}
-                </div>
-              </template>
-              <template v-if="folder.TimeCreate" #append>
-                <VBadge
-                  v-if="folder.UnreadCount > 0"
-                  location="top right"
-                  color="primary"
-                  dot
-                  :offset-y="-10"
-                >
-                  <div class="text-xs text-grey-800">
-                    {{ folder.TimeShow }}
-                  </div>
-                </VBadge>
-                <div v-else class="text-xs text-grey-800">
-                  {{ folder.TimeShow }}
-                </div>
-              </template>
-            </VListItem>
-          </VList>
-        </VNavigationDrawer>
+        <ChatSidebar
+          v-model="drawerLeft"
+          v-model:search="searchGroup"
+          :group-lst="groupLst"
+          :active-group-id="groupInfo?.GroupID"
+          @open-create="openCreateGroupDialog"
+          @select-group="selectGroup"
+        />
         <VAppBar>
           <VAppBarNavIcon
             variant="text"
@@ -187,7 +120,7 @@
                   "
                   class="custom-layout-name"
                 >
-                  {{ mes.NickName ? mes.NickName : mes.LastName }}
+                  {{ displaySenderName(mes) }}
                 </div>
                 <div
                   class="message-row"
@@ -278,7 +211,9 @@
                                   >mdi-file-document-outline</VIcon
                                 >
                                 <span class="forward-file-name">{{
-                                  mes.Forward.MineFile || "Tệp đính kèm"
+                                  mes.Forward.Text ||
+                                  mes.Forward.MineFile ||
+                                  "Tệp đính kèm"
                                 }}</span>
                               </div>
                             </template>
@@ -488,7 +423,7 @@
                 <div class="flex-grow-1 overflow-hidden">
                   <div class="text-caption font-weight-bold text-blue">
                     Đang trả lời
-                    {{ replyingTo.NickName || replyingTo.LastName }}
+                    {{ displaySenderName(replyingTo) }}
                   </div>
                   <div class="text-truncate text-body-2 text-grey-darken-1">
                     {{
@@ -637,172 +572,41 @@
             :group-info="groupInfo"
             @group-left="onGroupLeft"
             @group-deleted="onGroupDeleted"
+            @group-mute="onGroupMute"
+            @members-updated="onMembersUpdated"
             @jump-message="onJumpMessage"
           />
         </VNavigationDrawer>
       </VLayout>
     </VCard>
-    <VDialog v-model="showImageDialog" max-width="600px">
-      <VImg :src="selectedImage" aspect-ratio="1" />
-    </VDialog>
-    <VDialog v-model="showSearchDialog" max-width="600px">
-      <VCard>
-        <VCardTitle>Tìm kiếm tin nhắn</VCardTitle>
-        <VCardText>
-          <VTextField
-            v-model="searchQuery"
-            label="Nhập từ khóa"
-            @keyup.enter="searchMessages"
-          />
-          <VList>
-            <VListItem
-              v-for="message in searchResults"
-              :key="message.MessageID"
-              style="cursor: pointer"
-              @click="jumpToSearchMessage(message)"
-            >
-              <template #prepend>
-                <VAvatar size="small" color="secondary">
-                  <VImg v-if="message.Avatar" :src="message.Avatar" />
-                  <VIcon v-else size="x-small"> mdi-account </VIcon>
-                </VAvatar>
-              </template>
-
-              <template #title>
-                {{ message.TextContent }}
-              </template>
-              <template #subtitle>
-                {{ message.FullName }} - {{ message.TimeShow }}
-              </template>
-            </VListItem>
-          </VList>
-        </VCardText>
-        <VCardActions>
-          <VBtn text @click="showSearchDialog = false"> Đóng </VBtn>
-        </VCardActions>
-      </VCard>
-    </VDialog>
-
-    <VDialog v-model="showForwardDialog" max-width="520px">
-      <VCard>
-        <VCardTitle>Chuyển tiếp</VCardTitle>
-        <VCardText>
-          <VTextField
-            v-model="forwardComment"
-            label="Ghi chú (tuỳ chọn)"
-            hide-details
-            density="compact"
-            class="mb-3"
-          />
-          <VTextField
-            v-model="forwardSearch"
-            label="Tìm đoạn chat"
-            hide-details
-            density="compact"
-            class="mb-2"
-          />
-
-          <VList style="max-height: 320px; overflow: auto">
-            <VListItem
-              v-for="g in forwardGroupSuggestions"
-              :key="g.GroupID"
-              @click="forwardToGroup(g)"
-            >
-              <template #prepend>
-                <VAvatar>
-                  <VImg v-if="g.Avatar" :src="g.Avatar" />
-                  <VIcon v-else> mdi-account-supervisor </VIcon>
-                </VAvatar>
-              </template>
-              <template #title>
-                <div class="text-bold" style="font-weight: 700">
-                  {{ g.GroupName ? g.GroupName : g.DocumentID }}
-                </div>
-              </template>
-              <template #subtitle>
-                {{ g.NewMessage ?? g.LastMessage ?? "" }}
-              </template>
-            </VListItem>
-          </VList>
-        </VCardText>
-        <VCardActions>
-          <VSpacer />
-          <VBtn text @click="closeForwardDialog">Đóng</VBtn>
-        </VCardActions>
-      </VCard>
-    </VDialog>
-    <div v-if="showCreateGroupDialog" class="fb-dialog-overlay">
-      <div class="fb-dialog">
-        <div class="fb-header">
-          <h3>Tạo đoạn chat mới</h3>
-          <button class="close-btn" @click="showCreateGroupDialog = false">
-            &times;
-          </button>
-        </div>
-
-        <div class="fb-search-container">
-          <div class="selected-users-wrapper">
-            <span class="to-label">Đến:</span>
-            <div
-              v-for="user in selectedUsers"
-              :key="user.UserName"
-              class="fb-chip"
-            >
-              {{ user.FullName }}
-              <span class="remove-chip" @click="removeUser(user)">&times;</span>
-            </div>
-            <input
-              ref="searchInput"
-              v-model="searchUser"
-              type="text"
-              placeholder="Tìm kiếm người dùng..."
-              class="w-100 px-4 py-2"
-              @input="onSearchChange"
-            />
-          </div>
-        </div>
-
-        <div class="fb-user-list" @scroll="onScroll">
-          <div
-            v-for="item in desserts"
-            :key="item.UserName"
-            class="fb-user-item"
-            :class="{ selected: isSelected(item) }"
-            @click="toggleUser(item)"
-          >
-            <div class="fb-avatar">
-              {{ item.FullName.charAt(0) }}
-            </div>
-            <div class="fb-user-info">
-              <div class="fb-user-name">
-                {{ item.FullName }}
-              </div>
-              <div class="fb-user-sub">
-                {{ item.Email }}
-              </div>
-            </div>
-            <div class="fb-checkbox">
-              <div class="circle" :class="{ checked: isSelected(item) }" />
-            </div>
-          </div>
-
-          <div class="list-footer">
-            <div v-if="loading" class="fb-spinner" />
-            <!-- <span v-else-if="allLoaded">Đã hiển thị tất cả</span> -->
-          </div>
-        </div>
-
-        <div class="fb-footer">
-          <button
-            class="fb-btn-primary"
-            :disabled="selectedUsers.length === 0"
-            @click="createNewChatGroup"
-          >
-            Tạo nhóm chat
-          </button>
-        </div>
-      </div>
-    </div>
+    <ChatImageDialog v-model="showImageDialog" :src="selectedImage" />
+    <ChatSearchDialog
+      v-model="showSearchDialog"
+      v-model:query="searchQuery"
+      :results="searchResults"
+      @search="searchMessages"
+      @jump="jumpToSearchMessage"
+    />
+    <ChatForwardDialog
+      v-model="showForwardDialog"
+      v-model:comment="forwardComment"
+      v-model:search="forwardSearch"
+      :suggestions="forwardGroupSuggestions"
+      @forward="forwardToGroup"
+      @close="closeForwardDialog"
+    />
+    <ChatCreateGroupDialog
+      v-model="showCreateGroupDialog"
+      v-model:search-user="searchUser"
+      :selected-users="selectedUsers"
+      :desserts="desserts"
+      :loading="loading"
+      @remove-user="removeUser"
+      @toggle-user="toggleUser"
+      @scroll="onScroll"
+      @search-change="onSearchChange"
+      @create="createNewChatGroup"
+    />
   </div>
   <VideoCall
     v-if="isCalling"
@@ -833,12 +637,22 @@ import socket from "@/socket";
 import { getAvatar, getToken, getUserName } from "@/utils/auth";
 import { notify } from "@kyvg/vue3-notification";
 import Axios from "axios";
+import ChatCreateGroupDialog from "./components/ChatCreateGroupDialog.vue";
+import ChatForwardDialog from "./components/ChatForwardDialog.vue";
+import ChatImageDialog from "./components/ChatImageDialog.vue";
+import ChatSearchDialog from "./components/ChatSearchDialog.vue";
+import ChatSidebar from "./components/ChatSidebar.vue";
 import RightChat from "./components/right-chat.vue";
 import VideoCall from "./components/VideoCall.vue";
 
 export default {
   name: "App",
   components: {
+    ChatSidebar,
+    ChatImageDialog,
+    ChatSearchDialog,
+    ChatForwardDialog,
+    ChatCreateGroupDialog,
     RightChat,
     VideoCall,
   },
@@ -1166,6 +980,38 @@ export default {
       if (payload?.Pinned) next.add(mid);
       else next.delete(mid);
       this.pinnedMessageIDs = [...next];
+    });
+
+    socket.on("group:new", (group) => {
+      const gid = Number(group?.GroupID);
+      if (!Number.isFinite(gid) || gid <= 0) return;
+      const exists = (this.groupLst || []).some(
+        (g) => Number(g.GroupID) === gid,
+      );
+      if (!exists) {
+        this.groupLst.unshift({
+          ...group,
+          UnreadCount: 0,
+          TimeShow: group?.TimeCreate
+            ? this.calculateTimeDifference(group.TimeCreate)
+            : "",
+        });
+      }
+    });
+
+    socket.on("group:mute", ({ GroupID, IsMute }) => {
+      const gid = Number(GroupID);
+      if (!Number.isFinite(gid)) return;
+      const mute = Number(IsMute) === 1 ? 1 : 0;
+      const idx = (this.groupLst || []).findIndex(
+        (g) => Number(g.GroupID) === gid,
+      );
+      if (idx >= 0) {
+        this.groupLst.splice(idx, 1, { ...this.groupLst[idx], IsMute: mute });
+      }
+      if (Number(this.groupInfo?.GroupID) === gid && this.groupInfo) {
+        this.groupInfo.IsMute = mute;
+      }
     });
 
     socket.on("mention", (payload) => {
@@ -1529,34 +1375,76 @@ export default {
       if (!this.forwardingMessage || !group?.GroupID) return;
 
       const original = this.forwardingMessage;
+      // Forward của forward: dùng content gốc thay vì chỉ comment
+      const base =
+        original?.Forward && typeof original.Forward === "object"
+          ? original.Forward
+          : original;
+
+      const baseText =
+        (base?.TextContentPlain ??
+          base?.TextContent ??
+          base?.Text ??
+          base?.MineFile ??
+          original?.TextContentPlain ??
+          original?.TextContent ??
+          "") + "";
+
+      const baseMineFile =
+        (base?.MineFile ??
+          base?.TextContent ??
+          base?.Text ??
+          original?.MineFile ??
+          "") + "";
+
       const forward = {
-        MessageID: original.MessageID,
-        GroupID: original.GroupID ?? null,
-        SenderID: original.SenderID ?? null,
+        MessageID: base?.MessageID ?? original.MessageID,
+        GroupID: base?.GroupID ?? original.GroupID ?? null,
+        SenderID: base?.SenderID ?? original.SenderID ?? null,
         SenderName:
-          original.NickName || original.FullName || original.LastName || null,
-        Text: original.TextContentPlain ?? original.TextContent ?? null,
-        IsAttachment: original.IsAttachment ?? null,
-        MineFile: original.MineFile ?? null,
-        LinkFile: original.LinkFile ?? null,
-        TimeCreate: original.TimeCreate ?? null,
+          base?.SenderName ||
+          base?.NickName ||
+          base?.FullName ||
+          base?.LastName ||
+          original.NickName ||
+          original.FullName ||
+          original.LastName ||
+          null,
+        Text: baseText.trim() ? baseText : null,
+        IsAttachment: base?.IsAttachment ?? original.IsAttachment ?? null,
+        MineFile: baseMineFile.trim() ? baseMineFile : null,
+        LinkFile: base?.LinkFile ?? original.LinkFile ?? null,
+        TimeCreate: base?.TimeCreate ?? original.TimeCreate ?? null,
       };
 
       const text = (this.forwardComment || "").toString();
       const rich = { v: 1, text, mentions: [], mentionAll: false, forward };
 
       const originalPreview = (() => {
-        if (Number(original?.IsAttachment) > 0) {
+        if (Number(base?.IsAttachment || original?.IsAttachment) > 0) {
           const kind =
+            base?.AttachmentKind ||
             original.AttachmentKind ||
+            this.getAttachmentKind(base) ||
             this.getAttachmentKind(original) ||
             "file";
           if (kind === "image") return "[Hình ảnh]";
-          return `[Tệp] ${original.MineFile || ""}`.trim();
+          const name =
+            (base?.MineFile ||
+              base?.TextContent ||
+              base?.Text ||
+              original?.MineFile ||
+              original?.TextContent ||
+              original?.TextContentPlain ||
+              "") + "";
+          return `[Tệp] ${name}`.trim();
         }
         return (
-          original.TextContentPlain ??
-          original.TextContent ??
+          base?.TextContentPlain ??
+          base?.TextContent ??
+          base?.Text ??
+          original?.TextContentPlain ??
+          original?.TextContent ??
           ""
         ).toString();
       })();
@@ -1799,8 +1687,29 @@ export default {
       return `https://sop.idtp.work/api/File/GetMessageFile?MessageID=${id}&Token=${token}&UserName=${user}`;
     },
     buildForwardPreviewHtml(forward) {
-      const text = (forward?.Text || "").toString();
+      const text = (forward?.Text || forward?.MineFile || "").toString();
       return this.buildMessageHtmlFromText(text, null);
+    },
+    displaySenderName(mes) {
+      const senderID = (mes?.SenderID || "").toString().trim();
+      if (!senderID)
+        return mes?.NickName || mes?.LastName || mes?.FullName || "";
+
+      const members = Array.isArray(this.memberLst) ? this.memberLst : [];
+      const found = members.find(
+        (m) => String(m?.UserID || m?.UserName || "").trim() === senderID,
+      );
+      const name =
+        (found?.NickName && String(found.NickName).trim()) ||
+        (found?.FullName && String(found.FullName).trim()) ||
+        (this.userNameCache?.[senderID] || "").toString().trim() ||
+        (mes?.NickName || "").toString().trim() ||
+        (mes?.FullName || "").toString().trim() ||
+        "";
+
+      if (!name) return mes?.LastName || senderID;
+      const parts = name.split(" ").filter(Boolean);
+      return parts.length ? parts[parts.length - 1] : name;
     },
     async copyMessageText(mes) {
       try {
@@ -1843,6 +1752,7 @@ export default {
         const gid = Number(group?.GroupID);
         if (!Number.isFinite(gid)) return;
         if (Number(this.groupInfo?.GroupID) === gid) return;
+        if (Number(group?.IsMute) === 1) return;
 
         if (typeof window === "undefined" || !("Notification" in window))
           return;
@@ -1859,11 +1769,8 @@ export default {
           group?.GroupName || group?.DocumentID || `Nhóm ${group?.GroupID}`;
         const body = (preview || "").toString();
         new Notification(title, { body });
-      } catch (err) {
-        if (err?.response?.status === 403) {
-          this.onGroupLeft({ GroupID: groupID });
-          return;
-        }
+      } catch (_) {
+        // ignore
       }
     },
     isPinnedMessage(mes) {
@@ -2160,7 +2067,7 @@ export default {
 
       return false;
     },
-    getGroupLstByUserID() {
+    getGroupLstByUserID(selectGroupID = null) {
       GetGroupLstByUserID({
         PageNumber: 1,
         RowspPage: 10,
@@ -2182,6 +2089,17 @@ export default {
           if (this.groupLst.length === 0) {
             this.groupInfo = null;
             return;
+          }
+
+          const preferID = Number(selectGroupID);
+          if (Number.isFinite(preferID) && preferID > 0) {
+            const preferred = this.groupLst.find(
+              (g) => Number(g.GroupID) === preferID,
+            );
+            if (preferred) {
+              this.groupInfo = preferred;
+              return;
+            }
           }
 
           if (Number.isFinite(currentID) && currentID > 0) {
@@ -2341,6 +2259,51 @@ export default {
     onGroupDeleted({ GroupID }) {
       this.onGroupLeft({ GroupID });
     },
+    onGroupMute({ GroupID, IsMute }) {
+      const gid = Number(GroupID);
+      if (!Number.isFinite(gid)) return;
+      const mute = Number(IsMute) === 1 ? 1 : 0;
+      const idx = (this.groupLst || []).findIndex(
+        (g) => Number(g.GroupID) === gid,
+      );
+      if (idx >= 0) {
+        this.groupLst.splice(idx, 1, { ...this.groupLst[idx], IsMute: mute });
+      }
+      if (Number(this.groupInfo?.GroupID) === gid && this.groupInfo) {
+        this.groupInfo.IsMute = mute;
+      }
+    },
+    onMembersUpdated(members) {
+      const list = Array.isArray(members) ? members : [];
+      // Update mention list + name cache for system messages / display
+      this.memberLst = list;
+      list.forEach((m) => {
+        const id = (m?.UserID || m?.UserName || "").toString().trim();
+        const name = (m?.NickName || m?.FullName || "").toString().trim();
+        if (id && name) this.userNameCache[id] = name;
+      });
+
+      // Re-render system messages so newly added members show name immediately
+      try {
+        this.messageLst = (this.messageLst || []).map((msg) => {
+          if (!msg?.IsSystem) return msg;
+          const rich = this.parseRichStoredText(msg.TextContent);
+          const raw =
+            (rich && typeof rich.text === "string" ? rich.text : null) ??
+            msg.TextContentPlain ??
+            msg.TextContent ??
+            "";
+          const display = this.humanizeSystemText(raw, msg);
+          return {
+            ...msg,
+            TextContentPlain: display,
+            TextContentHtml: this.buildMessageHtmlFromText(display, rich),
+          };
+        });
+      } catch (_) {
+        // ignore
+      }
+    },
     async onJumpMessage({ MessageID }) {
       await this.jumpToSearchMessage({ MessageID });
     },
@@ -2352,6 +2315,11 @@ export default {
       }).then((res) => {
         if (res?.RespCode === 0) {
           this.memberLst = Array.isArray(res.Data) ? res.Data : [];
+          this.memberLst.forEach((m) => {
+            const id = (m?.UserID || m?.UserName || "").toString().trim();
+            const name = (m?.NickName || m?.FullName || "").toString().trim();
+            if (id && name) this.userNameCache[id] = name;
+          });
         }
       });
     },
@@ -2567,6 +2535,12 @@ export default {
         return;
       }
       this.selectedUsers.push({ UserName: getUserName() });
+      // remove duplicates
+      this.selectedUsers = [
+        ...new Map(
+          (this.selectedUsers || []).map((m) => [String(m?.UserName || ""), m]),
+        ).values(),
+      ].filter((m) => m?.UserName);
 
       const newGroup = {
         GroupName: finalGroupName,
@@ -2580,11 +2554,13 @@ export default {
 
       CreateGroup({ Data: newGroup }).then((res) => {
         if (res.RespCode == 0) {
-          this.groupLst.unshift(newGroup);
-          this.groupInfo = newGroup;
           this.showCreateGroupDialog = false;
           this.newGroupName = "";
           this.selectedUsers = [];
+
+          const gid = Number(res?.GroupID);
+          // Refresh sidebar từ server để có GroupID đầy đủ (tránh phải reload mới gửi được)
+          this.getGroupLstByUserID(gid);
         }
       });
     },
@@ -3034,152 +3010,6 @@ export default {
 .reaction-pick:hover {
   transform: translateY(-2px) scale(1.25);
   filter: saturate(1.2);
-}
-
-.fb-dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.fb-dialog {
-  background: #fff;
-  width: 500px;
-  border-radius: 8px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  max-height: 90vh;
-}
-
-.fb-header {
-  padding: 16px;
-  border-bottom: 1px solid #e5e5e5;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.fb-search-container {
-  padding: 8px 16px;
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.selected-users-wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.fb-chip {
-  background: #e7f3ff;
-  color: #1877f2;
-  padding: 4px 12px;
-  border-radius: 6px;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-}
-
-.remove-chip {
-  margin-left: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.fb-user-list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 8px 0;
-}
-
-.fb-user-item {
-  display: flex;
-  align-items: center;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.fb-user-item:hover {
-  background: #f2f2f2;
-}
-
-.fb-avatar {
-  width: 40px;
-  height: 40px;
-  background: #ddd;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 12px;
-}
-
-.fb-user-info {
-  flex: 1;
-}
-.fb-user-name {
-  font-weight: 600;
-  color: #050505;
-}
-.fb-user-sub {
-  font-size: 12px;
-  color: #65676b;
-}
-
-.fb-checkbox .circle {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ced0d4;
-  border-radius: 50%;
-}
-
-.fb-checkbox .circle.checked {
-  background: #1877f2;
-  border-color: #1877f2;
-  position: relative;
-}
-
-.fb-checkbox .circle.checked::after {
-  content: "✓";
-  color: white;
-  font-size: 12px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.fb-footer {
-  padding: 16px;
-  border-top: 1px solid #e5e5e5;
-}
-
-.fb-btn-primary {
-  width: 100%;
-  background: #1877f2;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.fb-btn-primary:disabled {
-  background: #e4e6eb;
-  color: #bcc0c4;
-  cursor: not-allowed;
 }
 </style>
 

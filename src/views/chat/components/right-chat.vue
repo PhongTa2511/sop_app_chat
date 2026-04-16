@@ -66,15 +66,33 @@
           v-for="(line, inline) in item.option"
           :key="inline"
           :value="line.text"
-          :prepend-icon="line.icon"
-          :title="line.text"
+          :prepend-icon="
+            line.action === 'mute'
+              ? Number(groupInfo?.IsMute) === 1
+                ? 'mdi-bell-outline'
+                : 'mdi-bell-off-outline'
+              : line.icon
+          "
+          :title="
+            line.action === 'mute'
+              ? Number(groupInfo?.IsMute) === 1
+                ? 'Bật thông báo'
+                : 'Tắt thông báo'
+              : line.text
+          "
           style="padding: 0 16px !important"
           @click="openMembersDialog(line)"
         >
           <template #prepend>
             <VIcon
               size="small"
-              :icon="line.icon"
+              :icon="
+                line.action === 'mute'
+                  ? Number(groupInfo?.IsMute) === 1
+                    ? 'mdi-bell-outline'
+                    : 'mdi-bell-off-outline'
+                  : line.icon
+              "
             />
           </template>
         </VListItem>
@@ -187,6 +205,7 @@
       </VCardText>
       <VCardText v-else>
         <VTextField
+          v-if="false"
           v-model="newMember.FullName"
           label="Họ & tên"
           class="mb-2"
@@ -295,6 +314,7 @@ import {
   GetPinnedMessages,
   GetMemberLstByGroupID,
   LeaveGroup,
+  SetMuteGroup,
   UpdateGroup,
 } from "@/api/messageApi"
 import { notify } from "@kyvg/vue3-notification"
@@ -316,18 +336,27 @@ export default {
             {
               text: "Danh sách thành viên",
               icon: "mdi-account-group",
+              action: "members",
             },
             {
               text: "Xem tin nhắn đã ghim",
               icon: "mdi-pin",
+              action: "pinned",
             },
             {
               text: "Rời nhóm",
               icon: "mdi-logout",
+              action: "leave",
             },
             {
               text: "Xóa nhóm chat",
               icon: "mdi-trash-can-outline",
+              action: "delete",
+            },
+            {
+              text: "Tắt thông báo",
+              icon: "mdi-bell-off-outline",
+              action: "mute",
             },
           ],
         },
@@ -338,10 +367,12 @@ export default {
             {
               text: "Đổi ảnh đoạn chat",
               icon: "mdi-image",
+              action: "avatar",
             },
             {
               text: "Đổi tên nhóm",
               icon: "mdi-square-edit-outline",
+              action: "rename",
             },
 
             //  {
@@ -351,6 +382,7 @@ export default {
             {
               text: "Chỉnh sửa biệt danh",
               icon: "mdi-alpha-a-circle",
+              action: "nickname",
             },
           ],
         },
@@ -498,10 +530,48 @@ export default {
                 : null,
             }
           })
+          this.$emit("members-updated", this.members)
         }
       })
     },
     openMembersDialog(line) {
+      if (line?.action === "members") {
+        this.isEditing = false
+        this.membersDialog = true
+        this.getMemberLstByGroupID()
+        return
+      }
+      if (line?.action === "pinned") {
+        this.openPinnedDialog()
+        return
+      }
+      if (line?.action === "mute") {
+        this.toggleMute()
+        return
+      }
+      if (line?.action === "leave") {
+        this.leaveGroup()
+        return
+      }
+      if (line?.action === "delete") {
+        this.deleteGroup()
+        return
+      }
+      if (line?.action === "avatar") {
+        this.$refs.fileInput.click()
+        return
+      }
+      if (line?.action === "rename") {
+        this.renameGroupDialog = true
+        this.newGroupName = this.groupInfo.GroupName
+        return
+      }
+      if (line?.action === "nickname") {
+        this.isEditing = true
+        this.membersDialog = true
+        this.getMemberLstByGroupID()
+        return
+      }
       if (line.text == "Danh sách thành viên") {
         this.isEditing = false
         this.membersDialog = true
@@ -527,6 +597,29 @@ export default {
         this.isEditing = true
         this.membersDialog = true
         this.getMemberLstByGroupID()
+      }
+    },
+    async toggleMute() {
+      if (!this.groupInfo?.GroupID) return
+      const next = Number(this.groupInfo?.IsMute) === 1 ? 0 : 1
+      try {
+        const res = await SetMuteGroup({
+          GroupID: this.groupInfo.GroupID,
+          IsMute: next,
+        })
+        if (res?.RespCode === 0 && res?.Data) {
+          this.groupInfo.IsMute = res.Data.IsMute
+          this.$emit("group-mute", {
+            GroupID: res.Data.GroupID,
+            IsMute: res.Data.IsMute,
+          })
+          notify({
+            type: "success",
+            title: res.Data.IsMute === 1 ? "Đã tắt thông báo" : "Đã bật thông báo",
+          })
+        }
+      } catch (_) {
+        // ignore
       }
     },
     async openPinnedDialog() {
