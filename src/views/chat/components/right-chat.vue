@@ -110,7 +110,7 @@
           <span class="headline">Danh sách thành viên</span>
           <VSpacer />
           <VBtn
-            v-if="!isEditing"
+            v-if="!isEditing && canManageMembers"
             icon
             size="x-small"
             @click="openAddMemberDialog"
@@ -153,7 +153,7 @@
             <VListItemSubtitle>{{ member.UserID }}</VListItemSubtitle>
             <template #append>
               <VBtn
-                v-if="!isEditing"
+                v-if="!isEditing && canManageMembers"
                 icon
                 size="small"
                 variant="text"
@@ -304,6 +304,111 @@
       </VCardActions>
     </VCard>
   </VDialog>
+
+  <VDialog v-model="documentsDialog" max-width="520px">
+    <VCard>
+      <VCardTitle>
+        <span class="headline">{{ documentsTitle }}</span>
+      </VCardTitle>
+      <VCardText class="docs-dialog-body" @scroll.passive="onDocumentsScroll">
+        <VList>
+          <VListItem
+            v-for="item in documentsRows"
+            :key="`${item.MessageID}_${item.LinkUrl || ''}`"
+            class="docs-item"
+            @click="openDocumentItem(item)"
+          >
+            <template #prepend>
+              <VAvatar size="40" rounded="lg" color="grey-lighten-4">
+                <VImg
+                  v-if="documentsType === 1"
+                  :src="item.LinkFile"
+                  cover
+                />
+                <VIcon v-else-if="documentsType === 2">
+                  mdi-file-document-outline
+                </VIcon>
+                <VIcon v-else>
+                  mdi-link-variant
+                </VIcon>
+              </VAvatar>
+            </template>
+            <template #title>
+              {{
+                documentsType === 0
+                  ? item.LinkUrl
+                  : (item.MineFile || `Tin nhắn #${item.MessageID}`)
+              }}
+            </template>
+            <template #subtitle>
+              #{{ item.MessageID }} · {{ formatDocTime(item.TimeCreate) }}
+            </template>
+            <template #append>
+              <VIcon size="small">mdi-open-in-new</VIcon>
+            </template>
+          </VListItem>
+        </VList>
+
+        <div v-if="documentsLoading" class="text-center py-3 text-grey">
+          Đang tải...
+        </div>
+        <div
+          v-else-if="documentsRows.length === 0"
+          class="text-center py-4 text-grey-darken-1"
+        >
+          Chưa có dữ liệu
+        </div>
+        <div
+          v-else-if="documentsAllLoaded"
+          class="text-center py-2 text-grey-darken-1"
+        >
+          Đã tải hết
+        </div>
+      </VCardText>
+      <VCardActions>
+        <VBtn text @click="documentsDialog = false">Đóng</VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
+
+  <VDialog v-model="confirmDialog" max-width="420px">
+    <VCard>
+      <VCardTitle class="d-flex align-center">
+        <span class="headline">{{ confirmTitle }}</span>
+        <VSpacer />
+        <VBtn icon size="x-small" variant="text" @click="onConfirmCancel">
+          <VIcon>mdi-close</VIcon>
+        </VBtn>
+      </VCardTitle>
+      <VCardText>
+        {{ confirmText }}
+      </VCardText>
+      <VCardActions>
+        <VSpacer />
+        <VBtn variant="text" @click="onConfirmCancel">
+          {{ confirmCancelText }}
+        </VBtn>
+        <VBtn color="red" :loading="confirmLoading" @click="onConfirmOk">
+          {{ confirmOkText }}
+        </VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
+
+  <ChatAddMembersDialog
+    v-model="addMembersDialog"
+    v-model:search="addMembersSearch"
+    :users="addMembersUsers"
+    :selected-users="addMembersSelected"
+    :loading="addMembersLoading"
+    :saving="addMembersSaving"
+    :disabled-usernames="existingMemberIDs()"
+    @scroll="onAddMembersScroll"
+    @search-change="onAddMembersSearchChange"
+    @toggle-user="toggleAddMemberUser"
+    @remove-user="removeAddMemberUser"
+    @add="submitAddMembers"
+  />
 </template>
 
 <script>
@@ -311,15 +416,20 @@ import {
   AddMemberGroup,
   DeleteGroup,
   DelMemberGroup,
+  GetFileLstGroupID,
   GetPinnedMessages,
   GetMemberLstByGroupID,
   LeaveGroup,
   SetMuteGroup,
   UpdateGroup,
 } from "@/api/messageApi"
+import { GetUserLstAll } from "@/api/user"
+import { getUserName } from "@/utils/auth"
 import { notify } from "@kyvg/vue3-notification"
+import ChatAddMembersDialog from "./ChatAddMembersDialog.vue"
 
 export default {
+  components: { ChatAddMembersDialog },
   props: {
     groupInfo: Object,
   },
@@ -328,6 +438,22 @@ export default {
       isMenu1: "",
       membersDialog: false,
       members: [],
+      confirmDialog: false,
+      confirmTitle: "",
+      confirmText: "",
+      confirmOkText: "Xác nhận",
+      confirmCancelText: "Hủy",
+      confirmLoading: false,
+      confirmResolve: null,
+      addMembersDialog: false,
+      addMembersSearch: "",
+      addMembersUsers: [],
+      addMembersSelected: [],
+      addMembersPage: 1,
+      addMembersLoading: false,
+      addMembersAllLoaded: false,
+      addMembersTimeout: null,
+      addMembersSaving: false,
       menuLst: [
         {
           value: "Info",
@@ -386,26 +512,27 @@ export default {
             },
           ],
         },
-
-        // {
-        //   value: "File",
-        //   text: "Hình ảnh, File & Link",
-
-        //   option: [
-        //     {
-        //       text: "Hình ảnh",
-        //       icon: "mdi-image",
-        //     },
-        //     {
-        //       text: "Thư mục & Tệp",
-        //       icon: "mdi-file-document",
-        //     },
-        //     {
-        //       text: "Link",
-        //       icon: "mdi-link",
-        //     },
-        //   ],
-        // },
+        {
+          value: "File",
+          text: "Hình ảnh, File & Link",
+          option: [
+            {
+              text: "Hình ảnh",
+              icon: "mdi-image",
+              action: "docs:image",
+            },
+            {
+              text: "Thư mục & Tệp",
+              icon: "mdi-file-document",
+              action: "docs:file",
+            },
+            {
+              text: "Link",
+              icon: "mdi-link",
+              action: "docs:link",
+            },
+          ],
+        },
         // {
         //   value: "Support",
         //   text: "Quyền riêng tư và hỗ trợ",
@@ -430,17 +557,178 @@ export default {
       newGroupName: "",
       pinnedDialog: false,
       pinnedMessages: [],
+      documentsDialog: false,
+      documentsTitle: "",
+      documentsType: 1, // 0=link,1=image,2=file
+      documentsRows: [],
+      documentsPage: 1,
+      documentsLoading: false,
+      documentsAllLoaded: false,
     }
   },
   created() {
     this.newGroupName = this.groupInfo ? this.groupInfo.GroupName : ""
   },
+  computed: {
+    currentUserID() {
+      return String(getUserName() || "").trim()
+    },
+    canManageMembers() {
+      const roleFromGroup = String(
+        this.groupInfo?.Role || this.groupInfo?.MyRole || "",
+      ).toUpperCase()
+      if (roleFromGroup === "OWNER" || roleFromGroup === "ADMIN") return true
+
+      const me = this.currentUserID
+      if (!me) return false
+      const row = (this.members || []).find(
+        m => String(m?.UserID || m?.UserName || "").trim() === me,
+      )
+      const role = String(row?.Role || "").toUpperCase()
+      return role === "OWNER" || role === "ADMIN"
+    },
+  },
   methods: {
+    requestConfirm({ title, text, okText, cancelText }) {
+      return new Promise((resolve) => {
+        this.confirmTitle = title || "Xác nhận"
+        this.confirmText = text || ""
+        this.confirmOkText = okText || "Xác nhận"
+        this.confirmCancelText = cancelText || "Hủy"
+        this.confirmResolve = resolve
+        this.confirmDialog = true
+      })
+    },
+    onConfirmCancel() {
+      this.confirmDialog = false
+      const resolve = this.confirmResolve
+      this.confirmResolve = null
+      if (typeof resolve === "function") resolve(false)
+    },
+    onConfirmOk() {
+      this.confirmDialog = false
+      const resolve = this.confirmResolve
+      this.confirmResolve = null
+      if (typeof resolve === "function") resolve(true)
+    },
     closeMembersDialog() {
       this.membersDialog = false
       this.isEditing = false
       this.addEditDialog = false
       this.newMember = {}
+    },
+    openAddMemberDialog() {
+      if (!this.canManageMembers) {
+        notify({
+          type: "error",
+          title: "Không có quyền",
+          text: "Chỉ chủ nhóm hoặc quản trị viên mới được thêm thành viên.",
+        })
+        return
+      }
+      this.addMembersDialog = true
+      this.addMembersSearch = ""
+      this.addMembersUsers = []
+      this.addMembersSelected = []
+      this.addMembersPage = 1
+      this.addMembersAllLoaded = false
+      this.fetchAddMembersUsers(true)
+    },
+    existingMemberIDs() {
+      return (this.members || []).map(m => String(m?.UserID || "").trim()).filter(Boolean)
+    },
+    fetchAddMembersUsers(isNewSearch = false) {
+      if (this.addMembersLoading) return
+      if (isNewSearch) {
+        this.addMembersPage = 1
+        this.addMembersAllLoaded = false
+      }
+      if (this.addMembersAllLoaded && !isNewSearch) return
+
+      this.addMembersLoading = true
+      GetUserLstAll({
+        PageNumber: this.addMembersPage,
+        RowspPage: 10,
+        Search: this.addMembersSearch || "",
+      })
+        .then(res => {
+          if (res?.RespCode === 0) {
+            const rows = Array.isArray(res.Data) ? res.Data : []
+            if (isNewSearch) this.addMembersUsers = rows
+            else this.addMembersUsers = [...(this.addMembersUsers || []), ...rows]
+            if (rows.length < 10) this.addMembersAllLoaded = true
+            else this.addMembersPage += 1
+          }
+        })
+        .finally(() => {
+          this.addMembersLoading = false
+        })
+    },
+    onAddMembersScroll(e) {
+      const { scrollTop, scrollHeight, clientHeight } = e.target
+      if (scrollTop + clientHeight >= scrollHeight - 10) {
+        this.fetchAddMembersUsers(false)
+      }
+    },
+    onAddMembersSearchChange() {
+      clearTimeout(this.addMembersTimeout)
+      this.addMembersTimeout = setTimeout(() => {
+        this.fetchAddMembersUsers(true)
+      }, 400)
+    },
+    toggleAddMemberUser(user) {
+      const u = user || {}
+      const id = String(u.UserName || "").trim()
+      if (!id) return
+      const exists = (this.addMembersSelected || []).some(x => x.UserName === id)
+      if (exists) {
+        this.addMembersSelected = (this.addMembersSelected || []).filter(x => x.UserName !== id)
+      } else {
+        this.addMembersSelected = [...(this.addMembersSelected || []), u]
+      }
+    },
+    removeAddMemberUser(user) {
+      const id = String(user?.UserName || "").trim()
+      this.addMembersSelected = (this.addMembersSelected || []).filter(x => x.UserName !== id)
+    },
+    async submitAddMembers() {
+      if (!this.canManageMembers) {
+        notify({
+          type: "error",
+          title: "Không có quyền",
+          text: "Chỉ chủ nhóm hoặc quản trị viên mới được thêm thành viên.",
+        })
+        return
+      }
+      if (!this.groupInfo?.GroupID) return
+      const gid = this.groupInfo.GroupID
+      const existing = new Set(this.existingMemberIDs())
+      const targets = (this.addMembersSelected || [])
+        .map(u => String(u?.UserName || "").trim())
+        .filter(Boolean)
+        .filter(id => !existing.has(id))
+        .slice(0, 50)
+
+      if (targets.length === 0) {
+        this.addMembersDialog = false
+        return
+      }
+
+      this.addMembersSaving = true
+      try {
+        for (const id of targets) {
+          // add one-by-one (backend API hiện tại 1 user / request)
+          // eslint-disable-next-line no-await-in-loop
+          await AddMemberGroup({ UserID: id, GroupID: gid, NickName: null })
+        }
+        this.addMembersDialog = false
+        this.getMemberLstByGroupID()
+        notify({ type: "success", title: "Đã thêm thành viên" })
+      } catch (e) {
+        notify({ type: "error", title: "Lỗi", text: e?.message || "Thêm thành viên thất bại" })
+      } finally {
+        this.addMembersSaving = false
+      }
     },
     handleFileUpload(event) {
       const file = event.target.files?.[0]
@@ -534,6 +822,76 @@ export default {
         }
       })
     },
+    formatDocTime(input) {
+      if (!input) return ""
+      const d = new Date(input)
+      if (Number.isNaN(d.getTime())) return ""
+      return d.toLocaleString("vi-VN")
+    },
+    openDocumentsDialog(type) {
+      if (!this.groupInfo?.GroupID) return
+      this.documentsType = Number(type)
+      this.documentsTitle =
+        this.documentsType === 1
+          ? "Hình ảnh"
+          : this.documentsType === 2
+            ? "Thư mục & Tệp"
+            : "Link"
+      this.documentsDialog = true
+      this.fetchDocuments(true)
+    },
+    async fetchDocuments(reset = false) {
+      if (this.documentsLoading) return
+      if (!this.groupInfo?.GroupID) return
+      if (reset) {
+        this.documentsPage = 1
+        this.documentsRows = []
+        this.documentsAllLoaded = false
+      }
+      if (this.documentsAllLoaded) return
+
+      this.documentsLoading = true
+      try {
+        const res = await GetFileLstGroupID({
+          GroupID: this.groupInfo.GroupID,
+          IsAttachment: this.documentsType,
+          PageNumber: this.documentsPage,
+          RowsPerPage: 10,
+        })
+
+        if (res?.RespCode === 0) {
+          const data = res.Data || {}
+          const rows = Array.isArray(data.Rows) ? data.Rows : []
+          const uniq = new Map()
+          ;[...(this.documentsRows || []), ...rows].forEach((row) => {
+            const key = `${row.MessageID}_${row.LinkUrl || ""}`
+            if (!uniq.has(key)) uniq.set(key, row)
+          })
+          this.documentsRows = [...uniq.values()]
+
+          const hasMore =
+            typeof data.HasMore === "boolean" ? data.HasMore : rows.length === 10
+          if (hasMore) this.documentsPage += 1
+          else this.documentsAllLoaded = true
+        }
+      } catch (_) {
+        // ignore
+      } finally {
+        this.documentsLoading = false
+      }
+    },
+    onDocumentsScroll(e) {
+      const { scrollTop, scrollHeight, clientHeight } = e.target
+      if (scrollTop + clientHeight >= scrollHeight - 12) {
+        this.fetchDocuments(false)
+      }
+    },
+    openDocumentItem(item) {
+      const url =
+        (item?.LinkFile || item?.LinkUrl || "").toString().trim()
+      if (!url) return
+      window.open(url, "_blank")
+    },
     openMembersDialog(line) {
       if (line?.action === "members") {
         this.isEditing = false
@@ -570,6 +928,18 @@ export default {
         this.isEditing = true
         this.membersDialog = true
         this.getMemberLstByGroupID()
+        return
+      }
+      if (line?.action === "docs:image") {
+        this.openDocumentsDialog(1)
+        return
+      }
+      if (line?.action === "docs:file") {
+        this.openDocumentsDialog(2)
+        return
+      }
+      if (line?.action === "docs:link") {
+        this.openDocumentsDialog(0)
         return
       }
       if (line.text == "Danh sách thành viên") {
@@ -655,7 +1025,12 @@ export default {
     },
     async leaveGroup() {
       if (!this.groupInfo?.GroupID) return
-      const ok = window.confirm("Bạn muốn rời khỏi nhóm chat này?")
+      const ok = await this.requestConfirm({
+        title: "Rời khỏi nhóm",
+        text: "Bạn muốn rời khỏi nhóm chat này?",
+        okText: "Rời nhóm",
+        cancelText: "Hủy",
+      })
       if (!ok) return
 
       const res = await LeaveGroup({ GroupID: this.groupInfo.GroupID })
@@ -666,7 +1041,12 @@ export default {
     },
     async deleteGroup() {
       if (!this.groupInfo?.GroupID) return
-      const ok = window.confirm("Xóa nhóm chat? (Chỉ chủ nhóm được phép)")
+      const ok = await this.requestConfirm({
+        title: "Xóa đoạn chat",
+        text: "Xóa nhóm chat? (Chỉ chủ nhóm được phép)",
+        okText: "Xóa",
+        cancelText: "Hủy",
+      })
       if (!ok) return
 
       const res = await DeleteGroup({ GroupID: this.groupInfo.GroupID })
@@ -674,10 +1054,6 @@ export default {
         notify({ type: "success", title: "Đã xóa nhóm" })
         this.$emit("group-deleted", { GroupID: this.groupInfo.GroupID })
       }
-    },
-    openAddMemberDialog() {
-      this.addEditDialog = true
-      this.isEditing = false
     },
     editMember(member) {
       this.addEditDialog = true
@@ -714,9 +1090,15 @@ export default {
       }).then(res => {
         if (res.RespCode == 0) {
           this.getMemberLstByGroupID()
+          const targetName =
+            this.newMember?.FullName || this.newMember?.UserID || "người dùng"
+          const nick = (this.newMember?.NickName || "").toString().trim()
           notify({
             type: "success",
-            title: "Thành công",
+            title: "Đã cập nhật biệt danh",
+            text: nick
+              ? `Bạn đã đặt biệt danh cho ${targetName} là "${nick}"`
+              : `Bạn đã xóa biệt danh của ${targetName}`,
           })
         } else {
           notify({
@@ -750,4 +1132,14 @@ export default {
 }
 </script>
 
-<style></style>
+<style scoped>
+.docs-dialog-body {
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 4px !important;
+}
+
+.docs-item {
+  cursor: pointer;
+}
+</style>

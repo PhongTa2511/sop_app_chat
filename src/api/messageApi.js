@@ -129,6 +129,22 @@ export function GetPinnedMessages(data) {
   })
 }
 
+export function GetFileLstGroupID(data) {
+  return request({
+    url: "messages/GetFileLstGroupID",
+    method: "post",
+    data,
+  })
+}
+
+export function GetOrCreateDocumentChat(data) {
+  return request({
+    url: "groups/GetOrCreateDocumentChat",
+    method: "post",
+    data,
+  })
+}
+
 export function urlUploadImageGroup(ID) {
   return `https://sop.idtp.work/api/File/UploadAvatarGroup?UserName=${getUserName()}&Token=${getToken()}&GroupID=${ID}`
 }

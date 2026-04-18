@@ -32,9 +32,7 @@
         @click="$emit('select-group', folder)"
       >
         <template #prepend>
-          <VAvatar
-            :color="folder.GroupID == activeGroupId ? 'blue' : 'secondary'"
-          >
+          <VAvatar :color="folder.GroupID == activeGroupId ? 'blue' : 'secondary'">
             <VImg v-if="folder.Avatar" :src="folder.Avatar" />
             <VIcon v-else> mdi-account-supervisor </VIcon>
           </VAvatar>
@@ -53,7 +51,10 @@
           </div>
         </template>
         <template #subtitle>
-          <div class="text-xs text-gray-700">
+          <div
+            class="text-xs text-gray-700"
+            :style="{ fontWeight: folder.UnreadCount > 0 ? 700 : 400 }"
+          >
             {{
               folder.NewMessage ??
               folder.LastMessage ??
@@ -62,19 +63,18 @@
           </div>
         </template>
         <template v-if="folder.TimeCreate" #append>
-          <VBadge
-            v-if="folder.UnreadCount > 0"
-            location="top right"
-            color="primary"
-            dot
-            :offset-y="-10"
-          >
+          <div class="d-flex flex-column align-end" style="min-width: 56px">
             <div class="text-xs text-grey-800">
               {{ folder.TimeShow }}
             </div>
-          </VBadge>
-          <div v-else class="text-xs text-grey-800">
-            {{ folder.TimeShow }}
+            <VChip
+              v-if="folder.UnreadCount > 0"
+              size="x-small"
+              color="primary"
+              class="mt-1"
+            >
+              {{ unreadLabel(folder.UnreadCount) }}
+            </VChip>
           </div>
         </template>
       </VListItem>
@@ -107,12 +107,7 @@ export default {
       default: "",
     },
   },
-  emits: [
-    "update:modelValue",
-    "update:search",
-    "open-create",
-    "select-group",
-  ],
+  emits: ["update:modelValue", "update:search", "open-create", "select-group"],
   computed: {
     drawer: {
       get() {
@@ -129,6 +124,13 @@ export default {
       set(v) {
         this.$emit("update:search", v)
       },
+    },
+  },
+  methods: {
+    unreadLabel(count) {
+      const n = Number(count) || 0
+      if (n <= 0) return ""
+      return n > 9 ? "9+" : String(n)
     },
   },
 }
