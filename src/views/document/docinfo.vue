@@ -1550,7 +1550,7 @@ import {
   StartDocument,
   StartJob,
 } from "@/api/documentJobApi";
-import { CreateGroup } from "@/api/messageApi";
+import { GetOrCreateDocumentChat } from "@/api/messageApi";
 import { GetProductLst } from "@/api/productApi";
 import { GetTeamLstDocID, GetTeamLstProID } from "@/api/teamApi";
 import { GetUserLstByTeamID } from "@/api/user";
@@ -2159,31 +2159,26 @@ export default {
       };
     },
     btChat() {
-      if (this.docInfo.GroupID) {
-        this.$router.push({
-          path: "/nhan-tin",
-          query: { docID: this.docInfo.DocumentID },
-        });
-      } else {
-        CreateGroup({
-          Data: {
-            DocumentID: this.docInfo.DocumentID,
-            GroupName:
-              (this.docInfo.Note != ""
-                ? this.docInfo.Note
-                : this.docInfo.DocName) +
-              " - " +
-              this.docInfo.DocumentID,
-          },
-        }).then((res) => {
-          if (res.RespCode == 0) {
-            this.$router.push({
-              path: "/tin-nhan",
-              query: { docID: this.docInfo.DocumentID },
-            });
-          }
-        });
-      }
+      const docID = this.docInfo?.DocumentID;
+      if (!docID) return;
+
+      const groupName =
+        (this.docInfo.Note != "" ? this.docInfo.Note : this.docInfo.DocName) +
+        " - " +
+        docID;
+
+      GetOrCreateDocumentChat({
+        DocumentID: docID,
+        GroupName: groupName,
+      }).then((res) => {
+        const gid = res?.Data?.GroupID;
+        if (res?.RespCode === 0 && gid) {
+          this.$router.push({
+            path: "/tin-nhan",
+            query: { gid: gid },
+          });
+        }
+      });
     },
     isPreviewSupported(fileExtension) {
       return isPreviewSupported(fileExtension);

@@ -31,7 +31,7 @@
             }}
           </VToolbarTitle>
 
-          <VSpacer />
+          <!-- <VSpacer /> -->
 
           <template v-if="$vuetify.display.mdAndUp">
             <!--
@@ -71,7 +71,20 @@
           />
         </VAppBar>
 
-        <VMain style="height: calc(100vh - 116px)" class="position-relative">
+        <VMain
+          style="height: calc(100vh - 116px)"
+          class="position-relative"
+          @dragenter="onChatDragEnter"
+          @dragover.prevent="onChatDragOver"
+          @dragleave="onChatDragLeave"
+          @drop.prevent="onChatDrop"
+        >
+          <div v-if="isChatDragOver" class="chat-drag-overlay">
+            <div class="chat-drag-overlay__inner">
+              <VIcon class="mr-2" size="small">mdi-paperclip</VIcon>
+              Thả file để đính kèm
+            </div>
+          </div>
           <VList
             v-if="messageLst.length > 0"
             ref="chatList"
@@ -81,6 +94,54 @@
           >
             <div v-if="loadingMore" class="loading-indicator">
               <VProgressCircular indeterminate color="blue" />
+            </div>
+
+            <div v-if="pinnedBarItems.length > 0" class="pinned-bar">
+              <VMenu v-model="pinnedBarMenu" location="bottom start">
+                <template #activator="{ props }">
+                  <div class="pinned-bar__activator" v-bind="props">
+                    <VIcon size="small" color="blue" class="mr-2"
+                      >mdi-pin</VIcon
+                    >
+                    <div class="pinned-bar__text">
+                      <div class="pinned-bar__title">Tin nhắn đã ghim</div>
+                      <div class="pinned-bar__preview">
+                        {{ pinnedPreviewForBar(pinnedBarItems[0]) }}
+                      </div>
+                    </div>
+                    <VSpacer />
+                    <VChip
+                      size="x-small"
+                      color="primary"
+                      variant="tonal"
+                      class="ml-2"
+                    >
+                      {{ pinnedBarItems.length }}
+                    </VChip>
+                    <VIcon size="small" class="ml-1">mdi-chevron-down</VIcon>
+                  </div>
+                </template>
+
+                <VCard max-width="420px" color="blue" variant="tonal">
+                  <VList>
+                    <VListItem
+                      v-for="pin in pinnedBarItems"
+                      :key="pin.MessageID"
+                      @click="jumpPinnedFromBar(pin)"
+                    >
+                      <template #prepend>
+                        <VIcon size="small">mdi-pin</VIcon>
+                      </template>
+                      <VListItemTitle class="text-truncate">
+                        {{ pinnedPreviewForBar(pin) }}
+                      </VListItemTitle>
+                      <VListItemSubtitle
+                        >#{{ pin.MessageID }}</VListItemSubtitle
+                      >
+                    </VListItem>
+                  </VList>
+                </VCard>
+              </VMenu>
             </div>
             <VListItem
               v-for="(mes, index) in messageLst"
@@ -144,14 +205,14 @@
                           mes.Reactions.length > 0,
                       }"
                     >
-                      <div
+                      <!-- <div
                         v-if="isPinnedMessage(mes)"
                         class="pin-badge"
                         :class="{ mine: mes.IsMine }"
                         title="Tin nhắn đã ghim"
                       >
                         <VIcon size="x-small">mdi-pin</VIcon>
-                      </div>
+                      </div> -->
                       <div
                         v-if="mes.IsAttachment == 0"
                         :class="{
@@ -406,11 +467,17 @@
               right: drawerRight ? '300px' : '0',
             }"
           >
-            <div
-              v-if="typingLabel"
-              class="px-4 py-1 text-caption text-grey-darken-1"
-            >
-              {{ typingLabel }}
+            <div v-if="typingLabel" class="px-4 py-1 typing-indicator">
+              <div class="typing-pill">
+                <div class="typing-dots" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+                <div class="typing-text">
+                  {{ typingLabel }}
+                </div>
+              </div>
             </div>
             <VExpandTransition>
               <div
@@ -456,7 +523,12 @@
                   class="composer-attachment"
                 >
                   <div v-if="att.isImage" class="composer-attachment-img">
-                    <img :src="att.previewUrl" :alt="att.name" />
+                    <img
+                      :src="att.previewUrl"
+                      :alt="att.name"
+                      title="Click để xem / zoom"
+                      @click="openPreviewZoom(att)"
+                    />
                   </div>
                   <div v-else class="composer-attachment-file">
                     <VIcon size="small" class="mr-1"
@@ -595,6 +667,62 @@
       @forward="forwardToGroup"
       @close="closeForwardDialog"
     />
+    <VDialog v-model="previewZoomDialog" max-width="920px">
+      <VCard>
+        <VCardTitle class="d-flex align-center">
+          <span class="text-truncate">{{ previewZoomName }}</span>
+          <VSpacer />
+          <VBtn
+            icon
+            size="x-small"
+            variant="text"
+            @click="previewZoomDialog = false"
+          >
+            <VIcon>mdi-close</VIcon>
+          </VBtn>
+        </VCardTitle>
+        <VCardText>
+          <div class="preview-zoom-stage" @wheel.prevent="onPreviewWheel">
+            <img
+              v-if="previewZoomSrc"
+              class="preview-zoom-img"
+              :src="previewZoomSrc"
+              :style="{ transform: `scale(${previewZoomScale})` }"
+              alt=""
+            />
+          </div>
+          <div class="d-flex align-center mt-3">
+            <VBtn
+              icon
+              size="small"
+              variant="text"
+              @click="setPreviewZoom(previewZoomScale - 0.25)"
+            >
+              <VIcon>mdi-minus</VIcon>
+            </VBtn>
+            <VSlider
+              v-model="previewZoomScale"
+              :min="0.5"
+              :max="4"
+              :step="0.05"
+              hide-details
+              class="mx-2"
+            />
+            <VBtn
+              icon
+              size="small"
+              variant="text"
+              @click="setPreviewZoom(previewZoomScale + 0.25)"
+            >
+              <VIcon>mdi-plus</VIcon>
+            </VBtn>
+            <VChip size="small" class="ml-2" variant="tonal">
+              {{ Math.round(previewZoomScale * 100) }}%
+            </VChip>
+          </div>
+        </VCardText>
+      </VCard>
+    </VDialog>
     <ChatCreateGroupDialog
       v-model="showCreateGroupDialog"
       v-model:search-user="searchUser"
@@ -727,6 +855,14 @@ export default {
       replyingTo: null,
       pendingAttachments: [],
       isSending: false,
+      // drag-drop
+      chatDragDepth: 0,
+      isChatDragOver: false,
+      // composer preview zoom
+      previewZoomDialog: false,
+      previewZoomSrc: "",
+      previewZoomName: "",
+      previewZoomScale: 1,
 
       // mentions
       memberLst: [],
@@ -745,6 +881,8 @@ export default {
 
       // pins
       pinnedMessageIDs: [],
+      pinnedMessages: [],
+      pinnedBarMenu: false,
 
       // rich message payload (mentions/forward metadata) - default OFF for SOP backend
       richEnabled: import.meta.env.VITE_MESSAGE_RICH === "1",
@@ -835,8 +973,29 @@ export default {
       const prefix = names.join(", ");
 
       return more > 0
-        ? `${prefix} và ${more} người khác đang nhập...`
-        : `${prefix} đang nhập...`;
+        ? `${prefix} và ${more} người khác đang nhập`
+        : `${prefix} đang nhập`;
+    },
+    pinnedBarItems() {
+      const ids = (this.pinnedMessageIDs || [])
+        .map((x) => Number(x))
+        .filter((x) => Number.isFinite(x) && x > 0);
+      if (!ids.length) return [];
+
+      const map = new Map();
+      (this.pinnedMessages || []).forEach((m) => {
+        const id = Number(m?.MessageID);
+        if (Number.isFinite(id) && id > 0) map.set(id, m);
+      });
+      (this.messageLst || []).forEach((m) => {
+        const id = Number(m?.MessageID);
+        if (Number.isFinite(id) && id > 0 && !map.has(id)) map.set(id, m);
+      });
+
+      return ids
+        .map((id) => map.get(id))
+        .filter(Boolean)
+        .slice(0, 50);
     },
   },
   watch: {
@@ -859,6 +1018,8 @@ export default {
       this.messagesAllLoaded = false;
       this.currentPage = 1;
       this.messageLst = [];
+      this.pinnedMessageIDs = [];
+      this.pinnedMessages = [];
       this.scrollBottom();
 
       if (!groupID) return;
@@ -871,9 +1032,15 @@ export default {
     searchGroup() {
       this.getGroupLstByUserID();
     },
+    "$route.query.gid"(next) {
+      const gid = Number(next);
+      if (!Number.isFinite(gid) || gid <= 0) return;
+      this.getGroupLstByUserID(gid);
+    },
   },
   created() {
-    this.getGroupLstByUserID();
+    const gid = Number(this.$route?.query?.gid);
+    this.getGroupLstByUserID(Number.isFinite(gid) && gid > 0 ? gid : null);
     socket.emit("join:user", { UserID: this.senderID });
     socket.on("new_message", (message) => {
       console.log("chạy vào đây", message);
@@ -918,6 +1085,7 @@ export default {
         this.groupLst.unshift(updatedGroup);
 
         this.maybeNotifyNewMessage(updatedGroup, LastMessage);
+        this.broadcastUnreadTotal();
       } else {
         // TRƯỜNG HỢP NGOẠI LỆ: Nếu group chưa có trong danh sách sidebar hiện tại
         // (Ví dụ: tin nhắn từ một người lạ hoặc nhóm mới tạo)
@@ -931,6 +1099,7 @@ export default {
           // ... các trường khác như GroupName, Avatar bạn nên lấy từ API
         });
         this.maybeNotifyNewMessage({ GroupID }, LastMessage);
+        this.broadcastUnreadTotal();
       }
     });
 
@@ -980,6 +1149,7 @@ export default {
       if (payload?.Pinned) next.add(mid);
       else next.delete(mid);
       this.pinnedMessageIDs = [...next];
+      this.fetchPinnedForGroup();
     });
 
     socket.on("group:new", (group) => {
@@ -1012,6 +1182,7 @@ export default {
       if (Number(this.groupInfo?.GroupID) === gid && this.groupInfo) {
         this.groupInfo.IsMute = mute;
       }
+      this.persistGroupMuteToLocalStorage(gid, mute);
     });
 
     socket.on("mention", (payload) => {
@@ -1073,6 +1244,34 @@ export default {
     escapeRegExp(input) {
       return (input ?? "").toString().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     },
+    loadMuteMap() {
+      try {
+        const raw = localStorage.getItem("dtp_chat_mute_groups");
+        const parsed = raw ? JSON.parse(raw) : {};
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch (_) {
+        return {};
+      }
+    },
+    saveMuteMap(map) {
+      try {
+        localStorage.setItem(
+          "dtp_chat_mute_groups",
+          JSON.stringify(map && typeof map === "object" ? map : {}),
+        );
+      } catch (_) {
+        // ignore
+      }
+    },
+    persistGroupMuteToLocalStorage(groupID, isMute) {
+      const gid = Number(groupID);
+      if (!Number.isFinite(gid) || gid <= 0) return;
+      const mute = Number(isMute) === 1 ? 1 : 0;
+      const map = this.loadMuteMap();
+      if (mute === 1) map[String(gid)] = 1;
+      else delete map[String(gid)];
+      this.saveMuteMap(map);
+    },
     parseRichStoredText(stored) {
       if (typeof stored !== "string") return null;
       const trimmed = stored.trim();
@@ -1105,7 +1304,11 @@ export default {
         if (!mapping.has(key)) mapping.set(key, val);
       };
 
-      add(item?.SenderID, item?.NickName || item?.FullName);
+      if (item?.SenderID && String(item.SenderID) === String(this.senderID)) {
+        add(item?.SenderID, "Bạn");
+      } else {
+        add(item?.SenderID, item?.NickName || item?.FullName);
+      }
 
       const members = Array.isArray(this.memberLst) ? this.memberLst : [];
       members.forEach((m) => {
@@ -1699,15 +1902,22 @@ export default {
       const found = members.find(
         (m) => String(m?.UserID || m?.UserName || "").trim() === senderID,
       );
-      const name =
+      // Nickname có thể có nhiều từ: phải hiển thị nguyên văn (không cắt còn 1 từ)
+      const nick =
         (found?.NickName && String(found.NickName).trim()) ||
+        (mes?.NickName && String(mes.NickName).trim()) ||
+        "";
+      if (nick) return nick;
+
+      const name =
         (found?.FullName && String(found.FullName).trim()) ||
         (this.userNameCache?.[senderID] || "").toString().trim() ||
-        (mes?.NickName || "").toString().trim() ||
         (mes?.FullName || "").toString().trim() ||
         "";
 
       if (!name) return mes?.LastName || senderID;
+
+      // Giữ UI gọn: nếu không có nickname thì lấy 1 từ cuối của tên
       const parts = name.split(" ").filter(Boolean);
       return parts.length ? parts[parts.length - 1] : name;
     },
@@ -1738,6 +1948,7 @@ export default {
             if (group) {
               group.UnreadCount = 0;
             }
+            this.broadcastUnreadTotal();
 
             // Tùy chọn: Gửi socket nếu server cần đồng bộ các tab khác
             // socket.emit("read_message", params);
@@ -1785,13 +1996,40 @@ export default {
           GroupID: this.groupInfo.GroupID,
         });
         if (res?.RespCode === 0) {
-          this.pinnedMessageIDs = (res.Data || [])
-            .map((r) => Number(r.MessageID))
-            .filter(Number.isFinite);
+          const list = Array.isArray(res.Data) ? res.Data : [];
+          this.pinnedMessages = list;
+          this.pinnedMessageIDs = list
+            .map((r) => Number(r?.MessageID))
+            .filter((x) => Number.isFinite(x) && x > 0);
         }
       } catch (_) {
         // ignore
       }
+    },
+    pinnedPreviewForBar(pin) {
+      const attach = Number(pin?.IsAttachment || 0);
+      if (attach === 1) return "[Hình ảnh]";
+      if (attach > 1) {
+        const name = (pin?.MineFile || pin?.Text || "").toString().trim();
+        return name ? `[Tệp] ${name}` : "[Tệp đính kèm]";
+      }
+
+      const stored = (
+        pin?.TextContentPlain ??
+        pin?.TextContent ??
+        ""
+      ).toString();
+      const rich = this.parseRichStoredText(stored);
+      const text =
+        (rich && typeof rich.text === "string" ? rich.text : null) ?? stored;
+      const plain = (text || "").toString().replace(/\s+/g, " ").trim();
+      return plain.length > 80 ? `${plain.slice(0, 77)}...` : plain;
+    },
+    async jumpPinnedFromBar(pin) {
+      this.pinnedBarMenu = false;
+      const id = Number(pin?.MessageID);
+      if (!Number.isFinite(id) || id <= 0) return;
+      await this.jumpToSearchMessage({ MessageID: id });
     },
     async togglePinMessage(mes) {
       if (!mes?.MessageID) return;
@@ -1806,6 +2044,7 @@ export default {
           if (res.Data.Pinned) next.add(id);
           else next.delete(id);
           this.pinnedMessageIDs = [...next];
+          this.fetchPinnedForGroup();
         }
       } catch (_) {
         // ignore
@@ -1905,9 +2144,41 @@ export default {
       if (!files.length) return;
       if (!this.groupInfo?.GroupID) return;
 
-      files.forEach((file) => {
-        this.sendSingleAttachment(file);
-      });
+      // giống Messenger: chọn ảnh/file → đưa vào thanh preview, bấm Send để gửi
+      this.queuePendingAttachments(files);
+    },
+    isFileDragEvent(event) {
+      const dt = event?.dataTransfer;
+      if (!dt) return false;
+      const types = Array.from(dt.types || []);
+      return types.includes("Files");
+    },
+    onChatDragEnter(event) {
+      if (!this.isFileDragEvent(event)) return;
+      this.chatDragDepth += 1;
+      this.isChatDragOver = true;
+    },
+    onChatDragOver(event) {
+      if (!this.isFileDragEvent(event)) return;
+      if (event?.dataTransfer) event.dataTransfer.dropEffect = "copy";
+      this.isChatDragOver = true;
+    },
+    onChatDragLeave(event) {
+      if (!this.isFileDragEvent(event)) return;
+      this.chatDragDepth = Math.max(0, this.chatDragDepth - 1);
+      if (this.chatDragDepth === 0) this.isChatDragOver = false;
+    },
+    onChatDrop(event) {
+      if (!this.isFileDragEvent(event)) return;
+      this.chatDragDepth = 0;
+      this.isChatDragOver = false;
+      if (!this.groupInfo?.GroupID) return;
+
+      const files = Array.from(event?.dataTransfer?.files || []).filter(
+        Boolean,
+      );
+      if (!files.length) return;
+      this.queuePendingAttachments(files);
     },
     onComposerPaste(event) {
       try {
@@ -1944,6 +2215,16 @@ export default {
       if (!Array.isArray(files) || files.length === 0) return;
 
       files.forEach((file) => {
+        const maxBytes = 25 * 1024 * 1024;
+        const size = Number(file?.size) || 0;
+        if (size > maxBytes) {
+          notify({
+            title: "File quá lớn",
+            text: `${file?.name || "Tệp"} vượt quá 25MB`,
+            type: "error",
+          });
+          return;
+        }
         const isImage = (file?.type || "").toLowerCase().startsWith("image/");
         const id = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
         const previewUrl = isImage ? URL.createObjectURL(file) : null;
@@ -1990,6 +2271,15 @@ export default {
       if (!this.groupInfo?.GroupID) return false;
 
       const sizeFile = file.size;
+      const maxBytes = 25 * 1024 * 1024;
+      if (Number(sizeFile) > maxBytes) {
+        notify({
+          title: "File quá lớn",
+          text: `${file?.name || "Tệp"} vượt quá 25MB`,
+          type: "error",
+        });
+        return false;
+      }
       const isImage = (file.type || "").toLowerCase().startsWith("image/");
       const isAttachment = isImage ? 1 : 2;
       const params = new FormData();
@@ -2068,9 +2358,10 @@ export default {
       return false;
     },
     getGroupLstByUserID(selectGroupID = null) {
+      const preferID = Number(selectGroupID);
       GetGroupLstByUserID({
         PageNumber: 1,
-        RowspPage: 10,
+        RowspPage: Number.isFinite(preferID) && preferID > 0 ? 200 : 10,
         Search: this.searchGroup,
         ComID: "",
         UserID: this.senderID,
@@ -2083,15 +2374,28 @@ export default {
               LastMessage: this.extractPreviewFromStoredText(item.LastMessage),
               NewMessage: this.extractPreviewFromStoredText(item.NewMessage),
               TimeShow: this.calculateTimeDifference(item.TimeCreate),
+              UnreadCount: Number(item.UnreadCount) || 0,
             };
           });
+          try {
+            const map = this.loadMuteMap();
+            (this.groupLst || []).forEach((g) => {
+              const gid = Number(g?.GroupID);
+              if (!Number.isFinite(gid) || gid <= 0) return;
+              if (Number(g?.IsMute) === 1) map[String(gid)] = 1;
+              else delete map[String(gid)];
+            });
+            this.saveMuteMap(map);
+          } catch (_) {
+            // ignore
+          }
+          this.broadcastUnreadTotal();
 
           if (this.groupLst.length === 0) {
             this.groupInfo = null;
             return;
           }
 
-          const preferID = Number(selectGroupID);
           if (Number.isFinite(preferID) && preferID > 0) {
             const preferred = this.groupLst.find(
               (g) => Number(g.GroupID) === preferID,
@@ -2239,6 +2543,36 @@ export default {
       this.clearPendingAttachments();
       this.markAsRead(groupInfo.GroupID);
     },
+    broadcastUnreadTotal() {
+      try {
+        const total = (this.groupLst || []).reduce((sum, g) => {
+          return sum + (Number(g?.UnreadCount) || 0);
+        }, 0);
+        localStorage.setItem("DTP_UNREAD_TOTAL", String(total));
+        window.dispatchEvent(
+          new CustomEvent("dtp:unread-total", { detail: { total } }),
+        );
+      } catch (_) {
+        // ignore
+      }
+    },
+    openPreviewZoom(att) {
+      if (!att?.isImage || !att?.previewUrl) return;
+      this.previewZoomSrc = att.previewUrl;
+      this.previewZoomName = att.name || "Ảnh";
+      this.previewZoomScale = 1;
+      this.previewZoomDialog = true;
+    },
+    setPreviewZoom(next) {
+      const n = Number(next);
+      if (!Number.isFinite(n)) return;
+      this.previewZoomScale = Math.min(4, Math.max(0.5, n));
+    },
+    onPreviewWheel(event) {
+      const delta = Number(event?.deltaY) || 0;
+      const step = delta > 0 ? -0.1 : 0.1;
+      this.setPreviewZoom(this.previewZoomScale + step);
+    },
     onGroupLeft({ GroupID }) {
       const gid = Number(GroupID);
       if (Number.isFinite(gid)) {
@@ -2272,6 +2606,7 @@ export default {
       if (Number(this.groupInfo?.GroupID) === gid && this.groupInfo) {
         this.groupInfo.IsMute = mute;
       }
+      this.persistGroupMuteToLocalStorage(gid, mute);
     },
     onMembersUpdated(members) {
       const list = Array.isArray(members) ? members : [];
@@ -2592,6 +2927,133 @@ export default {
   min-height: 36px;
 }
 
+.chat-drag-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(24, 119, 242, 0.08);
+  pointer-events: none;
+}
+
+.chat-drag-overlay__inner {
+  display: inline-flex;
+  align-items: center;
+  background: #fff;
+  border: 1px dashed rgba(24, 119, 242, 0.45);
+  color: #1877f2;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.pinned-bar {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  // padding: 6px 8px;
+  margin-left: 8px;
+  border-radius: 12px;
+  background: rgb(var(--v-theme-background));
+  // width: 100%;
+  // border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.pinned-bar__activator {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 12px;
+  // background: rgba(24, 119, 242, 0.06);
+  background: rgb(var(--v-theme-blue), 0.1);
+}
+
+.pinned-bar__text {
+  min-width: 0;
+}
+
+.pinned-bar__title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1877f2;
+  line-height: 1.1;
+}
+
+.pinned-bar__preview {
+  font-size: 12px;
+  // color: #65676b;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.typing-indicator {
+  display: flex;
+}
+
+.typing-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #f0f2f5;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: #050505;
+  max-width: 100%;
+}
+
+.typing-text {
+  font-size: 12px;
+  color: #65676b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.typing-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1877f2;
+  opacity: 0.35;
+  animation: typingBounce 1.1s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+@keyframes typingBounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  40% {
+    transform: translateY(-3px);
+    opacity: 0.9;
+  }
+}
+
 .system-row {
   display: flex;
   justify-content: center;
@@ -2639,8 +3101,8 @@ export default {
 
 .pin-badge {
   position: absolute;
-  top: -10px;
-  right: 10px;
+  top: 4px;
+  left: 4px;
   z-index: 6;
   display: inline-flex;
   align-items: center;
@@ -2690,16 +3152,16 @@ export default {
 
 .composer-bar {
   z-index: 20;
-  background: #fff;
+  background: rgb(var(--v-theme-background));
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
 }
 
 .composer-row {
-  background: #fff;
+  background: rgb(var(--v-theme-background));
 }
 
 .composer-attachments-bar {
-  background: #fff;
+  background: rgb(var(--v-theme-background));
   border-bottom: 1px solid #e4e6eb;
 }
 
@@ -2741,6 +3203,29 @@ export default {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+  cursor: zoom-in;
+}
+
+.preview-zoom-stage {
+  width: 100%;
+  height: 64vh;
+  min-height: 420px;
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-zoom-img {
+  max-width: 100%;
+  max-height: 100%;
+  transform-origin: center center;
+  user-select: none;
+  pointer-events: none;
   display: block;
 }
 
@@ -2946,17 +3431,17 @@ export default {
 .reaction-summary {
   position: absolute;
   bottom: 14px;
-  transform: translateY(55%);
-  background: rgb(var(--v-theme-grey-100));
+  transform: translateY(70%);
+  background: rgb(var(--v-theme-grey-50));
   // border: 1px solid #e4e6eb;
   border-radius: 999px;
-  padding: 2px 8px;
+  padding: 0px 6px;
   font-size: 12px;
   cursor: pointer;
   user-select: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 2px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
   max-width: 220px;
   z-index: 5;
@@ -3049,6 +3534,7 @@ export default {
   }
 }
 .customText {
+  border-radius: 100px;
   background: rgb(var(--v-theme-grey-50));
 
   .v-field {

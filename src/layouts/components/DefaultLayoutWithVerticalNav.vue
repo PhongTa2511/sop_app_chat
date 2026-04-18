@@ -15,8 +15,15 @@ const isReady = ref(false); // sẽ true sau khi load permission xong
 const hasAccess = (featureKey) =>
   permission.value.find((p) => p.FeatureKey == featureKey && p.CanAccess == 1);
 
-// Đóng mở menu sidebar ở desktop
+// Đóng/mở menu sidebar ở desktop
 const isNavCollapsed = ref(false);
+
+const messageUnreadTotal = ref(0);
+const messageUnreadBadge = computed(() => {
+  const n = Number(messageUnreadTotal.value) || 0;
+  if (n <= 0) return null;
+  return n > 9 ? "9+" : String(n);
+});
 
 const toggleNavCollapse = () => {
   isNavCollapsed.value = !isNavCollapsed.value;
@@ -29,17 +36,42 @@ const loadInitialData = async () => {
   isReady.value = true;
 };
 
+const loadUnreadBadgeFromStorage = () => {
+  try {
+    const raw = localStorage.getItem("DTP_UNREAD_TOTAL");
+    const n = Number.parseInt(raw, 10);
+    messageUnreadTotal.value = Number.isFinite(n) && n > 0 ? n : 0;
+  } catch (_) {
+    messageUnreadTotal.value = 0;
+  }
+};
+
+const onUnreadBadgeEvent = (event) => {
+  const n = Number(event?.detail?.total);
+  if (Number.isFinite(n) && n >= 0) {
+    messageUnreadTotal.value = n;
+    return;
+  }
+  loadUnreadBadgeFromStorage();
+};
+
 onMounted(() => {
   loadInitialData();
+  loadUnreadBadgeFromStorage();
+  window.addEventListener("dtp:unread-total", onUnreadBadgeEvent);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("dtp:unread-total", onUnreadBadgeEvent);
 });
 </script>
 
 <template>
   <VerticalNavLayout :is-nav-collapsed="isNavCollapsed">
-    <!-- 👉 navbar -->
+    <!-- ðŸ‘‰ navbar -->
     <template #navbar="{ toggleVerticalOverlayNavActive }">
       <div class="d-flex h-100 align-center pl-3">
-        <!-- 👉 Vertical nav toggle in overlay mode -->
+        <!-- ðŸ‘‰ Vertical nav toggle in overlay mode -->
         <IconBtn
           class="ms-n3 d-lg-none"
           @click="toggleVerticalOverlayNavActive(true)"
@@ -47,10 +79,7 @@ onMounted(() => {
           <VIcon icon="bx-menu" />
         </IconBtn>
 
-        <IconBtn
-          class="ms-n3 d-none d-lg-inline-flex"
-          @click="toggleNavCollapse"
-        >
+        <IconBtn class="ms-n3 d-none d-lg-inline-flex" @click="toggleNavCollapse">
           <VIcon icon="bx-menu" />
         </IconBtn>
 
@@ -116,6 +145,7 @@ onMounted(() => {
           title: 'Tin nhắn',
           icon: 'mdi-message-text',
           to: '/tin-nhan',
+          badge: messageUnreadBadge,
         }"
       />
       <VerticalNavLink
@@ -177,10 +207,10 @@ onMounted(() => {
       </template> 
     -->
 
-    <!-- 👉 Pages -->
+    <!-- ðŸ‘‰ Pages -->
     <slot />
 
-    <!-- 👉 Footer -->
+    <!-- ðŸ‘‰ Footer -->
     <template #footer>
       <Footer />
     </template>

@@ -80,6 +80,19 @@ const playNotificationSound = () => {
   playNote(1046.5, audioCtx.currentTime + 0.1, 0.2)
 }
 
+const isGroupMuted = groupID => {
+  try {
+    const gid = Number(groupID)
+    if (!Number.isFinite(gid) || gid <= 0) return false
+    const raw = localStorage.getItem("dtp_chat_mute_groups")
+    if (!raw) return false
+    const map = JSON.parse(raw)
+    return Boolean(map && typeof map === "object" && Number(map[String(gid)]) === 1)
+  } catch (_) {
+    return false
+  }
+}
+
 const showNotification = data => {
   notification.value = {
     title: data.title || "Thông báo mới",
@@ -118,7 +131,7 @@ onMounted(() => {
     if (data.SenderID != getUserName()) {
       unreadTotal.value++
       startTitleFlashing(data.SenderName || "Có tin nhắn")
-      playNotificationSound()
+      if (!isGroupMuted(data.GroupID)) playNotificationSound()
     }
   })
   socket.emit("join:user", {
