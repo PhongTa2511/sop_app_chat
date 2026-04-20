@@ -41,6 +41,14 @@ export function AddMemberGroup(data) {
   })
 }
 
+export function SetMemberRole(data) {
+  return request({
+    url: "groups/SetMemberRole",
+    method: "post",
+    data,
+  })
+}
+
 export function DelMemberGroup(data) {
   return request({
     url: "groups/DelMemberGroup",

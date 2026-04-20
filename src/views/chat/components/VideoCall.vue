@@ -153,9 +153,19 @@
 
 <script>
 import interact from "interactjs"
+import socket from "@/socket"
 
 export default {
-  props: ["targetUserId", "currentUserId"],
+  props: {
+    groupId: {
+      type: [Number, String],
+      default: null,
+    },
+    currentUserId: {
+      type: String,
+      default: "",
+    },
+  },
   data() {
     return {
       remoteStreams: {},
@@ -168,14 +178,209 @@ export default {
       selectedMicId: null,
       isMicOn: true,
       isCamOn: true,
+      rtcConfig: {
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+        ],
+      },
+      callListenersAttached: false,
     }
   },
   async mounted() {
     await this.startCamera()
     await this.loadMicrophones()
     this.enableDragAndResize()
+    this.attachCallListeners()
+    this.joinGroupCall()
+  },
+  beforeUnmount() {
+    this.detachCallListeners()
+    this.cleanupCall()
   },
   methods: {
+    getCallRoomGroupID() {
+      const gid = Number.parseInt(this.groupId, 10)
+      return Number.isFinite(gid) && gid > 0 ? gid : null
+    },
+    attachCallListeners() {
+      if (this.callListenersAttached) return
+      this.callListenersAttached = true
+      socket.on("call:participants", this.handleParticipants)
+      socket.on("call:user-joined", this.handleUserJoined)
+      socket.on("call:user-left", this.handleUserLeft)
+      socket.on("call:signal", this.handleSignal)
+      socket.on("call:error", this.handleCallError)
+    },
+    detachCallListeners() {
+      if (!this.callListenersAttached) return
+      socket.off("call:participants", this.handleParticipants)
+      socket.off("call:user-joined", this.handleUserJoined)
+      socket.off("call:user-left", this.handleUserLeft)
+      socket.off("call:signal", this.handleSignal)
+      socket.off("call:error", this.handleCallError)
+      this.callListenersAttached = false
+    },
+    joinGroupCall() {
+      const gid = this.getCallRoomGroupID()
+      const uid = String(this.currentUserId || "").trim()
+      if (!gid || !uid) return
+      socket.emit("call:join", { GroupID: gid, UserID: uid })
+    },
+    leaveGroupCall() {
+      const gid = this.getCallRoomGroupID()
+      if (!gid) return
+      socket.emit("call:leave", { GroupID: gid })
+    },
+    createPeerConnection(targetSocketID) {
+      const id = String(targetSocketID || "").trim()
+      if (!id) return null
+      if (this.peerConnections[id]) return this.peerConnections[id]
+
+      const pc = new RTCPeerConnection(this.rtcConfig)
+      this.peerConnections = { ...this.peerConnections, [id]: pc }
+
+      if (this.localStream) {
+        this.localStream.getTracks().forEach((track) => {
+          pc.addTrack(track, this.localStream)
+        })
+      }
+
+      pc.ontrack = (event) => {
+        const [stream] = event.streams || []
+        if (!stream) return
+        this.remoteStreams = { ...this.remoteStreams, [id]: stream }
+      }
+
+      pc.onicecandidate = (event) => {
+        if (!event?.candidate) return
+        const gid = this.getCallRoomGroupID()
+        if (!gid) return
+        socket.emit("call:signal", {
+          GroupID: gid,
+          ToSocketID: id,
+          Type: "ice-candidate",
+          Candidate: event.candidate,
+        })
+      }
+
+      pc.onconnectionstatechange = () => {
+        const state = pc.connectionState
+        if (state === "disconnected" || state === "failed" || state === "closed") {
+          this.closePeerConnection(id)
+        }
+      }
+
+      return pc
+    },
+    closePeerConnection(targetSocketID) {
+      const id = String(targetSocketID || "").trim()
+      if (!id) return
+      const pc = this.peerConnections[id]
+      if (pc) {
+        try {
+          pc.ontrack = null
+          pc.onicecandidate = null
+          pc.close()
+        } catch (_) {}
+      }
+
+      const nextPeers = { ...this.peerConnections }
+      delete nextPeers[id]
+      this.peerConnections = nextPeers
+
+      const nextStreams = { ...this.remoteStreams }
+      delete nextStreams[id]
+      this.remoteStreams = nextStreams
+    },
+    async makeOffer(targetSocketID) {
+      const pc = this.createPeerConnection(targetSocketID)
+      if (!pc) return
+      const offer = await pc.createOffer()
+      await pc.setLocalDescription(offer)
+
+      const gid = this.getCallRoomGroupID()
+      if (!gid) return
+      socket.emit("call:signal", {
+        GroupID: gid,
+        ToSocketID: targetSocketID,
+        Type: "offer",
+        SDP: offer,
+      })
+    },
+    async handleParticipants(payload) {
+      const gid = this.getCallRoomGroupID()
+      if (!gid || Number(payload?.GroupID) !== gid) return
+      const participants = Array.isArray(payload?.Participants)
+        ? payload.Participants
+        : []
+
+      for (const p of participants) {
+        const sid = String(p?.SocketID || "").trim()
+        if (!sid) continue
+        try {
+          // người vào sau chủ động tạo offer đến tất cả participant đang có
+          // eslint-disable-next-line no-await-in-loop
+          await this.makeOffer(sid)
+        } catch (err) {
+          console.error("makeOffer error:", err)
+        }
+      }
+    },
+    handleUserJoined(payload) {
+      const gid = this.getCallRoomGroupID()
+      if (!gid || Number(payload?.GroupID) !== gid) return
+      // Không tạo offer ở đây để tránh đụng offer 2 chiều
+    },
+    handleUserLeft(payload) {
+      const gid = this.getCallRoomGroupID()
+      if (!gid || Number(payload?.GroupID) !== gid) return
+      this.closePeerConnection(payload?.SocketID)
+    },
+    async handleSignal(payload) {
+      const gid = this.getCallRoomGroupID()
+      if (!gid || Number(payload?.GroupID) !== gid) return
+
+      const fromSocketID = String(payload?.FromSocketID || "").trim()
+      const type = String(payload?.Type || "").trim()
+      if (!fromSocketID || !type) return
+
+      const pc = this.createPeerConnection(fromSocketID)
+      if (!pc) return
+
+      if (type === "offer" && payload?.SDP) {
+        await pc.setRemoteDescription(new RTCSessionDescription(payload.SDP))
+        const answer = await pc.createAnswer()
+        await pc.setLocalDescription(answer)
+        socket.emit("call:signal", {
+          GroupID: gid,
+          ToSocketID: fromSocketID,
+          Type: "answer",
+          SDP: answer,
+        })
+        return
+      }
+
+      if (type === "answer" && payload?.SDP) {
+        if (!pc.currentRemoteDescription) {
+          await pc.setRemoteDescription(new RTCSessionDescription(payload.SDP))
+        }
+        return
+      }
+
+      if (type === "ice-candidate" && payload?.Candidate) {
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(payload.Candidate))
+        } catch (_) {
+          // ignore invalid candidate
+        }
+      }
+    },
+    handleCallError(payload) {
+      const gid = this.getCallRoomGroupID()
+      if (!gid || Number(payload?.GroupID) !== gid) return
+      console.error("call:error", payload?.Message || "Lỗi cuộc gọi")
+    },
     /* -------------------- 🎤 BẬT / TẮT MICRO -------------------- */
     toggleMicrophone() {
       if (!this.localStream) return
@@ -399,6 +604,7 @@ export default {
     async cleanupCall() {
       try {
         console.log("🧹 Dọn toàn bộ tài nguyên cuộc gọi...")
+        this.leaveGroupCall()
 
         // 1️⃣ Dừng tất cả track trong localStream (mic + cam)
         if (this.localStream) {
@@ -432,6 +638,7 @@ export default {
           }
         })
         this.peerConnections = {}
+        this.remoteStreams = {}
 
         // 4️⃣ Ngắt toàn bộ video element (ngăn Chrome giữ kết nối)
         if (this.$refs.localVideo) {

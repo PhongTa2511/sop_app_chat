@@ -54,17 +54,18 @@ const updateFavicon = hasMessage => {
 
 const playNotificationSound = () => {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+  if (audioCtx.state === "suspended") audioCtx.resume()
 
   // Tạo 2 nốt nhạc liên tiếp để tạo âm thanh "ting ting"
   const playNote = (frequency, startTime, duration) => {
     const oscillator = audioCtx.createOscillator()
     const gainNode = audioCtx.createGain()
 
-    oscillator.type = "sine" // Âm thanh dạng sóng sin (trong trẻo)
+    oscillator.type = "triangle" // âm sắc rõ hơn
     oscillator.frequency.setValueAtTime(frequency, startTime)
 
-    gainNode.gain.setValueAtTime(0.1, startTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration)
+    gainNode.gain.setValueAtTime(0.22, startTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.02, startTime + duration)
 
     oscillator.connect(gainNode)
     gainNode.connect(audioCtx.destination)
@@ -76,8 +77,8 @@ const playNotificationSound = () => {
   console.log("Chạy âm thanh")
 
   // Nốt 1 (Trầm hơn) và Nốt 2 (Cao hơn) tạo cảm giác thông báo
-  playNote(880, audioCtx.currentTime, 0.1)
-  playNote(1046.5, audioCtx.currentTime + 0.1, 0.2)
+  playNote(900, audioCtx.currentTime, 0.12)
+  playNote(1200, audioCtx.currentTime + 0.1, 0.18)
 }
 
 const isGroupMuted = groupID => {

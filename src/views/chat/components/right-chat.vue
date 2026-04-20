@@ -150,18 +150,63 @@
                 member.NickName ? member.NickName : member.FullName
               }}
             </VListItemTitle>
-            <VListItemSubtitle>{{ member.UserID }}</VListItemSubtitle>
-            <template #append>
-              <VBtn
-                v-if="!isEditing && canManageMembers"
-                icon
-                size="small"
-                variant="text"
-                color="red"
-                @click="removeMember(member)"
+            <VListItemSubtitle class="d-flex align-center ga-2">
+              <span>{{ member.UserID }}</span>
+              <VChip
+                size="x-small"
+                :color="roleColor(member.Role)"
+                variant="tonal"
               >
-                <VIcon>mdi-delete</VIcon>
-              </VBtn>
+                {{ roleLabel(member.Role) }}
+              </VChip>
+            </VListItemSubtitle>
+            <template #append>
+              <template v-if="!isEditing">
+                <VMenu v-if="canManageMembers || canManageRoles">
+                  <template #activator="{ props }">
+                    <VBtn
+                      v-bind="props"
+                      icon
+                      size="small"
+                      variant="text"
+                      color="grey"
+                    >
+                      <VIcon>mdi-dots-vertical</VIcon>
+                    </VBtn>
+                  </template>
+                  <VList density="compact" min-width="190">
+                    <VListItem
+                      v-if="canManageMembers && !isCurrentUser(member)"
+                      prepend-icon="mdi-delete"
+                      title="Xóa khỏi nhóm"
+                      @click="removeMember(member)"
+                    />
+
+                    <VListSubheader v-if="canManageRoles">Đổi quyền</VListSubheader>
+                    <VListItem
+                      v-if="canSetRole(member, 'MEMBER')"
+                      prepend-icon="mdi-account"
+                      title="Thành viên"
+                      :disabled="isRoleSaving(member)"
+                      @click="changeMemberRole(member, 'MEMBER')"
+                    />
+                    <VListItem
+                      v-if="canSetRole(member, 'ADMIN')"
+                      prepend-icon="mdi-shield-account"
+                      title="Quản trị viên"
+                      :disabled="isRoleSaving(member)"
+                      @click="changeMemberRole(member, 'ADMIN')"
+                    />
+                    <VListItem
+                      v-if="canSetRole(member, 'OWNER')"
+                      prepend-icon="mdi-crown"
+                      title="Chuyển chủ nhóm"
+                      :disabled="isRoleSaving(member)"
+                      @click="changeMemberRole(member, 'OWNER')"
+                    />
+                  </VList>
+                </VMenu>
+              </template>
               <VBtn
                 v-else
                 icon
@@ -311,43 +356,55 @@
         <span class="headline">{{ documentsTitle }}</span>
       </VCardTitle>
       <VCardText class="docs-dialog-body" @scroll.passive="onDocumentsScroll">
-        <VList>
-          <VListItem
-            v-for="item in documentsRows"
-            :key="`${item.MessageID}_${item.LinkUrl || ''}`"
-            class="docs-item"
-            @click="openDocumentItem(item)"
-          >
-            <template #prepend>
-              <VAvatar size="40" rounded="lg" color="grey-lighten-4">
-                <VImg
-                  v-if="documentsType === 1"
-                  :src="item.LinkFile"
-                  cover
-                />
-                <VIcon v-else-if="documentsType === 2">
-                  mdi-file-document-outline
-                </VIcon>
-                <VIcon v-else>
-                  mdi-link-variant
-                </VIcon>
-              </VAvatar>
-            </template>
-            <template #title>
-              {{
-                documentsType === 0
-                  ? item.LinkUrl
-                  : (item.MineFile || `Tin nhắn #${item.MessageID}`)
-              }}
-            </template>
-            <template #subtitle>
-              #{{ item.MessageID }} · {{ formatDocTime(item.TimeCreate) }}
-            </template>
-            <template #append>
-              <VIcon size="small">mdi-open-in-new</VIcon>
-            </template>
-          </VListItem>
-        </VList>
+        <template v-if="documentsType === 1 || documentsType === 2">
+          <div class="docs-grid">
+            <button
+              v-for="item in documentsRows"
+              :key="`${item.MessageID}_${item.LinkUrl || ''}`"
+              type="button"
+              class="docs-square"
+              @click="openDocumentItem(item)"
+            >
+              <div v-if="documentsType === 1" class="docs-square-image-wrap">
+                <VImg :src="item.LinkFile" cover class="docs-square-image" />
+              </div>
+              <div v-else class="docs-square-file-wrap">
+                <VIcon size="30" color="blue">mdi-file-document-outline</VIcon>
+                <div class="docs-square-file-name">
+                  {{ item.MineFile || `Tệp #${item.MessageID}` }}
+                </div>
+              </div>
+              <div class="docs-square-meta">
+                {{ formatDocTime(item.TimeCreate) }}
+              </div>
+            </button>
+          </div>
+        </template>
+        <template v-else>
+          <VList>
+            <VListItem
+              v-for="item in documentsRows"
+              :key="`${item.MessageID}_${item.LinkUrl || ''}`"
+              class="docs-item"
+              @click="openDocumentItem(item)"
+            >
+              <template #prepend>
+                <VAvatar size="40" rounded="lg" color="grey-lighten-4">
+                  <VIcon>mdi-link-variant</VIcon>
+                </VAvatar>
+              </template>
+              <template #title>
+                {{ item.LinkUrl }}
+              </template>
+              <template #subtitle>
+                #{{ item.MessageID }} · {{ formatDocTime(item.TimeCreate) }}
+              </template>
+              <template #append>
+                <VIcon size="small">mdi-open-in-new</VIcon>
+              </template>
+            </VListItem>
+          </VList>
+        </template>
 
         <div v-if="documentsLoading" class="text-center py-3 text-grey">
           Đang tải...
@@ -368,6 +425,37 @@
       <VCardActions>
         <VBtn text @click="documentsDialog = false">Đóng</VBtn>
       </VCardActions>
+    </VCard>
+  </VDialog>
+
+  <VDialog v-model="imagePreviewDialog" fullscreen>
+    <VCard class="preview-fullscreen-card">
+      <VToolbar color="black" density="comfortable" dark>
+        <VBtn icon variant="text" color="white" @click="imagePreviewDialog = false">
+          <VIcon>mdi-close</VIcon>
+        </VBtn>
+        <VToolbarTitle class="text-white text-truncate">
+          {{ imagePreviewName || "Xem ảnh" }}
+        </VToolbarTitle>
+        <VSpacer />
+        <VBtn
+          icon
+          variant="text"
+          color="white"
+          :disabled="!imagePreviewUrl"
+          @click="downloadPreviewImage"
+        >
+          <VIcon>mdi-download</VIcon>
+        </VBtn>
+      </VToolbar>
+      <div class="preview-fullscreen-stage">
+        <img
+          v-if="imagePreviewUrl"
+          :src="imagePreviewUrl"
+          alt=""
+          class="preview-fullscreen-image"
+        />
+      </div>
     </VCard>
   </VDialog>
 
@@ -420,6 +508,7 @@ import {
   GetPinnedMessages,
   GetMemberLstByGroupID,
   LeaveGroup,
+  SetMemberRole,
   SetMuteGroup,
   UpdateGroup,
 } from "@/api/messageApi"
@@ -427,6 +516,8 @@ import { GetUserLstAll } from "@/api/user"
 import { getUserName } from "@/utils/auth"
 import { notify } from "@kyvg/vue3-notification"
 import ChatAddMembersDialog from "./ChatAddMembersDialog.vue"
+
+const MAX_GROUP_MEMBERS = 50
 
 export default {
   components: { ChatAddMembersDialog },
@@ -564,6 +655,10 @@ export default {
       documentsPage: 1,
       documentsLoading: false,
       documentsAllLoaded: false,
+      imagePreviewDialog: false,
+      imagePreviewUrl: "",
+      imagePreviewName: "",
+      roleSavingUserID: "",
     }
   },
   created() {
@@ -587,8 +682,115 @@ export default {
       const role = String(row?.Role || "").toUpperCase()
       return role === "OWNER" || role === "ADMIN"
     },
+    myRole() {
+      const roleFromGroup = String(
+        this.groupInfo?.Role || this.groupInfo?.MyRole || "",
+      ).toUpperCase()
+      if (roleFromGroup) return roleFromGroup
+
+      const me = this.currentUserID
+      if (!me) return ""
+      const row = (this.members || []).find(
+        m => String(m?.UserID || m?.UserName || "").trim() === me,
+      )
+      return String(row?.Role || "").toUpperCase()
+    },
+    canManageRoles() {
+      return this.myRole === "OWNER" || this.myRole === "ADMIN"
+    },
+    canTransferOwner() {
+      return this.myRole === "OWNER"
+    },
   },
   methods: {
+    normalizeRole(role) {
+      const normalized = String(role || "").trim().toUpperCase()
+      if (normalized === "OWNER" || normalized === "ADMIN") return normalized
+      return "MEMBER"
+    },
+    roleLabel(role) {
+      const normalized = this.normalizeRole(role)
+      if (normalized === "OWNER") return "Chủ nhóm"
+      if (normalized === "ADMIN") return "Quản trị viên"
+      return "Thành viên"
+    },
+    roleColor(role) {
+      const normalized = this.normalizeRole(role)
+      if (normalized === "OWNER") return "deep-purple"
+      if (normalized === "ADMIN") return "indigo"
+      return "grey"
+    },
+    isCurrentUser(member) {
+      return (
+        String(member?.UserID || member?.UserName || "").trim() === this.currentUserID
+      )
+    },
+    canSetRole(member, targetRole) {
+      if (!this.canManageRoles) return false
+      const nextRole = this.normalizeRole(targetRole)
+      const memberRole = this.normalizeRole(member?.Role)
+      const isSelf = this.isCurrentUser(member)
+
+      if (this.myRole === "OWNER") {
+        if (nextRole === "OWNER") return !isSelf && memberRole !== "OWNER"
+        return memberRole !== nextRole
+      }
+
+      if (this.myRole === "ADMIN") {
+        if (isSelf) return false
+        if (memberRole === "OWNER") return false
+        if (nextRole === "OWNER") return false
+        return memberRole !== nextRole
+      }
+
+      return false
+    },
+    isRoleSaving(member) {
+      const uid = String(member?.UserID || "").trim()
+      return Boolean(uid && uid === this.roleSavingUserID)
+    },
+    async changeMemberRole(member, targetRole) {
+      if (!this.groupInfo?.GroupID) return
+      if (!this.canSetRole(member, targetRole)) return
+
+      const userID = String(member?.UserID || "").trim()
+      if (!userID) return
+
+      const nextRole = this.normalizeRole(targetRole)
+      this.roleSavingUserID = userID
+      try {
+        const res = await SetMemberRole({
+          GroupID: this.groupInfo.GroupID,
+          TargetUserID: userID,
+          Role: nextRole,
+        })
+
+        if (res?.RespCode === 0) {
+          await this.getMemberLstByGroupID()
+          notify({
+            type: "success",
+            title:
+              nextRole === "OWNER"
+                ? "Đã chuyển chủ nhóm"
+                : "Đã cập nhật quyền thành viên",
+          })
+        } else {
+          notify({
+            type: "error",
+            title: "Lỗi",
+            text: res?.RespText || res?.error || "Không thể cập nhật quyền",
+          })
+        }
+      } catch (error) {
+        notify({
+          type: "error",
+          title: "Lỗi",
+          text: error?.message || "Không thể cập nhật quyền",
+        })
+      } finally {
+        this.roleSavingUserID = ""
+      }
+    },
     requestConfirm({ title, text, okText, cancelText }) {
       return new Promise((resolve) => {
         this.confirmTitle = title || "Xác nhận"
@@ -703,15 +905,33 @@ export default {
       if (!this.groupInfo?.GroupID) return
       const gid = this.groupInfo.GroupID
       const existing = new Set(this.existingMemberIDs())
+      const remainingSlots = Math.max(0, MAX_GROUP_MEMBERS - existing.size)
+      if (remainingSlots <= 0) {
+        notify({
+          type: "error",
+          title: "Nhóm đã đầy",
+          text: `Nhóm chat tối đa ${MAX_GROUP_MEMBERS} thành viên`,
+        })
+        return
+      }
+
       const targets = (this.addMembersSelected || [])
         .map(u => String(u?.UserName || "").trim())
         .filter(Boolean)
         .filter(id => !existing.has(id))
-        .slice(0, 50)
+        .slice(0, remainingSlots)
 
       if (targets.length === 0) {
         this.addMembersDialog = false
         return
+      }
+
+      if ((this.addMembersSelected || []).length > targets.length) {
+        notify({
+          type: "warning",
+          title: "Vượt giới hạn",
+          text: `Chỉ còn thêm được ${remainingSlots} thành viên`,
+        })
       }
 
       this.addMembersSaving = true
@@ -805,19 +1025,31 @@ export default {
     },
 
     getMemberLstByGroupID() {
-      GetMemberLstByGroupID({
+      return GetMemberLstByGroupID({
         GroupID: this.groupInfo.GroupID,
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
-          this.members = res.Data.map(item => {
-            return {
-              ...item,
-              Avatar: item.LinkImage
-                ? "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
-                  item.UserID
-                : null,
-            }
-          })
+          const roleWeight = { OWNER: 0, ADMIN: 1, MEMBER: 2 }
+          this.members = (res.Data || [])
+            .map((item) => {
+              return {
+                ...item,
+                Role: this.normalizeRole(item?.Role),
+                Avatar: item.LinkImage
+                  ? "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
+                    item.UserID
+                  : null,
+              }
+            })
+            .sort((a, b) => {
+              const wa = roleWeight[this.normalizeRole(a?.Role)] ?? 99
+              const wb = roleWeight[this.normalizeRole(b?.Role)] ?? 99
+              if (wa !== wb) return wa - wb
+              return String(a?.FullName || a?.UserID || "").localeCompare(
+                String(b?.FullName || b?.UserID || ""),
+                "vi",
+              )
+            })
           this.$emit("members-updated", this.members)
         }
       })
@@ -826,7 +1058,7 @@ export default {
       if (!input) return ""
       const d = new Date(input)
       if (Number.isNaN(d.getTime())) return ""
-      return d.toLocaleString("vi-VN")
+      return d.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
     },
     openDocumentsDialog(type) {
       if (!this.groupInfo?.GroupID) return
@@ -890,7 +1122,24 @@ export default {
       const url =
         (item?.LinkFile || item?.LinkUrl || "").toString().trim()
       if (!url) return
+      if (this.documentsType === 1) {
+        this.imagePreviewUrl = url
+        this.imagePreviewName = item?.MineFile || `Ảnh #${item?.MessageID || ""}`
+        this.imagePreviewDialog = true
+        return
+      }
+
       window.open(url, "_blank")
+    },
+    downloadPreviewImage() {
+      const url = (this.imagePreviewUrl || "").toString().trim()
+      if (!url) return
+      const a = document.createElement("a")
+      a.href = url
+      a.target = "_blank"
+      a.rel = "noopener noreferrer"
+      a.download = this.imagePreviewName || "image"
+      a.click()
     },
     openMembersDialog(line) {
       if (line?.action === "members") {
@@ -1141,5 +1390,89 @@ export default {
 
 .docs-item {
   cursor: pointer;
+}
+
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.docs-square {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.docs-square:hover {
+  border-color: rgba(var(--v-theme-blue), 0.6);
+}
+
+.docs-square-image-wrap,
+.docs-square-file-wrap {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+}
+
+.docs-square-image {
+  width: 100%;
+  height: 100%;
+}
+
+.docs-square-file-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.docs-square-file-name {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.docs-square-meta {
+  padding: 6px 8px;
+  font-size: 11px;
+  color: #65676b;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.preview-fullscreen-card {
+  background: #000;
+}
+
+.preview-fullscreen-stage {
+  width: 100%;
+  height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  background: #000;
+}
+
+.preview-fullscreen-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 </style>

@@ -34,19 +34,18 @@
           <!-- <VSpacer /> -->
 
           <template v-if="$vuetify.display.mdAndUp">
-            <!--
-              <v-tooltip text="Gọi video">
-              <template v-slot:activator="{ props }">
-              <v-btn
-              v-bind="props"
-              icon="mdi-camera"
-              variant="text"
-              color="blue"
-              @click="isCalling = true"
-              ></v-btn>
+            <VTooltip text="Gọi video nhóm">
+              <template #activator="{ props }">
+                <VBtn
+                  v-bind="props"
+                  icon="mdi-video-outline"
+                  variant="text"
+                  color="blue"
+                  :disabled="!groupInfo?.GroupID"
+                  @click="startVideoCall"
+                />
               </template>
-              </v-tooltip> 
-            -->
+            </VTooltip>
 
             <VTooltip text="Tìm kiếm tin nhắn">
               <template #activator="{ props }">
@@ -204,6 +203,7 @@
                           mes.Reactions &&
                           mes.Reactions.length > 0,
                       }"
+                      @click="toggleMessageMeta(mes)"
                     >
                       <!-- <div
                         v-if="isPinnedMessage(mes)"
@@ -368,6 +368,43 @@
                           reactionSummary(mes).total
                         }}</span>
                       </div>
+                    </div>
+                    <div
+                      v-if="shouldShowMessageMeta(mes)"
+                      class="message-meta"
+                      :class="{ mine: mes.IsMine }"
+                    >
+                      <div class="message-meta-time">
+                        {{ formatMessageTimeFull(mes.TimeCreate) }}
+                      </div>
+                      <template v-if="mes.IsMine">
+                        <div class="message-meta-receipt">
+                          {{ getMessageReceiptSummary(mes).statusText }}
+                        </div>
+                        <div
+                          v-if="getMessageReceiptSummary(mes).state === 'seen'"
+                          class="message-meta-seen"
+                        >
+                          <VAvatar
+                            v-for="user in getMessageReceiptSummary(mes).seenUsers"
+                            :key="`${mes.MessageID}_seen_${user.userID}`"
+                            size="16"
+                            class="message-meta-seen-avatar"
+                            :title="user.tooltip"
+                          >
+                            <VImg v-if="user.avatar" :src="user.avatar" />
+                            <span v-else class="message-meta-seen-fallback">
+                              {{ user.initial }}
+                            </span>
+                          </VAvatar>
+                          <span
+                            v-if="getMessageReceiptSummary(mes).moreCount > 0"
+                            class="message-meta-seen-more"
+                          >
+                            +{{ getMessageReceiptSummary(mes).moreCount }}
+                          </span>
+                        </div>
+                      </template>
                     </div>
                   </div>
                   <div class="message-actions">
@@ -729,17 +766,35 @@
       :selected-users="selectedUsers"
       :desserts="desserts"
       :loading="loading"
+      :max-members="maxGroupMembers"
       @remove-user="removeUser"
       @toggle-user="toggleUser"
       @scroll="onScroll"
       @search-change="onSearchChange"
       @create="createNewChatGroup"
     />
+
+    <VDialog v-model="incomingCallDialog" max-width="380">
+      <VCard>
+        <VCardTitle class="d-flex align-center">
+          <VIcon class="mr-2" color="blue">mdi-video-outline</VIcon>
+          Cuộc gọi video nhóm
+        </VCardTitle>
+        <VCardText>
+          {{ incomingCallText }}
+        </VCardText>
+        <VCardActions>
+          <VSpacer />
+          <VBtn variant="text" @click="declineIncomingCall">Từ chối</VBtn>
+          <VBtn color="blue" @click="acceptIncomingCall">Tham gia</VBtn>
+        </VCardActions>
+      </VCard>
+    </VDialog>
   </div>
   <VideoCall
     v-if="isCalling"
-    :target-user-id="friendId"
-    :current-user-id="currentUserId"
+    :group-id="groupInfo?.GroupID"
+    :current-user-id="senderID"
     @closeCall="btCloseCall"
   />
 </template>
@@ -773,6 +828,8 @@ import ChatSidebar from "./components/ChatSidebar.vue";
 import RightChat from "./components/right-chat.vue";
 import VideoCall from "./components/VideoCall.vue";
 
+const MAX_GROUP_MEMBERS = 50;
+
 export default {
   name: "App",
   components: {
@@ -786,8 +843,6 @@ export default {
   },
   data() {
     return {
-      currentUserId: "0397613784",
-      friendId: "0342764514",
       isCalling: false,
       drawerLeft: true,
       drawerRight: true,
@@ -844,6 +899,7 @@ export default {
       showCreateGroupDialog: false,
       newGroupName: "",
       selectedUsers: [],
+      maxGroupMembers: MAX_GROUP_MEMBERS,
       allUsers: [],
       pageSize: 10,
       pageUser: 1,
@@ -896,6 +952,12 @@ export default {
       // typing indicator
       typingUsers: {},
       lastTypingSentAt: 0,
+      // click message to show meta
+      activeMessageMetaID: null,
+      // read/received state of each member in current group
+      memberReadMap: {},
+      incomingCallDialog: false,
+      incomingCall: null,
     };
   },
   computed: {
@@ -997,6 +1059,12 @@ export default {
         .filter(Boolean)
         .slice(0, 50);
     },
+    incomingCallText() {
+      const caller =
+        String(this.incomingCall?.CallerName || this.incomingCall?.CallerID || "")
+          .trim() || "Một thành viên";
+      return `${caller} đang gọi video nhóm. Bạn có muốn tham gia không?`;
+    },
   },
   watch: {
     groupInfo() {
@@ -1020,6 +1088,8 @@ export default {
       this.messageLst = [];
       this.pinnedMessageIDs = [];
       this.pinnedMessages = [];
+      this.memberReadMap = {};
+      this.activeMessageMetaID = null;
       this.scrollBottom();
 
       if (!groupID) return;
@@ -1194,6 +1264,28 @@ export default {
       });
     });
 
+    socket.on("seen", ({ GroupID, UserName, TimeSeen }) => {
+      const gid = Number(GroupID);
+      if (!Number.isFinite(gid) || Number(this.groupInfo?.GroupID) !== gid) return;
+      const uid = (UserName || "").toString().trim();
+      if (!uid || uid === String(this.senderID || "").trim()) return;
+
+      const maxMessageID = (this.messageLst || []).reduce((max, msg) => {
+        const id = Number(msg?.MessageID);
+        return Number.isFinite(id) && id > max ? id : max;
+      }, 0);
+
+      const prev = this.memberReadMap?.[uid] || {};
+      this.memberReadMap = {
+        ...(this.memberReadMap || {}),
+        [uid]: {
+          ...prev,
+          lastMessageID: Math.max(Number(prev.lastMessageID) || 0, maxMessageID),
+          timeSeen: TimeSeen || new Date().toISOString(),
+        },
+      };
+    });
+
     socket.on("typing", ({ GroupID, UserID }) => {
       if (!GroupID || !UserID) return;
       if (GroupID !== this.groupInfo?.GroupID) return;
@@ -1219,6 +1311,54 @@ export default {
         ...(this.typingUsers || {}),
         [UserID]: { name, timeoutId },
       };
+    });
+
+    socket.on("call:incoming", (payload) => {
+      const gid = Number(payload?.GroupID);
+      if (!Number.isFinite(gid) || gid <= 0) return;
+      const callerID = String(payload?.CallerID || "").trim();
+      if (!callerID || callerID === String(this.senderID || "").trim()) return;
+      if (this.isCalling) return;
+
+      const callerName = payload?.CallerName || callerID;
+      notify({
+        type: "info",
+        title: "Cuộc gọi nhóm",
+        text: `${callerName} đang gọi video`,
+      });
+
+      this.incomingCall = {
+        GroupID: gid,
+        CallerID: callerID,
+        CallerName: callerName,
+      };
+      this.incomingCallDialog = true;
+    });
+
+    socket.on("call:accepted", (payload) => {
+      const gid = Number(payload?.GroupID);
+      if (!Number.isFinite(gid) || gid <= 0) return;
+      if (Number(this.groupInfo?.GroupID) !== gid && !this.isCalling) return;
+      const uid = String(payload?.UserID || "").trim();
+      if (!uid) return;
+      notify({
+        type: "info",
+        title: "Cuộc gọi nhóm",
+        text: `${uid} đã tham gia cuộc gọi`,
+      });
+    });
+
+    socket.on("call:declined", (payload) => {
+      const gid = Number(payload?.GroupID);
+      if (!Number.isFinite(gid) || gid <= 0) return;
+      if (Number(this.groupInfo?.GroupID) !== gid && !this.isCalling) return;
+      const uid = String(payload?.UserID || "").trim();
+      if (!uid) return;
+      notify({
+        type: "warning",
+        title: "Cuộc gọi nhóm",
+        text: `${uid} đã từ chối cuộc gọi`,
+      });
     });
   },
   methods: {
@@ -2103,6 +2243,14 @@ export default {
       if (index > -1) {
         this.selectedUsers.splice(index, 1);
       } else {
+        if ((this.selectedUsers || []).length >= this.maxGroupMembers) {
+          notify({
+            title: "Vượt giới hạn",
+            text: `Nhóm chat tối đa ${this.maxGroupMembers} thành viên`,
+            type: "warning",
+          });
+          return;
+        }
         this.selectedUsers.push(user);
       }
       this.searchUser = ""; // Xóa text tìm kiếm sau khi chọn như FB
@@ -2131,6 +2279,61 @@ export default {
       this.timeout = setTimeout(() => {
         this.getUserLst(true);
       }, 500);
+    },
+    startVideoCall() {
+      const gid = Number(this.groupInfo?.GroupID);
+      if (!Number.isFinite(gid) || gid <= 0) return;
+      const callerName =
+        this.userNameCache?.[this.senderID] ||
+        this.memberDisplayName(
+          (this.memberLst || []).find(
+            (m) =>
+              String(m?.UserID || m?.UserName || "").trim() ===
+              String(this.senderID || "").trim(),
+          ),
+        ) ||
+        this.senderID;
+
+      socket.emit("call:start", {
+        GroupID: gid,
+        UserID: this.senderID,
+        CallerName: callerName,
+      });
+      this.isCalling = true;
+    },
+    async acceptIncomingCall() {
+      const incoming = this.incomingCall || {};
+      const gid = Number(incoming.GroupID);
+      if (!Number.isFinite(gid) || gid <= 0) return;
+
+      const targetGroup = (this.groupLst || []).find(
+        (g) => Number(g?.GroupID) === gid,
+      );
+      if (targetGroup) this.selectGroup(targetGroup);
+      else this.getGroupLstByUserID(gid);
+
+      socket.emit("call:accept", {
+        GroupID: gid,
+        CallerID: incoming.CallerID,
+        UserID: this.senderID,
+      });
+
+      this.incomingCallDialog = false;
+      this.incomingCall = null;
+      this.isCalling = true;
+    },
+    declineIncomingCall() {
+      const incoming = this.incomingCall || {};
+      const gid = Number(incoming.GroupID);
+      if (Number.isFinite(gid) && gid > 0) {
+        socket.emit("call:decline", {
+          GroupID: gid,
+          CallerID: incoming.CallerID,
+          UserID: this.senderID,
+        });
+      }
+      this.incomingCallDialog = false;
+      this.incomingCall = null;
     },
     btCloseCall() {
       this.isCalling = false;
@@ -2612,6 +2815,7 @@ export default {
       const list = Array.isArray(members) ? members : [];
       // Update mention list + name cache for system messages / display
       this.memberLst = list;
+      this.syncMemberReadMapFromMembers();
       list.forEach((m) => {
         const id = (m?.UserID || m?.UserName || "").toString().trim();
         const name = (m?.NickName || m?.FullName || "").toString().trim();
@@ -2642,6 +2846,143 @@ export default {
     async onJumpMessage({ MessageID }) {
       await this.jumpToSearchMessage({ MessageID });
     },
+    parseMemberMessageID(member, keys) {
+      if (!member || typeof member !== "object") return 0;
+      for (const key of keys) {
+        const n = Number(member?.[key]);
+        if (Number.isFinite(n) && n > 0) return n;
+      }
+      return 0;
+    },
+    memberDisplayName(member) {
+      if (!member || typeof member !== "object") return "";
+      const nick = (member.NickName || "").toString().trim();
+      if (nick) return nick;
+      const full = (member.FullName || member.LastName || "").toString().trim();
+      if (full) return full;
+      return (member.UserID || member.UserName || "").toString().trim();
+    },
+    memberAvatarUrl(member) {
+      if (!member || typeof member !== "object") return "";
+      const direct = (member.Avatar || "").toString().trim();
+      if (/^https?:\/\//i.test(direct) || /^data:/i.test(direct)) return direct;
+
+      const userID = (member.UserID || member.UserName || "").toString().trim();
+      if (!userID) return "";
+      if (!member.LinkImage) return "";
+      return `https://sop.idtp.work/api/File/GetAvatarUser?UserName=${encodeURIComponent(
+        userID,
+      )}`;
+    },
+    syncMemberReadMapFromMembers() {
+      const next = { ...(this.memberReadMap || {}) };
+      const members = Array.isArray(this.memberLst) ? this.memberLst : [];
+
+      members.forEach((member) => {
+        const id = (member?.UserID || member?.UserName || "").toString().trim();
+        if (!id) return;
+        const prev = next[id] || {};
+        const lastMessageID = this.parseMemberMessageID(member, [
+          "LastMessageID",
+          "LastMessageId",
+          "LastMessage",
+        ]);
+        const newMessageID = this.parseMemberMessageID(member, [
+          "NewMessageID",
+          "NewMessageId",
+          "NewMessage",
+        ]);
+
+        next[id] = {
+          ...prev,
+          fullName: this.memberDisplayName(member),
+          lastMessageID: Math.max(Number(prev.lastMessageID) || 0, lastMessageID),
+          newMessageID: Math.max(Number(prev.newMessageID) || 0, newMessageID),
+        };
+      });
+
+      this.memberReadMap = next;
+    },
+    formatMessageTimeFull(input) {
+      if (!input) return "";
+      const d = new Date(input);
+      if (Number.isNaN(d.getTime())) return "";
+      return d.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
+    },
+    toggleMessageMeta(message) {
+      const id = Number(message?.MessageID);
+      if (!Number.isFinite(id) || id <= 0) return;
+      this.activeMessageMetaID = this.activeMessageMetaID === id ? null : id;
+    },
+    shouldShowMessageMeta(message) {
+      const id = Number(message?.MessageID);
+      return Number.isFinite(id) && this.activeMessageMetaID === id;
+    },
+    getMessageReceiptSummary(message) {
+      const mid = Number(message?.MessageID);
+      if (!Number.isFinite(mid) || mid <= 0 || !message?.IsMine) {
+        return { state: "sent", statusText: "Đã gửi", seenUsers: [], moreCount: 0 };
+      }
+
+      const myID = String(this.senderID || "").trim();
+      const members = Array.isArray(this.memberLst) ? this.memberLst : [];
+      const seen = [];
+      let receivedCount = 0;
+
+      members.forEach((member) => {
+        const uid = (member?.UserID || member?.UserName || "").toString().trim();
+        if (!uid || uid === myID) return;
+
+        const fromMap = this.memberReadMap?.[uid] || {};
+        const lastMessageID = Math.max(
+          this.parseMemberMessageID(member, ["LastMessageID", "LastMessageId"]),
+          Number(fromMap.lastMessageID) || 0,
+        );
+        const newMessageID = Math.max(
+          this.parseMemberMessageID(member, ["NewMessageID", "NewMessageId"]),
+          Number(fromMap.newMessageID) || 0,
+        );
+        const name = this.memberDisplayName(member) || uid;
+        const seenAt = fromMap.timeSeen ? new Date(fromMap.timeSeen).getTime() : 0;
+
+        if (lastMessageID >= mid) {
+          seen.push({
+            userID: uid,
+            name,
+            avatar: this.memberAvatarUrl(member),
+            initial: (name || uid).charAt(0).toUpperCase(),
+            seenAt,
+            tooltip: fromMap.timeSeen
+              ? `${name} xem lúc ${this.formatMessageTimeFull(fromMap.timeSeen)}`
+              : `${name} đã xem`,
+          });
+        } else if (newMessageID >= mid) {
+          receivedCount += 1;
+        }
+      });
+
+      if (seen.length > 0) {
+        const sorted = seen.sort((a, b) => b.seenAt - a.seenAt);
+        const visible = sorted.slice(0, 5);
+        return {
+          state: "seen",
+          statusText: "Đã xem",
+          seenUsers: visible,
+          moreCount: Math.max(0, sorted.length - visible.length),
+        };
+      }
+
+      if (receivedCount > 0) {
+        return {
+          state: "received",
+          statusText: `Đã nhận (${receivedCount})`,
+          seenUsers: [],
+          moreCount: 0,
+        };
+      }
+
+      return { state: "sent", statusText: "Đã gửi", seenUsers: [], moreCount: 0 };
+    },
     getMemberLstByGroupID() {
       if (!this.groupInfo?.GroupID) return;
       GetMemberLstByGroupID({
@@ -2655,6 +2996,7 @@ export default {
             const name = (m?.NickName || m?.FullName || "").toString().trim();
             if (id && name) this.userNameCache[id] = name;
           });
+          this.syncMemberReadMapFromMembers();
         }
       });
     },
@@ -2877,6 +3219,15 @@ export default {
         ).values(),
       ].filter((m) => m?.UserName);
 
+      if (this.selectedUsers.length > this.maxGroupMembers) {
+        notify({
+          title: "Vượt giới hạn",
+          text: `Nhóm chat tối đa ${this.maxGroupMembers} thành viên`,
+          type: "error",
+        });
+        return;
+      }
+
       const newGroup = {
         GroupName: finalGroupName,
         TextContent: "",
@@ -3083,6 +3434,49 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+}
+
+.message-meta {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #65676b;
+  line-height: 1.35;
+}
+
+.message-meta.mine {
+  align-self: flex-end;
+  text-align: right;
+}
+
+.message-meta-seen {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+}
+
+.message-meta-seen-avatar {
+  border: 1px solid #fff;
+  background: #e4e6eb;
+  margin-left: -4px;
+}
+
+.message-meta-seen-fallback {
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.message-meta-seen-more {
+  margin-left: 2px;
+  font-size: 11px;
+  color: #65676b;
 }
 
 .message-bubble-wrap {

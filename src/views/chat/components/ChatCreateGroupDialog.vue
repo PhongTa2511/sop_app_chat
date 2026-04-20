@@ -7,6 +7,9 @@
       </div>
 
       <div class="fb-search-container">
+        <div class="member-limit-line">
+          Đã chọn {{ selectedUsers.length }}/{{ maxMembers }} thành viên
+        </div>
         <div class="selected-users-wrapper">
           <span class="to-label">Đến:</span>
           <div
@@ -34,8 +37,8 @@
           v-for="item in desserts"
           :key="item.UserName"
           class="fb-user-item"
-          :class="{ selected: isSelected(item) }"
-          @click="$emit('toggle-user', item)"
+          :class="{ selected: isSelected(item), disabled: isDisabled(item) }"
+          @click="!isDisabled(item) && $emit('toggle-user', item)"
         >
           <div class="fb-avatar">
             {{ (item.FullName || "").charAt(0) }}
@@ -95,6 +98,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    maxMembers: {
+      type: Number,
+      default: 50,
+    },
   },
   emits: [
     "update:modelValue",
@@ -128,6 +135,11 @@ export default {
       return (this.selectedUsers || []).some(
         (u) => u?.UserName === user?.UserName,
       )
+    },
+    isDisabled(user) {
+      const selected = this.isSelected(user)
+      if (selected) return false
+      return (this.selectedUsers || []).length >= Number(this.maxMembers || 50)
     },
   },
 }
@@ -180,6 +192,12 @@ export default {
   border-bottom: 1px solid #e5e5e5;
 }
 
+.member-limit-line {
+  font-size: 12px;
+  color: #65676b;
+  margin-bottom: 8px;
+}
+
 .selected-users-wrapper {
   display: flex;
   flex-wrap: wrap;
@@ -224,6 +242,11 @@ export default {
 
 .fb-user-item:hover {
   background: #f2f2f2;
+}
+
+.fb-user-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .fb-avatar {
