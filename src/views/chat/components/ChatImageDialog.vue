@@ -1,14 +1,17 @@
 <template>
-  <VDialog v-model="dialog" :max-width="maxWidth">
-    <VCard>
-      <VCardTitle class="d-flex align-center">
-        <span class="text-truncate">Ảnh</span>
-        <VSpacer />
-        <VBtn icon size="x-small" variant="text" @click="dialog = false">
+  <VDialog v-model="dialog" fullscreen>
+    <VCard class="image-preview-card">
+      <VToolbar color="black" density="comfortable" dark>
+        <VBtn icon size="small" variant="text" color="white" @click="dialog = false">
           <VIcon>mdi-close</VIcon>
         </VBtn>
-      </VCardTitle>
-      <VCardText>
+        <VToolbarTitle class="text-truncate text-white">Ảnh</VToolbarTitle>
+        <VSpacer />
+        <VBtn icon size="small" variant="text" color="white" @click="downloadImage">
+          <VIcon>mdi-download</VIcon>
+        </VBtn>
+      </VToolbar>
+      <VCardText class="image-preview-body">
         <div class="zoom-stage" @wheel.prevent="onWheel">
           <img
             v-if="src"
@@ -18,8 +21,8 @@
             alt=""
           />
         </div>
-        <div class="d-flex align-center mt-3">
-          <VBtn icon size="small" variant="text" @click="setScale(scale - 0.25)">
+        <div class="d-flex align-center mt-3 zoom-controls">
+          <VBtn icon size="small" variant="text" color="white" @click="setScale(scale - 0.25)">
             <VIcon>mdi-minus</VIcon>
           </VBtn>
           <VSlider
@@ -29,11 +32,12 @@
             :step="0.05"
             hide-details
             class="mx-2"
+            color="blue"
           />
-          <VBtn icon size="small" variant="text" @click="setScale(scale + 0.25)">
+          <VBtn icon size="small" variant="text" color="white" @click="setScale(scale + 0.25)">
             <VIcon>mdi-plus</VIcon>
           </VBtn>
-          <VBtn size="small" variant="text" class="ml-2" @click="setScale(1)">
+          <VBtn size="small" variant="text" color="white" class="ml-2" @click="setScale(1)">
             100%
           </VBtn>
         </div>
@@ -94,18 +98,36 @@ export default {
       const step = delta > 0 ? -0.1 : 0.1
       this.setScale(this.scale + step)
     },
+    downloadImage() {
+      const url = (this.src || "").toString().trim()
+      if (!url) return
+      const a = document.createElement("a")
+      a.href = url
+      a.target = "_blank"
+      a.rel = "noopener noreferrer"
+      a.download = "image"
+      a.click()
+    },
   },
 }
 </script>
 
 <style scoped>
+.image-preview-card {
+  background: #000;
+}
+
+.image-preview-body {
+  height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+}
+
 .zoom-stage {
   width: 100%;
-  height: 70vh;
-  min-height: 420px;
-  background: rgba(0, 0, 0, 0.02);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
+  flex: 1;
+  min-height: 320px;
+  background: #000;
   overflow: auto;
   display: flex;
   align-items: center;
@@ -117,8 +139,13 @@ export default {
   max-height: 100%;
   transform-origin: center center;
   user-select: none;
-  pointer-events: none;
   display: block;
+}
+
+.zoom-controls {
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
 }
 </style>
 
