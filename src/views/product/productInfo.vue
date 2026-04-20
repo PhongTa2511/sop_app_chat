@@ -320,38 +320,70 @@
           Thêm mới thông tin
         </h5>
       </VCardTitle>
-      <VCardText class="pt-0 pb-2">
-        <VTextField
-          v-model="newDocument.ProductName"
-          label="Tên sản phẩm"
-          class="mb-2"
-        />
+      <VCardText class="pt-2 pb-2">
+        <VRow g-2>
+          <VCol cols="12">
+            <VTextField
+              v-model="newDocument.ProductName"
+              label="Tên sản phẩm"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </VCol>
 
-        <VSelect
-          v-model="newDocument.TypeDoc"
-          label="Loại hồ sơ"
-          placeholder="Nhập thông tin"
-          density="compact"
-          :items="proceduceLst"
-          item-value="ProcedureID"
-          item-title="ProcedureName"
-          chips
-          clearable
-          class="mb-2"
-        />
-        <VDateInput
-          v-model="newDocument.DateRecept"
-          label="Ngày bắt đầu"
-          variant="outlined"
-          hide-details
-          density="compact"
-          prepend-icon=""
-        />
-        <VTextField
-          v-model="newDocument.Note"
-          class="mt-2"
-          label="Ghi chú"
-        />
+          <VCol cols="12">
+            <VAutocomplete
+              v-model="newDocument.TypeDoc"
+              label="Loại hồ sơ"
+              placeholder="Nhập thông tin"
+              density="compact"
+              variant="outlined"
+              :items="proceduceLst"
+              item-value="ProcedureID"
+              item-title="ProcedureName"
+              chips
+              closable-chips
+              clearable
+              hide-details
+              :menu-props="{ maxWidth: 460 }"
+            >
+              <template #item="{ props, item }">
+                <VListItem
+                  v-bind="props"
+                  :title="item.raw.ProcedureName"
+                >
+                  <template #title>
+                    <div style="white-space: normal; line-height: 1.2">
+                      {{ item.raw.ProcedureName }}
+                    </div>
+                  </template>
+                </VListItem>
+              </template>
+            </VAutocomplete>
+          </VCol>
+
+          <VCol cols="12">
+            <VDateInput
+              v-model="newDocument.DateRecept"
+              label="Ngày bắt đầu"
+              variant="outlined"
+              hide-details
+              density="compact"
+              prepend-icon=""
+            />
+          </VCol>
+
+          <VCol cols="12">
+            <VTextField
+              v-model="newDocument.Note"
+              label="Ghi chú"
+              variant="outlined"
+              density="compact"
+              hide-details
+            />
+          </VCol>
+        </VRow>
       </VCardText>
       <VCardActions>
         <VBtn

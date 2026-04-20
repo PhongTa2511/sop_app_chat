@@ -1,10 +1,16 @@
 <template>
   <VCard>
-    <VDialog v-model="isShowcreateForm" max-width="650px">
+    <VDialog
+      v-model="isShowcreateForm"
+      max-width="650px"
+    >
       <VCard>
         <VCardTitle>Thiết kế phiếu nhập thông tin</VCardTitle>
         <VCardText class="py-0">
-          <VForm ref="form" v-model="valid">
+          <VForm
+            ref="form"
+            v-model="valid"
+          >
             <VTextField
               v-model="createForm.ProcedureName"
               label="Quy trình xử lý"
@@ -37,7 +43,12 @@
             />
             <div class="d-flex justify-space-between">
               <span>Thêm các trường thông tin</span>
-              <VBtn icon color="green" size="x-small" @click="addField">
+              <VBtn
+                icon
+                color="green"
+                size="x-small"
+                @click="addField"
+              >
                 <VIcon>mdi-plus</VIcon>
               </VBtn>
             </div>
@@ -78,7 +89,10 @@
                     append-inner-icon="mdi-file"
                     class="mb-2"
                   />
-                  <VList v-if="field.Type === 2" class="pt-0">
+                  <VList
+                    v-if="field.Type === 2"
+                    class="pt-0"
+                  >
                     <div class="d-flex justify-space-between px-4">
                       <div>Thêm các lựa chọn</div>
                       <VBtn
@@ -131,9 +145,14 @@
                     class="pt-0"
                     style="min-height: 100px"
                   >
-                    <div class="px-2 pb-2">Cấu hình lựa chọn</div>
+                    <div class="px-2 pb-2">
+                      Cấu hình lựa chọn
+                    </div>
 
-                    <VRow class="p-0" style="width: 100%">
+                    <VRow
+                      class="p-0"
+                      style="width: 100%"
+                    >
                       <VCol>
                         <VSelect
                           v-model="field.OptionLine"
@@ -175,10 +194,8 @@
                         @click="field.IsPrivate = field.IsPrivate == 0 ? 1 : 0"
                       />
                     </template>
-                    <span
-                      >{{ field.IsPrivate == 0 ? "Hiện" : "Ẩn" }} thông
-                      tin</span
-                    >
+                    <span>{{ field.IsPrivate == 0 ? "Hiện" : "Ẩn" }} thông
+                      tin</span>
                   </VTooltip>
                   <VTooltip location="top">
                     <template #activator="{ props }">
@@ -198,8 +215,7 @@
                     </template>
                     <span>
                       {{ field.IsValue == 1 ? "Bắt " : "Không bắt " }} buộc nhập
-                      dữ liệu</span
-                    >
+                      dữ liệu</span>
                   </VTooltip>
 
                   <VMenu>
@@ -330,21 +346,36 @@
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn size="small" rounded="sm" @click="isShowcreateForm = false">
+          <VBtn
+            size="small"
+            rounded="sm"
+            @click="isShowcreateForm = false"
+          >
             Cancel
           </VBtn>
-          <VBtn color="green" size="small" rounded="sm" @click="btcreateForm">
+          <VBtn
+            color="green"
+            size="small"
+            rounded="sm"
+            @click="btcreateForm"
+          >
             Xác nhận
           </VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
 
-    <VDialog v-model="isShowEditPhase" max-width="800px">
+    <VDialog
+      v-model="isShowEditPhase"
+      max-width="800px"
+    >
       <VCard>
         <VCardTitle>Thiết kế phiếu nhập thông tin</VCardTitle>
         <VCardText class="py-0">
-          <VForm ref="form" v-model="valid">
+          <VForm
+            ref="form"
+            v-model="valid"
+          >
             <VTextField
               v-model="editForm.ProcedureName"
               label="Quy trình xử lý"
@@ -377,7 +408,12 @@
             />
             <div class="d-flex justify-space-between">
               <span>Thêm các trường thông tin</span>
-              <VBtn icon color="green" size="x-small" @click="addField2">
+              <VBtn
+                icon
+                color="green"
+                size="x-small"
+                @click="addField2"
+              >
                 <VIcon>mdi-plus</VIcon>
               </VBtn>
             </div>
@@ -418,7 +454,10 @@
                     append-inner-icon="mdi-file"
                     class="mb-2"
                   />
-                  <VList v-if="field.Type === 2" class="pt-0">
+                  <VList
+                    v-if="field.Type === 2"
+                    class="pt-0"
+                  >
                     <div class="d-flex justify-space-between px-4">
                       <div>Thêm các lựa chọn</div>
                       <VBtn
@@ -471,9 +510,14 @@
                     class="pt-0"
                     style="min-height: 100px"
                   >
-                    <div class="px-2 pb-2">Cấu hình lựa chọn</div>
+                    <div class="px-2 pb-2">
+                      Cấu hình lựa chọn
+                    </div>
 
-                    <VRow class="p-0" style="width: 100%">
+                    <VRow
+                      class="p-0"
+                      style="width: 100%"
+                    >
                       <VCol>
                         <VSelect
                           v-model="field.OptionLine"
@@ -515,10 +559,8 @@
                         @click="field.IsPrivate = field.IsPrivate == 0 ? 1 : 0"
                       />
                     </template>
-                    <span
-                      >{{ field.IsPrivate == 0 ? "Hiện" : "Ẩn" }} thông
-                      tin</span
-                    >
+                    <span>{{ field.IsPrivate == 0 ? "Hiện" : "Ẩn" }} thông
+                      tin</span>
                   </VTooltip>
                   <VTooltip location="top">
                     <template #activator="{ props }">
@@ -538,8 +580,7 @@
                     </template>
                     <span>
                       {{ field.IsValue == 1 ? "Bắt " : "Không bắt " }} buộc nhập
-                      dữ liệu</span
-                    >
+                      dữ liệu</span>
                   </VTooltip>
                   <VMenu>
                     <template #activator="{ props }">
@@ -669,16 +710,29 @@
         </VCardText>
         <VCardActions>
           <VSpacer />
-          <VBtn @click="isShowEditPhase = false"> Cancel </VBtn>
-          <VBtn color="green" @click="btEditForm"> Xác nhận </VBtn>
+          <VBtn @click="isShowEditPhase = false">
+            Cancel
+          </VBtn>
+          <VBtn
+            color="green"
+            @click="btEditForm"
+          >
+            Xác nhận
+          </VBtn>
         </VCardActions>
       </VCard>
     </VDialog>
     <VCardTitle>
-      <div class="d-flex" style="justify-content: space-between">
+      <div
+        class="d-flex"
+        style="justify-content: space-between"
+      >
         <h6 class="text-h5 py-2">
           <div>Quy trình: {{ procedureInfo.ProcedureName }}</div>
-          <div class="text-subtitle-1 py-1 px-2" style="white-space: normal">
+          <div
+            class="text-subtitle-1 py-1 px-2"
+            style="white-space: normal"
+          >
             Mô tả: {{ procedureInfo.Description }}
           </div>
         </h6>
@@ -693,52 +747,107 @@
         </div>
       </div>
     </VCardTitle>
-    <VDataTable :headers="headers" :items="formLst">
+    <VDataTable
+      :headers="headers"
+      :items="formLst"
+    >
       <template #top="{ item }">
-        <div class="px-6 text-h6">Danh sách form thông tin</div>
+        <div class="px-6 text-h6">
+          Danh sách form thông tin
+        </div>
       </template>
       <template #item.Key="{ item }">
         {{ item.Key }}
-        <VIcon color="orange" @click="btShowEditPhase(item)">
+        <VIcon
+          color="orange"
+          @click="btShowEditPhase(item)"
+        >
           mdi-square-edit-outline
         </VIcon>
-        <VIcon color="red" class="me-2" @click="btShowDel(item)">
+        <VIcon
+          color="red"
+          class="me-2"
+          @click="btShowDel(item)"
+        >
           mdi-trash-can
         </VIcon>
       </template>
       <template #item.action="{ item }">
-        <VIcon color="green" @click="btPushToWork(item)">
+        <VIcon
+          color="green"
+          @click="btPushToWork(item)"
+        >
           mdi-format-list-numbered
         </VIcon>
       </template>
       <template #item.Status="{ item }">
-        <VChip v-if="item.Status == 1" color="green"> Hoạt động </VChip>
+        <VChip
+          v-if="item.Status == 1"
+          color="green"
+        >
+          Hoạt động
+        </VChip>
       </template>
       <template #item.TypeForm="{ item }">
-        <VChip v-if="item.TypeForm == 0" color="gray"> Chưa chọn </VChip>
-        <VChip v-if="item.TypeForm == 1" color="blue"> Phiếu </VChip>
-        <VChip v-if="item.TypeForm == 2" color="green"> Excel </VChip>
+        <VChip
+          v-if="item.TypeForm == 0"
+          color="gray"
+        >
+          Chưa chọn
+        </VChip>
+        <VChip
+          v-if="item.TypeForm == 1"
+          color="blue"
+        >
+          Phiếu
+        </VChip>
+        <VChip
+          v-if="item.TypeForm == 2"
+          color="green"
+        >
+          Excel
+        </VChip>
       </template>
     </VDataTable>
   </VCard>
-  <VDialog v-model="isShowDel" width="400">
+  <VDialog
+    v-model="isShowDel"
+    width="400"
+  >
     <VCard>
-      <VToolbar class="pl-1" color="red" title="Xóa form" center />
+      <VToolbar
+        class="pl-1"
+        color="red"
+        title="Xóa form"
+        center
+      />
       <VCardText>
-        <div class="text-h5 pt-4">Có chắc bạn muốn xóa form này không?</div>
+        <div class="text-h5 pt-4">
+          Có chắc bạn muốn xóa form này không?
+        </div>
       </VCardText>
       <VCardActions class="justify-end">
-        <VBtn color="blue" variant="text" @click="isShowDel = false">
+        <VBtn
+          color="blue"
+          variant="text"
+          @click="isShowDel = false"
+        >
           Đóng
         </VBtn>
-        <VBtn color="red" variant="text" @click="btDelForm"> Xóa </VBtn>
+        <VBtn
+          color="red"
+          variant="text"
+          @click="btDelForm"
+        >
+          Xóa
+        </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
 </template>
 
 <script>
-import { GetDefaultValue } from "@/api/default";
+import { GetDefaultValue } from "@/api/default"
 import {
   CreateForm,
   DelForm,
@@ -746,8 +855,8 @@ import {
   GetFormLstByID,
   GetProcedureByID,
   UpdateForm,
-} from "@/api/procedureApi";
-import { GetTeamLst } from "@/api/teamApi";
+} from "@/api/procedureApi"
+import { GetTeamLst } from "@/api/teamApi"
 
 // import { CreateStep, GetStepByProcedure } from "@/api/phaseApi";
 export default {
@@ -794,92 +903,92 @@ export default {
       formLst: [],
       optionTypeAuto: [],
       teamLst: [],
-    };
+    }
   },
   created() {
-    this.getProcedureByID();
-    this.getFormLstByID();
-    this.getDefault();
+    this.getProcedureByID()
+    this.getFormLstByID()
+    this.getDefault()
   },
   methods: {
     onOptionLineChange(field, value) {
       if (value == 1) {
-        this.getTeamLst();
+        this.getTeamLst()
       }
     },
     getTeamLst() {
-      GetTeamLst({ RowspPage: 10000, PageNumber: 1 }).then((res) => {
+      GetTeamLst({ RowspPage: 10000, PageNumber: 1 }).then(res => {
         if (res.RespCode == 0) {
-          this.teamLst = res.Data;
+          this.teamLst = res.Data
         }
-      });
+      })
     },
     showAllOptions(field) {
-      const allOptions = JSON.parse(field.OptionAnswer); // Tải tất cả các lựa chọn
-      const currentLength = field.Options.length; // Độ dài hiện tại của danh sách lựa chọn
-      const newOptions = allOptions.slice(currentLength, currentLength + 30); // Lấy 30 lựa chọn tiếp theo
+      const allOptions = JSON.parse(field.OptionAnswer) // Tải tất cả các lựa chọn
+      const currentLength = field.Options.length // Độ dài hiện tại của danh sách lựa chọn
+      const newOptions = allOptions.slice(currentLength, currentLength + 30) // Lấy 30 lựa chọn tiếp theo
 
-      field.Options.push(...newOptions); // Thêm các lựa chọn mới vào danh sách
-      field.ShowMore = newOptions.length < 30 ? false : true; // Nếu không còn lựa chọn nào, ẩn nút "Xem thêm"
+      field.Options.push(...newOptions) // Thêm các lựa chọn mới vào danh sách
+      field.ShowMore = newOptions.length < 30 ? false : true // Nếu không còn lựa chọn nào, ẩn nút "Xem thêm"
     },
     getDefault() {
       GetDefaultValue({
         Table: "Loại phiếu",
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          this.typeFormLst = res.DefaultValueLst.map((item) => {
+          this.typeFormLst = res.DefaultValueLst.map(item => {
             return {
               ...item,
               ValueName2: parseInt(item.ValueName2),
-            };
-          });
+            }
+          })
         }
-      });
+      })
       GetDefaultValue({
         Table: "Loại dòng trong phiếu",
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          this.optionTypeAuto = res.DefaultValueLst.map((item) => {
+          this.optionTypeAuto = res.DefaultValueLst.map(item => {
             return {
               ...item,
               ValueName2: parseInt(item.ValueName2),
-            };
-          });
+            }
+          })
         }
-      });
+      })
     },
     btShowDel(data) {
-      this.itemDel = data;
-      this.isShowDel = true;
+      this.itemDel = data
+      this.isShowDel = true
     },
     btDelForm() {
       DelForm({
         FormID: this.itemDel.IDForm,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          this.isShowDel = false;
-          this.getFormLstByID();
+          this.isShowDel = false
+          this.getFormLstByID()
           notify({
             type: "success",
             title: "Thành công",
             text: "Xóa thành thành công",
-          });
+          })
         } else {
           notify({
             type: "error",
             title: "Lỗi",
             text: res.RespText,
-          });
+          })
         }
-      });
+      })
     },
 
     getProcedureByID() {
-      GetProcedureByID({ ProcedureID: this.$route.params.id }).then((res) => {
+      GetProcedureByID({ ProcedureID: this.$route.params.id }).then(res => {
         if (res.RespCode == 0) {
-          this.procedureInfo = res.Data;
+          this.procedureInfo = res.Data
         }
-      });
+      })
     },
     btcreateForm() {
       if (this.createForm.NameForm && this.createForm.TypeForm) {
@@ -891,106 +1000,110 @@ export default {
                 ...item,
                 Required: index + 1,
                 OptionAnswer: JSON.stringify(item.Options),
-              };
+              }
             }),
           },
-        }).then((res) => {
+        }).then(res => {
           if (res.RespCode == 0) {
-            this.getFormLstByID();
-            this.isShowcreateForm = false;
+            this.getFormLstByID()
+            this.isShowcreateForm = false
             this.createForm = {
               Status: 1,
               StepOrder: 1,
               FormLineLst: [{ Parameter: "", Type: 1 }],
-            };
+            }
             notify({
               title: "Thành công",
               text: "Thêm Bước thành công",
               type: "success",
-            });
+            })
           }
-        });
+        })
       } else {
         notify({
           title: "Lỗi",
           text: "Chưa nhập đầy đủ thông tin",
           type: "error",
-        });
+        })
       }
     },
     btShowcreateForm() {
-      this.createForm.ProcedureID = this.procedureInfo.ProcedureID;
-      this.createForm.StepID = this.$route.params.stepid;
-      this.createForm.WorkID = this.$route.params.workid;
-      this.createForm.ProcedureName = this.procedureInfo.ProcedureName;
-      this.isShowcreateForm = true;
+      this.createForm.ProcedureID = this.procedureInfo.ProcedureID
+      this.createForm.StepID = this.$route.params.stepid
+      this.createForm.WorkID = this.$route.params.workid
+      this.createForm.ProcedureName = this.procedureInfo.ProcedureName
+      this.isShowcreateForm = true
     },
     btPushToWork(data) {
-      this.$router.push("/cong-viec/" + data.StepID);
+      this.$router.push("/cong-viec/" + data.StepID)
     },
     getFormLstByID() {
       GetFormLstByID({
         ProcedureID: this.$route.params.id,
         StepID: this.$route.params.stepid,
         WorkID: this.$route.params.workid,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
           this.formLst = res.Data.map((item, index) => {
             return {
               ...item,
               Key: index + 1,
-            };
-          });
+            }
+          })
         }
-      });
+      })
     },
     btShowEditPhase(item) {
       GetFormByID({
         IDForm: item.IDForm,
-      }).then((res) => {
+      }).then(res => {
         if (res.RespCode == 0) {
-          this.editForm = res.Data;
+          console.log("chạy vào đây")
+
+          this.editForm = res.Data
+
+
           // Kiểm tra độ dài của OptionAnswer
           const longOptions = this.editForm.FormLineLst.filter(
-            (item) => item.OptionAnswer && item.OptionAnswer.length > 1000,
-          );
+            item => item.OptionAnswer && item.OptionAnswer.length > 1000,
+          )
 
           if (longOptions.length > 0) {
             // Chỉ hiển thị một phần dữ liệu cho các lựa chọn dài
-            longOptions.forEach((item) => {
-              console.log(item);
+            longOptions.forEach(item => {
+              console.log(item)
 
               if (item.Type == 2) {
-                item.Options = JSON.parse(item.OptionAnswer).slice(0, 30); // Chỉ lấy 5 lựa chọn đầu tiên
-                item.ShowMore = true;
+                item.Options = JSON.parse(item.OptionAnswer).slice(0, 30) // Chỉ lấy 5 lựa chọn đầu tiên
+                item.ShowMore = true
               }
 
               // Thêm thuộc tính để hiển thị nút "Xem thêm"
-            });
+            })
           }
 
           const shortOptions = this.editForm.FormLineLst.filter(
-            (item) => item.OptionAnswer && item.OptionAnswer.length <= 1000,
-          );
+            item => item.OptionAnswer && item.OptionAnswer.length <= 1000,
+          )
 
           if (shortOptions.length > 0) {
-            shortOptions.forEach((item) => {
-              item.Options = JSON.parse(item.OptionAnswer);
-            });
+            shortOptions.forEach(item => {
+              item.Options = JSON.parse(item.OptionAnswer)
+            })
           }
-          this.getTeamLst();
-          this.editForm.FormLineLst = this.editForm.FormLineLst.map((item) => {
+          this.getTeamLst()
+          this.editForm.FormLineLst = this.editForm.FormLineLst.map(item => {
             return {
               ...item,
               OptionText:
                 item.Type == 3 && item.OptionLine == 1
                   ? parseInt(item.OptionText)
                   : item.OptionText,
-            };
-          });
-          this.isShowEditPhase = true;
+            }
+          })
+          this.isShowEditPhase = true
         }
-      });
+      })
     },
     btEditForm() {
       if (this.editForm.IDForm) {
@@ -1002,32 +1115,32 @@ export default {
                 ...item,
                 Required: index + 1,
                 OptionAnswer: JSON.stringify(item.Options),
-              };
+              }
             }),
           },
-        }).then((res) => {
+        }).then(res => {
           if (res.RespCode == 0) {
-            this.getFormLstByID(); // Refresh the phase list after successful update
-            this.isShowEditPhase = false; // Close the edit dialog
+            this.getFormLstByID() // Refresh the phase list after successful update
+            this.isShowEditPhase = false // Close the edit dialog
             notify({
               title: "Thành công",
               text: "Cập nhật Bước thành công",
               type: "success",
-            });
+            })
           } else {
             notify({
               title: "Lỗi",
               text: "Cập nhật Bước thất bại",
               type: "error",
-            });
+            })
           }
-        });
+        })
       } else {
         notify({
           title: "Lỗi",
           text: "Vui lòng điền đầy đủ thông tin",
           type: "error",
-        });
+        })
       }
     },
     addField() {
@@ -1035,29 +1148,29 @@ export default {
         Parameter: "",
         Type: 1,
         IsPrivate: 0,
-      }); // Add a new field
+      }) // Add a new field
     },
     removeField(index) {
-      this.createForm.FormLineLst.splice(index, 1); // Remove the field at the specified index
+      this.createForm.FormLineLst.splice(index, 1) // Remove the field at the specified index
     },
     addField2() {
-      this.editForm.FormLineLst.push({ Parameter: "", Type: 1, IsPrivate: 0 }); // Add a new field
+      this.editForm.FormLineLst.push({ Parameter: "", Type: 1, IsPrivate: 0 }) // Add a new field
     },
     removeField2(index) {
-      this.editForm.FormLineLst.splice(index, 1); // Remove the field at the specified index
+      this.editForm.FormLineLst.splice(index, 1) // Remove the field at the specified index
     },
     setFieldType(field, type) {
-      field.Type = type;
-      field.Options = [{ Name: "" }];
+      field.Type = type
+      field.Options = [{ Name: "" }]
     },
     addOption(field) {
-      field.Options.push({ Name: "" }); // Thêm một lựa chọn mới
+      field.Options.push({ Name: "" }) // Thêm một lựa chọn mới
     },
     removeOption(field, index) {
-      field.Options.splice(index, 1); // Xóa lựa chọn tại chỉ số đã cho
+      field.Options.splice(index, 1) // Xóa lựa chọn tại chỉ số đã cho
     },
   },
-};
+}
 </script>
 
 <style lang="scss" scoped></style>

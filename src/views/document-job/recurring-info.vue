@@ -1,6 +1,6 @@
 <template>
   <div>
-    <VRow class="pr-3" style="height: calc(100vh - 112px)">
+    <VRow class="pr-3">
       <VCol :lg="8" cols="12" class="">
         <VCard class="layout-card">
           <VCardTitle class="text-h6 py-2 pl-4 pr-0">
@@ -72,7 +72,7 @@
                   Hạn:
                   {{ formatDateDDMMYY(dataJobInfo.TimeQuotaAssign) }}
                 </div>
-                <div class="quill">
+                <div class="quill" @click="handleContentImageClick">
                   <QuillEditor
                     v-model:content="dataJobInfo.Report"
                     content-type="html"
@@ -219,8 +219,10 @@
                     {{ formatDateDisplay(dataJobInfo.TimeQuotaAssign) }}
                   </div>
                   <div
-                    class="border-md px-2 py-1 rounded"
+                    class="border-md px-2 py-1 rounded report-content"
+                    style="overflow: auto"
                     v-html="dataJobInfo.Report"
+                    @click="handleContentImageClick"
                   />
                 </VCol>
                 <VCol lg="4" md="4" cols="12">
@@ -312,7 +314,7 @@
                   </div>
                 </div>
 
-                <div class="quill">
+                <div class="quill" @click="handleContentImageClick">
                   <QuillEditor
                     v-model:content="dataJobInfo.NoteApprove"
                     content-type="html"
@@ -525,6 +527,13 @@
                 </VCol>
               </VRow>
             </div> -->
+            <div v-if="dataJobInfo.ApproveName" class="px-4">
+              <VIcon color="red" size="small"> mdi-account-check </VIcon>
+              {{ dataJobInfo.ApproveName }}
+              <span v-if="dataJobInfo.TimeApprove" class="ml-2 text-caption">
+                ({{ formatDateDisplay(dataJobInfo.TimeApprove) }})
+              </span>
+            </div>
             <div v-if="dataJobInfo.NoteApprove" class="px-4">
               <VRow>
                 <VCol lg="8" md="8" cols="12">
@@ -537,18 +546,9 @@
                       Đã từ chối
                     </VChip>
                   </div>
-                  <div class="pb-1 text-subtitle-2">
-                    <VIcon color="red" size="small"> mdi-account-edit </VIcon>
-                    {{ dataJobInfo.ApproveName }}
-                  </div>
-                  <div class="pb-1 text-subtitle-2">
-                    <VIcon color="green" size="small">
-                      mdi-clock-time-four-outline
-                    </VIcon>
-                    Duyệt lúc: {{ formatDateDisplay(dataJobInfo.TimeApprove) }}
-                  </div>
                   <div
-                    class="border-md px-2 py-1 rounded"
+                    class="border-md px-2 py-1 rounded report-content"
+                    style="overflow: auto"
                     v-html="dataJobInfo.NoteApprove"
                   />
                 </VCol>
@@ -693,67 +693,67 @@
                 </VIcon>
                 {{ formatDateDisplay(job.TimeModify) }}
               </div>
-              <div v-html="job.Report" />
+              <div class="report-content" style="overflow: auto" v-html="job.Report" @click="handleContentImageClick" />
             </div>
-            <div v-if="job.DataAssign.length > 0" class="file-lst">
-              <VMenu
-                v-for="(file, indfile) in job.DataAssign"
-                :key="indfile"
-                location="end"
-              >
-                <template #activator="{ props }">
-                  <VTooltip location="top">
-                    <template #activator="{ props: tooltipProps }">
-                      <VChip
-                        color="gray"
-                        class="mr-1"
-                        v-bind="{ ...props, ...tooltipProps }"
-                      >
-                        {{ file.MineFile }}
-                      </VChip>
-                    </template>
+            <div v-if="job.DataAssign.length > 0" class="file-scroll">
+              <div class="d-inline-flex">
+                <VMenu
+                  v-for="(file, indfile) in job.DataAssign"
+                  :key="indfile"
+                  location="end"
+                >
+                  <template #activator="{ props }">
+                    <VTooltip location="top">
+                      <template #activator="{ props: tooltipProps }">
+                        <VChip
+                          color="gray"
+                          class="mr-1 flex-shrink-0"
+                          v-bind="{ ...props, ...tooltipProps }"
+                        >
+                          {{ file.MineFile }}
+                        </VChip>
+                      </template>
 
-                    <span>{{ file.NameFile }}</span>
-                  </VTooltip>
-                </template>
-
-                <VList>
-                  <VListItem v-if="isPreviewSupported(file.MineFile)">
-                    <VListItemTitle>
-                      <VBtn size="small" @click="previewFile(file)" rounded="8">
-                        <VIcon class="mr-1">mdi-file-eye</VIcon> Xem trước
-                      </VBtn>
-                    </VListItemTitle>
-                  </VListItem>
-
-                  <VListItem>
-                    <VListItemTitle>
-                      <VBtn
-                        size="small"
-                        @click="downloadFile(file)"
-                        rounded="8"
-                        color="green"
-                        block
-                      >
-                        <VIcon class="mr-1">mdi-file-download</VIcon> Tải ngay
-                      </VBtn>
-                    </VListItemTitle>
-                  </VListItem>
-                </VList>
-              </VMenu>
+                      <span>{{ file.NameFile }}</span>
+                    </VTooltip>
+                  </template>
+                </VMenu>
+              </div>
             </div>
-            <div class="text-caption">
+            <div v-if="job.ApproveName" class="text-caption mt-1">
               <div>
-                <VIcon color="red" size="small"> mdi-account-check </VIcon>
+                <VIcon
+                  :color="
+                    job.Status == 4
+                      ? 'green'
+                      : job.Status == 5
+                        ? 'red'
+                        : 'orange'
+                  "
+                  size="small"
+                >
+                  mdi-account-check
+                </VIcon>
                 {{ job.ApproveName }}
-                <VIcon v-if="job.TimeApprove" color="red" size="small">
+                <VIcon
+                  v-if="job.TimeApprove"
+                  :color="job.Status == 4 ? 'green' : 'red'"
+                  size="small"
+                  class="ml-1"
+                >
                   mdi-clock
                 </VIcon>
-                {{ formatDateDisplay(job.TimeApprove) }}
+                {{ job.TimeApprove ? formatDateDisplay(job.TimeApprove) : '' }}
               </div>
-              <div v-html="job.NoteApprove" />
+              <div
+                v-if="job.NoteApprove"
+                class="report-content"
+                style="overflow: auto"
+                v-html="job.NoteApprove"
+                @click="handleContentImageClick"
+              />
             </div>
-            <div v-if="job.DataApprove.length > 0" class="file-lst">
+            <div v-if="job.DataApprove.length > 0" class="file-scroll">
               <VMenu
                 v-for="(file, indfile) in job.DataApprove"
                 :key="indfile"
@@ -843,18 +843,20 @@
     </VCard>
   </VDialog>
 
-  <VDialog v-model="isPreview" max-width="600">
+  <VDialog v-model="isPreview" max-width="900">
     <VCard>
-      <VCardTitle>Hình ảnh đã upload</VCardTitle>
-      <VCardText class="text-center">
-        <VImg :src="previewImage" max-height="400" contain />
+      <VCardTitle class="d-flex align-center justify-space-between">
+        <span>Hình ảnh chi tiết</span>
+      </VCardTitle>
+      <VCardText class="text-center overflow-hidden py-4">
+        <VImg :src="previewImage" max-height="80vh" contain class="mx-auto" />
       </VCardText>
       <VCardActions>
         <VSpacer />
-        <VBtn color="green" text @click="btDownloadFile(previewFile)">
+        <!-- <VBtn color="blue" variant="tonal" @click="handleDownload(previewImage)">
           Tải ảnh
-        </VBtn>
-        <VBtn text @click="isPreview = false"> Đóng </VBtn>
+        </VBtn> -->
+        <VBtn variant="text" @click="isPreview = false"> Đóng </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
@@ -864,6 +866,7 @@
 import {
   ApproveRecurringJobInfo,
   GetProgressByRecID,
+  GetRecurringFileByUserID,
   GetRecurringTaskByID,
   ReportRecurringJobInfo,
 } from "@/api/recurringJobApi";
@@ -1002,7 +1005,7 @@ export default {
         Axios.post(urlUploadRecurringFile(this.$route.params.id), params).then(
           (res) => {
             if (res.data.RespCode == 0) {
-              this.getDocumentFile(this.dataJobInfo.AssignID);
+              this.getRecurringTaskByID();
 
               notify({
                 title: "File",
@@ -1030,7 +1033,7 @@ export default {
         Axios.post(urlUploadRecurringFile(this.$route.params.id), params).then(
           (res) => {
             if (res.data.RespCode == 0) {
-              this.getDocumentFile2(this.dataJobInfo.ApproveID);
+              this.getRecurringTaskByID();
 
               notify({
                 title: "File",
@@ -1047,26 +1050,6 @@ export default {
           },
         );
       }
-    },
-    getDocumentFile(UserID) {
-      GetRecurringFileByUserID({
-        RowID: this.$route.params.id,
-        UserID: UserID,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.dataJobInfo.DataAssign = res.Data;
-        }
-      });
-    },
-    getDocumentFile2(UserID) {
-      GetRecurringFileByUserID({
-        RowID: this.$route.params.id,
-        UserID: UserID,
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.dataJobInfo.DataApprove = res.Data;
-        }
-      });
     },
     getRecurringTaskByID() {
       GetRecurringTaskByID({ RecurringID: this.$route.params.id }).then(
@@ -1137,6 +1120,18 @@ export default {
         });
       }
     },
+    handleDownload(url) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "image.png";
+      link.click();
+    },
+    handleContentImageClick(event) {
+      if (event.target.tagName === "IMG") {
+        this.previewImage = event.target.src;
+        this.isPreview = true;
+      }
+    },
     openStepDialog(status) {
       if (status == 4) {
         this.approveRecurringJobInfo(4);
@@ -1154,22 +1149,126 @@ export default {
 
 <style lang="scss" scoped>
 .layout-card {
+  overflow-y: auto; /* Bật cuộn Card để tránh bị đè nút khi ô soạn thảo giãn ra và tránh tràn footer */
+
   .quill {
-    height: 200px;
+    min-height: 200px;
+    height: auto !important;
     border: 2px solid rgb(var(--v-theme-grey));
     border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+
+    :deep(.ql-container) {
+      height: auto !important;
+      min-height: 150px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border: none !important;
+    }
+
+    :deep(.ql-editor) {
+      height: auto !important;
+      min-height: 150px;
+      max-height: 450px;
+      overflow-y: auto !important;
+    }
   }
 }
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-  border-radius: 8px;
+.report-content, .ql-editor {
+  :deep(img), img {
+    max-height: 150px;
+    max-width: 100% !important;
+    height: auto !important;
+    cursor: zoom-in;
+    border-radius: 4px;
+    transition: transform 0.2s;
+    display: block;
+    margin-block: 8px;
+
+    &:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+  }
+
+  table {
+    overflow-x: auto;
+    max-width: 100%;
+    display: block;
+  }
 }
 </style>
 
 <style lang="scss">
 .ql-toolbar.ql-snow {
   border: none !important;
+}
+.file-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  padding-bottom: 4px;
+  margin-top: 8px;
+
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+  }
+}
+.report-content,
+.ql-editor {
+  overflow-x: auto;
+  max-width: 100%;
+  word-break: break-word;
+
+  ul,
+  ol {
+    padding-left: 40px !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    list-style-position: outside;
+  }
+
+  ul {
+    list-style-type: disc !important;
+  }
+
+  ol {
+    list-style-type: decimal !important;
+  }
+
+  li {
+    margin-bottom: 6px;
+    line-height: 1.6;
+  }
+
+  table {
+    border-radius: 8px;
+    border-collapse: collapse;
+    font-family: arial, sans-serif;
+    inline-size: 100%;
+    margin-block: 10px;
+  }
+
+  img {
+    max-height: 150px;
+    max-width: 100% !important;
+    height: auto !important;
+    cursor: zoom-in;
+    border-radius: 4px;
+    transition: transform 0.2s;
+    margin-block: 8px;
+    display: block;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
 }
 </style>

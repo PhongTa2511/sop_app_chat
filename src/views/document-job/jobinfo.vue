@@ -85,7 +85,7 @@
                         </template>
                         <VList>
                           <VListItem>
-                            <v-btn
+                            <VBtn
                               prepend-icon="mdi-microsoft-excel"
                               size="small"
                               color="gray"
@@ -93,14 +93,14 @@
                               block
                               @click="btExportExcel"
                             >
-                              <template v-slot:prepend>
-                                <v-icon color="blue"></v-icon>
+                              <template #prepend>
+                                <VIcon color="blue" />
                               </template>
                               Excel Mẫu
-                            </v-btn>
+                            </VBtn>
                           </VListItem>
                           <VListItem>
-                            <v-btn
+                            <VBtn
                               prepend-icon="mdi-microsoft-excel"
                               size="small"
                               color="gray"
@@ -108,11 +108,11 @@
                               block
                               @click="triggerFileInputClickExcel"
                             >
-                              <template v-slot:prepend>
-                                <v-icon color="green"></v-icon>
+                              <template #prepend>
+                                <VIcon color="green" />
                               </template>
                               Thêm Excel
-                            </v-btn>
+                            </VBtn>
                           </VListItem>
                         </VList>
                       </VMenu>
@@ -121,8 +121,10 @@
                         color="green"
                         rounded="md"
                         @click="updateDocumentForm(tab)"
-                      ></VBtn>
-                      <v-btn
+                      >
+                        Lưu thông tin
+                      </VBtn>
+                      <VBtn
                         class="ml-2"
                         size="small"
                         color="green"
@@ -130,7 +132,7 @@
                         @click="btExportExcel"
                       >
                         Xuất excel
-                      </v-btn>
+                      </VBtn>
                     </div>
                   </template>
 
@@ -139,7 +141,7 @@
                     <VIcon
                       color="orange"
                       size="small"
-                      style="cursor: pointer"
+                      style="cursor: pointer;"
                       @click="openEditDialog(item)"
                     >
                       mdi-note-edit
@@ -147,7 +149,7 @@
                     <VIcon
                       color="red"
                       size="small"
-                      style="cursor: pointer"
+                      style="cursor: pointer;"
                       @click="deleteDessert(item)"
                     >
                       mdi-delete
@@ -168,10 +170,10 @@
                 </div>
                 <VRow class="px-4 py-4">
                   <VCol
-                    lg="4"
                     v-for="(line, indexline) in tab.DocumentFormLineLst"
-                    md="6"
                     :key="indexline"
+                    lg="4"
+                    md="6"
                     cols="12"
                   >
                     <VTextField
@@ -223,8 +225,8 @@
                           class="mr-2 cursor-pointer"
                           color="primary"
                           icon="mdi-eye"
-                          @click="btShowImage(line.OptionText)"
                           size="small"
+                          @click="btShowImage(line.OptionText)"
                         />
 
                         <VFileInput
@@ -252,8 +254,8 @@
                           class="mr-2 cursor-pointer"
                           color="primary"
                           icon="mdi-download"
-                          @click="btDownloadFile(line.OptionText)"
                           size="small"
+                          @click="btDownloadFile(line.OptionText)"
                         />
                         <VFileInput
                           :clearable="false"
@@ -318,13 +320,13 @@
                   Định mức:
                   {{ userJob.QuotaTime }} Ngày
                 </div>
-                <div class="quill">
+                <div class="quill" @click="handleContentImageClick">
                   <QuillEditor
                     v-model:content="dataJobInfo.Report"
                     content-type="html"
                     theme="snow"
                     toolbar="minimal"
-                    style="border: none"
+                    style="border: none;"
                   />
                 </div>
               </VCol>
@@ -342,7 +344,7 @@
                     ref="fileInput"
                     type="file"
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.png,.jpg,.jpeg,.rar"
-                    style="display: none"
+                    style="display: none;"
                     @change="handleFileUpload"
                   />
                 </div>
@@ -360,7 +362,10 @@
                     location="end"
                   >
                     <template #activator="{ props }">
-                      <VChip color="orange" v-bind="props">
+                      <VChip
+                        color="orange"
+                        v-bind="props"
+                      >
                         {{ item.NameFile }}
                       </VChip>
                     </template>
@@ -368,47 +373,51 @@
                     <VList>
                       <VListItem v-if="isPreviewSupported(item.MineFile)">
                         <VListItemTitle>
-                          <v-btn
-                            @click="previewFile(item)"
+                          <VBtn
                             size="small"
                             rounded="8"
                             class="mb-1"
+                            @click="previewFile(item)"
                           >
-                            <v-icon class="mr-1">mdi-file-eye</v-icon> Xem trước
-                          </v-btn>
+                            <VIcon class="mr-1">
+                              mdi-file-eye
+                            </VIcon> Xem trước
+                          </VBtn>
                         </VListItemTitle>
                       </VListItem>
 
                       <VListItem>
                         <VListItemTitle>
-                          <v-btn
-                            @click="downloadFile(item)"
+                          <VBtn
                             size="small"
                             rounded="8"
                             color="green"
                             block
                             class="mb-1"
+                            @click="downloadFile(item)"
                           >
-                            <v-icon class="mr-1">mdi-file-download</v-icon> Tải
+                            <VIcon class="mr-1">
+                              mdi-file-download
+                            </VIcon> Tải
                             ngay
-                          </v-btn>
+                          </VBtn>
                         </VListItemTitle>
                       </VListItem>
 
                       <VListItem>
                         <VListItemTitle>
-                          <v-btn
-                            @click="deleteFile(item)"
+                          <VBtn
                             size="small"
                             rounded="8"
                             color="red"
                             block
+                            @click="deleteFile(item)"
                           >
-                            <v-icon class="mr-1"
-                              >mdi-file-document-remove</v-icon
-                            >
+                            <VIcon class="mr-1">
+                              mdi-file-document-remove
+                            </VIcon>
                             Xóa file
-                          </v-btn>
+                          </VBtn>
                         </VListItemTitle>
                       </VListItem>
                     </VList>
@@ -463,8 +472,9 @@
                     {{ userJob.QuotaTime }} Ngày
                   </div>
                   <div
-                    class="border-md px-2 py-1 rounded"
+                    class="border-md px-2 py-1 rounded report-content"
                     v-html="dataJobInfo.Report"
+                    @click="handleContentImageClick"
                   />
                 </VCol>
                 <VCol lg="4" md="4" cols="12">
@@ -485,7 +495,10 @@
                       location="end"
                     >
                       <template #activator="{ props }">
-                        <VChip color="orange" v-bind="props">
+                        <VChip
+                          color="orange"
+                          v-bind="props"
+                        >
                           {{ item.NameFile }}
                         </VChip>
                       </template>
@@ -493,31 +506,35 @@
                       <VList>
                         <VListItem v-if="isPreviewSupported(item.MineFile)">
                           <VListItemTitle>
-                            <v-btn
-                              @click="previewFile(item)"
+                            <VBtn
                               size="small"
                               rounded="8"
                               class="mb-1"
+                              @click="previewFile(item)"
                             >
-                              <v-icon class="mr-1">mdi-file-eye</v-icon> Xem
+                              <VIcon class="mr-1">
+                                mdi-file-eye
+                              </VIcon> Xem
                               trước
-                            </v-btn>
+                            </VBtn>
                           </VListItemTitle>
                         </VListItem>
 
                         <VListItem>
                           <VListItemTitle>
-                            <v-btn
-                              @click="downloadFile(item)"
+                            <VBtn
                               size="small"
                               rounded="8"
                               color="green"
                               block
                               class="mb-1"
+                              @click="downloadFile(item)"
                             >
-                              <v-icon class="mr-1">mdi-file-download</v-icon>
+                              <VIcon class="mr-1">
+                                mdi-file-download
+                              </VIcon>
                               Tải ngay
-                            </v-btn>
+                            </VBtn>
                           </VListItemTitle>
                         </VListItem>
                       </VList>
@@ -564,13 +581,13 @@
                   </div>
                 </div>
 
-                <div class="quill">
+                <div class="quill" @click="handleContentImageClick">
                   <QuillEditor
                     v-model:content="dataJobInfo.NoteApprove"
                     content-type="html"
                     theme="snow"
                     toolbar="minimal"
-                    style="border: none"
+                    style="border: none;"
                   />
                 </div>
               </VCol>
@@ -579,7 +596,7 @@
                   <div>Tệp đính kèm</div>
                   <VBtn
                     color="blue"
-                    style="height: 42px"
+                    style="height: 42px;"
                     icon="mdi-link-plus"
                     @click="$refs.fileInput2.click()"
                   />
@@ -588,7 +605,7 @@
                     ref="fileInput2"
                     type="file"
                     accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.png,.jpg,.jpeg,.rar"
-                    style="display: none"
+                    style="display: none;"
                     @change="handleFileUpload2"
                   />
                 </div>
@@ -606,7 +623,10 @@
                     location="end"
                   >
                     <template #activator="{ props }">
-                      <VChip color="orange" v-bind="props">
+                      <VChip
+                        color="orange"
+                        v-bind="props"
+                      >
                         {{ item.NameFile }}
                       </VChip>
                     </template>
@@ -614,47 +634,51 @@
                     <VList>
                       <VListItem v-if="isPreviewSupported(item.MineFile)">
                         <VListItemTitle>
-                          <v-btn
-                            @click="previewFile(item)"
+                          <VBtn
                             size="small"
                             rounded="8"
                             class="mb-1"
+                            @click="previewFile(item)"
                           >
-                            <v-icon class="mr-1">mdi-file-eye</v-icon> Xem trước
-                          </v-btn>
+                            <VIcon class="mr-1">
+                              mdi-file-eye
+                            </VIcon> Xem trước
+                          </VBtn>
                         </VListItemTitle>
                       </VListItem>
 
                       <VListItem>
                         <VListItemTitle>
-                          <v-btn
-                            @click="downloadFile(item)"
+                          <VBtn
                             size="small"
                             rounded="8"
                             color="green"
                             block
                             class="mb-1"
+                            @click="downloadFile(item)"
                           >
-                            <v-icon class="mr-1">mdi-file-download</v-icon> Tải
+                            <VIcon class="mr-1">
+                              mdi-file-download
+                            </VIcon> Tải
                             ngay
-                          </v-btn>
+                          </VBtn>
                         </VListItemTitle>
                       </VListItem>
 
                       <VListItem>
                         <VListItemTitle>
-                          <v-btn
-                            @click="deleteFile(item)"
+                          <VBtn
                             size="small"
                             rounded="8"
                             color="red"
                             block
+                            @click="deleteFile(item)"
                           >
-                            <v-icon class="mr-1"
-                              >mdi-file-document-remove</v-icon
-                            >
+                            <VIcon class="mr-1">
+                              mdi-file-document-remove
+                            </VIcon>
                             Xóa file
-                          </v-btn>
+                          </VBtn>
                         </VListItemTitle>
                       </VListItem>
                     </VList>
@@ -712,8 +736,9 @@
                     {{ userMana.QuotaTime }} Ngày
                   </div>
                   <div
-                    class="border-md px-2 py-1 rounded"
+                    class="border-md px-2 py-1 rounded report-content"
                     v-html="dataJobInfo.NoteApprove"
+                    @click="handleContentImageClick"
                   />
                 </VCol>
                 <VCol lg="4" md="4" cols="12">
@@ -736,7 +761,10 @@
                       location="end"
                     >
                       <template #activator="{ props }">
-                        <VChip color="orange" v-bind="props">
+                        <VChip
+                          color="orange"
+                          v-bind="props"
+                        >
                           {{ item.NameFile }}
                         </VChip>
                       </template>
@@ -744,31 +772,35 @@
                       <VList>
                         <VListItem v-if="isPreviewSupported(item.MineFile)">
                           <VListItemTitle>
-                            <v-btn
-                              @click="previewFile(item)"
+                            <VBtn
                               size="small"
                               rounded="8"
                               class="mb-1"
+                              @click="previewFile(item)"
                             >
-                              <v-icon class="mr-1">mdi-file-eye</v-icon> Xem
+                              <VIcon class="mr-1">
+                                mdi-file-eye
+                              </VIcon> Xem
                               trước
-                            </v-btn>
+                            </VBtn>
                           </VListItemTitle>
                         </VListItem>
 
                         <VListItem>
                           <VListItemTitle>
-                            <v-btn
-                              @click="downloadFile(item)"
+                            <VBtn
                               size="small"
                               rounded="8"
                               color="green"
                               block
                               class="mb-1"
+                              @click="downloadFile(item)"
                             >
-                              <v-icon class="mr-1">mdi-file-download</v-icon>
+                              <VIcon class="mr-1">
+                                mdi-file-download
+                              </VIcon>
                               Tải ngay
-                            </v-btn>
+                            </VBtn>
                           </VListItemTitle>
                         </VListItem>
                       </VList>
@@ -858,7 +890,7 @@
                     </VIcon>
                     {{ job.TimeModifyShow }}
                   </div>
-                  <div v-html="job.Report" />
+                  <div class="report-content" v-html="job.Report" @click="handleContentImageClick" />
                 </div>
                 <div v-if="ass.UserRole == 'Phê duyệt'" class="text-caption">
                   <div>
@@ -869,7 +901,7 @@
                     </VIcon>
                     {{ job.TimeApproveShow }}
                   </div>
-                  <div v-html="job.NoteApprove" />
+                  <div class="report-content" v-html="job.NoteApprove" @click="handleContentImageClick" />
                 </div>
                 <div v-if="ass.FileLst.length > 0" class="file-lst">
                   <VMenu
@@ -898,10 +930,12 @@
                         <VListItemTitle>
                           <VBtn
                             size="small"
-                            @click="previewFile(file)"
                             rounded="8"
+                            @click="previewFile(file)"
                           >
-                            <VIcon class="mr-1">mdi-file-eye</VIcon> Xem trước
+                            <VIcon class="mr-1">
+                              mdi-file-eye
+                            </VIcon> Xem trước
                           </VBtn>
                         </VListItemTitle>
                       </VListItem>
@@ -910,12 +944,14 @@
                         <VListItemTitle>
                           <VBtn
                             size="small"
-                            @click="downloadFile(file)"
                             rounded="8"
                             color="green"
                             block
+                            @click="downloadFile(file)"
                           >
-                            <VIcon class="mr-1">mdi-file-download</VIcon> Tải
+                            <VIcon class="mr-1">
+                              mdi-file-download
+                            </VIcon> Tải
                             ngay
                           </VBtn>
                         </VListItemTitle>
@@ -934,7 +970,7 @@
       ref="fileInputExcel"
       type="file"
       accept=".xls,.xlsx"
-      style="display: none"
+      style="display: none;"
       @change="handleFileUploadExcel"
     />
   </div>
@@ -957,7 +993,7 @@
           </div>
           <div v-else>
             <div
-              style="height: calc(100vh - 200px); overflow: auto"
+              style=" overflow: auto;height: calc(100vh - 200px);"
               v-html="docContent"
             />
           </div>
@@ -1065,7 +1101,7 @@
   <VDialog v-model="isShowSteps" width="600">
     <VCard>
       <VCardTitle>Danh sách các bước thực hiện</VCardTitle>
-      <VCardText style="margin-top: -24px">
+      <VCardText style="margin-top: -24px;">
         <VList>
           <VListItem v-for="(step, index) in stepLst" :key="index">
             <VCheckbox
@@ -1084,17 +1120,19 @@
       </VCardActions>
     </VCard>
   </VDialog>
-  <VDialog v-model="isPreview" max-width="600">
+  <VDialog v-model="isPreview" max-width="900">
     <VCard>
-      <VCardTitle>Hình ảnh đã upload</VCardTitle>
-      <VCardText class="text-center">
-        <VImg :src="previewImage" max-height="400" contain />
+      <VCardTitle class="d-flex align-center justify-space-between">
+        <span>Hình ảnh chi tiết</span>
+      </VCardTitle>
+      <VCardText class="text-center overflow-hidden py-4">
+        <VImg :src="previewImage" max-height="80vh" contain class="mx-auto" />
       </VCardText>
       <VCardActions>
         <VSpacer />
-        <VBtn color="green" text @click="btDownloadFile(previewFile)">
+        <!-- <VBtn color="blue" variant="tonal" @click="handleImageDownload(previewImage)">
           Tải ảnh
-        </VBtn>
+        </VBtn> -->
         <VBtn text @click="isPreview = false"> Đóng </VBtn>
       </VCardActions>
     </VCard>
@@ -1107,29 +1145,30 @@ import {
   GetDocumentJobInfo,
   ProcessDocument,
   ReportDocumentJob,
-} from "@/api/documentJobApi";
-import { formatDateHHDDMM } from "@/helpers/getTime";
-import { getUserName } from "@/utils/auth";
-import Editor from "@tinymce/tinymce-vue";
-import Axios from "axios";
-import { exportExcel, urlUploadFile, urlUploadFileFormLine } from "./function";
+} from "@/api/documentJobApi"
+import { formatDateHHDDMM } from "@/helpers/getTime"
+import { getUserName } from "@/utils/auth"
+import Editor from "@tinymce/tinymce-vue"
+import Axios from "axios"
+import { exportExcel, urlUploadFile, urlUploadFileFormLine } from "./function"
 
-import { GetDefaultValue } from "@/api/default";
-import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi";
+import { GetDefaultValue } from "@/api/default"
+import { DelDocumentFile, GetDocumentFile } from "@/api/documentFileApi"
 import {
   GetDocumentFormByDocID,
   UpdateDocumentForm,
-} from "@/api/documentFormApi";
-import { GetProductLst } from "@/api/productApi";
-import { GetUserLstByTeamID } from "@/api/user";
+} from "@/api/documentFormApi"
+import { GetProductLst } from "@/api/productApi"
+import { GetUserLstByTeamID } from "@/api/user"
 import {
   downloadFile,
   fetchDoc,
   fetchXlsxContent,
   isPreviewSupported,
-} from "@/utils/function";
-import logo from "@images/logos/dtp-logo.png";
-import XLSX from "xlsx";
+} from "@/utils/function"
+import logo from "@images/logos/dtp-logo.png"
+import XLSX from "xlsx"
+
 
 export default {
   components: {
@@ -1215,6 +1254,18 @@ export default {
     btShowImage(link) {
       this.previewImage = link;
       this.isPreview = true;
+    },
+    handleImageDownload(url) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "download_image.png";
+      link.click();
+    },
+    handleContentImageClick(event) {
+      if (event.target.tagName === "IMG") {
+        this.previewImage = event.target.src;
+        this.isPreview = true;
+      }
     },
     handleFileUploadForm(file, line) {
       if (!file) return;
@@ -2008,17 +2059,96 @@ export default {
 
 <style lang="scss" scoped>
 .layout-card {
+  overflow-y: auto;
+  max-height: 100%;
+
   .quill {
-    height: 200px;
     border: 2px solid rgb(var(--v-theme-grey));
     border-radius: 8px;
+    height: auto !important;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+
+    :deep(.ql-container) {
+      height: auto !important;
+      min-height: 151px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border: none !important;
+    }
+
+    :deep(.ql-editor) {
+      height: auto !important;
+      min-height: 151px;
+      max-height: 450px;
+      overflow-y: auto !important;
+
+      img {
+        max-height: 150px;
+        width: auto;
+        cursor: zoom-in;
+        border-radius: 4px;
+        transition: transform 0.2s;
+        margin-block: 8px;
+        display: block;
+
+        &:hover {
+          transform: scale(1.02);
+        } 
+      }
+    }
   }
 }
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-  border-radius: 8px;
+
+:deep(.report-content),
+:deep(.ql-editor) {
+  overflow-x: auto;
+  max-width: 100%;
+
+  ul,
+  ol {
+    padding-left: 40px !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    list-style-position: outside;
+  }
+
+  ul {
+    list-style-type: disc !important;
+  }
+
+  ol {
+    list-style-type: decimal !important;
+  }
+
+  li {
+    margin-bottom: 6px;
+    line-height: 1.6;
+  }
+
+  table {
+    border-radius: 8px;
+    border-collapse: collapse;
+    font-family: arial, sans-serif;
+    inline-size: 100%;
+    margin-block: 10px;
+  }
+
+  img {
+    max-height: 150px;
+    width: auto;
+    cursor: zoom-in;
+    border-radius: 4px;
+    transition: transform 0.2s;
+    margin-block: 8px;
+    display: block;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
 }
 </style>
 

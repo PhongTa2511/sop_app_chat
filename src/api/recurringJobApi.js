@@ -63,3 +63,11 @@ export function GetRecurringTaskByID(data) {
     data,
   });
 }
+
+export function GetRecurringFileByUserID(data) {
+  return request({
+    url: "Recurring/GetRecurringFileByUserID",
+    method: "post",
+    data,
+  });
+}

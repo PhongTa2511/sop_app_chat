@@ -504,7 +504,7 @@
               right: drawerRight ? '300px' : '0',
             }"
           >
-            <div v-if="typingLabel" class="px-4 py-1 typing-indicator">
+            <div v-if="typingLabel" class="px-4 typing-indicator">
               <div class="typing-pill">
                 <div class="typing-dots" aria-hidden="true">
                   <span />
@@ -3353,9 +3353,9 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: #f0f2f5;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  padding: 6px 10px;
+  // background: #f0f2f5;
+  // border: 1px solid rgba(0, 0, 0, 0.06);
+  // padding: 2px 10px;
   border-radius: 999px;
   color: #050505;
   max-width: 100%;

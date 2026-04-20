@@ -2,9 +2,7 @@
   <VCard>
     <VCardTitle>
       <div class="d-flex">
-        <h6 class="text-h6 pt-2">
-          Thông tin công ty
-        </h6>
+        <h6 class="text-h6 pt-2">Thông tin công ty</h6>
 
         <VBtn
           v-if="companyInfo.IsFlag == 4"
@@ -32,11 +30,7 @@
         label="Công ty"
         class="mb-2"
       />
-      <VTextField
-        v-model="companyInfo.GroupName"
-        label="Nhóm"
-        class="mb-2"
-      />
+      <VTextField v-model="companyInfo.GroupName" label="Nhóm" class="mb-2" />
 
       <VRow>
         <VCol cols="6">
@@ -62,18 +56,15 @@
           />
         </VCol>
         <VCol cols="6">
-          <VTextField
-            v-model="companyInfo.Phone"
-            label="SĐT"
-            class="mb-2"
+          <VTextField v-model="companyInfo.Phone" label="SĐT" class="mb-2" />
+
+          <DateField
+            v-model:modelValue="companyInfo.DateCare"
+            width="100%"
+            disabled="true"
+            label="Ngày phụ trách (mm/dd/yyyy)"
           />
 
-          <VDateInput
-            v-model="companyInfo.DateCare"
-            label="Ngày phụ trách (mm/dd/yyyy)"
-            readonly
-            hide-details
-          />
           <VSelect
             v-model="companyInfo.RankName"
             placeholder="Level"
@@ -86,12 +77,7 @@
           />
         </VCol>
       </VRow>
-      <VBtn
-        size="small"
-        @click="btShowAddCus"
-      >
-        Thêm
-      </VBtn>
+      <VBtn size="small" @click="btShowAddCus"> Thêm </VBtn>
       <VDataTableServer
         v-if="companyInfo.Data"
         no-data-text="Không có dữ liệu"
@@ -181,36 +167,19 @@
     </VCardText>
     <VCardActions>
       <VSpacer />
-      <VBtn
-        color="blue-darken-1"
-        variant="text"
-        @click="btClose"
-      >
-        Đóng
-      </VBtn>
+      <VBtn color="blue-darken-1" variant="text" @click="btClose"> Đóng </VBtn>
 
-      <VBtn @click="updateCompanyInfo">
-        Lưu thông tin
-      </VBtn>
+      <VBtn @click="updateCompanyInfo"> Lưu thông tin </VBtn>
     </VCardActions>
   </VCard>
-  <VDialog
-    v-model="isShowCustomer"
-    persistent
-    width="500"
-  >
+  <VDialog v-model="isShowCustomer" persistent width="500">
     <VCard>
       <VCardTitle>
-        <h6 class="text-h6 pt-2">
-          Thông tin khách hàng cá nhân
-        </h6>
+        <h6 class="text-h6 pt-2">Thông tin khách hàng cá nhân</h6>
       </VCardTitle>
       <VCardText>
         <VRow>
-          <VCol
-            cols="12"
-            lg="6"
-          >
+          <VCol cols="12" lg="6">
             <VTextField
               v-model="customerInfo.CustomerName"
               label="Tên khách hàng"
@@ -219,30 +188,21 @@
             />
           </VCol>
 
-          <VCol
-            cols="12"
-            lg="6"
-          >
+          <VCol cols="12" lg="6">
             <VTextField
               v-model="customerInfo.Phone"
               label="Số điện thoại"
               hide-details
             />
           </VCol>
-          <VCol
-            cols="12"
-            lg="6"
-          >
+          <VCol cols="12" lg="6">
             <VTextField
               v-model="customerInfo.Email"
               label="Email"
               hide-details
             />
           </VCol>
-          <VCol
-            cols="12"
-            lg="6"
-          >
+          <VCol cols="12" lg="6">
             <VTextField
               v-model="customerInfo.Position"
               label="Chức vụ"
@@ -261,37 +221,22 @@
           Đóng
         </VBtn>
 
-        <VBtn @click="addInfoCus">
-          Lưu thông tin
-        </VBtn>
+        <VBtn @click="addInfoCus"> Lưu thông tin </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
-  <VDialog
-    v-model="isConfirmDelete"
-    persistent
-    width="400"
-  >
+  <VDialog v-model="isConfirmDelete" persistent width="400">
     <VCard>
       <VCardTitle>
-        <h6 class="text-h6 pt-2">
-          Xác nhận xóa
-        </h6>
+        <h6 class="text-h6 pt-2">Xác nhận xóa</h6>
       </VCardTitle>
       <VCardText class="mx-2">
         Bạn có chắc chắn muốn xóa khách hàng này?
       </VCardText>
       <VCardActions>
         <VSpacer />
-        <VBtn @click="isConfirmDelete = false">
-          Hủy
-        </VBtn>
-        <VBtn
-          color="error"
-          @click="confirmRemoveCustomer"
-        >
-          Xóa
-        </VBtn>
+        <VBtn @click="isConfirmDelete = false"> Hủy </VBtn>
+        <VBtn color="error" @click="confirmRemoveCustomer"> Xóa </VBtn>
       </VCardActions>
     </VCard>
   </VDialog>
@@ -303,11 +248,15 @@ import {
   GetCompanyInfoByID,
   UpdateCompanyGreen,
   UpdateCompanyInfo,
-} from "@/api/companyApi"
-import { formatDateDDMMYY } from "@/helpers/getTime"
-import { getUserName } from "@/utils/auth"
+} from "@/api/companyApi";
+import DateField from "@/components/DateField.vue";
+import { formatDateDDMMYY } from "@/helpers/getTime";
+import { getUserName } from "@/utils/auth";
 
 export default {
+  components: {
+    DateField,
+  },
   props: {
     companyID: Number,
     countryLst: Array,
@@ -355,50 +304,50 @@ export default {
       isConfirmDelete: false,
       customerToDelete: null,
       userName: getUserName(),
-    }
+    };
   },
   watch: {
     "customerInfo.Phone"(value) {
-      this.customerInfo.Phone = value.replace(/\D/g, "")
+      this.customerInfo.Phone = value.replace(/\D/g, "");
     },
   },
   created() {
     if (this.companyID) {
-      this.getCompanyInfoByID()
+      this.getCompanyInfoByID();
     }
   },
   methods: {
     btCreateCompanyGreen(data) {
       UpdateCompanyGreen({
         Data: [{ CompanyID: this.companyID, CustomerID: data.RowID }],
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
           notify({
             type: "success",
             title: "Thành công",
-          })
+          });
         } else {
           notify({
             type: "error",
             title: "Lỗi",
             text: res.RespText,
-          })
+          });
         }
-      })
+      });
     },
     btShowAddCus() {
-      this.isShowCustomer = true
-      this.customerInfo = {}
+      this.isShowCustomer = true;
+      this.customerInfo = {};
     },
 
     updateCompanyInfo() {
       if (this.companyInfo.Country) {
-        UpdateCompanyInfo({ Data: [{ ...this.companyInfo }] }).then(res => {
+        UpdateCompanyInfo({ Data: [{ ...this.companyInfo }] }).then((res) => {
           if (res.RespCode == 0) {
             notify({
               type: "success",
               title: "Thành công",
-            })
+            });
 
             //this.btClose();
           } else {
@@ -406,78 +355,78 @@ export default {
               type: "error",
               title: "Lỗi",
               text: res.RespText,
-            })
+            });
           }
-        })
+        });
       } else {
         notify({
           type: "error",
           title: "Lỗi",
           text: "Chưa chọn quốc gia",
-        })
+        });
       }
     },
     addInfoCus() {
-      this.isShowCustomer = false
+      this.isShowCustomer = false;
       if (!this.companyInfo.Data) {
-        this.companyInfo.Data = []
+        this.companyInfo.Data = [];
       }
       var check = this.companyInfo.Data.find(
-        p => p.Key == this.customerInfo.Key,
-      )
+        (p) => p.Key == this.customerInfo.Key,
+      );
       if (!check) {
         this.companyInfo.Data.push({
           ...this.customerInfo,
           IsFlag: this.customerInfo.Phone != "" ? 2 : 1,
-        })
+        });
         this.companyInfo.Data = this.companyInfo.Data.map((item, index) => {
           return {
             ...item,
             Key: index + 1,
-          }
-        })
+          };
+        });
       }
     },
     btShowInfoCustomer(data) {
-      this.customerInfo = data
-      this.isShowCustomer = true
+      this.customerInfo = data;
+      this.isShowCustomer = true;
     },
     removeCustomer(data) {
-      this.customerToDelete = data
-      this.isConfirmDelete = true
+      this.customerToDelete = data;
+      this.isConfirmDelete = true;
     },
     confirmRemoveCustomer() {
-      this.isConfirmDelete = false
+      this.isConfirmDelete = false;
 
       DelCompanyCustomer({
         Data: this.customerToDelete.RowID,
-      }).then(res => {
+      }).then((res) => {
         if (res.RespCode == 0) {
           this.companyInfo.Data = this.companyInfo.Data.filter(
-            p => p.Key != this.customerToDelete.Key,
-          )
+            (p) => p.Key != this.customerToDelete.Key,
+          );
           notify({
             type: "success",
             title: "Thành công",
-          })
-          this.customerToDelete = null
+          });
+          this.customerToDelete = null;
         } else {
           notify({
             type: "error",
             title: "Lỗi",
             text: res.RespText,
-          })
+          });
         }
-      })
+      });
     },
     btClose() {
-      this.$emit("btClose")
+      this.$emit("btClose");
     },
     getCompanyInfoByID() {
       GetCompanyInfoByID({
         CompanyID: this.companyID,
-      }).then(res => {
-        this.companyInfo = res.CompanyInfo
+      }).then((res) => {
+        this.companyInfo = res.CompanyInfo;
 
         this.companyInfo.Data = this.companyInfo.Data.map((item, index) => {
           return {
@@ -490,13 +439,13 @@ export default {
               this.userName == "0827258288"
                 ? true
                 : false,
-          }
-        })
-        console.log("anht", this.companyInfo.Data)
-      })
+          };
+        });
+        console.log("anht", this.companyInfo.Data);
+      });
     },
   },
-}
+};
 </script>
 
 <style></style>
