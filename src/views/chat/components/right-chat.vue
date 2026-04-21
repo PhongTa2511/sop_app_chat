@@ -138,7 +138,9 @@
                       @click="removeMember(member)"
                     />
 
-                    <VListSubheader v-if="canManageRoles">Đổi quyền</VListSubheader>
+                    <VListSubheader v-if="canManageRoles"
+                      >Đổi quyền</VListSubheader
+                    >
                     <VListItem
                       v-if="canSetRole(member, 'MEMBER')"
                       prepend-icon="mdi-account"
@@ -340,7 +342,12 @@
   <VDialog v-model="imagePreviewDialog" fullscreen>
     <VCard class="preview-fullscreen-card">
       <VToolbar color="black" density="comfortable" dark>
-        <VBtn icon variant="text" color="white" @click="imagePreviewDialog = false">
+        <VBtn
+          icon
+          variant="text"
+          color="white"
+          @click="imagePreviewDialog = false"
+        >
           <VIcon>mdi-close</VIcon>
         </VBtn>
         <VToolbarTitle class="text-white text-truncate">
@@ -426,7 +433,7 @@ import { getUserName } from "@/utils/auth";
 import { notify } from "@kyvg/vue3-notification";
 import ChatAddMembersDialog from "./ChatAddMembersDialog.vue";
 
-const MAX_GROUP_MEMBERS = 50
+const MAX_GROUP_MEMBERS = 50;
 
 export default {
   components: { ChatAddMembersDialog },
@@ -568,7 +575,7 @@ export default {
       imagePreviewUrl: "",
       imagePreviewName: "",
       roleSavingUserID: "",
-    }
+    };
   },
   created() {
     this.newGroupName = this.groupInfo ? this.groupInfo.GroupName : "";
@@ -581,12 +588,7 @@ export default {
       const roleFromGroup = String(
         this.groupInfo?.Role || this.groupInfo?.MyRole || "",
       ).toUpperCase();
-      if (
-        roleFromGroup === "OWNER" ||
-        roleFromGroup === "ADMIN" ||
-        roleFromGroup === "MEMBER"
-      )
-        return true;
+      if (roleFromGroup === "OWNER" || roleFromGroup === "ADMIN") return true;
 
       const me = this.currentUserID;
       if (!me) return false;
@@ -594,115 +596,118 @@ export default {
         (m) => String(m?.UserID || m?.UserName || "").trim() === me,
       );
       const role = String(row?.Role || "").toUpperCase();
-      return role === "OWNER" || role === "ADMIN" || role === "MEMBER";
+      return role === "OWNER" || role === "ADMIN";
     },
     myRole() {
       const roleFromGroup = String(
         this.groupInfo?.Role || this.groupInfo?.MyRole || "",
-      ).toUpperCase()
-      if (roleFromGroup) return roleFromGroup
+      ).toUpperCase();
+      if (roleFromGroup) return roleFromGroup;
 
-      const me = this.currentUserID
-      if (!me) return ""
+      const me = this.currentUserID;
+      if (!me) return "";
       const row = (this.members || []).find(
-        m => String(m?.UserID || m?.UserName || "").trim() === me,
-      )
-      return String(row?.Role || "").toUpperCase()
+        (m) => String(m?.UserID || m?.UserName || "").trim() === me,
+      );
+      return String(row?.Role || "").toUpperCase();
     },
     canManageRoles() {
-      return this.myRole === "OWNER" || this.myRole === "ADMIN"
+      return this.myRole === "OWNER" || this.myRole === "ADMIN";
     },
     canTransferOwner() {
-      return this.myRole === "OWNER"
+      return this.myRole === "OWNER";
     },
   },
   methods: {
     normalizeRole(role) {
-      const normalized = String(role || "").trim().toUpperCase()
-      if (normalized === "OWNER" || normalized === "ADMIN") return normalized
-      return "MEMBER"
+      const normalized = String(role || "")
+        .trim()
+        .toUpperCase();
+      if (normalized === "OWNER" || normalized === "ADMIN") return normalized;
+      return "MEMBER";
     },
     roleLabel(role) {
-      const normalized = this.normalizeRole(role)
-      if (normalized === "OWNER") return "Chủ nhóm"
-      if (normalized === "ADMIN") return "Quản trị viên"
-      return "Thành viên"
+      const normalized = this.normalizeRole(role);
+      if (normalized === "OWNER") return "Chủ nhóm";
+      if (normalized === "ADMIN") return "Quản trị viên";
+      return "Thành viên";
     },
     roleColor(role) {
-      const normalized = this.normalizeRole(role)
-      if (normalized === "OWNER") return "deep-purple"
-      if (normalized === "ADMIN") return "indigo"
-      return "grey"
+      const normalized = this.normalizeRole(role);
+      if (normalized === "OWNER") return "deep-purple";
+      if (normalized === "ADMIN") return "indigo";
+      return "grey";
     },
     isCurrentUser(member) {
       return (
-        String(member?.UserID || member?.UserName || "").trim() === this.currentUserID
-      )
+        String(member?.UserID || member?.UserName || "").trim() ===
+        this.currentUserID
+      );
     },
     canSetRole(member, targetRole) {
-      if (!this.canManageRoles) return false
-      const nextRole = this.normalizeRole(targetRole)
-      const memberRole = this.normalizeRole(member?.Role)
-      const isSelf = this.isCurrentUser(member)
+      if (!this.canManageRoles) return false;
+      const nextRole = this.normalizeRole(targetRole);
+      const memberRole = this.normalizeRole(member?.Role);
+      const isSelf = this.isCurrentUser(member);
 
       if (this.myRole === "OWNER") {
-        if (nextRole === "OWNER") return !isSelf && memberRole !== "OWNER"
-        return memberRole !== nextRole
+        if (nextRole === "OWNER") return !isSelf && memberRole !== "OWNER";
+        return memberRole !== nextRole;
       }
 
       if (this.myRole === "ADMIN") {
-        if (isSelf) return false
-        if (memberRole === "OWNER") return false
-        if (nextRole === "OWNER") return false
-        return memberRole !== nextRole
+        if (isSelf) return false;
+        if (memberRole === "OWNER") return false;
+        if (nextRole === "OWNER") return false;
+        return memberRole !== nextRole;
       }
 
-      return false
+      return false;
     },
     isRoleSaving(member) {
-      const uid = String(member?.UserID || "").trim()
-      return Boolean(uid && uid === this.roleSavingUserID)
+      const uid = String(member?.UserID || "").trim();
+      return Boolean(uid && uid === this.roleSavingUserID);
     },
     async changeMemberRole(member, targetRole) {
-      if (!this.groupInfo?.GroupID) return
-      if (!this.canSetRole(member, targetRole)) return
+      if (!this.groupInfo?.GroupID) return;
+      if (!this.canSetRole(member, targetRole)) return;
 
-      const userID = String(member?.UserID || "").trim()
-      if (!userID) return
+      const userID = String(member?.UserID || "").trim();
+      if (!userID) return;
 
-      const nextRole = this.normalizeRole(targetRole)
-      this.roleSavingUserID = userID
+      const nextRole = this.normalizeRole(targetRole);
+      this.roleSavingUserID = userID;
       try {
         const res = await SetMemberRole({
           GroupID: this.groupInfo.GroupID,
           TargetUserID: userID,
           Role: nextRole,
-        })
+        });
 
         if (res?.RespCode === 0) {
-          await this.getMemberLstByGroupID()
+          await this.getMemberLstByGroupID();
           notify({
             type: "success",
             title:
               nextRole === "OWNER"
                 ? "Đã chuyển chủ nhóm"
                 : "Đã cập nhật quyền thành viên",
-          })
+          });
         } else {
           notify({
             type: "error",
             title: "Lỗi",
             text: res?.RespText || res?.error || "Không thể cập nhật quyền",
-          })
+          });
         }
       } catch (error) {
         notify({
           type: "error",
           title: "Lỗi",
           text: error?.message || "Không thể cập nhật quyền",
-        })
+        });
       } finally {
-        this.roleSavingUserID = ""
+        this.roleSavingUserID = "";
       }
     },
     requestConfirm({ title, text, okText, cancelText }) {
@@ -825,24 +830,24 @@ export default {
         });
         return;
       }
-      if (!this.groupInfo?.GroupID) return
-      const gid = this.groupInfo.GroupID
-      const existing = new Set(this.existingMemberIDs())
-      const remainingSlots = Math.max(0, MAX_GROUP_MEMBERS - existing.size)
+      if (!this.groupInfo?.GroupID) return;
+      const gid = this.groupInfo.GroupID;
+      const existing = new Set(this.existingMemberIDs());
+      const remainingSlots = Math.max(0, MAX_GROUP_MEMBERS - existing.size);
       if (remainingSlots <= 0) {
         notify({
           type: "error",
           title: "Nhóm đã đầy",
           text: `Nhóm chat tối đa ${MAX_GROUP_MEMBERS} thành viên`,
-        })
-        return
+        });
+        return;
       }
 
       const targets = (this.addMembersSelected || [])
         .map((u) => String(u?.UserName || "").trim())
         .filter(Boolean)
-        .filter(id => !existing.has(id))
-        .slice(0, remainingSlots)
+        .filter((id) => !existing.has(id))
+        .slice(0, remainingSlots);
 
       if (targets.length === 0) {
         this.addMembersDialog = false;
@@ -854,10 +859,10 @@ export default {
           type: "warning",
           title: "Vượt giới hạn",
           text: `Chỉ còn thêm được ${remainingSlots} thành viên`,
-        })
+        });
       }
 
-      this.addMembersSaving = true
+      this.addMembersSaving = true;
       try {
         for (const id of targets) {
           // add one-by-one (backend API hiện tại 1 user / request)
@@ -956,7 +961,7 @@ export default {
         GroupID: this.groupInfo.GroupID,
       }).then((res) => {
         if (res.RespCode == 0) {
-          const roleWeight = { OWNER: 0, ADMIN: 1, MEMBER: 2 }
+          const roleWeight = { OWNER: 0, ADMIN: 1, MEMBER: 2 };
           this.members = (res.Data || [])
             .map((item) => {
               return {
@@ -966,26 +971,26 @@ export default {
                   ? "https://sop.idtp.work/api/File/GetAvatarUser?UserName=" +
                     item.UserID
                   : null,
-              }
+              };
             })
             .sort((a, b) => {
-              const wa = roleWeight[this.normalizeRole(a?.Role)] ?? 99
-              const wb = roleWeight[this.normalizeRole(b?.Role)] ?? 99
-              if (wa !== wb) return wa - wb
+              const wa = roleWeight[this.normalizeRole(a?.Role)] ?? 99;
+              const wb = roleWeight[this.normalizeRole(b?.Role)] ?? 99;
+              if (wa !== wb) return wa - wb;
               return String(a?.FullName || a?.UserID || "").localeCompare(
                 String(b?.FullName || b?.UserID || ""),
                 "vi",
-              )
-            })
-          this.$emit("members-updated", this.members)
+              );
+            });
+          this.$emit("members-updated", this.members);
         }
       });
     },
     formatDocTime(input) {
-      if (!input) return ""
-      const d = new Date(input)
-      if (Number.isNaN(d.getTime())) return ""
-      return d.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })
+      if (!input) return "";
+      const d = new Date(input);
+      if (Number.isNaN(d.getTime())) return "";
+      return d.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
     },
     openDocumentsDialog(type) {
       if (!this.groupInfo?.GroupID) return;
@@ -1048,27 +1053,27 @@ export default {
       }
     },
     openDocumentItem(item) {
-      const url =
-        (item?.LinkFile || item?.LinkUrl || "").toString().trim()
-      if (!url) return
+      const url = (item?.LinkFile || item?.LinkUrl || "").toString().trim();
+      if (!url) return;
       if (this.documentsType === 1) {
-        this.imagePreviewUrl = url
-        this.imagePreviewName = item?.MineFile || `Ảnh #${item?.MessageID || ""}`
-        this.imagePreviewDialog = true
-        return
+        this.imagePreviewUrl = url;
+        this.imagePreviewName =
+          item?.MineFile || `Ảnh #${item?.MessageID || ""}`;
+        this.imagePreviewDialog = true;
+        return;
       }
 
-      window.open(url, "_blank")
+      window.open(url, "_blank");
     },
     downloadPreviewImage() {
-      const url = (this.imagePreviewUrl || "").toString().trim()
-      if (!url) return
-      const a = document.createElement("a")
-      a.href = url
-      a.target = "_blank"
-      a.rel = "noopener noreferrer"
-      a.download = this.imagePreviewName || "image"
-      a.click()
+      const url = (this.imagePreviewUrl || "").toString().trim();
+      if (!url) return;
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.download = this.imagePreviewName || "image";
+      a.click();
     },
     openMembersDialog(line) {
       if (line?.action === "members") {
