@@ -386,7 +386,8 @@
                           class="message-meta-seen"
                         >
                           <VAvatar
-                            v-for="user in getMessageReceiptSummary(mes).seenUsers"
+                            v-for="user in getMessageReceiptSummary(mes)
+                              .seenUsers"
                             :key="`${mes.MessageID}_seen_${user.userID}`"
                             size="16"
                             class="message-meta-seen-avatar"
@@ -707,7 +708,7 @@
     <VDialog v-model="previewZoomDialog" max-width="920px">
       <VCard>
         <VCardTitle class="d-flex align-center">
-          <span class="text-truncate">{{ previewZoomName }}</span>
+          <span class="text-truncate">{{ previewZoomName }} 224</span>
           <VSpacer />
           <VBtn
             icon
@@ -1061,8 +1062,9 @@ export default {
     },
     incomingCallText() {
       const caller =
-        String(this.incomingCall?.CallerName || this.incomingCall?.CallerID || "")
-          .trim() || "Một thành viên";
+        String(
+          this.incomingCall?.CallerName || this.incomingCall?.CallerID || "",
+        ).trim() || "Một thành viên";
       return `${caller} đang gọi video nhóm. Bạn có muốn tham gia không?`;
     },
   },
@@ -1266,7 +1268,8 @@ export default {
 
     socket.on("seen", ({ GroupID, UserName, TimeSeen }) => {
       const gid = Number(GroupID);
-      if (!Number.isFinite(gid) || Number(this.groupInfo?.GroupID) !== gid) return;
+      if (!Number.isFinite(gid) || Number(this.groupInfo?.GroupID) !== gid)
+        return;
       const uid = (UserName || "").toString().trim();
       if (!uid || uid === String(this.senderID || "").trim()) return;
 
@@ -1280,7 +1283,10 @@ export default {
         ...(this.memberReadMap || {}),
         [uid]: {
           ...prev,
-          lastMessageID: Math.max(Number(prev.lastMessageID) || 0, maxMessageID),
+          lastMessageID: Math.max(
+            Number(prev.lastMessageID) || 0,
+            maxMessageID,
+          ),
           timeSeen: TimeSeen || new Date().toISOString(),
         },
       };
@@ -2896,7 +2902,10 @@ export default {
         next[id] = {
           ...prev,
           fullName: this.memberDisplayName(member),
-          lastMessageID: Math.max(Number(prev.lastMessageID) || 0, lastMessageID),
+          lastMessageID: Math.max(
+            Number(prev.lastMessageID) || 0,
+            lastMessageID,
+          ),
           newMessageID: Math.max(Number(prev.newMessageID) || 0, newMessageID),
         };
       });
@@ -2905,9 +2914,11 @@ export default {
     },
     formatMessageTimeFull(input) {
       if (!input) return "";
-      const d = new Date(input);
-      if (Number.isNaN(d.getTime())) return "";
-      return d.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
+
+      // trừ 7 giờ (7 * 60 * 60 * 1000 ms)
+      const d = new Date(new Date(input).getTime() - 7 * 60 * 60 * 1000);
+
+      return formatDateDisplay(d);
     },
     toggleMessageMeta(message) {
       const id = Number(message?.MessageID);
@@ -2921,7 +2932,12 @@ export default {
     getMessageReceiptSummary(message) {
       const mid = Number(message?.MessageID);
       if (!Number.isFinite(mid) || mid <= 0 || !message?.IsMine) {
-        return { state: "sent", statusText: "Đã gửi", seenUsers: [], moreCount: 0 };
+        return {
+          state: "sent",
+          statusText: "Đã gửi",
+          seenUsers: [],
+          moreCount: 0,
+        };
       }
 
       const myID = String(this.senderID || "").trim();
@@ -2930,7 +2946,9 @@ export default {
       let receivedCount = 0;
 
       members.forEach((member) => {
-        const uid = (member?.UserID || member?.UserName || "").toString().trim();
+        const uid = (member?.UserID || member?.UserName || "")
+          .toString()
+          .trim();
         if (!uid || uid === myID) return;
 
         const fromMap = this.memberReadMap?.[uid] || {};
@@ -2943,7 +2961,9 @@ export default {
           Number(fromMap.newMessageID) || 0,
         );
         const name = this.memberDisplayName(member) || uid;
-        const seenAt = fromMap.timeSeen ? new Date(fromMap.timeSeen).getTime() : 0;
+        const seenAt = fromMap.timeSeen
+          ? new Date(fromMap.timeSeen).getTime()
+          : 0;
 
         if (lastMessageID >= mid) {
           seen.push({
@@ -2981,7 +3001,12 @@ export default {
         };
       }
 
-      return { state: "sent", statusText: "Đã gửi", seenUsers: [], moreCount: 0 };
+      return {
+        state: "sent",
+        statusText: "Đã gửi",
+        seenUsers: [],
+        moreCount: 0,
+      };
     },
     getMemberLstByGroupID() {
       if (!this.groupInfo?.GroupID) return;

@@ -1,14 +1,26 @@
 <template>
   <VDialog v-model="dialog" fullscreen>
     <VCard class="image-preview-card">
-      <VToolbar color="black" density="comfortable" dark>
-        <VBtn icon size="small" variant="text" color="white" @click="dialog = false">
-          <VIcon>mdi-close</VIcon>
-        </VBtn>
-        <VToolbarTitle class="text-truncate text-white">Ảnh</VToolbarTitle>
+      <VToolbar density="comfortable" dark>
+        <VToolbarTitle class="text-truncate text-black">Ảnh</VToolbarTitle>
         <VSpacer />
-        <VBtn icon size="small" variant="text" color="white" @click="downloadImage">
+        <VBtn
+          icon
+          size="small"
+          variant="text"
+          color="red"
+          @click="downloadImage"
+        >
           <VIcon>mdi-download</VIcon>
+        </VBtn>
+        <VBtn
+          icon
+          size="small"
+          variant="text"
+          color="black"
+          @click="dialog = false"
+        >
+          <VIcon>mdi-close</VIcon>
         </VBtn>
       </VToolbar>
       <VCardText class="image-preview-body">
@@ -22,7 +34,13 @@
           />
         </div>
         <div class="d-flex align-center mt-3 zoom-controls">
-          <VBtn icon size="small" variant="text" color="white" @click="setScale(scale - 0.25)">
+          <VBtn
+            icon
+            size="small"
+            variant="text"
+            color="white"
+            @click="setScale(scale - 0.25)"
+          >
             <VIcon>mdi-minus</VIcon>
           </VBtn>
           <VSlider
@@ -34,10 +52,22 @@
             class="mx-2"
             color="blue"
           />
-          <VBtn icon size="small" variant="text" color="white" @click="setScale(scale + 0.25)">
+          <VBtn
+            icon
+            size="small"
+            variant="text"
+            color="white"
+            @click="setScale(scale + 0.25)"
+          >
             <VIcon>mdi-plus</VIcon>
           </VBtn>
-          <VBtn size="small" variant="text" color="white" class="ml-2" @click="setScale(1)">
+          <VBtn
+            size="small"
+            variant="text"
+            color="white"
+            class="ml-2"
+            @click="setScale(1)"
+          >
             100%
           </VBtn>
         </div>
@@ -67,49 +97,49 @@ export default {
   data() {
     return {
       scale: 1,
-    }
+    };
   },
   computed: {
     dialog: {
       get() {
-        return this.modelValue
+        return this.modelValue;
       },
       set(v) {
-        this.$emit("update:modelValue", v)
+        this.$emit("update:modelValue", v);
       },
     },
   },
   watch: {
     modelValue(v) {
-      if (v) this.scale = 1
+      if (v) this.scale = 1;
     },
     src() {
-      if (this.modelValue) this.scale = 1
+      if (this.modelValue) this.scale = 1;
     },
   },
   methods: {
     setScale(next) {
-      const n = Number(next)
-      if (!Number.isFinite(n)) return
-      this.scale = Math.min(4, Math.max(0.5, n))
+      const n = Number(next);
+      if (!Number.isFinite(n)) return;
+      this.scale = Math.min(4, Math.max(0.5, n));
     },
     onWheel(event) {
-      const delta = Number(event?.deltaY) || 0
-      const step = delta > 0 ? -0.1 : 0.1
-      this.setScale(this.scale + step)
+      const delta = Number(event?.deltaY) || 0;
+      const step = delta > 0 ? -0.1 : 0.1;
+      this.setScale(this.scale + step);
     },
     downloadImage() {
-      const url = (this.src || "").toString().trim()
-      if (!url) return
-      const a = document.createElement("a")
-      a.href = url
-      a.target = "_blank"
-      a.rel = "noopener noreferrer"
-      a.download = "image"
-      a.click()
+      const url = (this.src || "").toString().trim();
+      if (!url) return;
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.download = "image";
+      a.click();
     },
   },
-}
+};
 </script>
 
 <style scoped>
@@ -148,4 +178,3 @@ export default {
   background: rgba(255, 255, 255, 0.08);
 }
 </style>
-

@@ -52,7 +52,7 @@ const updateFavicon = (hasMessage) => {
   };
 };
 const playNotificationSound = () => {
-  const audio = new Audio("./public/tingting.mp3"); // đường dẫn file mp3
+  const audio = new Audio("./tingting.mp3"); // đường dẫn file mp3
 
   audio.volume = 0.7;
   audio.play().catch((err) => {
