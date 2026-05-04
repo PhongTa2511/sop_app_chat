@@ -19,7 +19,7 @@
           :is-mobile-view="isMobile"
           :width="isMobile ? '100%' : 350"
           @open-create="openCreateGroupDialog"
-          @select-group="selectGroup"
+          @select-group="(g) => selectGroup(g, true)"
           @logout="logoutHandler"
         />
         <VAppBar v-if="showChat" flat color="blue" class="border-b chat-app-bar" theme="dark">
@@ -45,6 +45,18 @@
 
           <!-- <VSpacer /> -->
 
+          <VTooltip text="Tìm kiếm tin nhắn">
+            <template #activator="{ props }">
+              <VBtn
+                v-bind="props"
+                icon="mdi-magnify"
+                variant="text"
+                color="white"
+                @click="openSearchDialog"
+              />
+            </template>
+          </VTooltip>
+
           <template v-if="$vuetify.display.mdAndUp">
             <VTooltip text="Gọi video nhóm">
               <template #activator="{ props }">
@@ -58,20 +70,6 @@
                 />
               </template>
             </VTooltip>
-
-            <VTooltip text="Tìm kiếm tin nhắn">
-              <template #activator="{ props }">
-                <VBtn
-                  v-bind="props"
-                  icon="mdi-magnify"
-                  variant="text"
-                  color="blue"
-                  @click="openSearchDialog"
-                />
-              </template>
-            </VTooltip>
-
-            <!-- <v-btn icon="mdi-filter" variant="text" color="blue"></v-btn> -->
           </template>
 
           <VBtn
@@ -682,6 +680,8 @@
       v-model="showSearchDialog"
       v-model:query="searchQuery"
       :results="searchResults"
+      :loading="isSearching"
+      :is-mobile="isMobile"
       @search="searchMessages"
       @jump="jumpToSearchMessage"
     />
@@ -835,7 +835,7 @@ export default {
       mobileView: "list",
       isCalling: false,
       drawerLeft: true,
-      drawerRight: true,
+      drawerRight: false,
       activeMenuId: null,
       touchTimer: null,
       currentGroupID: null,
@@ -888,6 +888,7 @@ export default {
       showSearchDialog: false,
       searchResults: [],
       searchQuery: "",
+      isSearching: false,
       showCreateGroupDialog: false,
       newGroupName: "",
       selectedUsers: [],
@@ -2730,7 +2731,7 @@ export default {
         this.isSending = false;
       }
     },
-    selectGroup(groupInfo) {
+    selectGroup(groupInfo, fromUser = false) {
       const newGroupID = groupInfo?.GroupID ?? null;
       const isSameGroup = Number(this.groupInfo?.GroupID) === Number(newGroupID);
       
@@ -2755,7 +2756,7 @@ export default {
 
       this.groupInfo = groupInfo;
       this.currentGroupID = newGroupID;
-      if (this.isMobile && newGroupID) {
+      if (this.isMobile && newGroupID && fromUser) {
         this.mobileView = "chat";
       }
       this.newMessage = "";
@@ -2773,7 +2774,6 @@ export default {
         if (!isSameGroup) {
           socket.emit("join:group", { GroupID: newGroupID, UserID: this.senderID });
           this.joinedGroupID = newGroupID;
-          this.scrollBottom();
         }
       }
     },
@@ -3079,7 +3079,6 @@ export default {
           this.applyReplyPreview();
           this.currentPage = 1;
           this.messagesAllLoaded = (res.Data || []).length < this.rowspPage;
-          this.scrollBottom();
           this.fetchReactionsForMessages(
             this.messageLst.slice(-80).map((m) => m.MessageID),
           );
@@ -3089,6 +3088,9 @@ export default {
         // ignore
       } finally {
         this.loadingInitial = false;
+        this.$nextTick(() => {
+          this.scrollBottom();
+        });
       }
     },
     formatFileSize(sizeInBytes) {
@@ -3120,15 +3122,27 @@ export default {
         const el = list?.$el || list;
         if (!el) return;
 
-        const scroll = () => {
-          el.scrollTop = el.scrollHeight;
+        // Tắt scroll-behavior smooth tạm thời để nhảy tới cuối ngay lập tức
+        const originalScrollBehavior = el.style.scrollBehavior;
+        el.style.scrollBehavior = "auto";
+
+        const doScroll = () => {
+          el.scrollTop = el.scrollHeight + 10000; // Cuộn thật mạnh xuống cuối
         };
 
-        scroll();
-        requestAnimationFrame(() => {
-          scroll();
-          requestAnimationFrame(scroll);
+        // Thực hiện ngay
+        doScroll();
+
+        // Thử lại nhiều lần ở các mốc thời gian khác nhau để bù đắp cho việc render/load ảnh
+        const delays = [10, 50, 100, 200, 400, 600, 1000];
+        delays.forEach((delay) => {
+          setTimeout(doScroll, delay);
         });
+
+        // Khôi phục lại scroll-behavior sau khi hoàn tất chuỗi cuộn đầu tiên
+        setTimeout(() => {
+          if (el) el.style.scrollBehavior = originalScrollBehavior;
+        }, 1100);
       });
     },
     addEmoji(emoji) {
@@ -3191,22 +3205,34 @@ export default {
       this.showSearchDialog = true;
     },
     searchMessages() {
+      if (!this.searchQuery.trim()) {
+        this.searchResults = []
+        return
+      }
+      this.isSearching = true
       GetMessageByGoupID({
         GroupID: this.groupInfo.GroupID,
         PageNumber: 1,
-        RowspPage: this.rowspPage,
+        RowspPage: 100, // Lấy nhiều hơn khi tìm kiếm
         Search: this.searchQuery,
         ComID: "",
-      }).then((res) => {
-        if (res.RespCode == 0) {
-          this.searchResults = res.Data.map((item) => {
-            return {
-              ...item,
-              TimeShow: formatDateDisplay(item.TimeCreate),
-            };
-          });
-        }
-      });
+      })
+        .then((res) => {
+          if (res.RespCode == 0) {
+            this.searchResults = (res.Data || []).map((item) => {
+              return {
+                ...item,
+                TimeShow: formatDateDisplay(item.TimeCreate),
+                PreviewText:
+                  this.extractPreviewFromStoredText(item.TextContent) ||
+                  (Number(item.IsAttachment) > 0 ? "[Tệp đính kèm]" : ""),
+              }
+            })
+          }
+        })
+        .finally(() => {
+          this.isSearching = false
+        })
     },
     handleKeyPress(event) {
       if (this.showMentionPicker) {
