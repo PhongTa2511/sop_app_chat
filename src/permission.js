@@ -1,14 +1,7 @@
-import router from "./router";
-
-// import store from "./store";
-// import { Message } from "element-ui";
-// import NProgress from "nprogress"; // progress bar
-// import "nprogress/nprogress.css"; // progress bar style
-import { getRole, getToken } from "@/utils/auth"; // get token from cookie
-
-// NProgress.configure({ showSpinner: false }); // NProgress Configuration
-
 import { GetUserPermisstionByID } from "@/api/user";
+import { getRole, getToken } from "@/utils/auth"; // get token from cookie
+import { Capacitor } from "@capacitor/core";
+import router from "./router";
 
 export const fetchUserPermissions = async () => {
   if (!getToken()) return [];
@@ -42,20 +35,31 @@ const whiteList = [
   "/form2/",
   "/buoc/",
   "/cong-viec/",
+  "/mobile-chat",
 ]; // no redirect whitelist
 
 router.beforeEach(async (to, from, next) => {
   const hasToken = getToken();
+
   console.log("to", to.path);
+
+  // Chế độ Mobile: Capacitor.isNativePlatform() sẽ tự động đúng khi chạy trên App thật
+  const isMobileMode = Capacitor.isNativePlatform();
 
   if (hasToken) {
     if (to.path === "/dang-nhap") {
-      return next({ path: "/" });
+      return next({
+        path: isMobileMode ? "/mobile-chat" : "/",
+      });
+    }
+
+    if (isMobileMode && to.path !== "/mobile-chat") {
+      return next("/mobile-chat");
     }
 
     try {
       const permissions = await fetchUserPermissions();
-      var permissionActive = [];
+      let permissionActive = [];
 
       permissionActive = permissions.filter(
         (p) => p.TableName === "Menu" && p.CanAccess == 1,

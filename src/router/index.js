@@ -109,6 +109,10 @@ const router = createRouter({
           component: () => import("../pages/login.vue"),
         },
         {
+          path: "mobile-chat",
+          component: () => import("@/views/chat/index.vue"),
+        },
+        {
           path: "khieu-nai",
           component: () => import("../pages/complaint.vue"),
         },

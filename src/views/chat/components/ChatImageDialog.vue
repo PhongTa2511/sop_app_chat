@@ -77,6 +77,10 @@
 </template>
 
 <script>
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { notify } from "@kyvg/vue3-notification";
+
 export default {
   name: "ChatImageDialog",
   props: {
@@ -97,6 +101,7 @@ export default {
   data() {
     return {
       scale: 1,
+      isDownloading: false,
     };
   },
   computed: {
@@ -128,15 +133,43 @@ export default {
       const step = delta > 0 ? -0.1 : 0.1;
       this.setScale(this.scale + step);
     },
-    downloadImage() {
+    async downloadImage() {
+      if (this.isDownloading) return;
       const url = (this.src || "").toString().trim();
       if (!url) return;
-      const a = document.createElement("a");
-      a.href = url;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.download = "image";
-      a.click();
+
+      this.isDownloading = true;
+      try {
+        if (Capacitor.isNativePlatform()) {
+          const fileName = `image_${Date.now()}.jpg`;
+          await Filesystem.downloadFile({
+            url: url,
+            path: fileName,
+            directory: Directory.Documents,
+          });
+          notify({
+            title: "Thành công",
+            text: "Đã lưu ảnh vào thiết bị",
+            type: "success",
+          });
+        } else {
+          // Fallback cho Web
+          const a = document.createElement("a");
+          a.href = url;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.download = "image.jpg";
+          a.click();
+        }
+      } catch (err) {
+        notify({
+          title: "Lỗi",
+          text: "Tải ảnh thất bại",
+          type: "error",
+        });
+      } finally {
+        this.isDownloading = false;
+      }
     },
   },
 };

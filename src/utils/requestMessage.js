@@ -1,3 +1,4 @@
+import { Capacitor } from "@capacitor/core";
 import axios from "axios";
 
 // import { useGlobalStore } from '@/stores/global-store'
@@ -20,8 +21,8 @@ const service = axios.create({
   baseURL: "https://sop.idtp.work/mes/",
 
   // baseURL: "http://localhost:3009/",
-  withCredentials: true, // send cookies when cross-domain requests
-  timeout: 20000, // request timeout
+  withCredentials: !Capacitor.isNativePlatform(), // Tránh lỗi CORS trên Mobile
+  timeout: 30000,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -84,6 +85,9 @@ service.interceptors.response.use(
     }
   },
   (error) => {
+    if (Capacitor.isNativePlatform()) {
+      console.error("LỖI API (CHAT):", error.config?.url, error.response || error.message);
+    }
     return Promise.reject(error);
   },
 );

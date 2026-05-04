@@ -20,8 +20,8 @@ const service = axios.create({
   baseURL: "https://sop.idtp.work/api/",
 
   // baseURL: "http://localhost:50155/",
-  withCredentials: true, // send cookies when cross-domain requests
-  timeout: 20000, // request timeout
+  withCredentials: !Capacitor.isNativePlatform(), // Tắt withCredentials trên Native để tránh lỗi CORS
+  timeout: 30000, // Tăng timeout cho mobile
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
@@ -93,6 +93,9 @@ service.interceptors.response.use(
     }
   },
   (error) => {
+    if (Capacitor.isNativePlatform()) {
+      console.error("LỖI API (API):", error.config?.url, error.response || error.message);
+    }
     return Promise.reject(error);
   },
 );

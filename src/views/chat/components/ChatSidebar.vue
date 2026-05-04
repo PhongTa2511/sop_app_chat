@@ -1,5 +1,10 @@
 <template>
-  <VNavigationDrawer v-model="drawer" :width="width" class="py-4">
+  <VNavigationDrawer
+    v-model="drawer"
+    :width="width"
+    class="py-4 safe-area-sidebar"
+    :mobile-breakpoint="isMobileView ? 0 : undefined"
+  >
     <div class="mx-4 text-lg d-flex justify-space-between align-center mb-2">
       <div class="text-lg">Đoạn chat</div>
       <VBtn
@@ -79,6 +84,20 @@
         </template>
       </VListItem>
     </VList>
+
+    <template #append>
+      <div class="pa-4 border-t">
+        <VBtn
+          block
+          color="error"
+          variant="tonal"
+          prepend-icon="mdi-logout"
+          @click="$emit('logout')"
+        >
+          Đăng xuất
+        </VBtn>
+      </div>
+    </template>
   </VNavigationDrawer>
 </template>
 
@@ -106,8 +125,12 @@ export default {
       type: String,
       default: "",
     },
+    isMobileView: {
+      type: Boolean,
+      default: false,
+    },
   },
-  emits: ["update:modelValue", "update:search", "open-create", "select-group"],
+  emits: ["update:modelValue", "update:search", "open-create", "select-group", "logout"],
   computed: {
     drawer: {
       get() {
@@ -135,3 +158,9 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.safe-area-sidebar {
+  padding-top: calc(16px + env(safe-area-inset-top, 0px)) !important;
+}
+</style>

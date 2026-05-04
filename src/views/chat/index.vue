@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div>
     <input
       ref="fileInput"
@@ -8,21 +8,33 @@
       style="display: none"
       @change="handleFileUpload"
     />
-    <VCard>
-      <VLayout>
+    <VCard class="h-100" style="height: 100dvh !important;">
+      <VLayout class="h-100" style="height: 100dvh !important;">
         <ChatSidebar
+          v-if="showSidebar"
           v-model="drawerLeft"
           v-model:search="searchGroup"
           :group-lst="groupLst"
           :active-group-id="groupInfo?.GroupID"
+          :is-mobile-view="isMobile"
+          :width="isMobile ? '100%' : 350"
           @open-create="openCreateGroupDialog"
           @select-group="selectGroup"
+          @logout="logoutHandler"
         />
-        <VAppBar>
+        <VAppBar v-if="showChat" flat color="blue" class="border-b chat-app-bar" theme="dark">
           <VAppBarNavIcon
+            v-if="!isMobile"
             variant="text"
             color="blue"
             @click.stop="drawerLeft = !drawerLeft"
+          />
+          <VBtn
+            v-if="isMobile"
+            icon="mdi-arrow-left"
+            variant="text"
+            color="white"
+            @click="mobileView = 'list'"
           />
 
           <VToolbarTitle v-if="groupInfo" class="font-weight-bold">
@@ -65,32 +77,38 @@
           <VBtn
             icon="mdi-dots-vertical"
             variant="text"
-            color="blue"
+            color="white"
             @click.stop="drawerRight = !drawerRight"
           />
         </VAppBar>
 
         <VMain
-          style="height: calc(100vh - 116px)"
+          v-if="showChat"
+          style="display: flex; flex-direction: column; height: 100%;"
           class="position-relative"
           @dragenter="onChatDragEnter"
           @dragover.prevent="onChatDragOver"
           @dragleave="onChatDragLeave"
           @drop.prevent="onChatDrop"
         >
-          <div v-if="isChatDragOver" class="chat-drag-overlay">
-            <div class="chat-drag-overlay__inner">
-              <VIcon class="mr-2" size="small">mdi-paperclip</VIcon>
-              Thả file để đính kèm
+          <div class="d-flex flex-column h-100 flex-grow-1 w-100 position-relative" style="padding-top: env(safe-area-inset-top, 0px);">
+            <div v-if="isChatDragOver" class="chat-drag-overlay">
+              <div class="chat-drag-overlay__inner">
+                <VIcon class="mr-2" size="small">mdi-paperclip</VIcon>
+                Thả file để đính kèm
+              </div>
             </div>
-          </div>
-          <VList
-            v-if="messageLst.length > 0"
-            ref="chatList"
-            :class="replyingTo ? 'custome-content-reply' : 'custome-content'"
-            :style="chatListStyle"
-            @scroll="handleScroll"
-          >
+            <div v-if="loadingInitial" class="d-flex flex-column align-center justify-center flex-grow-1">
+              <VProgressCircular indeterminate color="blue" size="48" />
+              <div class="mt-2 text-grey-darken-1">Đang tải tin nhắn...</div>
+            </div>
+            <VList
+              v-else-if="messageLst.length > 0"
+              ref="chatList"
+              :class="replyingTo ? 'custome-content-reply' : 'custome-content'"
+              style="flex: 1 1 auto; overflow-y: auto; padding-bottom: 80px;"
+              @scroll="handleScroll"
+            >
             <div v-if="loadingMore" class="loading-indicator">
               <VProgressCircular indeterminate color="blue" />
             </div>
@@ -145,7 +163,7 @@
             <VListItem
               v-for="(mes, index) in messageLst"
               :id="'msg-' + mes.MessageID"
-              :key="mes.MessageID"
+              :key="mes.MessageID + '-' + (mes.GroupID || '0')"
               style="padding: 0 4px 0 8px; margin-top: 4px"
               class="message-item"
             >
@@ -163,13 +181,6 @@
                 <VAvatar v-else size="small" />
               </template>
 
-              <template v-if="!mes.IsSystem && mes.IsMine" #append>
-                <VAvatar size="small" v-if="mes.isLatest" color="blue">
-                  <VImg v-if="mes.Avatar" :src="mes.Avatar" />
-                  <VIcon v-else size="x-small"> mdi-account </VIcon>
-                </VAvatar>
-                <VAvatar v-else size="small" />
-              </template>
 
               <div v-if="!mes.IsSystem">
                 <div
@@ -194,17 +205,28 @@
                     >
                       {{ mes.ReplyContent }}
                     </div>
-                    <div
-                      class="message-bubble-wrap"
-                      :class="{
-                        mine: mes.IsMine,
-                        'has-reactions':
-                          reactionsEnabled &&
-                          mes.Reactions &&
-                          mes.Reactions.length > 0,
-                      }"
-                      @click="toggleMessageMeta(mes)"
+                    <VMenu
+                      :model-value="activeMenuId === mes.MessageID"
+                      @update:model-value="(v) => activeMenuId = v ? mes.MessageID : null"
+                      :close-on-content-click="true"
+                      location="top center"
                     >
+                      <template #activator="{ props: menuProps }">
+                        <div
+                          class="message-bubble-wrap"
+                          :class="{
+                            mine: mes.IsMine,
+                            'has-reactions':
+                              reactionsEnabled &&
+                              mes.Reactions &&
+                              mes.Reactions.length > 0,
+                          }"
+                          v-bind="menuProps"
+                          @touchstart="handleTouchStart(mes)"
+                          @touchend="handleTouchEnd"
+                          @touchmove="handleTouchEnd"
+                          @click="toggleMessageMeta(mes)"
+                        >
                       <!-- <div
                         v-if="isPinnedMessage(mes)"
                         class="pin-badge"
@@ -239,6 +261,8 @@
                             {{ mes.Forward.SenderName || mes.Forward.SenderID }}
                           </div>
                           <div class="forward-preview">
+                            {{ mes.Forward.TextContent }}
+                          </div>
                             <template v-if="mes.Forward.IsAttachment === 1">
                               <div class="forward-attach">
                                 <VImg
@@ -284,7 +308,6 @@
                               />
                             </template>
                           </div>
-                        </div>
                         <div
                           :style="{ whiteSpace: 'pre-line' }"
                           v-html="mes.TextContentHtml"
@@ -359,7 +382,7 @@
                         "
                         class="reaction-summary"
                         :class="{ mine: mes.IsMine, active: !!mes.MyEmoji }"
-                        @click="reactionMenuFor = mes.MessageID"
+                        @click="activeMenuId = mes.MessageID"
                       >
                         <span class="reaction-emojis">
                           {{ reactionSummary(mes).emojis.join("") }}
@@ -369,132 +392,96 @@
                         }}</span>
                       </div>
                     </div>
-                    <div
-                      v-if="shouldShowMessageMeta(mes)"
-                      class="message-meta"
-                      :class="{ mine: mes.IsMine }"
-                    >
-                      <div class="message-meta-time">
-                        {{ formatMessageTimeFull(mes.TimeCreate) }}
-                      </div>
-                      <template v-if="mes.IsMine">
-                        <div class="message-meta-receipt">
-                          {{ getMessageReceiptSummary(mes).statusText }}
-                        </div>
-                        <div
-                          v-if="getMessageReceiptSummary(mes).state === 'seen'"
-                          class="message-meta-seen"
-                        >
-                          <VAvatar
-                            v-for="user in getMessageReceiptSummary(mes)
-                              .seenUsers"
-                            :key="`${mes.MessageID}_seen_${user.userID}`"
-                            size="16"
-                            class="message-meta-seen-avatar"
-                            :title="user.tooltip"
-                          >
-                            <VImg v-if="user.avatar" :src="user.avatar" />
-                            <span v-else class="message-meta-seen-fallback">
-                              {{ user.initial }}
-                            </span>
-                          </VAvatar>
-                          <span
-                            v-if="getMessageReceiptSummary(mes).moreCount > 0"
-                            class="message-meta-seen-more"
-                          >
-                            +{{ getMessageReceiptSummary(mes).moreCount }}
-                          </span>
-                        </div>
-                      </template>
+                  </template>
+
+                  <!-- Unified Menu Content -->
+                  <VCard class="message-action-menu-card" elevation="24">
+                    <div class="reaction-picker border-b pa-2">
+                      <span
+                        v-for="emoji in reactionEmojis"
+                        :key="emoji"
+                        class="reaction-pick"
+                        @click="reactToMessage(mes, emoji)"
+                      >
+                        {{ emoji }}
+                      </span>
                     </div>
-                  </div>
-                  <div class="message-actions">
-                    <VBtn
-                      size="small"
-                      icon="mdi-reply"
-                      density="compact"
-                      style="border-radius: 50%"
-                      :color="mes.IsMine ? 'blue' : 'grey'"
-                      @click="setReply(mes)"
-                    />
+                    <VList density="compact" class="pa-0">
+                      <VListItem
+                        prepend-icon="mdi-reply"
+                        title="Trả lời"
+                        @click="setReply(mes)"
+                      />
+                      <VListItem
+                        :prepend-icon="isPinnedMessage(mes) ? 'mdi-pin-off' : 'mdi-pin'"
+                        :title="isPinnedMessage(mes) ? 'Bỏ ghim' : 'Ghim'"
+                        @click="togglePinMessage(mes)"
+                      />
+                      <VListItem
+                        prepend-icon="mdi-forward"
+                        title="Chuyển tiếp"
+                        @click="openForwardDialog(mes)"
+                      />
+                      <VListItem
+                        v-if="Number(mes.IsAttachment) === 0"
+                        prepend-icon="mdi-content-copy"
+                        title="Sao chép"
+                        @click="copyMessageText(mes)"
+                      />
+                    </VList>
+                  </VCard>
+                </VMenu>
 
-                    <VMenu
-                      v-if="reactionsEnabled"
-                      :model-value="reactionMenuFor === mes.MessageID"
-                      :close-on-content-click="false"
-                      location="top center"
-                      @update:model-value="
-                        (v) => (reactionMenuFor = v ? mes.MessageID : null)
-                      "
+                <div
+                  v-if="shouldShowMessageMeta(mes)"
+                  class="message-meta"
+                  :class="{ mine: mes.IsMine }"
+                >
+                  <div class="message-meta-time">
+                    {{ formatMessageTimeFull(mes.TimeCreate) }}
+                  </div>
+                  <template v-if="mes.IsMine">
+                    <div class="message-meta-receipt">
+                      {{ getMessageReceiptSummary(mes).statusText }}
+                    </div>
+                    <div
+                      v-if="getMessageReceiptSummary(mes).state === 'seen'"
+                      class="message-meta-seen"
                     >
-                      <template #activator="{ props }">
-                        <VBtn
-                          v-bind="props"
-                          size="small"
-                          icon="mdi-emoticon-happy-outline"
-                          density="compact"
-                          style="border-radius: 50%"
-                          :color="mes.IsMine ? 'blue' : 'grey'"
-                        />
-                      </template>
-
-                      <VCard class="reaction-picker-card" elevation="24">
-                        <div class="reaction-picker">
-                          <span
-                            v-for="emoji in reactionEmojis"
-                            :key="emoji"
-                            class="reaction-pick"
-                            @click="reactToMessage(mes, emoji)"
-                          >
-                            {{ emoji }}
-                          </span>
-                        </div>
-                      </VCard>
-                    </VMenu>
-
-                    <VMenu location="top center">
-                      <template #activator="{ props }">
-                        <VBtn
-                          v-bind="props"
-                          size="small"
-                          icon="mdi-dots-horizontal"
-                          density="compact"
-                          style="border-radius: 50%"
-                          :color="mes.IsMine ? 'blue' : 'grey'"
-                        />
-                      </template>
-
-                      <VList density="compact" class="message-more-menu">
-                        <VListItem
-                          :prepend-icon="
-                            isPinnedMessage(mes) ? 'mdi-pin-off' : 'mdi-pin'
-                          "
-                          :title="isPinnedMessage(mes) ? 'Bỏ ghim' : 'Ghim'"
-                          @click="togglePinMessage(mes)"
-                        />
-                        <VListItem
-                          prepend-icon="mdi-forward"
-                          title="Chuyển tiếp"
-                          @click="openForwardDialog(mes)"
-                        />
-                        <VListItem
-                          v-if="Number(mes.IsAttachment) === 0"
-                          prepend-icon="mdi-content-copy"
-                          title="Sao chép"
-                          @click="copyMessageText(mes)"
-                        />
-                      </VList>
-                    </VMenu>
-                  </div>
+                      <VAvatar
+                        v-for="user in getMessageReceiptSummary(mes)
+                          .seenUsers"
+                        :key="`${mes.MessageID}_seen_${user.userID}`"
+                        size="16"
+                        class="message-meta-seen-avatar"
+                        :title="user.tooltip"
+                      >
+                        <VImg v-if="user.avatar" :src="user.avatar" />
+                        <span v-else class="message-meta-seen-fallback">
+                          {{ user.initial }}
+                        </span>
+                      </VAvatar>
+                      <span
+                        v-if="getMessageReceiptSummary(mes).moreCount > 0"
+                        class="message-meta-seen-more"
+                      >
+                        +{{ getMessageReceiptSummary(mes).moreCount }}
+                      </span>
+                    </div>
+                  </template>
                 </div>
               </div>
-            </VListItem>
-          </VList>
-          <div v-else class="text-center" style="margin-top: 30%">
-            <div>
-              <VIcon color="blue" size="40"> mdi-forum </VIcon>
-              <div>Hãy bắt đầu cuộc trò chuyện</div>
+              </div>
             </div>
+          </VListItem>
+        </VList>
+          <div v-else-if="!loadingInitial" class="d-flex flex-column align-center justify-center flex-grow-1 text-grey-darken-1" style="min-height: 200px">
+            <VIcon color="blue" size="48" class="mb-2"> mdi-forum-outline </VIcon>
+            <div class="text-body-1">Hãy bắt đầu cuộc trò chuyện</div>
+            <div class="text-caption mt-1" v-if="!groupInfo">Chọn một đoạn chat để bắt đầu</div>
+            <VBtn v-if="groupInfo" variant="text" color="blue" class="mt-4" prepend-icon="mdi-refresh" @click="getMessageByGoupID">
+              Tải lại tin nhắn
+            </VBtn>
           </div>
 
           <div
@@ -670,6 +657,7 @@
               />
             </div>
           </div>
+          </div>
         </VMain>
 
         <VNavigationDrawer
@@ -844,10 +832,12 @@ export default {
   },
   data() {
     return {
+      mobileView: "list",
       isCalling: false,
       drawerLeft: true,
       drawerRight: true,
-      groupInfo: null,
+      activeMenuId: null,
+      touchTimer: null,
       currentGroupID: null,
       joinedGroupID: null,
       groupLst: [],
@@ -893,6 +883,7 @@ export default {
       currentPage: 1,
       loadingMore: false,
       messagesAllLoaded: false,
+      loadingInitial: false,
       searchGroup: "",
       showSearchDialog: false,
       searchResults: [],
@@ -932,7 +923,7 @@ export default {
       mentionActiveIndex: 0,
 
       // reactions
-      reactionsEnabled: import.meta.env.VITE_MESSAGE_REACTIONS === "1",
+      reactionsEnabled: true, // Ép bật hiển thị React trên giao diện
       reactionMenuFor: null,
       reactionEmojis: ["👍", "❤️", "😂", "😮", "😢", "😡", "😆", "👏"],
 
@@ -1067,39 +1058,28 @@ export default {
         ).trim() || "Một thành viên";
       return `${caller} đang gọi video nhóm. Bạn có muốn tham gia không?`;
     },
+    isMobile() {
+      return this.$vuetify ? !this.$vuetify.display.mdAndUp : window.innerWidth < 960;
+    },
+    showSidebar() {
+      return !this.isMobile || this.mobileView === "list";
+    },
+    showChat() {
+      return !this.isMobile || this.mobileView === "chat";
+    },
   },
   watch: {
-    groupInfo() {
-      const groupID = this.groupInfo?.GroupID ?? null;
-      this.currentGroupID = groupID;
-
-      // Leave previous room when switching chats (or when removed from group)
-      if (
-        this.joinedGroupID != null &&
-        Number(this.joinedGroupID) !== Number(groupID)
-      ) {
-        socket.emit("leave:group", { GroupID: this.joinedGroupID });
-        this.joinedGroupID = null;
+    mobileView(val) {
+      if (this.isMobile) {
+        this.drawerLeft = val === "list";
       }
-
-      // Reset UI state khi chuyển đoạn chat
-      this.typingUsers = {};
-      this.loadingMore = false;
-      this.messagesAllLoaded = false;
-      this.currentPage = 1;
-      this.messageLst = [];
-      this.pinnedMessageIDs = [];
-      this.pinnedMessages = [];
-      this.memberReadMap = {};
-      this.activeMessageMetaID = null;
-      this.scrollBottom();
-
-      if (!groupID) return;
-
-      this.getMessageByGoupID();
-      this.getMemberLstByGroupID();
-      socket.emit("join:group", { GroupID: groupID, UserID: this.senderID });
-      this.joinedGroupID = groupID;
+    },
+    isMobile(val) {
+      if (val) {
+        this.drawerLeft = this.mobileView === "list";
+      } else {
+        this.drawerLeft = true;
+      }
     },
     searchGroup() {
       this.getGroupLstByUserID();
@@ -1117,7 +1097,7 @@ export default {
     socket.on("new_message", (message) => {
       console.log("chạy vào đây", message);
 
-      if (message.GroupID !== this.groupInfo.GroupID) return;
+      if (Number(message.GroupID) !== Number(this.groupInfo?.GroupID)) return;
       this.markAsRead(message.GroupID);
 
       this.messageLst.push(this.decorateMessageForUI(message));
@@ -1130,7 +1110,8 @@ export default {
 
     socket.on("sidebar:update", (data) => {
       const { GroupID, LastMessage, TimeCreate } = data;
-      const groupIndex = this.groupLst.findIndex((g) => g.GroupID === GroupID);
+      const gid = Number(GroupID);
+      const groupIndex = (this.groupLst || []).findIndex((g) => Number(g.GroupID) === gid);
 
       // 1. Tìm index của group này trong mảng danh sách chat hiện tại
       if (groupIndex !== -1) {
@@ -1138,7 +1119,7 @@ export default {
         const updatedGroup = this.groupLst[groupIndex];
 
         // 2. Cập nhật thông tin mới nhất
-        updatedGroup.NewMessage = LastMessage;
+        updatedGroup.NewMessage = this.extractPreviewFromStoredText(LastMessage);
         updatedGroup.TimeCreate = TimeCreate; // Cập nhật thời gian để sắp xếp
         updatedGroup.TimeShow = this.calculateTimeDifference(TimeCreate);
 
@@ -1367,6 +1348,13 @@ export default {
       });
     });
   },
+  mounted() {
+    const gid = Number(this.$route?.query?.gid);
+    if (this.isMobile) {
+      this.mobileView = (Number.isFinite(gid) && gid > 0) ? "chat" : "list";
+      this.drawerLeft = this.mobileView === "list";
+    }
+  },
   methods: {
     // Kiểm tra có nên hiện tên người gửi không (giống messenger: gom nhóm tin nhắn)
     escapeHtml(input) {
@@ -1419,6 +1407,7 @@ export default {
       this.saveMuteMap(map);
     },
     parseRichStoredText(stored) {
+      if (stored && typeof stored === "object" && Number(stored.v) === 1) return stored;
       if (typeof stored !== "string") return null;
       const trimmed = stored.trim();
       if (!trimmed.startsWith("{") || !trimmed.endsWith("}")) return null;
@@ -1674,7 +1663,7 @@ export default {
           this.applyReactionSummary(summaries[k]);
         });
       } catch (e) {
-        this.reactionsEnabled = false;
+        // this.reactionsEnabled = false;
       }
     },
     applyReactionSummary(summary) {
@@ -1705,7 +1694,7 @@ export default {
         if (res?.Data) this.applyReactionSummary(res.Data);
         else await this.fetchReactionsForMessages([mes.MessageID]);
       } catch (e) {
-        this.reactionsEnabled = false;
+        // this.reactionsEnabled = false;
       }
     },
     openForwardDialog(mes) {
@@ -2601,7 +2590,7 @@ export default {
           this.broadcastUnreadTotal();
 
           if (this.groupLst.length === 0) {
-            this.groupInfo = null;
+            this.selectGroup(null);
             return;
           }
 
@@ -2610,7 +2599,7 @@ export default {
               (g) => Number(g.GroupID) === preferID,
             );
             if (preferred) {
-              this.groupInfo = preferred;
+              this.selectGroup(preferred);
               return;
             }
           }
@@ -2625,7 +2614,7 @@ export default {
             }
           }
 
-          this.groupInfo = this.groupLst[0];
+          this.selectGroup(this.groupLst[0]);
         }
       });
     },
@@ -2742,15 +2731,55 @@ export default {
       }
     },
     selectGroup(groupInfo) {
+      const newGroupID = groupInfo?.GroupID ?? null;
+      const isSameGroup = Number(this.groupInfo?.GroupID) === Number(newGroupID);
+      
+      // Xóa ngay lập tức danh sách tin nhắn cũ để không bị hiển thị nhầm (chờ watcher chạy thì DOM đã render)
+      if (!isSameGroup) {
+        this.messageLst = [];
+        this.loadingInitial = !!newGroupID;
+        this.typingUsers = {};
+        this.loadingMore = false;
+        this.messagesAllLoaded = false;
+        this.currentPage = 1;
+        this.pinnedMessageIDs = [];
+        this.pinnedMessages = [];
+        this.memberReadMap = {};
+        this.activeMessageMetaID = null;
+
+        if (this.joinedGroupID != null && Number(this.joinedGroupID) !== Number(newGroupID)) {
+          socket.emit("leave:group", { GroupID: this.joinedGroupID });
+          this.joinedGroupID = null;
+        }
+      }
+
       this.groupInfo = groupInfo;
-      this.currentGroupID = groupInfo?.GroupID ?? null;
+      this.currentGroupID = newGroupID;
+      if (this.isMobile && newGroupID) {
+        this.mobileView = "chat";
+      }
       this.newMessage = "";
       this.replyingTo = null;
       this.pendingMentions = [];
       this.pendingMentionAll = false;
       this.showMentionPicker = false;
       this.clearPendingAttachments();
-      this.markAsRead(groupInfo.GroupID);
+
+      if (newGroupID) {
+        this.markAsRead(newGroupID);
+        this.getMessageByGoupID();
+        this.getMemberLstByGroupID();
+
+        if (!isSameGroup) {
+          socket.emit("join:group", { GroupID: newGroupID, UserID: this.senderID });
+          this.joinedGroupID = newGroupID;
+          this.scrollBottom();
+        }
+      }
+    },
+    logoutHandler() {
+      localStorage.clear(); 
+      this.$router.push("/dang-nhap");
     },
     broadcastUnreadTotal() {
       try {
@@ -2790,11 +2819,11 @@ export default {
           (g) => Number(g.GroupID) !== gid,
         );
         if (Number(this.groupInfo?.GroupID) === gid) {
-          this.groupInfo = null;
-          this.messageLst = [];
-          this.currentGroupID = null;
-          this.joinedGroupID = null;
-          this.groupInfo = this.groupLst.length ? this.groupLst[0] : null;
+          if (this.groupLst.length) {
+            this.selectGroup(this.groupLst[0]);
+          } else {
+            this.selectGroup(null);
+          }
         }
       }
       this.getGroupLstByUserID();
@@ -3029,6 +3058,7 @@ export default {
       const groupID = this.groupInfo?.GroupID;
       if (!groupID) return;
 
+      this.loadingInitial = true;
       try {
         const res = await GetMessageByGoupID({
           GroupID: groupID,
@@ -3039,7 +3069,7 @@ export default {
         });
 
         // Nếu user đổi group trong lúc đang load → bỏ kết quả cũ
-        if (this.groupInfo?.GroupID !== groupID) return;
+        if (Number(this.groupInfo?.GroupID) !== Number(groupID)) return;
 
         if (res?.RespCode === 0) {
           this.messageLst = (res.Data || []).map((item) =>
@@ -3057,6 +3087,8 @@ export default {
         }
       } catch (_) {
         // ignore
+      } finally {
+        this.loadingInitial = false;
       }
     },
     formatFileSize(sizeInBytes) {
@@ -3067,7 +3099,12 @@ export default {
       }
     },
     markLatestMessages(messages) {
-      messages.sort((a, b) => new Date(a.TimeCreate) - new Date(b.TimeCreate));
+      messages.sort((a, b) => {
+        const da = a.TimeCreate ? new Date(a.TimeCreate).getTime() : 0;
+        const db = b.TimeCreate ? new Date(b.TimeCreate).getTime() : 0;
+        if (da !== db) return da - db;
+        return (Number(a.MessageID) || 0) - (Number(b.MessageID) || 0);
+      });
 
       return messages.map((message, index, arr) => {
         const isLatest =
@@ -3128,7 +3165,7 @@ export default {
           ComID: "",
         });
 
-        if (this.groupInfo?.GroupID !== groupID) return false;
+        if (Number(this.groupInfo?.GroupID) !== Number(groupID)) return false;
         if (res?.RespCode !== 0) return false;
 
         const data = Array.isArray(res.Data) ? res.Data : [];
@@ -3274,6 +3311,14 @@ export default {
           this.getGroupLstByUserID(gid);
         }
       });
+    },
+    handleTouchStart(mes) {
+      this.touchTimer = setTimeout(() => {
+        this.activeMenuId = mes.MessageID;
+      }, 600);
+    },
+    handleTouchEnd() {
+      clearTimeout(this.touchTimer);
     },
   },
 };
@@ -3554,14 +3599,7 @@ export default {
   margin-left: auto;
 }
 .message-actions {
-  display: flex;
-  gap: 4px;
-  opacity: 0;
-  transition: 0.2s ease;
-}
-
-.message-row:hover .message-actions {
-  opacity: 1;
+  display: none !important;
 }
 
 .mention-input {
@@ -3572,7 +3610,8 @@ export default {
 .composer-bar {
   z-index: 20;
   background: rgb(var(--v-theme-background));
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+  padding-bottom: calc(env(safe-area-inset-bottom, 12px) + 8px);
 }
 
 .composer-row {
@@ -3758,13 +3797,14 @@ export default {
 }
 
 .forward-block {
-  background: rgba(255, 255, 255, 0.68);
-  border: 1px solid rgba(24, 119, 242, 0.18);
-  border-left: 3px solid #1877f2;
-  padding: 8px 10px;
-  border-radius: 14px;
+  background: rgba(24, 119, 242, 0.06);
+  border: 1px solid rgba(24, 119, 242, 0.12);
+  border-left: 4px solid #1877f2;
+  padding: 10px 12px;
+  border-radius: 12px;
   margin-bottom: 8px;
   cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
 }
 
 .custom-layout-text.is-mine .forward-block {
@@ -3986,6 +4026,30 @@ export default {
 .text-right {
   text-align: right;
 }
+
+@media (max-width: 959px) {
+  .v-main {
+    padding-left: 0 !important;
+  }
+}
+
+/* Đảm bảo giao diện chiếm trọn màn hình, không có khoảng trắng thừa bên trên */
+:deep(.v-layout), :deep(.v-card) {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
+
+.chat-app-bar {
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  height: calc(64px + env(safe-area-inset-top, 0px)) !important;
+}
+
+body, html {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
 .loading-indicator {
   display: flex;
   justify-content: center;

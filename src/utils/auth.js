@@ -1,5 +1,3 @@
-import Cookies from "js-cookie"
-
 const TokenKey = "TokenDTP"
 const UserName = "UserNameDTP"
 const FullName = "FullNameDTP"
@@ -15,121 +13,121 @@ const Avatar = "AvatarDTP"
 const Specialize = "SpecializeDTP"
 
 export function setToken(token) {
-  return Cookies.set(TokenKey, token, { expires: 1 })
+  return localStorage.setItem(TokenKey, token)
 }
 export function getToken() {
-  return Cookies.get(TokenKey)
+  return localStorage.getItem(TokenKey)
 }
 export function removeToken() {
-  return Cookies.remove(TokenKey)
+  return localStorage.removeItem(TokenKey)
 }
 
 export function setUserName(name) {
-  return Cookies.set(UserName, name)
+  return localStorage.setItem(UserName, name)
 }
 export function removeUserName() {
-  return Cookies.remove(UserName)
+  return localStorage.removeItem(UserName)
 }
 export function getUserName() {
-  return Cookies.get(UserName)
+  return localStorage.getItem(UserName)
 }
 
 export function setFullName(time) {
-  return Cookies.set(FullName, time)
+  return localStorage.setItem(FullName, time)
 }
 export function getFullName() {
-  return Cookies.get(FullName)
+  return localStorage.getItem(FullName)
 }
 export function removeFullName() {
-  return Cookies.remove(FullName)
+  return localStorage.removeItem(FullName)
 }
 
 export function setPhoneNumber(phoneNumber) {
-  return Cookies.set(PhoneNumber, phoneNumber)
+  return localStorage.setItem(PhoneNumber, phoneNumber)
 }
 export function getPhoneNumber() {
-  return Cookies.get(PhoneNumber)
+  return localStorage.getItem(PhoneNumber)
 }
 export function removePhoneNumber() {
-  return Cookies.remove(PhoneNumber)
+  return localStorage.removeItem(PhoneNumber)
 }
 
 export function setEmployCode(name) {
-  return Cookies.set(EmployCode, name)
+  return localStorage.setItem(EmployCode, name)
 }
 export function getEmployCode() {
-  return Cookies.get(EmployCode)
+  return localStorage.getItem(EmployCode)
 }
 export function removeEmployCode() {
-  return Cookies.remove(EmployCode)
+  return localStorage.removeItem(EmployCode)
 }
 
 export function setUserID(name) {
-  return Cookies.set(UserID, name)
+  return localStorage.setItem(UserID, name)
 }
 export function getUserID() {
-  return Cookies.get(UserID)
+  return localStorage.getItem(UserID)
 }
 export function removeUserID() {
-  return Cookies.remove(UserID)
+  return localStorage.removeItem(UserID)
 }
 
 export function setEmail(name) {
-  return Cookies.set(Email, name)
+  return localStorage.setItem(Email, name)
 }
 export function getEmail() {
-  return Cookies.get(Email)
+  return localStorage.getItem(Email)
 }
 export function removeEmail() {
-  return Cookies.remove(Email)
+  return localStorage.removeItem(Email)
 }
 
 export function setPageNumber(name) {
-  return Cookies.set(PageNumber, name)
+  return localStorage.setItem(PageNumber, name)
 }
 export function getPageNumber() {
-  return Cookies.get(PageNumber)
+  return localStorage.getItem(PageNumber)
 }
 export function removePageNumber() {
-  return Cookies.remove(PageNumber)
+  return localStorage.removeItem(PageNumber)
 }
 
 export function setRowspPage(name) {
-  return Cookies.set(RowspPage, name)
+  return localStorage.setItem(RowspPage, name)
 }
 export function getRowspPage() {
-  return Cookies.get(RowspPage)
+  return localStorage.getItem(RowspPage)
 }
 export function removeRowspPage() {
-  return Cookies.remove(RowspPage)
+  return localStorage.removeItem(RowspPage)
 }
 
 export function setAvatar(name) {
-  return Cookies.set(Avatar, name)
+  return localStorage.setItem(Avatar, name)
 }
 export function getAvatar() {
-  return Cookies.get(Avatar)
+  return localStorage.getItem(Avatar)
 }
 export function removeAvatar() {
-  return Cookies.remove(Avatar)
+  return localStorage.removeItem(Avatar)
 }
 
 export function setSpecialize(name) {
-  return Cookies.set(Specialize, name)
+  return localStorage.setItem(Specialize, name)
 }
 export function getSpecialize() {
-  return Cookies.get(Specialize)
+  return localStorage.getItem(Specialize)
 }
 export function removeSpecialize() {
-  return Cookies.remove(Specialize)
+  return localStorage.removeItem(Specialize)
 }
 
 export function setRole(name) {
-  return Cookies.set(Role, name)
+  return localStorage.setItem(Role, name)
 }
 export function getRole() {
-  return Cookies.get(Role)
+  return localStorage.getItem(Role)
 }
 export function removeRole() {
-  return Cookies.remove(Role)
+  return localStorage.removeItem(Role)
 }
