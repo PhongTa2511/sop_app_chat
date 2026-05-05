@@ -261,11 +261,13 @@
     </VCard>
   </VDialog>
 
-  <VDialog v-model="documentsDialog" max-width="520px">
-    <VCard>
-      <VCardTitle>
-        <span class="headline">{{ documentsTitle }}</span>
-      </VCardTitle>
+  <VDialog v-model="documentsDialog" fullscreen>
+    <VCard class="rounded-0">
+      <VToolbar density="comfortable" flat color="blue" dark class="safe-area-top">
+        <VToolbarTitle class="text-white">{{ documentsTitle }}</VToolbarTitle>
+        <VSpacer />
+        <VBtn icon="mdi-close" variant="text" color="white" @click="documentsDialog = false" />
+      </VToolbar>
       <VCardText class="docs-dialog-body" @scroll.passive="onDocumentsScroll">
         <template v-if="documentsType === 1 || documentsType === 2">
           <div class="docs-grid">
@@ -339,41 +341,10 @@
     </VCard>
   </VDialog>
 
-  <VDialog v-model="imagePreviewDialog" fullscreen>
-    <VCard class="preview-fullscreen-card">
-      <VToolbar color="black" density="comfortable" dark>
-        <VBtn
-          icon
-          variant="text"
-          color="white"
-          @click="imagePreviewDialog = false"
-        >
-          <VIcon>mdi-close</VIcon>
-        </VBtn>
-        <VToolbarTitle class="text-white text-truncate">
-          {{ imagePreviewName || "Xem ảnh" }}
-        </VToolbarTitle>
-        <VSpacer />
-        <VBtn
-          icon
-          variant="text"
-          color="white"
-          :disabled="!imagePreviewUrl"
-          @click="downloadPreviewImage"
-        >
-          <VIcon>mdi-download</VIcon>
-        </VBtn>
-      </VToolbar>
-      <div class="preview-fullscreen-stage">
-        <img
-          v-if="imagePreviewUrl"
-          :src="imagePreviewUrl"
-          alt=""
-          class="preview-fullscreen-image"
-        />
-      </div>
-    </VCard>
-  </VDialog>
+  <ChatImageDialog
+    v-model="imagePreviewDialog"
+    :src="imagePreviewUrl"
+  />
 
   <VDialog v-model="confirmDialog" max-width="420px">
     <VCard>
@@ -416,6 +387,8 @@
 </template>
 
 <script>
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import {
   AddMemberGroup,
   DeleteGroup,
@@ -432,11 +405,12 @@ import { GetUserLstAll } from "@/api/user";
 import { getUserName } from "@/utils/auth";
 import { notify } from "@kyvg/vue3-notification";
 import ChatAddMembersDialog from "./ChatAddMembersDialog.vue";
+import ChatImageDialog from "./ChatImageDialog.vue";
 
 const MAX_GROUP_MEMBERS = 50;
 
 export default {
-  components: { ChatAddMembersDialog },
+  components: { ChatAddMembersDialog, ChatImageDialog },
   props: {
     groupInfo: Object,
   },
@@ -1065,16 +1039,6 @@ export default {
 
       window.open(url, "_blank");
     },
-    downloadPreviewImage() {
-      const url = (this.imagePreviewUrl || "").toString().trim();
-      if (!url) return;
-      const a = document.createElement("a");
-      a.href = url;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      a.download = this.imagePreviewName || "image";
-      a.click();
-    },
     openMembersDialog(line) {
       if (line?.action === "members") {
         this.isEditing = false;
@@ -1320,44 +1284,40 @@ export default {
 
 <style scoped>
 .docs-dialog-body {
-  max-height: 420px;
+  height: calc(100vh - 64px - env(safe-area-inset-top, 0px));
   overflow-y: auto;
-  padding: 4px !important;
-}
-
-.docs-item {
-  cursor: pointer;
+  padding: 0 !important;
+  background: #f8f9fa;
 }
 
 .docs-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 2px;
+  background: #fff;
 }
 
 .docs-square {
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
+  border: none;
+  border-radius: 0;
   overflow: hidden;
-  background: #fff;
+  background: #eee;
   padding: 0;
-  text-align: left;
+  aspect-ratio: 1 / 1;
   cursor: pointer;
-}
-
-.docs-square:hover {
-  border-color: rgba(var(--v-theme-blue), 0.6);
+  position: relative;
 }
 
 .docs-square-image-wrap,
 .docs-square-file-wrap {
-  aspect-ratio: 1 / 1;
   width: 100%;
+  height: 100%;
 }
 
 .docs-square-image {
   width: 100%;
   height: 100%;
+  object-fit: cover;
 }
 
 .docs-square-file-wrap {
@@ -1365,29 +1325,32 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  background: rgba(0, 0, 0, 0.02);
+  padding: 12px;
+  background: #fff;
 }
 
 .docs-square-file-name {
   margin-top: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.3;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
   text-align: center;
-  max-width: 100%;
+  color: #333;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  word-break: break-word;
 }
 
 .docs-square-meta {
-  padding: 6px 8px;
-  font-size: 11px;
-  color: #65676b;
-  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px;
+  font-size: 10px;
+  color: #fff;
+  background: linear-gradient(transparent, rgba(0,0,0,0.5));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

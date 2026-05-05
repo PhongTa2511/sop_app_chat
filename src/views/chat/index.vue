@@ -322,7 +322,7 @@
                           cover
                           :src="mes.LinkFile"
                           class="text-center custom-layout-text border"
-                          @click="btShowImage(mes)"
+                          @click.stop="btShowImage(mes)"
                         >
                           <template #error>
                             <VIcon
@@ -2778,8 +2778,10 @@ export default {
       }
     },
     logoutHandler() {
-      localStorage.clear(); 
-      this.$router.push("/dang-nhap");
+      if (window.confirm("Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?")) {
+        localStorage.clear(); 
+        this.$router.push("/dang-nhap");
+      }
     },
     broadcastUnreadTotal() {
       try {
@@ -3372,6 +3374,9 @@ export default {
 .message-item {
   position: relative;
   min-height: 36px;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .chat-drag-overlay {
@@ -3517,6 +3522,9 @@ export default {
   border-radius: 999px;
   text-align: center;
   word-break: break-word;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .message-row {
@@ -3579,6 +3587,9 @@ export default {
   position: relative;
   display: inline-block;
   max-width: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .message-bubble-wrap.mine {
@@ -3618,6 +3629,9 @@ export default {
   font-size: 14px;
   word-break: break-word;
   position: relative;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 .is-mine {
   background: rgb(var(--v-theme-blue));

@@ -17,10 +17,15 @@ export default {
       avatar1: avatar1,
       fullName: getFullName(),
       avatar: getAvatar(),
+      logoutDialog: false,
     }
   },
   methods: {
     btLogout() {
+      this.logoutDialog = true
+    },
+    confirmLogout() {
+      this.logoutDialog = false
       removeToken()
       removeFullName()
       removePhoneNumber()
@@ -28,8 +33,6 @@ export default {
       removeEmail()
       removeAvatar()
       this.$router.push("/dang-nhap")
-
-      // location.reload();
     },
   },
 }
@@ -171,6 +174,17 @@ export default {
       <!-- !SECTION -->
     </VAvatar>
   </VBadge>
+
+  <VDialog v-model="logoutDialog" max-width="400">
+    <VCard>
+      <VCardTitle class="headline mt-2 text-center">Đăng xuất</VCardTitle>
+      <VCardText class="text-center">Bạn có chắc chắn muốn đăng xuất khỏi ứng dụng?</VCardText>
+      <VCardActions class="pb-4 justify-center ga-2">
+        <VBtn color="grey" variant="tonal" @click="logoutDialog = false">Hủy</VBtn>
+        <VBtn color="error" variant="elevated" @click="confirmLogout">Đăng xuất</VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <style lang="scss" scoped></style>

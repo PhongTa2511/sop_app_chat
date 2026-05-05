@@ -31,7 +31,7 @@
           <div class="mt-2 text-grey">Không tìm thấy tin nhắn nào</div>
         </div>
 
-        <VList v-else lines="two" class="pa-0">
+        <VList v-else lines="two" class="pa-0 search-results-list">
           <VListItem
             v-for="message in results"
             :key="message.MessageID"
@@ -116,3 +116,10 @@ export default {
 }
 </script>
 
+<style scoped>
+.search-results-list {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+</style>
