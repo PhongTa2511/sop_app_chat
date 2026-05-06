@@ -6,6 +6,7 @@ import { onMounted, onUnmounted, ref } from "vue";
 import { useTheme } from "vuetify";
 import { notiAll, reloadPage, sendNoti } from "./firebase";
 import { getUserName } from "./utils/auth";
+import { playNotificationSound } from "@/utils/notification";
 
 const { global } = useTheme();
 
@@ -51,14 +52,7 @@ const updateFavicon = (hasMessage) => {
     link.href = canvas.toDataURL("image/png");
   };
 };
-const playNotificationSound = () => {
-  const audio = new Audio("./tingting.mp3"); // đường dẫn file mp3
 
-  audio.volume = 0.7;
-  audio.play().catch((err) => {
-    console.error("Không phát được âm thanh:", err);
-  });
-};
 // const playNotificationSound = () => {
 //   const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
 //   if (audioCtx.state === "suspended") audioCtx.resume()

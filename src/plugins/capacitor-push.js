@@ -1,5 +1,6 @@
 import { Capacitor } from "@capacitor/core";
 import { PushNotifications } from "@capacitor/push-notifications";
+import { playNotificationSound } from "@/utils/notification";
 
 export const setupPushNotifications = async () => {
   if (!Capacitor.isNativePlatform()) {
@@ -11,14 +12,18 @@ export const setupPushNotifications = async () => {
     console.log("Initializing Push Notifications setup...");
 
     // 1. Add listeners BEFORE registering
-    // This ensures we catch the events even if registration is very fast
-    await PushNotifications.removeAllListeners();
+    try {
+      // removeAllListeners can sometimes fail if plugin is not fully ready
+      await PushNotifications.removeAllListeners();
+    } catch (e) {
+      console.warn("Could not remove listeners:", e);
+    }
 
     // On success, we should be able to receive notifications
     await PushNotifications.addListener("registration", (token) => {
       console.log(`Push registration success, token: ${token.value}`);
-      // TODO: Send this token to your server to save it
-      // Example: axios.post('/api/save-token', { token: token.value })
+      // TODO: Gửi token này lên server để lưu trữ
+      // Example: SetPushToken({ Token: token.value, Device: Capacitor.getPlatform() })
     });
 
     // Some issue with our setup and push will not work
@@ -32,7 +37,10 @@ export const setupPushNotifications = async () => {
       (notification) => {
         console.log("Push received: " + JSON.stringify(notification));
 
-        // Hiển thị notification alert nếu app đang mở
+        // Phát âm thanh khi có tin nhắn mới (foreground)
+        playNotificationSound();
+
+        // Hiển thị notification alert nếu app đang mở (Vue Notification)
         if (window.notify) {
           window.notify({
             title: notification.title || "Thông báo",
@@ -48,33 +56,48 @@ export const setupPushNotifications = async () => {
       "pushNotificationActionPerformed",
       (notification) => {
         console.log("Push action performed: " + JSON.stringify(notification));
-        // TODO: Navigate user to specific chat page
+        // Xử lý khi người dùng nhấn vào thông báo (ví dụ: mở phòng chat)
       },
     );
 
     // 2. Request permission
-    console.log("Requesting notification permissions...");
-    let permission = await PushNotifications.checkPermissions();
+    console.log("Checking push notification permissions...");
+    let permission = { receive: 'prompt' };
+    try {
+      permission = await PushNotifications.checkPermissions();
+    } catch (e) {
+      console.error("Check Permissions failed. Native plugin might not be configured.", e);
+      return;
+    }
     
     if (permission.receive !== "granted") {
-      permission = await PushNotifications.requestPermissions();
+      console.log("Requesting permissions...");
+      try {
+        permission = await PushNotifications.requestPermissions();
+      } catch (e) {
+        console.error("Request Permissions failed.", e);
+        return;
+      }
     }
 
     if (permission.receive === "granted") {
       console.log("Notification permission granted. Registering...");
       
-      // Add a small delay to ensure OS state is synchronized
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // 3. Register with Apple / Google
-      // We wrap this in a separate try-catch because it's most likely to fail natively
-      try {
-        await PushNotifications.register();
-      } catch (regError) {
-        console.error("Native Push Registration failed. Check if google-services.json/GoogleService-Info.plist is missing.", regError);
-      }
+      // CỰC KỲ QUAN TRỌNG: Nếu thiếu file google-services.json, lệnh register() này sẽ làm sập app.
+      // Tôi để trong một khối try-catch native nhất có thể.
+      setTimeout(async () => {
+        try {
+          console.log("Calling PushNotifications.register()...");
+          await PushNotifications.register();
+          console.log("PushNotifications.register() call completed.");
+        } catch (regError) {
+          console.error("CRITICAL: Native Push Registration failed. This usually means google-services.json is missing or invalid.", regError);
+        }
+      }, 1000);
+
     } else {
-      console.warn("Push notification permission denied by user");
+      console.warn("Push notification permission denied by user or not granted");
     }
 
   } catch (err) {

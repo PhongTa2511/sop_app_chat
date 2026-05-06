@@ -41,12 +41,15 @@ app.mount("#app");
 
 if (typeof Capacitor !== "undefined" && Capacitor.isNativePlatform()) {
   try {
-    Keyboard.setScroll({ isDisabled: true }); // Ngăn WebView scroll bậy bạ
-    Keyboard.setResizeMode({ mode: KeyboardResize.Body }); // Đẩy layout lên thay vì đè lên
+    Keyboard.setScroll({ isDisabled: true });
+    Keyboard.setResizeMode({ mode: KeyboardResize.Body });
 
-    // Khởi tạo Push Notifications
-    setupPushNotifications();
+    // Khởi tạo Push Notifications sau khi app đã mount ổn định
+    // Thêm delay để tránh crash ngay khi mở app nếu plugin gặp lỗi
+    setTimeout(() => {
+      setupPushNotifications().catch(e => console.error("Push Setup Error:", e));
+    }, 2000);
   } catch (e) {
-    console.log(e);
+    console.log("Capacitor Init Error:", e);
   }
 }
