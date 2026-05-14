@@ -7,6 +7,8 @@ import { useTheme } from "vuetify";
 import { notiAll, reloadPage, sendNoti } from "./firebase";
 import { getUserName } from "./utils/auth";
 import { playNotificationSound } from "@/utils/notification";
+import { App } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
 
 const { global } = useTheme();
 
@@ -132,15 +134,38 @@ const resetNotification = () => {
 onMounted(() => {
   window.addEventListener("focus", resetNotification);
   socket.on("sidebar:update", (data) => {
-    if (data.SenderID != getUserName()) {
+    // Chỉ phát tiếng nếu người gửi không phải là mình
+    // Kiểm tra cả SenderID và UserName (tùy theo server gửi về cái nào)
+    const sender = String(data.SenderID || data.UserName || "").trim();
+    const me = String(getUserName() || "").trim();
+
+    if (sender !== me) {
       unreadTotal.value++;
       startTitleFlashing(data.SenderName || "Có tin nhắn");
-      if (!isGroupMuted(data.GroupID)) playNotificationSound();
+      
+      // Nếu không bị tắt thông báo thì phát tiếng
+      if (!isGroupMuted(data.GroupID)) {
+        playNotificationSound();
+      }
     }
   });
   socket.emit("join:user", {
     UserID: getUserName(),
   });
+
+  if (Capacitor.isNativePlatform()) {
+    App.addListener("appStateChange", ({ isActive }) => {
+      if (isActive) {
+        console.log("App became active, ensuring socket connection...");
+        if (!socket.connected) {
+          socket.connect();
+        }
+        socket.emit("join:user", {
+          UserID: getUserName(),
+        });
+      }
+    });
+  }
 });
 
 onUnmounted(() => {

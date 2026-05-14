@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "428528866400",
+    "project_id": "dtp-chat-app",
+    "storage_bucket": "dtp-chat-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:428528866400:android:e34e5188f20e08ab529f05",
+        "android_client_info": {
+          "package_name": "vn.emglab.dtpchat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDsLhdSjtAhxrqm5MsSIvZ2RHrqDhZxhTM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

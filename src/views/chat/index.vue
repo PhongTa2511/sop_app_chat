@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div>
     <input
       ref="fileInput"
@@ -706,6 +706,7 @@
                   variant="text"
                   :disabled="isSending"
                   @click="sendMessageHandler"
+                  @mousedown.prevent
                 />
               </div>
             </div>
@@ -843,6 +844,8 @@
 </template>
 
 <script>
+import { App } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
 // import { sendMessage, onMessage, onMessage2 } from "@/socket";
 import {
   CreateGroup,
@@ -1166,14 +1169,31 @@ export default {
 
     this.getGroupLstByUserID(Number.isFinite(gid) && gid > 0 ? gid : null);
     socket.emit("join:user", { UserID: this.senderID });
+
+    if (Capacitor.isNativePlatform()) {
+      App.addListener("appStateChange", ({ isActive }) => {
+        if (isActive) {
+          console.log("Chat view became active, refreshing data...");
+          this.getGroupLstByUserID();
+          if (this.groupInfo?.GroupID) {
+            this.getMessageByGoupID();
+          }
+        }
+      });
+    }
+
     socket.on("new_message", (message) => {
       console.log("chạy vào đây", message);
 
       if (Number(message.GroupID) !== Number(this.groupInfo?.GroupID)) return;
+      
+      // Phát âm thanh nếu tin nhắn là của người khác gửi đến
+      if (String(message.SenderID) !== String(this.senderID)) {
+        import("@/utils/notification").then(m => m.playNotificationSound());
+      }
+
       this.markAsRead(message.GroupID);
-
       this.messageLst.push(this.decorateMessageForUI(message));
-
       this.messageLst = this.markLatestMessages(this.messageLst);
       this.applyReplyPreview();
       this.fetchReactionsForMessages([message.MessageID]);
@@ -2913,6 +2933,12 @@ export default {
         this.pendingMentions = [];
         this.pendingMentionAll = false;
         this.showMentionPicker = false;
+
+        // Giữ bàn phím luôn mở bằng cách focus lại
+        this.$nextTick(() => {
+          const el = this.getMessageTextareaEl();
+          if (el) el.focus();
+        });
       } catch (err) {
         notify({
           title: "Lỗi",

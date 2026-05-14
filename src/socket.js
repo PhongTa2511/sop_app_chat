@@ -9,6 +9,12 @@ const socket = io(url, {
   path,
   withCredentials: true,
   transports: ["websocket", "polling"],
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  randomizationFactor: 0.5,
+  timeout: 20000,
 });
 
 export default socket;
