@@ -1,10 +1,10 @@
 <template>
   <VDialog v-model="dialog" :fullscreen="isMobile" max-width="600px">
     <VCard :class="{ 'h-100': isMobile }">
-      <VCardTitle class="d-flex align-center bg-blue text-white" :style="isMobile ? { paddingTop: 'env(safe-area-inset-top, 0px)', height: 'calc(64px + env(safe-area-inset-top, 0px))' } : {}">
-        Tìm kiếm tin nhắn
+      <VCardTitle class="d-flex align-center bg-surface border-b" :style="isMobile ? { paddingTop: 'env(safe-area-inset-top, 0px)', height: 'calc(64px + env(safe-area-inset-top, 0px))' } : {}">
+        <span class="text-subtitle-1 font-weight-bold">Tìm kiếm tin nhắn</span>
         <VSpacer />
-        <VBtn icon="mdi-close" variant="text" color="white" @click="dialog = false" />
+        <VBtn icon="mdi-close" variant="text" color="grey-darken-1" @click="dialog = false" />
       </VCardTitle>
       <VCardText class="pa-4">
         <VTextField

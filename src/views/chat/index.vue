@@ -1,5 +1,10 @@
 <template>
-  <div>
+  <div
+    class="chat-root"
+    @touchstart.capture.passive="onMainTouchStart"
+    @touchmove.capture.passive="onMainTouchMove"
+    @touchend.capture.passive="onMainTouchEnd"
+  >
     <input
       ref="fileInput"
       type="file"
@@ -10,24 +15,26 @@
     />
     <VCard class="h-100" style="height: 100dvh !important">
       <VLayout class="h-100" style="height: 100dvh !important">
-        <ChatSidebar
-          v-if="showSidebar"
-          v-model="drawerLeft"
-          v-model:search="searchGroup"
-          :group-lst="groupLst"
-          :active-group-id="groupInfo?.GroupID"
-          :is-mobile-view="isMobile"
-          :width="isMobile ? '100%' : 350"
-          @open-create="openCreateGroupDialog"
-          @select-group="(g) => selectGroup(g, true)"
-          @logout="logoutHandler"
-        />
+        <transition name="slide-sidebar">
+          <ChatSidebar
+            v-if="showSidebar"
+            v-model="drawerLeft"
+            v-model:search="searchGroup"
+            :group-lst="groupLst"
+            :active-group-id="groupInfo?.GroupID"
+            :is-mobile-view="isMobile"
+            :width="isMobile ? '100%' : 350"
+            @open-create="openCreateGroupDialog"
+            @select-group="(g) => selectGroup(g, true)"
+            @logout="logoutHandler"
+            @refresh="getGroupLstByUserID"
+          />
+        </transition>
         <VAppBar
           v-if="showChat"
           flat
-          color="blue"
+          color="surface"
           class="border-b chat-app-bar"
-          theme="dark"
         >
           <VAppBarNavIcon
             v-if="!isMobile"
@@ -37,19 +44,43 @@
           />
           <VBtn
             v-if="isMobile"
-            icon="mdi-arrow-left"
+            icon="mdi-chevron-left"
             variant="text"
-            color="white"
+            size="large"
+            color="blue"
+            class="ml-0"
             @click="mobileView = 'list'"
           />
 
-          <VToolbarTitle v-if="groupInfo" class="font-weight-bold">
-            {{
-              groupInfo.GroupName ? groupInfo.GroupName : groupInfo.DocumentID
-            }}
-          </VToolbarTitle>
+          <!-- Avatar + Tên nhóm -->
+          <div 
+            v-if="groupInfo" 
+            class="d-flex align-center cursor-pointer ml-1 overflow-hidden" 
+            style="flex: 1"
+            @click="openChatDetails"
+          >
+            <VAvatar size="40" class="mr-3 bg-grey-lighten-3 elevation-1">
+              <VImg v-if="groupInfo.Avatar" :src="groupInfo.Avatar" />
+              <VIcon v-else color="grey-darken-1">mdi-account-group</VIcon>
+            </VAvatar>
+            <div class="d-flex flex-column overflow-hidden">
+              <div class="font-weight-bold text-subtitle-1 text-truncate d-flex align-center text-high-emphasis" style="line-height: 1.2">
+                <span class="text-truncate">{{ groupInfo.GroupName || groupInfo.DocumentID }}</span>
+                <VIcon
+                  v-if="Number(groupInfo.IsMute) === 1"
+                  size="14"
+                  class="ml-1 text-medium-emphasis flex-shrink-0"
+                >
+                  mdi-bell-off-outline
+                </VIcon>
+              </div>
+              <div v-if="groupInfo.TimeCreate" class="text-caption text-medium-emphasis text-truncate" style="line-height: 1.2; margin-top: 2px;">
+                {{ groupInfo.TimeShow }}
+              </div>
+            </div>
+          </div>
 
-          <!-- <VSpacer /> -->
+          <VSpacer v-if="!groupInfo" />
 
           <VTooltip text="Tìm kiếm tin nhắn">
             <template #activator="{ props }">
@@ -57,7 +88,7 @@
                 v-bind="props"
                 icon="mdi-magnify"
                 variant="text"
-                color="white"
+                color="blue"
                 @click="openSearchDialog"
               />
             </template>
@@ -79,22 +110,23 @@
           </template>
 
           <VBtn
-            icon="mdi-dots-vertical"
+            icon="mdi-information-outline"
             variant="text"
-            color="white"
-            @click.stop="drawerRight = !drawerRight"
+            color="blue"
+            @click.stop="openChatDetails"
           />
         </VAppBar>
 
-        <VMain
-          v-if="showChat"
-          style="display: flex; flex-direction: column; height: 100%"
-          class="position-relative"
-          @dragenter="onChatDragEnter"
-          @dragover.prevent="onChatDragOver"
-          @dragleave="onChatDragLeave"
-          @drop.prevent="onChatDrop"
-        >
+        <transition name="slide-chat">
+          <VMain
+            v-if="showChat"
+            style="display: flex; flex-direction: column; height: 100%"
+            class="position-relative"
+            @dragenter="onChatDragEnter"
+            @dragover.prevent="onChatDragOver"
+            @dragleave="onChatDragLeave"
+            @drop.prevent="onChatDrop"
+          >
           <div
             class="d-flex flex-column h-100 flex-grow-1 w-100 position-relative"
             style="padding-top: env(safe-area-inset-top, 0px)"
@@ -117,8 +149,20 @@
               ref="chatList"
               :class="replyingTo ? 'custome-content-reply' : 'custome-content'"
               style="flex: 1 1 auto; overflow-y: auto; padding-bottom: 80px"
-              @scroll="handleScroll"
+              @scroll.passive="handleScroll"
+              @touchstart="onChatTouchStart"
+              @touchmove="onChatTouchMove"
+              @touchend="onChatTouchEnd"
             >
+              <!-- Pull-to-refresh indicator -->
+              <div v-if="isPullingToRefresh" class="pull-refresh-indicator">
+                <VProgressCircular
+                  :indeterminate="isRefreshing"
+                  :model-value="isRefreshing ? undefined : pullProgress"
+                  color="blue"
+                  size="28"
+                />
+              </div>
               <div v-if="loadingMore" class="loading-indicator">
                 <VProgressCircular indeterminate color="blue" />
               </div>
@@ -176,7 +220,7 @@
                 v-for="(mes, index) in messageLst"
                 :id="'msg-' + mes.MessageID"
                 :key="mes.MessageID + '-' + (mes.GroupID || '0')"
-                style="padding: 0 4px 0 8px; margin-top: 4px"
+                :style="getMessageItemStyle(mes, index)"
                 class="message-item"
               >
                 <div v-if="mes.IsSystem" class="system-row">
@@ -235,21 +279,11 @@
                                 mes.Reactions.length > 0,
                             }"
                             v-bind="menuProps"
-                            @touchstart="handleTouchStart(mes)"
+                            @touchstart="handleTouchStart(mes, $event)"
                             @touchend="handleTouchEnd"
                             @touchmove="handleTouchEnd"
                             @click="toggleMessageMeta(mes)"
                           >
-                            <!--
-                              <div
-                              v-if="isPinnedMessage(mes)"
-                              class="pin-badge"
-                              :class="{ mine: mes.IsMine }"
-                              title="Tin nhắn đã ghim"
-                              >
-                              <VIcon size="x-small">mdi-pin</VIcon>
-                              </div> 
-                            -->
                             <div
                               v-if="mes.IsAttachment == 0"
                               :class="{
@@ -711,23 +745,36 @@
               </div>
             </div>
           </div>
-        </VMain>
+          </VMain>
+        </transition>
 
+        <!-- Right Sidebar for Desktop -->
         <VNavigationDrawer
+          v-if="!isMobile"
           v-model="drawerRight"
-          :width="300"
-          class="py-4"
           location="right"
+          width="300"
         >
-          <RightChat
-            :group-info="groupInfo"
-            @group-left="onGroupLeft"
-            @group-deleted="onGroupDeleted"
-            @group-mute="onGroupMute"
-            @members-updated="onMembersUpdated"
-            @jump-message="onJumpMessage"
-          />
+          <RightChat :group-info="groupInfo" />
         </VNavigationDrawer>
+
+        <!-- Full Page Details for Mobile -->
+        <transition name="slide-chat">
+          <div
+            v-if="isMobile && mobileView === 'details'"
+            class="mobile-details-page bg-surface position-absolute w-100 h-100 d-flex flex-column"
+            style="z-index: 10; top: 0; left: 0;"
+          >
+            <div class="flex-shrink-0" style="padding-top: max(env(safe-area-inset-top), 12px); padding-left: 8px; padding-bottom: 8px;">
+              <VBtn icon="mdi-chevron-left" variant="text" size="large" @click="mobileView = 'chat'" />
+            </div>
+            
+            <div class="flex-grow-1 overflow-y-auto" style="padding-bottom: env(safe-area-inset-bottom, 20px)">
+              <RightChat :group-info="groupInfo" />
+            </div>
+          </div>
+        </transition>
+
       </VLayout>
     </VCard>
     <ChatImageDialog v-model="showImageDialog" :src="selectedImage" />
@@ -893,6 +940,15 @@ export default {
       isCalling: false,
       drawerLeft: true,
       drawerRight: false,
+      // Pull-to-refresh state
+      pullStartY: 0,
+      pullCurrentY: 0,
+      isPullingToRefresh: false,
+      isRefreshing: false,
+      pullProgress: 0,
+      swipeStartX: null,
+      swipeStartY: null,
+      swipeIntent: null,
       activeMenuId: null,
       touchTimer: null,
       currentGroupID: null,
@@ -1462,6 +1518,13 @@ export default {
     }
   },
   methods: {
+    openChatDetails() {
+      if (this.isMobile) {
+        this.mobileView = 'details';
+      } else {
+        this.drawerRight = !this.drawerRight;
+      }
+    },
     // Kiểm tra có nên hiện tên người gửi không (giống messenger: gom nhóm tin nhắn)
     escapeHtml(input) {
       return (input ?? "").toString().replace(/[&<>"']/g, (ch) => {
@@ -2863,6 +2926,8 @@ export default {
       if (!text && this.pendingAttachments.length === 0) return;
       if (!this.groupInfo?.GroupID) return;
 
+      // Haptic nhẹ khi bấm gửi
+      this.triggerHaptic('light');
       this.isSending = true;
 
       const hasRich =
@@ -3603,13 +3668,121 @@ export default {
         }
       });
     },
-    handleTouchStart(mes) {
+    handleTouchStart(mes, event) {
       this.touchTimer = setTimeout(() => {
         this.activeMenuId = mes.MessageID;
+        // Haptic feedback khi long-press mở menu
+        this.triggerHaptic('medium');
       }, 600);
     },
     handleTouchEnd() {
       clearTimeout(this.touchTimer);
+    },
+    async triggerHaptic(style = 'light') {
+      try {
+        const { Haptics, ImpactStyle } = await import('@capacitor/haptics');
+        const styleMap = {
+          light: ImpactStyle.Light,
+          medium: ImpactStyle.Medium,
+          heavy: ImpactStyle.Heavy,
+        };
+        await Haptics.impact({ style: styleMap[style] || ImpactStyle.Light });
+      } catch (_) {
+        // Không có Capacitor hoặc không hỗ trợ haptic → bỏ qua
+      }
+    },
+    // Pull-to-refresh handlers cho chat list
+    onChatTouchStart(e) {
+      const el = this.$refs.chatList?.$el || this.$refs.chatList;
+      if (!el) return;
+      if (el.scrollTop > 0) return; // Chỉ kích hoạt khi đang ở đầu
+      this.pullStartY = e.touches[0].clientY;
+      this.pullCurrentY = this.pullStartY;
+      this.pullProgress = 0;
+    },
+    onChatTouchMove(e) {
+      if (!this.pullStartY) return;
+      const el = this.$refs.chatList?.$el || this.$refs.chatList;
+      if (!el || el.scrollTop > 0) {
+        this.pullStartY = 0;
+        this.isPullingToRefresh = false;
+        return;
+      }
+      this.pullCurrentY = e.touches[0].clientY;
+      const delta = this.pullCurrentY - this.pullStartY;
+      if (delta > 0) {
+        e.preventDefault();
+        this.pullProgress = Math.min(100, Math.round((delta / 72) * 100));
+        this.isPullingToRefresh = true;
+      }
+    },
+    async onChatTouchEnd() {
+      if (!this.isPullingToRefresh) return;
+      if (this.pullProgress >= 100 && !this.isRefreshing) {
+        this.isRefreshing = true;
+        this.triggerHaptic('medium');
+        await this.loadMoreMessages();
+        await new Promise(r => setTimeout(r, 500));
+        this.isRefreshing = false;
+      }
+      this.isPullingToRefresh = false;
+      this.pullProgress = 0;
+      this.pullStartY = 0;
+    },
+    // Tính style cho message item: giảm margin khi cùng người gửi
+    getMessageItemStyle(mes, index) {
+      const base = { padding: '0 4px 0 8px' };
+      if (mes.IsSystem) return { ...base, marginTop: '4px' };
+      if (index === 0) return { ...base, marginTop: '4px' };
+      const prev = this.messageLst[index - 1];
+      if (!prev || prev.IsSystem) return { ...base, marginTop: '4px' };
+      // Cùng người gửi → margin nhỏ hơn; khác người gửi → khoảng cách rõ hơn
+      const sameGroup = prev.SenderID === mes.SenderID;
+      return { ...base, marginTop: sameGroup ? '1px' : '12px' };
+    },
+    // ---------------------------------------------------------------
+    // Swipe-back gesture: vuốt sang phải trên màn hình chat → về list
+    // ---------------------------------------------------------------
+    onMainTouchStart(e) {
+      if (this.mobileView !== 'chat') return;
+      const touch = e.touches[0];
+      // Bỏ giới hạn, cho phép bắt đầu vuốt từ bất kỳ đâu trên màn hình
+      this.swipeStartX = touch.clientX;
+      this.swipeStartY = touch.clientY;
+      this.swipeIntent = null;
+    },
+    onMainTouchMove(e) {
+      if (this.swipeStartX === null) return;
+      const touch = e.touches[0];
+      const dx = touch.clientX - this.swipeStartX;
+      const dy = Math.abs(touch.clientY - this.swipeStartY);
+
+      if (this.swipeIntent === null) {
+        // Đợi ngón tay di chuyển tổng cộng khoảng 10px rồi mới quyết định
+        if (dx * dx + dy * dy > 100) {
+          // Nếu di chuyển ngang sang phải nhiều hơn dọc → vuốt để back
+          if (dx > dy && dx > 0) {
+            this.swipeIntent = 'back';
+          } else {
+            this.swipeIntent = 'scroll';
+          }
+        }
+      }
+    },
+    onMainTouchEnd(e) {
+      if (this.swipeStartX === null) return;
+      
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - this.swipeStartX;
+
+      // Giảm khoảng cách yêu cầu xuống 50px để vuốt nhẹ nhàng hơn
+      if (this.swipeIntent === 'back' && dx > 50) {
+        this.triggerHaptic('light');
+        this.mobileView = 'list';
+      }
+
+      this.swipeStartX = null;
+      this.swipeIntent = null;
     },
   },
 };
@@ -3727,7 +3900,7 @@ export default {
 
 .typing-text {
   font-size: 12px;
-  color: #65676b;
+  color: rgb(var(--v-theme-grey-600));
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3777,8 +3950,8 @@ export default {
 
 .system-pill {
   max-width: 78%;
-  background: rgba(0, 0, 0, 0.06);
-  color: #050505;
+  background: rgba(var(--v-border-color), 0.1);
+  color: rgb(var(--v-theme-on-background));
   font-size: 12px;
   font-weight: 700;
   padding: 6px 10px;
@@ -3806,7 +3979,7 @@ export default {
 .message-meta {
   margin-top: 4px;
   font-size: 11px;
-  color: #65676b;
+  color: rgb(var(--v-theme-grey-600));
   line-height: 1.35;
 }
 
@@ -4258,41 +4431,91 @@ export default {
   transform: translateY(-2px) scale(1.25);
   filter: saturate(1.2);
 }
+
+/* ============================================
+   SLIDE TRANSITIONS (mobile view switch)
+   ============================================ */
+.slide-chat-enter-active,
+.slide-chat-leave-active,
+.slide-sidebar-enter-active,
+.slide-sidebar-leave-active {
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+/* Slide Chat: vào từ phải, ra sang phải */
+.slide-chat-enter-from {
+  transform: translateX(100%);
+}
+.slide-chat-leave-to {
+  transform: translateX(100%);
+}
+
+/* Slide Sidebar: vào từ trái, ra sang trái */
+.slide-sidebar-enter-from {
+  transform: translateX(-100%);
+}
+.slide-sidebar-leave-to {
+  transform: translateX(-100%);
+}
+
+/* Chỉ áp dụng slide transition khi là màn hình mobile */
+@media (min-width: 960px) {
+  .slide-chat-enter-from,
+  .slide-chat-leave-to,
+  .slide-sidebar-enter-from,
+  .slide-sidebar-leave-to {
+    transform: none;
+  }
+  .slide-chat-enter-active,
+  .slide-chat-leave-active,
+  .slide-sidebar-enter-active,
+  .slide-sidebar-leave-active {
+    transition: none;
+  }
+}
+
+/* ============================================
+   PULL-TO-REFRESH INDICATOR
+   ============================================ */
+.pull-refresh-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  color: rgb(var(--v-theme-grey-600));
+}
+
+.pull-refresh-text {
+  font-size: 12px;
+  font-weight: 500;
+}
 </style>
 
 <style lang="scss">
 .custome-content {
   overflow-y: auto;
   height: calc(100vh - 240px);
-  &::-webkit-scrollbar-track-piece {
-    margin: 20px;
-  }
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
 
   &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #bec5ce;
-    border-radius: 20px;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 }
 .custome-content-reply {
   overflow-y: auto;
   height: calc(100vh - 280px);
-  &::-webkit-scrollbar-track-piece {
-    margin: 20px;
-  }
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE/Edge */
 
   &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #bec5ce;
-    border-radius: 20px;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
   }
 }
 .customText {

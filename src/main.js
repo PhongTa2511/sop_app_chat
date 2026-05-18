@@ -39,6 +39,14 @@ window.notify = notify;
 // Mount vue app
 app.mount("#app");
 
+// Khôi phục theme đã lưu (dark / light) từ localStorage
+try {
+  const savedTheme = localStorage.getItem('dtp_theme');
+  if (savedTheme === 'dark' || savedTheme === 'light') {
+    vuetify.theme.global.name.value = savedTheme;
+  }
+} catch (_) {}
+
 if (typeof Capacitor !== "undefined" && Capacitor.isNativePlatform()) {
   try {
     Keyboard.setScroll({ isDisabled: true });

@@ -25,52 +25,70 @@
     <div v-else class="text-center text-subtitle-2">
       Hãy bắt đầu cuộc trò chuyện
     </div>
-    <VList v-model:opened="isMenu1">
-      <VListGroup
-        v-for="(item, index) in menuLst"
-        :key="index"
-        :value="item.value"
-      >
-        <template #activator="{ props }">
-          <VListItem v-bind="props" :title="item.text" rounded="fill" />
-        </template>
+    <!-- Quick Actions -->
+    <div class="d-flex justify-center gap-8 mt-6 mb-4 px-4">
+      <div class="d-flex flex-column align-center cursor-pointer" @click="openMembersDialog({ action: 'members' })">
+        <VAvatar color="grey-200" size="48" class="mb-1 text-grey-800 elevation-1">
+          <VIcon>mdi-account-group</VIcon>
+        </VAvatar>
+        <span class="text-caption font-weight-medium">Thành viên</span>
+      </div>
 
-        <VListItem
-          v-for="(line, inline) in item.option"
-          :key="inline"
-          :value="line.text"
-          :prepend-icon="
-            line.action === 'mute'
-              ? Number(groupInfo?.IsMute) === 1
-                ? 'mdi-bell-outline'
-                : 'mdi-bell-off-outline'
-              : line.icon
-          "
-          :title="
-            line.action === 'mute'
-              ? Number(groupInfo?.IsMute) === 1
-                ? 'Bật thông báo'
-                : 'Tắt thông báo'
-              : line.text
-          "
-          style="padding: 0 16px !important"
-          @click="openMembersDialog(line)"
-        >
-          <template #prepend>
-            <VIcon
-              size="small"
-              :icon="
-                line.action === 'mute'
-                  ? Number(groupInfo?.IsMute) === 1
-                    ? 'mdi-bell-outline'
-                    : 'mdi-bell-off-outline'
-                  : line.icon
-              "
-            />
-          </template>
-        </VListItem>
-      </VListGroup>
-    </VList>
+      <div class="d-flex flex-column align-center cursor-pointer" @click="openMembersDialog({ action: 'pinned' })">
+        <VAvatar color="grey-200" size="48" class="mb-1 text-grey-800 elevation-1">
+          <VIcon>mdi-pin</VIcon>
+        </VAvatar>
+        <span class="text-caption font-weight-medium">Đã ghim</span>
+      </div>
+
+      <div class="d-flex flex-column align-center cursor-pointer" @click="openMembersDialog({ action: 'mute' })">
+        <VAvatar color="grey-200" size="48" class="mb-1 elevation-1" :class="Number(groupInfo?.IsMute) === 1 ? 'text-error' : 'text-grey-800'">
+          <VIcon>
+            {{ Number(groupInfo?.IsMute) === 1 ? 'mdi-bell-outline' : 'mdi-bell-off-outline' }}
+          </VIcon>
+        </VAvatar>
+        <span class="text-caption font-weight-medium" :class="Number(groupInfo?.IsMute) === 1 ? 'text-error' : ''">
+          {{ Number(groupInfo?.IsMute) === 1 ? 'Bật TB' : 'Tắt TB' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Tùy chỉnh -->
+    <VCard elevation="0" class="mx-4 mt-6 bg-grey-50 rounded-lg border">
+      <VList density="compact" bg-color="transparent" class="py-0">
+        <VListSubheader class="text-uppercase text-caption font-weight-bold pt-2">Tùy chỉnh đoạn chat</VListSubheader>
+        
+        <VListItem prepend-icon="mdi-image" title="Đổi ảnh đoạn chat" @click="openMembersDialog({ action: 'avatar' })" />
+        <VDivider />
+        <VListItem prepend-icon="mdi-square-edit-outline" title="Đổi tên nhóm" @click="openMembersDialog({ action: 'rename' })" />
+        <VDivider />
+        <VListItem prepend-icon="mdi-alpha-a-circle" title="Chỉnh sửa biệt danh" @click="openMembersDialog({ action: 'nickname' })" />
+      </VList>
+    </VCard>
+
+    <!-- File & Link -->
+    <VCard elevation="0" class="mx-4 mt-4 bg-grey-50 rounded-lg border">
+      <VList density="compact" bg-color="transparent" class="py-0">
+        <VListSubheader class="text-uppercase text-caption font-weight-bold pt-2">Hình ảnh, File & Link</VListSubheader>
+        
+        <VListItem prepend-icon="mdi-image-multiple" title="Hình ảnh" @click="openMembersDialog({ action: 'docs:image' })" />
+        <VDivider />
+        <VListItem prepend-icon="mdi-file-document" title="Thư mục & Tệp" @click="openMembersDialog({ action: 'docs:file' })" />
+        <VDivider />
+        <VListItem prepend-icon="mdi-link" title="Link" @click="openMembersDialog({ action: 'docs:link' })" />
+      </VList>
+    </VCard>
+
+    <!-- Quản trị -->
+    <VCard elevation="0" class="mx-4 mt-4 mb-8 bg-grey-50 rounded-lg border">
+      <VList density="compact" bg-color="transparent" class="py-0">
+        <VListSubheader class="text-uppercase text-caption font-weight-bold pt-2">Quyền riêng tư & Quản trị</VListSubheader>
+        
+        <VListItem prepend-icon="mdi-logout" title="Rời nhóm" class="text-error" @click="openMembersDialog({ action: 'leave' })" />
+        <VDivider />
+        <VListItem prepend-icon="mdi-trash-can-outline" title="Xóa nhóm chat" class="text-error" @click="openMembersDialog({ action: 'delete' })" />
+      </VList>
+    </VCard>
   </div>
 
   <VDialog v-model="membersDialog" max-width="400px">
@@ -263,10 +281,10 @@
 
   <VDialog v-model="documentsDialog" fullscreen>
     <VCard class="rounded-0">
-      <VToolbar density="comfortable" flat color="blue" dark class="safe-area-top">
-        <VToolbarTitle class="text-white">{{ documentsTitle }}</VToolbarTitle>
+      <VToolbar density="comfortable" flat color="surface" class="border-b safe-area-top">
+        <VToolbarTitle class="font-weight-bold text-subtitle-1">{{ documentsTitle }}</VToolbarTitle>
         <VSpacer />
-        <VBtn icon="mdi-close" variant="text" color="white" @click="documentsDialog = false" />
+        <VBtn icon="mdi-close" variant="text" color="grey-darken-1" @click="documentsDialog = false" />
       </VToolbar>
       <VCardText class="docs-dialog-body" @scroll.passive="onDocumentsScroll">
         <template v-if="documentsType === 1 || documentsType === 2">
